@@ -50,4 +50,14 @@ module.exports = (message) => {
   // ...command args processing...
   db.ensure("todo", todo, user.id)
 }
-``` 
+```
+
+## Local Run
+
+- Clonez le repo sur votre disque.
+- Installez les build-essentials si vous ne les avez pas déjà.
+    - Linux: `sudo apt-get install build-essential`
+    - Windows: `npm i -g --add-python-to-path --vs2015 --production windows-build-tools`
+- Installez les dépendances: `npm i`
+- Créez un fichier `.env` à la racine du projet et placez votre token de test dedans de cette façon: `TOKEN=token`.
+- Lancez avec la commande `npm start`.
