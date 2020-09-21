@@ -1,0 +1,29 @@
+{
+  "private": true,
+  "main": "index.js",
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": false,
+    "useTabs": false
+  },
+  "scripts": {
+    "start": "node .",
+    "prettier": "prettier index.js commands --write"
+  },
+  "author": "ghom",
+  "bugs": {
+    "url": "https://github.com/Les-Laboratoires-JS/lab-tools/issues"
+  },
+  "dependencies": {
+    "better-sqlite3": "^7.1.1",
+    "discord-eval.js": "^1.0.10",
+    "discord.js": "^12.3.1",
+    "dotenv": "^8.2.0",
+    "enmap": "^5.8.0"
+  },
+  "devDependencies": {
+    "prettier": "^2.1.2"
+  }
+}
