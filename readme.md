@@ -4,7 +4,7 @@
 
 - Créez votre propre branche avec un nom spécifiant la modification que vous voulez apporter. Exemple pour une commande "help": `git checkout -b help-command`
 - Créez une pull request depuis Github seulement quand vous avez fini de coder entièrement votre modification.
-- Laissez CamilleAbella faire le merge.
+- Laissez [CamilleAbella](https://github.com/CamilleAbella) faire le merge.
 
 ## Coding style
 
@@ -16,13 +16,26 @@
 
 - Exportez votre commande dans les règles du CommonJS: `module.exports = command`
 - Placez `return false` dans une commande pour signifier qu'elle n'a pas été ciblée.
-- Si la commande ne renvoie rien (ou autre chose que `false`), alors le command handler s'arrêtera de chercher la commande ciblée.
+- Si la commande ne renvoie rien (ou autre chose que `false`), le command handler en déduis que la commande a été ciblée.
 - Placez `.catch(client.throw)` après une Promise pour la debug sans trop écrire de code.
 
 ### Command Type
 
 ```ts
-type Command = (message: Discord.Message) => false | any 
+type Command = (message: Discord.Message) => false | any
+```
+
+### Command Example
+
+```js
+// ./commands/say.js
+module.exports = (message) => {
+  if (!message.content) return false
+
+  message.delete().catch(client.throw).then(() => {
+    message.channel.send(message.content).catch(client.throw)
+  })
+}
 ```
 
 ## Database
@@ -30,7 +43,7 @@ type Command = (message: Discord.Message) => false | any
 - On utilise Enmap pour la base de données.
 - Chaque donnée utilisée en base de donnée doit être préfixée par le nom de la feature qui l'utilise.
 
-### Examples
+### Database Usage Examples
 
 ```js
 // ./commands/autorole.js
@@ -40,7 +53,7 @@ module.exports = (message) => {
   // ...command args processing...
   db.ensure("autorole", role.id)
 }
-``` 
+```
 
 ```js
 // ./commands/todo.js
@@ -56,8 +69,8 @@ module.exports = (message) => {
 
 - Clonez le repo sur votre disque.
 - Installez les build-essentials si vous ne les avez pas déjà.
-    - Linux: `sudo apt-get install build-essential`
-    - Windows: `npm i -g --add-python-to-path --vs2015 --production windows-build-tools`
+  - Linux: `sudo apt-get install build-essential`
+  - Windows: `npm i -g --add-python-to-path --vs2015 --production windows-build-tools`
 - Installez les dépendances: `npm i`
 - Créez un fichier `.env` à la racine du projet et placez votre token de test dedans de cette façon: `TOKEN=token`.
 - Lancez avec la commande `npm start`.

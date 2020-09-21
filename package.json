@@ -10,7 +10,8 @@
   },
   "scripts": {
     "start": "node .",
-    "prettier": "prettier index.js commands utils --write"
+    "prettier": "prettier index.js readme.md package.json commands utils --write",
+    "prepublish": "npm run prettier"
   },
   "author": "ghom",
   "bugs": {
