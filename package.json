@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "node .",
-    "prettier": "prettier index.js commands --write"
+    "prettier": "prettier index.js commands utils --write"
   },
   "author": "ghom",
   "bugs": {

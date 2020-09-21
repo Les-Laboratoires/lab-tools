@@ -37,15 +37,20 @@ client
   })
 
 client.on("message", async (message) => {
-  if(!message.system) {
-    if(message.content.startsWith(client.prefix))
+  if (!message.system) {
+    if (message.content.startsWith(client.prefix))
       message.content = message.content.slice(client.prefix.length)
     else return
     for (const [, command] of client.commands) {
-      if (
-        typeof command === "function" &&
-        await command(message) !== false
-      ) return
+      try {
+        if (typeof command === "function" && (await command(message)) !== false)
+          return
+      } catch (error) {
+        console.error(error)
+        if (message.channel instanceof Discord.GuildChannel) {
+          message.channel.send(`Error: ${error.message}`).catch(client.throw)
+        }
+      }
     }
   }
 })
