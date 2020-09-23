@@ -42,13 +42,15 @@ client.on("message", async (message) => {
       message.content = message.content.replace(client.prefix, "")
     else return
     for (const command of client.commands.array()) {
-      try {
-        if (typeof command === "function" && (await command(message)) !== false)
+      if(typeof command === "function"){
+        try {
+          if((await command(message)) !== false) return
+        } catch (error) {
+          console.error(error)
+          if (message.channel instanceof Discord.GuildChannel) {
+            message.channel.send(`Error: ${error.message}`).catch(client.throw)
+          }
           return
-      } catch (error) {
-        console.error(error)
-        if (message.channel instanceof Discord.GuildChannel) {
-          message.channel.send(`Error: ${error.message}`).catch(client.throw)
         }
       }
     }

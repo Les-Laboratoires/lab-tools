@@ -56,7 +56,8 @@ module.exports = (message) => {
 
 ## Database
 
-- On utilise Enmap pour la base de données.
+- On utilise une instance de Enmap pour la base de données: `/utils/db`.
+- On ne crée une autre instance de Enmap qu'en cas de besoin légitime (demandez confirmation à [CamilleAbella](https://github.com/CamilleAbella)).
 - Chaque donnée utilisée en base de donnée doit être préfixée par le nom de la feature qui l'utilise.
 
 ### Database Usage Examples
