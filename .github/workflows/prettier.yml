@@ -18,6 +18,6 @@ jobs:
       - name: Checkout
       - uses: actions/checkout@v2
       - name: Prettify code
-        uses: creyD/prettier_action@v2.2
-        with:
-          prettier_options: ". --write --no-semi --trailing-comma all"
+      - uses: creyD/prettier_action@v2.2
+          with:
+            prettier_options: ". --write --no-semi --trailing-comma all"
