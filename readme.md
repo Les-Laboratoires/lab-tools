@@ -4,7 +4,7 @@
 
 ### Internal Collaborators
 
-- Faites un clone du repository en local: `git clone https://github.com/...`
+- Faites un clone du repository en local: `git clone https://github.com/Les-Laboratoires-JS/lab-tools.git`
 - Créez votre propre branche avec un nom spécifiant la modification que vous voulez apporter. Exemple pour une commande "help": `git checkout -b help-command`
 - Faites tous les commits de votre modification sur cette branche.
 - Créez une pull request sur Github depuis votre branche vers la branche `dev` **seulement si vous avez fini de coder entièrement votre modification**.
@@ -13,7 +13,7 @@
 ### External Collaborators
 
 - Faites un fork du repository sur Github.
-- Faite en clone de votre version du projet en local: `git clone https://github.com/...`
+- Faite en clone de votre version du projet en local: `git clone https://github.com/Les-Laboratoires-JS/lab-tools.git`
 - Faites tous les commits de votre modification sur `master` ou `main`.
 - Créez une [pull request depuis votre fork](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork) depuis votre `master` ou `main` vers la branche `dev` **seulement si vous avez fini de coder entièrement votre modification**. Pensez à préciser la modification apportée dans l'intitulé ou dans la descriptiuon de la PR !
 - Laissez [CamilleAbella](https://github.com/CamilleAbella) faire le reste (merge de votre PR, tests, merge vers `master` ou `main`).
