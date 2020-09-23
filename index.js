@@ -8,7 +8,7 @@ dotenv.config({ path: path.join(__dirname, ".env") })
 const client = new Discord.Client()
 
 client.commands = new Discord.Collection()
-client.prefix = "!"
+client.prefix = /^(?:!|<@[!&]?555419470894596096>\s?)/
 client.throw = (error) => {
   throw error
 }
@@ -38,10 +38,10 @@ client
 
 client.on("message", async (message) => {
   if (!message.system) {
-    if (message.content.startsWith(client.prefix))
-      message.content = message.content.slice(client.prefix.length)
+    if (client.prefix.test(message.content))
+      message.content = message.content.replace(client.prefix, "")
     else return
-    for (const [, command] of client.commands) {
+    for (const command of client.commands.array()) {
       try {
         if (typeof command === "function" && (await command(message)) !== false)
           return
