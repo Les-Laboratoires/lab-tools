@@ -1,5 +1,4 @@
 {
-  "private": true,
   "main": "index.js",
   "prettier": {
     "trailingComma": "all",
@@ -7,7 +6,7 @@
   },
   "scripts": {
     "start": "node .",
-    "prettier": "npx prettier .github index.js readme.md package.json commands utils --write"
+    "prettier": "npx prettier .github index.js readme.md package.json commands utils --write --no-semi --trailing-comma all"
   },
   "author": "ghom",
   "bugs": {
