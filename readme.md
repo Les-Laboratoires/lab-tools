@@ -23,6 +23,7 @@
 - Utilisez la commande prettier avant chaque commit sur votre branche: `npm run prettier`.
 - Si vous voulez accéder à quelque chose dans tout le programme, placez-le dans l'objet `client`.
 - Documentez à fond chaque util que vous ajoutez via du JSDoc, pas besoin de documenter les commandes.
+- N'envoyez un embed que si vous n'avez pas le choix, gardons le bot homogène au possible.
 
 ## Command
 
@@ -44,9 +45,12 @@ type Command = (message: Discord.Message) => false | any
 module.exports = (message) => {
   if (!message.content) return false
 
-  message.delete().catch(client.throw).then(() => {
-    message.channel.send(message.content).catch(client.throw)
-  })
+  message
+    .delete()
+    .catch(client.throw)
+    .then(() => {
+      message.channel.send(message.content).catch(client.throw)
+    })
 }
 ```
 
