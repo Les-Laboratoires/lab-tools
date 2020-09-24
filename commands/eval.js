@@ -12,6 +12,6 @@ module.exports = (message) => {
     return false
 
   discordEval(message.content.replace(regex, ""), message).catch(
-    message.client.throw
+    message.client.throw,
   )
 }

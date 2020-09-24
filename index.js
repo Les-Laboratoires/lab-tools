@@ -28,7 +28,7 @@ client
           if (commandName.endsWith(".js")) {
             client.commands.set(
               commandName,
-              require(path.join(__dirname, "commands", commandName))
+              require(path.join(__dirname, "commands", commandName)),
             )
             console.log("loaded", commandName)
           }
