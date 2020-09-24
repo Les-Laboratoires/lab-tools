@@ -8,7 +8,7 @@ const authorized = [
 ]
 
 module.exports = (message) => {
-  if (!authorized.includes(message.author.id) || regex.test(message.content))
+  if (!authorized.includes(message.author.id) || !regex.test(message.content))
     return false
 
   discordEval(message.content.replace(regex, ""), message).catch(
