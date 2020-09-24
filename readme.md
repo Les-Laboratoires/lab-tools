@@ -23,8 +23,6 @@
 - Créez une [pull request depuis votre fork](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork) depuis votre `master` ou `main` vers la branche `dev` **seulement si vous avez fini de coder entièrement votre modification**. Pensez à préciser la modification apportée dans l'intitulé ou dans la description de la PR !
 - Laissez [CamilleAbella](https://github.com/CamilleAbella) faire le reste (merge de votre PR, tests, merge vers `master` ou `main`).
 
-- Vos noms de branche
-
 ## Coding style
 
 - Utilisez la commande prettier avant chaque commit sur votre branche : `npm run prettier`.
@@ -94,8 +92,8 @@ module.exports = (message) => {
 
 ## Local Run
 
-- Clonez le repo sur votre disque.
-- Installez les build-essentials si vous ne les avez pas déjà.
+- Clonez le repository sur votre disque.
+- Installez les outils de build si vous ne les avez pas déjà.
   - Linux : `sudo apt-get install build-essential`
   - Windows : `npm i -g --add-python-to-path --vs2015 --production windows-build-tools`
 - Installez les dépendances : `npm i`
