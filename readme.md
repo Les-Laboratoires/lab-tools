@@ -20,7 +20,7 @@
 - Faites un fork du repository sur Github.
 - Faite en clone de votre version du projet en local : `git clone https://github.com/Les-Laboratoires-JS/lab-tools.git`
 - Faites tous les commits de votre modification sur `master` ou `main`.
-- Créez une [pull request depuis votre fork](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork) depuis votre `master` ou `main` vers la branche `dev` **seulement si vous avez fini de coder entièrement votre modification**. Pensez à préciser la modification apportée dans l'intitulé ou dans la descriptiuon de la PR !
+- Créez une [pull request depuis votre fork](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork) depuis votre `master` ou `main` vers la branche `dev` **seulement si vous avez fini de coder entièrement votre modification**. Pensez à préciser la modification apportée dans l'intitulé ou dans la description de la PR !
 - Laissez [CamilleAbella](https://github.com/CamilleAbella) faire le reste (merge de votre PR, tests, merge vers `master` ou `main`).
 
 - Vos noms de branche
@@ -66,7 +66,7 @@ module.exports = (message) => {
 
 ## Database
 
-- On utilise une instance de Enmap pour la base de données: `/utils/db`.
+- On utilise une instance de Enmap pour la base de données : `/utils/db`.
 - On ne crée une autre instance de Enmap qu'en cas de besoin légitime (demandez confirmation à [CamilleAbella](https://github.com/CamilleAbella)).
 - Chaque donnée utilisée en base de donnée doit être préfixée par le nom de la feature qui l'utilise.
 
@@ -96,8 +96,8 @@ module.exports = (message) => {
 
 - Clonez le repo sur votre disque.
 - Installez les build-essentials si vous ne les avez pas déjà.
-  - Linux: `sudo apt-get install build-essential`
-  - Windows: `npm i -g --add-python-to-path --vs2015 --production windows-build-tools`
-- Installez les dépendances: `npm i`
-- Créez un fichier `.env` à la racine du projet et placez votre token de test dedans de cette façon: `TOKEN=token`.
+  - Linux : `sudo apt-get install build-essential`
+  - Windows : `npm i -g --add-python-to-path --vs2015 --production windows-build-tools`
+- Installez les dépendances : `npm i`
+- Créez un fichier `.env` à la racine du projet et placez votre token de test dedans de cette façon : `TOKEN=token`.
 - Lancez avec la commande `npm start`.
