@@ -17,7 +17,8 @@
     "discord-eval.js": "^1.0.10",
     "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
-    "enmap": "^5.8.0"
+    "enmap": "^5.8.0",
+    "ghom-prettify": "^1.0.0"
   },
   "devDependencies": {
     "prettier": "^2.1.2"
