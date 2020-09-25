@@ -6,8 +6,6 @@ name: Run prettier on publish
 on:
   push:
     branches: [master]
-  pull_request:
-    branches: [master]
 
 jobs:
   prettier:
