@@ -1,0 +1,48 @@
+const Discord = require("discord.js")
+const utils = require("../utils")
+const client = require("../client")
+
+/**
+ * @param {module:"discord.js".Message} message
+ */
+module.exports = async function message(message) {
+  // checks
+  if (message.system || message.author.bot) return
+  if (!(message.channel instanceof Discord.TextChannel)) return
+
+  // presentations checks
+  if (message.channel.id === utils.presentations) {
+    if (
+      message.member.roles.cache.has(utils.scientifique) ||
+      message.member.roles.cache.has(utils.validation)
+    )
+      return
+    await message.member.roles.add(utils.validation)
+    return message.react(utils.approved).catch(console.error)
+  }
+
+  // prefix checks
+  if (message.content.startsWith(client.prefix)) {
+    message.content = message.content.slice(client.prefix.length)
+  } else {
+    return
+  }
+
+  // handle command
+  const command = client.findCommand(message.content)
+  const alias =
+    command.aliases.find((a) => message.content.startsWith(a)) || command.name
+
+  // run command
+  if (command) {
+    message.content = message.content.slice(alias.length).trim()
+    try {
+      await command(message)
+    } catch (error) {
+      console.error(error)
+      message.channel
+        .send(utils.code(`Error: ${error.message ?? "unknown"}`, "js"))
+        .catch(console.error)
+    }
+  }
+}
