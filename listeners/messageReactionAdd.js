@@ -8,20 +8,20 @@ const utils = require("../utils")
 module.exports = async function messageReactionAdd(reaction, user) {
   if (reaction.message.channel.id === utils.presentations) {
     if (reaction.emoji.id === utils.approved) {
+      const authorMember = reaction.message.guild?.members.resolve(user)
+      const member = reaction.message.member
       if (reaction.message.author === user) {
         await reaction.users.remove(user)
       } else if (
-        reaction.message.guild?.members
-          .resolve(user)
-          ?.roles.cache.has(utils.staff)
+        authorMember?.roles.cache.has(utils.staff) &&
+        !member.roles.cache.has(utils.scientifique)
       ) {
-        const member = reaction.message.member
         await member.roles.add(utils.scientifique)
         await member.roles.remove(utils.validation)
         await member.client.channels.cache
           .get(utils.general)
           ?.send(
-            `Bienvenue à ${member} dans l'équipe de recherches ! <:Durifvoil:732347173139775529>`,
+            `Bienvenue à ${member} dans l'équipe de recherches ! <:durif:565598499459039252>`,
             {
               embed: new Discord.MessageEmbed()
                 .setAuthor(
