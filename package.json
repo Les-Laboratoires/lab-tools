@@ -1,7 +1,6 @@
 {
   "main": "index.js",
   "prettier": {
-    "trailingComma": "all",
     "semi": false
   },
   "scripts": {
@@ -14,11 +13,11 @@
   },
   "dependencies": {
     "better-sqlite3": "^7.1.1",
-    "discord-eval.js": "^1.0.10",
+    "discord-eval.js": "^1.0.11",
     "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
     "enmap": "^5.8.0",
-    "ghom-prettify": "^1.0.0"
+    "ghom-prettify": "^1.1.1-bite"
   },
   "devDependencies": {
     "prettier": "^2.1.2"

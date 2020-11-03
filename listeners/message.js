@@ -30,11 +30,11 @@ module.exports = async function message(message) {
 
   // handle command
   const command = client.findCommand(message.content)
-  const alias =
-    command.aliases.find((a) => message.content.startsWith(a)) || command.name
 
   // run command
   if (command) {
+    const alias =
+      command.aliases.find((a) => message.content.startsWith(a)) || command.name
     message.content = message.content.slice(alias.length).trim()
     try {
       await command(message)

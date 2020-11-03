@@ -26,14 +26,14 @@ module.exports = async function messageReactionAdd(reaction, user) {
               embed: new Discord.MessageEmbed()
                 .setAuthor(
                   `Description:`,
-                  reaction.message.guild.iconURL({ dynamic: true, size: 64 }),
+                  reaction.message.guild.iconURL({ dynamic: true, size: 64 })
                 )
                 .setDescription(reaction.message.content)
                 .setImage(
-                  member.user.displayAvatarURL({ dynamic: true, size: 512 }),
+                  member.user.displayAvatarURL({ dynamic: true, size: 512 })
                 )
                 .setFooter(".bienvenue pour plus d'informations"),
-            },
+            }
           )
       }
     }
