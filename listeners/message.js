@@ -2,13 +2,15 @@ const Discord = require("discord.js")
 const utils = require("../utils")
 const client = require("../client")
 
-/**
- * @param {module:"discord.js".Message} message
- */
 module.exports = async function message(message) {
   // checks
   if (message.system || message.author.bot) return
   if (!(message.channel instanceof Discord.TextChannel)) return
+
+  // delete muted messages
+  if(message.client.db.get("muted").includes(message.author.id)){
+    return message.delete()
+  }
 
   // presentations checks
   if (message.channel.id === utils.presentations) {
