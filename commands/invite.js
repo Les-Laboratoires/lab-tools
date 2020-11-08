@@ -26,7 +26,7 @@ module.exports = async function invite(message) {
     )
   }
 
-  let url = "https://discord.com/oauth2/authorize?client_id=" + bot.id
+  let url = "https://discord.com/oauth2/authorize?scope=bot&client_id=" + bot.id
 
   if (here) {
     url += "&permissions=0&guild_id=" + message.guild.id
@@ -35,11 +35,14 @@ module.exports = async function invite(message) {
   }
 
   await message.channel.send(
-    new Discord.MessageEmbed().setAuthor(
-      `Invitez ${bot.username} ${here ? "ici" : ""}`,
-      bot.displayAvatarURL({ dynamic: true }),
-      url
-    )
+    new Discord.MessageEmbed()
+      .setAuthor(
+        `Invitez ${bot.username} ${here ? "ici" : ""}`,
+        message.guild.iconURL({ dynamic: true }),
+        url
+      )
+      .setImage(bot.displayAvatarURL({ dynamic: true }))
+      .setFooter(url)
   )
 }
 
