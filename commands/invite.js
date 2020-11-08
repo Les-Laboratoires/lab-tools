@@ -1,4 +1,6 @@
 const Discord = require("discord.js")
+const { URL } = require("url")
+const utils = require("../utils")
 
 module.exports = async function invite(message) {
   let here = true,
@@ -26,12 +28,16 @@ module.exports = async function invite(message) {
     )
   }
 
-  let url = "https://discord.com/oauth2/authorize?scope=bot&client_id=" + bot.id
+  const url = new URL("/oauth2/authorize", "https://discord.com/")
+
+  url.searchParams.append("scope", "bot")
+  url.searchParams.append("client_id", bot.id)
 
   if (here) {
-    url += "&permissions=0&guild_id=" + message.guild.id
+    url.searchParams.append("permissions", "0")
+    url.searchParams.append("guild_id", message.guild.id)
   } else {
-    url += "&permissions=2146958847"
+    url.searchParams.append("permissions", "2146958847")
   }
 
   await message.channel.send(
@@ -39,10 +45,16 @@ module.exports = async function invite(message) {
       .setAuthor(
         `Invitez ${bot.username} ${here ? "ici" : ""}`,
         message.guild.iconURL({ dynamic: true }),
-        url
+        url.toString()
       )
-      .setImage(bot.displayAvatarURL({ dynamic: true }))
-      .setFooter(url)
+      .setDescription(
+        utils.code(
+          JSON.stringify(Array.from(url.searchParams.entries()), null, 2),
+          "json"
+        )
+      )
+      .setThumbnail(bot.displayAvatarURL({ dynamic: true }))
+      .setURL(url.toString())
   )
 }
 
