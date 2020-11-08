@@ -24,7 +24,7 @@ module.exports = async function deploy(message) {
     await subject.edit(
       `<:why:557124850422906880> Une erreur est survenue lors du déploiement.\nGo le faire à la main... ${utils.code(
         `${error.name}: ${error.message}`,
-        "js"
+        ""
       )}`
     )
   }
