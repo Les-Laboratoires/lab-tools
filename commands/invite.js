@@ -49,7 +49,15 @@ module.exports = async function invite(message) {
       )
       .setDescription(
         utils.code(
-          JSON.stringify(Array.from(url.searchParams.entries()), null, 2),
+          JSON.stringify(
+            Object.fromEntries(url.searchParams.entries()),
+            (key, val) => {
+              if (/^\d+$/.test(val) && val.length < 12 && !val.startsWith("0"))
+                return Number(val)
+              return val
+            },
+            2
+          ),
           "json"
         )
       )
