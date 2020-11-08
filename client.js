@@ -1,12 +1,12 @@
 const Discord = require("discord.js")
-const Enmap = require("enmap")
+const db = require("./db")
 const path = require("path")
 
 const utils = require("./utils")
 
 const client = new Discord.Client()
 
-client.db = new Enmap({ name: "db" })
+client.db = db
 
 client.prefix = "!"
 
