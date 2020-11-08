@@ -1,9 +1,12 @@
 const Discord = require("discord.js")
+const Enmap = require("enmap")
 const path = require("path")
 
 const utils = require("./utils")
 
 const client = new Discord.Client()
+
+client.db = new Enmap({ name: "db" })
 
 client.prefix = "!"
 
@@ -49,5 +52,15 @@ client.findCommand = function (text) {
 }
 
 client.login(process.env.TOKEN).catch(console.error)
+
+client.once("ready", async () => {
+  const helloChannel = await client.channels.fetch(
+    client.db.ensure("helloChannel", utils.general)
+  )
+
+  await helloChannel.send("I'm back ! <a:dancing:576104669516922881>")
+
+  client.db.delete("helloChannel")
+})
 
 module.exports = client

@@ -18,6 +18,7 @@ module.exports = async function deploy(message) {
         Date.now() - timer
       }ms*`
     )
+    message.client.db.set("helloChannel", message.channel.id)
     process.exit(0)
   } catch (error) {
     await subject.edit(
