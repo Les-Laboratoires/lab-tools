@@ -9,7 +9,7 @@ module.exports = async function mute(message){
     return message.channel.send("T'es pas modo mon salaud!")
   }
 
-  const target = utils.resolveMember(message)
+  const target = await utils.resolveMember(message)
 
   if(target === message.member){
     return message.channel.send("C'est un peu con de s'auto-mute quand même non ?")
