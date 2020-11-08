@@ -14,7 +14,7 @@ module.exports = async function deploy(message) {
   try {
     await exec("git pull && npm i")
     await subject.edit(
-      `<:yay:557124850326437888> Déploiement réussi !\n*Effectué en ${
+      `Déploiement réussi ! <:yay:557124850326437888>\n*Effectué en ${
         Date.now() - timer
       }ms*`
     )
@@ -22,7 +22,7 @@ module.exports = async function deploy(message) {
     process.exit(0)
   } catch (error) {
     await subject.edit(
-      `<:why:557124850422906880> Une erreur est survenue lors du déploiement.\nGo le faire à la main... ${utils.code(
+      `Une erreur est survenue lors du déploiement <:why:557124850422906880>\nGo le faire à la main... ${utils.code(
         `${error.name}: ${error.message}`,
         ""
       )}`
