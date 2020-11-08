@@ -35,18 +35,17 @@ module.exports.code = function (code, lang) {
 }
 
 module.exports.resolveMember = async function (message, text = null) {
-  if(message.mentions.members.size > 0)
-    return message.mentions.members.first()
+  if (message.mentions.members.size > 0) return message.mentions.members.first()
 
   text = text || message.content
 
-  if(text.length < 3) return message.member
+  if (text.length < 3) return message.member
 
   text = text.toLowerCase()
 
   const members = await message.guild.members.fetch({ query: text })
 
-  if(members.size > 0) return members.first()
+  if (members.size > 0) return members.first()
 
   return message.member
 }
