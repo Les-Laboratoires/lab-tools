@@ -17,10 +17,10 @@ async function mute(message){
 
   const muted = message.client.db.get("muted")
 
-  if(muted.includes(target.id)){
+  if (muted.includes(target.id)) {
     message.client.db.remove("muted", target.id)
     await message.channel.send(`Ok, ${target.user.username} n'est plus muted.`)
-  }else{
+  } else {
     message.client.db.push("muted", target.id)
     await message.channel.send(`Ok, ${target.user.username} est muted.`)
   }

@@ -8,7 +8,7 @@ module.exports = async function message(message) {
   if (!(message.channel instanceof Discord.TextChannel)) return
 
   // delete muted messages
-  if(message.client.db.get("muted").includes(message.author.id)){
+  if (message.client.db.get("muted").includes(message.author.id)) {
     return message.delete()
   }
 
