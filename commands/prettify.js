@@ -3,9 +3,6 @@ const utils = require("../utils")
 
 const regex = /^```([a-z-]+)?\s(.+[^\\])```$/is
 
-/**
- * @param {module:"discord.js".Message} message
- */
 module.exports = async function pretty(message) {
   const options = {}
 

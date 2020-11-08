@@ -6,9 +6,6 @@ const authorized = [
   "352176756922253321",
 ]
 
-/**
- * @param {module:"discord.js".Message} message
- */
 module.exports = function js(message) {
   if (!authorized.includes(message.author.id)) return
 
