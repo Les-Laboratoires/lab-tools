@@ -42,6 +42,10 @@ module.exports.resolveMember = async function (message, text = null) {
 
   if(text.length < 3) return message.member
 
+  if(/^\d+$/.test(text)){
+    return message.guild.members.fetch(text)
+  }
+
   text = text.toLowerCase()
 
   const members = await message.guild.members.fetch({ query: text })
@@ -49,4 +53,11 @@ module.exports.resolveMember = async function (message, text = null) {
   if(members.size > 0) return members.first()
 
   return message.member
+}
+
+module.exports.isModo = function (member) {
+  return (
+    member.permissions.has("ADMINISTRATOR", true) ||
+    member.roles.cache.has(module.exports.modo)
+  )
 }
