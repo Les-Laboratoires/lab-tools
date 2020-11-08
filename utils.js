@@ -7,6 +7,7 @@ module.exports.presentations = "622383963511717928"
 module.exports.approved = "640661715108888595"
 module.exports.staff = "620657235533758494"
 module.exports.general = "620664805400772621"
+module.exports.cobaye = "620640927089688587"
 
 module.exports.forFiles = async function (pathList, callback) {
   for (const _path of pathList) {
