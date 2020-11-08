@@ -16,10 +16,10 @@ module.exports = async function invite(message) {
 
   if (message.mentions.members.size > 0) {
     bot = message.mentions.members.first().user
-    here = false
+    here = here ?? false
   } else if (/^\d+$/.test(message.content)) {
     bot = await message.client.users.fetch(message.content, false, true)
-    here = true
+    here = here ?? true
   }
 
   if (!bot) {
