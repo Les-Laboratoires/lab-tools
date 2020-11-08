@@ -41,7 +41,7 @@ module.exports.resolveMember = async function (message, text = null) {
 
   if (text.length < 3) return message.member
 
-  if(/^\d+$/.test(text)){
+  if (/^\d+$/.test(text)) {
     return message.guild.members.fetch(text)
   }
 
