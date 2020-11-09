@@ -5,7 +5,18 @@ const db = require("./db")
 
 const utils = require("./utils")
 
-const client = new Discord.Client({ disableMentions: "all" })
+const client = new Discord.Client({
+  disableMentions: "all",
+  ws: {
+    intents: [
+      "GUILDS",
+      "GUILD_MESSAGES",
+      "GUILD_MESSAGE_REACTIONS",
+      "GUILD_MEMBERS",
+      "DIRECT_MESSAGES",
+    ],
+  },
+})
 
 date.locale("fr")
 
@@ -17,7 +28,7 @@ client.commands = new Discord.Collection()
 utils
   .forFiles([path.join(__dirname, "commands")], function (filePath) {
     const cmd = require(filePath)
-    client.commands.set(cmd.name, cmd.bind(client))
+    client.commands.set(cmd.name, cmd)
   })
   .catch(console.error)
 
@@ -28,13 +39,10 @@ utils
   })
   .catch(console.error)
 
-client.findCommand = function (text) {
+client.findCommand = function (key) {
   return this.commands.find((cmd) => {
     const aliases = cmd.aliases ?? []
-    return (
-      text.startsWith(cmd.name) ||
-      aliases.some((alias) => text.startsWith(alias))
-    )
+    return key === cmd.name || aliases.some((alias) => key === alias)
   })
 }
 

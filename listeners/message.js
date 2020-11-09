@@ -2,50 +2,55 @@ const Discord = require("discord.js")
 const utils = require("../utils")
 const client = require("../client")
 
-module.exports = async function message(message) {
+async function message(m) {
   // checks
-  if (message.system || message.author.bot) return
-  if (!(message.channel instanceof Discord.TextChannel)) return
+  if (m.system || m.author.bot) return
+  if (!(m.channel instanceof Discord.TextChannel)) return
 
   // delete muted messages
-  if (message.client.db.get("muted").includes(message.author.id)) {
-    return message.delete()
+  if (this.db.get("muted").includes(m.author.id)) {
+    return m.delete()
   }
 
   // presentations checks
-  if (message.channel.id === utils.presentations) {
+  if (m.channel.id === utils.presentations) {
     if (
-      message.member.roles.cache.has(utils.scientifique) ||
-      message.member.roles.cache.has(utils.validation)
+      m.member.roles.cache.has(utils.scientifique) ||
+      m.member.roles.cache.has(utils.validation)
     )
       return
-    await message.member.roles.add(utils.validation)
-    return message.react(utils.approved).catch(console.error)
+    await m.member.roles.add(utils.validation)
+    return m.react(utils.approved).catch(console.error)
   }
 
   // prefix checks
-  if (message.content.startsWith(client.prefix)) {
-    message.content = message.content.slice(client.prefix.length)
+  if (m.content.startsWith(client.prefix)) {
+    m.content = m.content.slice(client.prefix.length)
   } else {
     return
   }
 
   // handle command
-  const command = client.findCommand(message.content)
+  const key = m.content.split(/\s+/)[0]
+  const command = client.findCommand(key)
 
   // run command
   if (command) {
-    const alias =
-      command.aliases?.find((a) => message.content.startsWith(a)) ||
-      command.name
-    message.content = message.content.slice(alias.length).trim()
+    m.content = m.content.slice(key.length).trim()
     try {
-      await command(message)
+      await command.bind(this)(m)
     } catch (error) {
       console.error(error)
-      message.channel
-        .send(utils.code(`Error: ${error.message ?? "unknown"}`, "js"))
+      m.channel
+        .send(
+          utils.code(
+            `Error: ${error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"}`,
+            "js"
+          )
+        )
         .catch(console.error)
     }
   }
 }
+
+module.exports = message
