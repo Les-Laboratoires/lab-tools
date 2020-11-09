@@ -1,10 +1,8 @@
 const exec = require("util").promisify(require("child_process").exec)
 const utils = require("../utils")
 
-const authorized = "352176756922253321"
-
 module.exports = async function deploy(message) {
-  if (message.author.id !== authorized) return
+  if (message.author.id !== utils.ghom) return
 
   const subject = await message.channel.send(
     "<a:wait:560972897376665600> En cours de déploiement..."
