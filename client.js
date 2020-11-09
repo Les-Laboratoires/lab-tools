@@ -1,46 +1,33 @@
 const Discord = require("discord.js")
-const db = require("./db")
 const path = require("path")
+const date = require("dayjs")
+const db = require("./db")
 
 const utils = require("./utils")
 
-const client = new Discord.Client()
+const client = new Discord.Client({ disableMentions: "all" })
 
+date.locale("fr")
+
+client.date = date
 client.db = db
-
 client.prefix = "!"
-
-/**
- * @typedef Command
- * @param {module:"discord.js".Message} message
- * @property {string} name
- * @property {string} description
- * @property {string[]} aliases
- */
-
-/**
- * @type {module:"discord.js".Collection<string, Command>}
- */
 client.commands = new Discord.Collection()
 
 utils
   .forFiles([path.join(__dirname, "commands")], function (filePath) {
     const cmd = require(filePath)
-    client.commands.set(cmd.name, cmd)
+    client.commands.set(cmd.name, cmd.bind(client))
   })
   .catch(console.error)
 
 utils
   .forFiles([path.join(__dirname, "listeners")], function (filePath) {
     const listener = require(filePath)
-    client[listener.once ? "once" : "on"](listener.name, listener)
+    client[listener.once ? "once" : "on"](listener.name, listener.bind(client))
   })
   .catch(console.error)
 
-/**
- * @param {string} text
- * @return {Command}
- */
 client.findCommand = function (text) {
   return this.commands.find((cmd) => {
     const aliases = cmd.aliases ?? []
@@ -52,15 +39,5 @@ client.findCommand = function (text) {
 }
 
 client.login(process.env.TOKEN).catch(console.error)
-
-client.once("ready", async () => {
-  const helloChannel = await client.channels.fetch(
-    client.db.ensure("helloChannel", utils.general)
-  )
-
-  await helloChannel.send("I'm back ! <a:dancing:576104669516922881>")
-
-  client.db.delete("helloChannel")
-})
 
 module.exports = client
