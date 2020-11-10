@@ -2,6 +2,7 @@ const fs = require("fs").promises
 const path = require("path")
 
 module.exports.ghom = "352176756922253321"
+module.exports.loockeeer = "272676235946098688"
 module.exports.validation = "659513985552351261"
 module.exports.scientifique = "620641458168397845"
 module.exports.presentations = "622383963511717928"

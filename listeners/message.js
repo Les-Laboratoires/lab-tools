@@ -40,7 +40,6 @@ async function message(m) {
     try {
       await command.bind(this)(m)
     } catch (error) {
-      console.error(error)
       m.channel
         .send(
           utils.code(
