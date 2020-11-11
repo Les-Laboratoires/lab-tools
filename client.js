@@ -6,7 +6,7 @@ const db = require("./db")
 const utils = require("./utils")
 
 const client = new Discord.Client({
-  disableMentions: "all",
+  disableMentions: "everyone",
   ws: {
     intents: [
       "GUILDS",
