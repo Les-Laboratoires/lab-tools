@@ -54,7 +54,11 @@ const command: app.Command = {
             JSON.stringify(
               Object.fromEntries(url.searchParams.entries()),
               (key, val) => {
-                if (/^\d+$/.test(val) && val.length < 12 && !val.startsWith("0"))
+                if (
+                  /^\d+$/.test(val) &&
+                  val.length < 12 &&
+                  !val.startsWith("0")
+                )
                   return Number(val)
                 return val
               },
@@ -66,7 +70,7 @@ const command: app.Command = {
         .setThumbnail(bot.displayAvatarURL({ dynamic: true }))
         .setURL(url.toString())
     )
-  }
+  },
 }
 
 module.exports = command

@@ -16,7 +16,7 @@ const command: app.Command = {
     }
 
     return discordEval(message.content, message)
-  }
+  },
 }
 
 module.exports = command

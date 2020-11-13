@@ -31,7 +31,7 @@ const command: app.Command = {
         )}`
       )
     }
-  }
+  },
 }
 
 module.exports = command

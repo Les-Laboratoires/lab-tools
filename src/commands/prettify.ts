@@ -5,13 +5,7 @@ const regex = /^```([a-z-]+)?\s(.+[^\\])```$/is
 
 const command: app.Command = {
   name: "prettify",
-  aliases: [
-    "beauty",
-    "prettify",
-    "beautify",
-    "format",
-    "prettier",
-  ],
+  aliases: ["beauty", "prettify", "beautify", "format", "prettier"],
   async run(message) {
     const options: any = {}
 
@@ -33,7 +27,7 @@ const command: app.Command = {
         "Commande mal utilisée. Place ton code entre balises pour que je sache quel est son language."
       )
     }
-  }
+  },
 }
 
 module.exports = command

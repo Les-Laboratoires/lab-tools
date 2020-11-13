@@ -1,6 +1,5 @@
 import dayjs from "dayjs"
 import Discord from "discord.js"
-import * as database from "./database"
 import * as command from "./command"
 
 export const ghom = "352176756922253321"
@@ -9,16 +8,11 @@ export const validation = "659513985552351261"
 export const scientifique = "620641458168397845"
 export const presentations = "622383963511717928"
 export const approved = "640661715108888595"
+export const disapproved = "507420627821527040"
 export const staff = "620657235533758494"
 export const modo = "620302774638215168"
 export const general = "620664805400772621"
 export const cobaye = "620640927089688587"
-
-export function prefix(guild?: Discord.Guild): string {
-  let prefix = process.env.PREFIX as string
-  if (guild) prefix = database.prefixes.get(guild.id) ?? prefix
-  return prefix
-}
 
 export function code(text: string, lang: string = ""): string {
   return "```" + lang + "\n" + text.replace(/```/g, "\\```") + "\n```"

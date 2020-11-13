@@ -19,16 +19,18 @@ const command: app.Command = {
       )
     }
 
-    const muted = app.muted.ensure(message.guild.id, [])
+    const muted = app.globals.ensure("muted", [])
 
     if (muted.includes(target.id)) {
-      app.muted.remove(message.guild.id, target.id as any)
-      await message.channel.send(`Ok, ${target.user.username} n'est plus muted.`)
+      app.globals.remove("muted", target.id as any)
+      await message.channel.send(
+        `Ok, ${target.user.username} n'est plus muted.`
+      )
     } else {
-      app.muted.push(message.guild.id, target.id)
+      app.globals.push("muted", target.id)
       await message.channel.send(`Ok, ${target.user.username} est muted.`)
     }
-  }
+  },
 }
 
 module.exports = command

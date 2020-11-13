@@ -45,7 +45,10 @@ fs.readdir(app.listenersPath)
         app.listenersPath,
         filename
       ))
-      client[listener.once ? "once" : "on"](listener.event, listener.call)
+      client[listener.once ? "once" : "on"](
+        listener.event,
+        listener.call.bind(client)
+      )
     })
   )
   .catch(console.error)
