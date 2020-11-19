@@ -8,10 +8,10 @@ const command: app.Command = {
     let here = true,
       bot
 
-    if (message.content.startsWith("--here")) {
+    if (message.content.includes("--here")) {
       message.content = message.content.replace("--here", "").trim()
       here = true
-    } else if (message.content.startsWith("--no-here")) {
+    } else if (message.content.includes("--no-here")) {
       message.content = message.content.replace("--no-here", "").trim()
       here = false
     }
