@@ -32,13 +32,13 @@ const listener: app.Listener<"message"> = {
     }
 
     const key = message.content.split(/\s+/)[0]
-    let cmd = app.commands.resolve(key)
+    const cmd = app.commands.resolve(key)
 
     if (!cmd) return
 
     if (cmd.botOwner) {
       if (process.env.OWNER !== message.member.id) {
-        return await message.channel.send(
+        return message.channel.send(
           new app.MessageEmbed()
             .setColor("RED")
             .setAuthor(
@@ -51,7 +51,7 @@ const listener: app.Listener<"message"> = {
 
     if (cmd.guildOwner) {
       if (message.guild.owner !== message.member) {
-        return await message.channel.send(
+        return message.channel.send(
           new app.MessageEmbed()
             .setColor("RED")
             .setAuthor(
