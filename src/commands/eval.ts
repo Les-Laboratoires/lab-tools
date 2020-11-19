@@ -8,7 +8,7 @@ const command: app.Command = {
   async run(message) {
     if (
       message.content.split("\n").length === 1 &&
-      !/^(?:const|let|return)$/.test(message.content)
+      !/const|let|return/.test(message.content)
     ) {
       message.content = "return " + message.content
     }

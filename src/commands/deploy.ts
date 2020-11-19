@@ -6,9 +6,8 @@ const exec = promisify(child.exec)
 
 const command: app.Command = {
   name: "deploy",
+  botOwner: true,
   async run(message) {
-    if (message.author.id !== app.ghom) return
-
     const subject = await message.channel.send(
       "<a:wait:560972897376665600> En cours de déploiement..."
     )
