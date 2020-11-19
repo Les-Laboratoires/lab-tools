@@ -4,7 +4,7 @@ const prettify = require("ghom-prettify")
 const regex = /^```([a-z-]+)?\s(.+[^\\])```$/is
 
 const command: app.Command = {
-  name: "prettify",
+  name: "pretty",
   aliases: ["beauty", "prettify", "beautify", "format", "prettier"],
   async run(message) {
     const options: any = {}
