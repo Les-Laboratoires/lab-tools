@@ -1,16 +1,14 @@
+import discordEval from "discord-eval.ts"
 import * as app from "../app"
 
-const discordEval = require("discord-eval.js")
-
 const command: app.Command = {
-  name: "eval",
+  name: "js",
+  botOwner: true,
   aliases: ["eval", "code", "run", "="],
   async run(message) {
-    if (message.author.id !== app.ghom) return
-
     if (
       message.content.split("\n").length === 1 &&
-      !message.content.includes("return")
+      !/^(?:const|let|return)$/.test(message.content)
     ) {
       message.content = "return " + message.content
     }
