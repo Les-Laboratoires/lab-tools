@@ -14,7 +14,7 @@ export const modo = "620302774638215168"
 export const general = "620664805400772621"
 export const cobaye = "620640927089688587"
 
-export function code(text: string, lang: string = ""): string {
+export function code(text: string, lang = ""): string {
   return "```" + lang + "\n" + text.replace(/```/g, "\\```") + "\n```"
 }
 

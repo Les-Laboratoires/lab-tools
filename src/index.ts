@@ -41,7 +41,7 @@ fs.readdir(app.commandsPath)
 fs.readdir(app.listenersPath)
   .then((files) =>
     files.forEach((filename) => {
-      const listener: app.Listener<any> = require(path.join(
+      const listener: app.Listener = require(path.join(
         app.listenersPath,
         filename
       ))

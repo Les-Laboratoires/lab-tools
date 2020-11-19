@@ -1,7 +1,9 @@
 import Discord from "discord.js"
 import path from "path"
 
-export type Listener<EventName extends keyof Discord.ClientEvents> = {
+export type Listener<
+  EventName extends keyof Discord.ClientEvents = keyof Discord.ClientEvents
+> = {
   event: EventName
   call: (
     this: Discord.Client,

@@ -41,7 +41,7 @@ export interface Command {
 }
 
 export class Commands extends Discord.Collection<string, CommandResolvable> {
-  public resolve(key: string): Command | undefined {
+  resolve(key: string): Command | undefined {
     const resolvable = this.find((resolvable) => {
       const command = resolve(resolvable) as Command
       return (
@@ -52,7 +52,7 @@ export class Commands extends Discord.Collection<string, CommandResolvable> {
     return resolve(resolvable)
   }
 
-  public add(resolvable: CommandResolvable) {
+  add(resolvable: CommandResolvable) {
     const command = resolve(resolvable) as Command
     this.set(command.name, resolvable)
   }

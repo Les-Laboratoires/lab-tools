@@ -1,6 +1,6 @@
 import Enmap from "enmap"
 
-export const globals = new Enmap<string, any>({
+export const globals = new Enmap<string, unknown>({
   name: "globals",
 })
 
