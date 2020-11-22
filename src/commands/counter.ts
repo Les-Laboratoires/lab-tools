@@ -1,5 +1,4 @@
 import * as app from "../app"
-import { scores } from "../app"
 
 const command: app.Command = {
   name: "counter",
