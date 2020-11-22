@@ -4,6 +4,8 @@ export const globals = new Enmap<string, any>({
   name: "globals",
 })
 
+export const coolDowns = new Enmap<string, { time: number; trigger: boolean }>()
+
 // /** Enmap[Guild, Prefix] */
 // export const prefixes = new Enmap<Discord.Snowflake, string>({
 //   name: "prefixes",
