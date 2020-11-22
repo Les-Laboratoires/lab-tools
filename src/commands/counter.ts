@@ -7,23 +7,12 @@ const command: app.Command = {
     if (message.content.startsWith("list")) {
       if (message.content.includes("--debug")) {
         await message.channel.send(
-          JSON.stringify(Array.from(app.scores.entries()))
+          JSON.stringify(Array.from(app.scores.entries())).slice(0, 2023)
         )
       }
       const lines = await Promise.all(
         app.counters.map(async (counter) => {
-          const { score, id } = app.scores
-            .filter((score) => score.hasOwnProperty(counter.name) && score[counter.name] > 0)
-            .map((score, id) => ({ score: score[counter.name], id }))
-            .sort((a, b) => b.score - a.score)[0]
-
-          const first = await message.guild.members.fetch(id)
-
-          return `**${counter.name}** - [${counter.type}] - \`${
-            counter.target
-          }\` - 1er: ***${first?.user.tag ?? "none"}*** ${
-            first ? `avec \`${score}\` pts.` : ""
-          }`
+          return `**${counter.name}** - [${counter.type}] - \`${counter.target}\``
         })
       )
       return message.channel.send(lines.join("\n"))
@@ -57,12 +46,18 @@ const command: app.Command = {
       const counter = app.counters.get(message.content) as app.Counter
 
       const leaderboard = app.scores
-        .filter((score) => score.hasOwnProperty(counter.name) && score[counter.name] > 0)
+        .filter(
+          (score) =>
+            score.hasOwnProperty(counter.name) && score[counter.name] > 0
+        )
         .map((score, id) => ({ score: score[counter.name], id }))
         .sort((a, b) => b.score - a.score)
         .slice(0, 15)
         .map((obj, i) => {
-          return `\`# ${i + 1} \` | ${obj.score} pts - <@${obj.id}>`
+          const position = String(i + 1)
+          return `\`# ${position}${position.length === 1 ? " " : ""} | ${
+            obj.score
+          } pts\` - <@${obj.id}>`
         })
         .join("\n")
 
