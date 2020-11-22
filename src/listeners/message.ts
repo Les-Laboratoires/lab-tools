@@ -13,7 +13,7 @@ const listener: app.Listener<"message"> = {
     // add scores
     app.counters.forEach((counter) => {
       if (counter.type === "match") {
-        const regex = new RegExp(`\\b(?:${counter.target})\\b`, "ig")
+        const regex = new RegExp(counter.target, "ig")
         const count = [...message.content.matchAll(regex)].length
         const score = app.scores.ensure(message.author.id, {})
         score[counter.name] = (score[counter.name] ?? 0) + count
