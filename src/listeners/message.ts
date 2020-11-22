@@ -10,6 +10,17 @@ const listener: app.Listener<"message"> = {
       return message.delete()
     }
 
+    // add scores
+    app.counters.forEach((counter) => {
+      if (counter.type === "match") {
+        const regex = new RegExp(`\\b(?:${counter.target})\\b`, "ig")
+        const count = [...message.content.matchAll(regex)].length
+        const score = app.scores.ensure(message.author.id, {})
+        score[counter.name] = (score[counter.name] ?? 0) + count
+        app.scores.set(message.author.id, score)
+      }
+    })
+
     // presentations checks
     if (message.channel.id === app.presentations) {
       if (

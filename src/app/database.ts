@@ -5,7 +5,11 @@ export const globals = new Enmap<string, any>({
 })
 
 export const scores = new Enmap<string, Score>({
-  name: "scores"
+  name: "scores",
+})
+
+export const counters = new Enmap<string, Counter>({
+  name: "counters",
 })
 
 export const coolDowns = new Enmap<string, CoolDown>()
@@ -26,10 +30,11 @@ export interface CoolDown {
 }
 
 export interface Score {
-  grammarNazi: number
-  reputation: number
-  helping: number
-  money: number
-  bite: number
-  lol: number
+  [key: string]: number
+}
+
+export interface Counter {
+  target: string
+  name: string
+  type: "match" | "react"
 }

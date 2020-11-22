@@ -7,6 +7,7 @@ export function isCommandMessage(
   return (
     !message.system &&
     !!message.guild &&
+    message.author.id !== "555419470894596096" &&
     message.channel instanceof Discord.TextChannel
   )
 }
