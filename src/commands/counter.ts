@@ -14,7 +14,7 @@ const command: app.Command = {
       const lines = await Promise.all(
         app.counters.map(async (counter) => {
           const { score, id } = app.scores
-            .filter((score) => score.hasOwnProperty(counter.name))
+            .filter((score) => score.hasOwnProperty(counter.name) && score[counter.name] > 0)
             .map((score, id) => ({ score: score[counter.name], id }))
             .sort((a, b) => b.score - a.score)[0]
 
@@ -58,12 +58,12 @@ const command: app.Command = {
       const counter = app.counters.get(message.content) as app.Counter
 
       const leaderboard = app.scores
-        .filter((score) => score.hasOwnProperty(counter.name))
+        .filter((score) => score.hasOwnProperty(counter.name) && score[counter.name] > 0)
         .map((score, id) => ({ score: score[counter.name], id }))
         .sort((a, b) => b.score - a.score)
         .slice(0, 15)
         .map((obj, i) => {
-          return `\`# ${i - 1} \` - <@${obj.id}> - ${obj.score} pts`
+          return `\`# ${i + 1} \` | ${obj.score} pts - <@${obj.id}>`
         })
         .join("\n")
 
