@@ -13,11 +13,13 @@ const listener: app.Listener<"message"> = {
     // add scores
     app.counters.forEach((counter) => {
       if (counter.type === "match") {
-        const regex = new RegExp(counter.target, "ig")
-        const count = [...message.content.matchAll(regex)].length
-        const score = app.scores.ensure(message.author.id, {})
-        score[counter.name] = (score[counter.name] ?? 0) + count
-        app.scores.set(message.author.id, score)
+        try {
+          const regex = new RegExp(counter.target, "ig")
+          const count = [...message.content.matchAll(regex)].length
+          const score = app.scores.ensure(message.author.id, {})
+          score[counter.name] = (score[counter.name] ?? 0) + count
+          app.scores.set(message.author.id, score)
+        } catch (error) {}
       }
     })
 
@@ -46,6 +48,8 @@ const listener: app.Listener<"message"> = {
     const cmd = app.commands.resolve(key)
 
     if (!cmd) return
+
+    if (key !== "turn" && !app.cache.ensure("turn", true)) return
 
     const coolDownId = `${cmd.name}:${message.channel.id}`
     const coolDown = app.coolDowns.ensure(coolDownId, {

@@ -4,29 +4,43 @@ import util from "util"
 import * as app from "../app"
 
 const exec = util.promisify(cp.exec)
-const regex = /--(?:install|use|add|with|npm) +([a-z-_.]+)(?:, ?([a-z-_.]+))*/i
+const regex = /--(?:install|use|add|with|npm|dep) +([a-z-_.]+)(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?/i
 
 const packageJson = require("../../package.json")
+
+const alreadyInstalled = (pack: string): boolean =>
+  packageJson.dependencies.hasOwnProperty(pack) ||
+  packageJson.devDependencies.hasOwnProperty(pack)
 
 const command: app.Command = {
   name: "js",
   botOwner: true,
-  aliases: ["eval", "code", "run", "="],
+  aliases: ["eval", "code", "run", "=", "test"],
   async run(message) {
     const match = regex.exec(message.content)
-    const packages = []
+    const installed = new Set<string>()
 
     if (match) {
       message.content = message.content.replace(regex, "").trim()
-      for (const pack of match.slice(1)) {
-        if (
-          !packageJson.dependencies.hasOwnProperty(pack) &&
-          !packageJson.devDependencies.hasOwnProperty(pack)
-        ) {
+
+      const given = new Set<string>(match.slice(1).filter((p) => p))
+
+      for (const pack of given) {
+        if (alreadyInstalled(pack)) {
+          await message.channel.send(`✅ **${pack}** - installed`)
+        } else {
+          let log
           try {
+            log = await message.channel.send(
+              `<a:wait:560972897376665600> **${pack}** - isntall...`
+            )
             await exec(`npm i ${pack}`)
-            packages.push(pack)
-          } catch (error) {}
+            await log.edit(`✅ **${pack}** - installed`)
+            installed.add(pack)
+          } catch (error) {
+            if (log) await log.edit(`❌ **${pack}** - error`)
+            else await message.channel.send(`❌ **${pack}** - error`)
+          }
         }
       }
     }
@@ -38,13 +52,24 @@ const command: app.Command = {
       message.content = "return " + message.content
     }
 
+    message.content = `const req = {${[...installed]
+      .map((pack) => `"${pack}": require("${pack}")`)
+      .join(", ")}}; ${message.content}`
+
     await discordEval(message.content, message)
 
-    for (const pack of packages) {
+    for (const pack of installed) {
+      let log
       try {
+        log = await message.channel.send(
+          `<a:wait:560972897376665600> **${pack}** - uninstall...`
+        )
         await exec(`npm remove --purge ${pack}`)
-        packages.push(pack)
-      } catch (error) {}
+        await log.edit(`🗑️ **${pack}** - uninstalled`)
+      } catch (error) {
+        if (log) await log.edit(`❌ **${pack}** - error`)
+        else await message.channel.send(`❌ **${pack}** - error`)
+      }
     }
   },
 }
