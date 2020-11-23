@@ -8,7 +8,9 @@ export function isCommandMessage(
     !message.system &&
     !!message.guild &&
     message.author.id !== "555419470894596096" &&
-    message.channel instanceof Discord.TextChannel
+    message.channel.type === "text" &&
+    !message.webhookID &&
+    (message.member?.roles.cache.size ?? 0) > 0
   )
 }
 
