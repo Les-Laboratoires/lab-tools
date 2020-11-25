@@ -34,7 +34,7 @@ const command: app.Command = {
             log = await message.channel.send(
               `<a:wait:560972897376665600> **${pack}** - isntall...`
             )
-            await exec(`npm i ${pack}`)
+            await exec(`npm i ${pack}@latest`)
             await log.edit(`✅ **${pack}** - installed`)
             installed.add(pack)
           } catch (error) {
