@@ -5,7 +5,6 @@ import * as app from "../app"
 
 const exec = util.promisify(cp.exec)
 const regex = /--(?:install|use|add|with|npm|dep) +([a-z-_.]+)(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?(?:, ?([a-z-_.]+))?/i
-const regexBlock = /^```(?:js)?\s(.+[^\\])```$/is
 
 const packageJson = require("../../package.json")
 
@@ -46,8 +45,8 @@ const command: app.Command = {
       }
     }
 
-    if (regexBlock.test(message.content))
-      message.content = message.content.replace(regexBlock, "$1")
+    if (app.codeRegex.test(message.content))
+      message.content = message.content.replace(app.codeRegex, "$1")
 
     if (
       message.content.split("\n").length === 1 &&

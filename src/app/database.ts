@@ -14,6 +14,10 @@ export const counters = new Enmap<string, Counter>({
   name: "counters",
 })
 
+export const snippets = new Enmap<string, string>({
+  name: "snippets",
+})
+
 export const coolDowns = new Enmap<string, CoolDown>()
 
 // /** Enmap[Guild, Prefix] */

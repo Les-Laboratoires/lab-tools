@@ -14,8 +14,16 @@ export const modo = "620302774638215168"
 export const general = "620664805400772621"
 export const cobaye = "620640927089688587"
 
+export const codeRegex = /^```(?:js)?\s(.+[^\\])```$/is
+
 export function code(text: string, lang = ""): string {
   return "```" + lang + "\n" + text.replace(/```/g, "\\```") + "\n```"
+}
+
+export function getKey(message: Discord.Message): string {
+  const key = message.content.split(/\s+/)[0]
+  message.content = message.content.replace(key, "").trim()
+  return key
 }
 
 export async function resolveMember(
