@@ -93,7 +93,7 @@ const command: app.Command = {
         } else {
           const snippet = app.snippets.get(key)
           if (snippet) {
-            return discordEval(snippet, message)
+            return discordEval(snippet, message, snippet.includes("@muted"))
           } else {
             return message.channel.send("Snippet inexistant.")
           }

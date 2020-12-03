@@ -59,7 +59,11 @@ const command: app.Command = {
       .map((pack) => `"${pack}": require("${pack}")`)
       .join(", ")}}; ${message.content}`
 
-    await discordEval(message.content, message)
+    await discordEval(
+      message.content,
+      message,
+      message.content.includes("@muted")
+    )
 
     for (const pack of installed) {
       let log
