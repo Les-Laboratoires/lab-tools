@@ -54,31 +54,7 @@ const command: app.Command = {
       return message.channel.send(
         `Ok le compteur de ${name} a bien été supprimé.`
       )
-    } else if (app.counters.has(message.content)) {
-      const counter = app.counters.get(message.content) as app.Counter
-
-      const leaderboard = app.scores
-        .filter(
-          (score) =>
-            score.hasOwnProperty(counter.name) && score[counter.name] > 0
-        )
-        .map((score, id) => ({ score: score[counter.name], id }))
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 15)
-        .map((obj, i) => {
-          const position = String(i + 1)
-          return `\`# ${position}${position.length === 1 ? " " : ""} | ${
-            obj.score
-          } pts\` - <@${obj.id}>`
-        })
-        .join("\n")
-
-      return message.channel.send(
-        new app.MessageEmbed()
-          .setAuthor(`Leaderboard | ${message.content}`)
-          .setDescription(leaderboard)
-      )
-    } else {
+    } else if (message.content.startsWith("me")) {
       const score = app.scores.ensure(message.author.id, {})
       return message.channel.send(
         new app.MessageEmbed()
@@ -91,8 +67,62 @@ const command: app.Command = {
             `**${eval(Object.values(score).join(" + "))}** points.`
           )
       )
+    } else if (app.counters.has(message.content)) {
+      const counter = app.counters.get(message.content) as app.Counter
+
+      const leaderboard = app.scores
+        .filter(
+          (score) =>
+            score.hasOwnProperty(counter.name) && score[counter.name] > 0
+        )
+        .map((score, id) => ({ score: score[counter.name], id }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 15)
+        .map(leaderItem)
+        .join("\n")
+
+      return message.channel.send(
+        new app.MessageEmbed()
+          .setAuthor(`Leaderboard | ${message.content}`)
+          .setDescription(leaderboard)
+      )
+    } else if (message.mentions.members && message.mentions.members.size > 0) {
+      const target = message.mentions.members.first() as app.GuildMember
+      const score = app.scores.ensure(target.id, {})
+      return message.channel.send(
+        new app.MessageEmbed()
+          .setTitle(`Scores | ${message.author.tag}`)
+          .setDescription(
+            app.code(JSON.stringify(score, null, 2).replace(/"/g, ""), "js")
+          )
+          .addField(
+            "total",
+            `**${eval(Object.values(score).join(" + "))}** points.`
+          )
+      )
+    } else {
+      return message.channel.send(
+        new app.MessageEmbed().setAuthor(`Leaderboard | Total`).setDescription(
+          app.scores
+            .map((score, id) => ({
+              id,
+              score: eval(Object.values(score).join(" + ")),
+            }))
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 15)
+            .map(leaderItem)
+            .join("\n")
+        )
+      )
     }
   },
 }
 
 module.exports = command
+
+function leaderItem(obj: { score: number; id: string }, i: number) {
+  const position = String(i + 1)
+  return `\`# ${position}${position.length === 1 ? " " : ""} | ${
+    obj.score
+  } pts\` - <@${obj.id}>`
+}
