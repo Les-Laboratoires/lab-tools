@@ -91,13 +91,13 @@ const command: app.Command = {
       const score = app.scores.ensure(target.id, {})
       return message.channel.send(
         new app.MessageEmbed()
-          .setTitle(`Scores | ${message.author.tag}`)
+          .setTitle(`Scores | ${target.user.tag}`)
           .setDescription(
             app.code(JSON.stringify(score, null, 2).replace(/"/g, ""), "js")
           )
           .addField(
             "total",
-            `**${eval(Object.values(score).join(" + "))}** points.`
+            `**${eval(Object.values(score).join(" + ")) || 0}** points.`
           )
       )
     } else {
