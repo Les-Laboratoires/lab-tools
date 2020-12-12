@@ -16,12 +16,12 @@ const command: app.Command = {
     "functions",
   ],
   async run(message) {
-    const key = app.getKey(message)
+    const key = app.getArgument(message)
 
     switch (key) {
       case "add":
       case "set": {
-        const name = app.getKey(message)
+        const name = app.getArgument(message)
 
         if (!name) {
           return message.channel.send(
@@ -48,7 +48,7 @@ const command: app.Command = {
       case "rm":
       case "delete":
       case "del": {
-        const name = app.getKey(message)
+        const name = app.getArgument(message)
 
         if (!name)
           return message.channel.send(
@@ -69,7 +69,7 @@ const command: app.Command = {
       case "display":
       case "view":
       case "show": {
-        const name = app.getKey(message)
+        const name = app.getArgument(message)
 
         if (!name)
           return message.channel.send(

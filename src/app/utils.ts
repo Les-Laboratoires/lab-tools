@@ -20,10 +20,44 @@ export function code(text: string, lang = ""): string {
   return "```" + lang + "\n" + text.replace(/```/g, "\\```") + "\n```"
 }
 
-export function getKey(message: Discord.Message): string {
-  const key = message.content.split(/\s+/)[0]
-  message.content = message.content.replace(key, "").trim()
-  return key
+export function getArgument(message: Discord.Message): string | null
+export function getArgument(
+  message: Discord.Message,
+  match: "number"
+): number | null
+export function getArgument(
+  message: Discord.Message,
+  match: "rest" | "word" | RegExp
+): string | null
+export function getArgument(
+  message: Discord.Message,
+  match: "rest" | "word" | "number" | RegExp = "word"
+): string | number | null {
+  if (match === "word") {
+    const key = message.content.split(/\s+/)[0]
+    message.content = message.content.replace(key, "").trim()
+    return key
+  } else if (match === "rest") {
+    const key = message.content
+    message.content = ""
+    return key
+  } else if (match === "number") {
+    const regex = /^-?[1-9]\d*/
+    const result = regex.exec(message.content)
+    if (result) {
+      message.content.replace(regex, "").trim()
+      return Number(result[0])
+    }
+  } else {
+    const result = match.exec(message.content)
+    if (result) {
+      const key = result[1] ?? result[0]
+      match.lastIndex = 0
+      message.content.replace(match, "").trim()
+      return key
+    }
+  }
+  return null
 }
 
 export async function resolveMember(

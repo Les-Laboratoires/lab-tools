@@ -6,6 +6,8 @@ export const globals = new Enmap<string, any>({
   name: "globals",
 })
 
+export const money = new Enmap<string, number>({ name: "money" })
+
 export const scores = new Enmap<string, Score>({
   name: "scores",
 })
