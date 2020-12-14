@@ -2,6 +2,7 @@ import dayjs from "dayjs"
 import Discord from "discord.js"
 import * as command from "./command"
 
+export const labs = "507389389098188820"
 export const ghom = "352176756922253321"
 export const loockeeer = "272676235946098688"
 export const validation = "659513985552351261"

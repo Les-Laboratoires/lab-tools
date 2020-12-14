@@ -5,15 +5,20 @@ const command: app.Command = {
   name: "daily",
   aliases: ["dl", "day"],
   async run(message) {
-    const lastTime = app.daily.ensure(message.author.id, 0)
-    const today = Date.now()
-    const day = 1000 * 60 * 60 * 24
-    const yesterday = today - day
+    const lastDay = app.daily.ensure(message.author.id, -1)
+    const today = app.dayjs().date()
 
-    const rest = lastTime - yesterday
+    const midnight = new Date()
 
-    if (rest < 0) {
-      app.daily.set(message.author.id, Date.now())
+    midnight.setHours(0)
+    midnight.setMinutes(0)
+    midnight.setMilliseconds(0)
+    midnight.setDate(midnight.getDate() + 1)
+
+    const rest = midnight.getTime() - Date.now()
+
+    if (lastDay !== today) {
+      app.daily.set(message.author.id, today)
 
       const gain = Math.round(10 + Math.random() * 10)
 
@@ -29,7 +34,7 @@ const command: app.Command = {
       return message.channel.send(
         `Nope ! Faut attendre ${tims.duration(rest, {
           locale: "fr",
-          format: "second",
+          format: "minute",
         })} <:shrug:709330366967578625>`
       )
     }
