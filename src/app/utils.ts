@@ -29,11 +29,11 @@ export function getArgument(
 ): number | null
 export function getArgument(
   message: Discord.Message,
-  match: "rest" | "word" | RegExp
+  match: "rest" | "word" | RegExp | string[]
 ): string | null
 export function getArgument(
   message: Discord.Message,
-  match: "rest" | "word" | "number" | RegExp = "word"
+  match: "rest" | "word" | "number" | RegExp | string[] = "word"
 ): string | number | null {
   if (match === "word") {
     const key = message.content.split(/\s+/)[0]
@@ -49,6 +49,13 @@ export function getArgument(
     if (result) {
       message.content.replace(regex, "").trim()
       return Number(result[0])
+    }
+  } else if (Array.isArray(match)) {
+    for (const key of match) {
+      if (message.content.startsWith(key)) {
+        message.content = message.content.slice(key.length).trim()
+        return key
+      }
     }
   } else {
     const result = match.exec(message.content)

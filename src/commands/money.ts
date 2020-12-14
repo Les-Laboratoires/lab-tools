@@ -4,7 +4,17 @@ const command: app.Command = {
   name: "money",
   aliases: ["$"],
   async run(message) {
-    const key = app.getArgument(message)
+    let key = app.getArgument(message, [
+      "add",
+      "gen",
+      "create",
+      "delete",
+      "remove",
+      "rm",
+      "del",
+      "give",
+      "send",
+    ])
 
     let amount = 0
 
@@ -12,27 +22,36 @@ const command: app.Command = {
       case "add":
       case "gen":
       case "create":
+        key = "add"
+        break
       case "delete":
       case "remove":
       case "rm":
       case "del":
-        if (message.author.id !== app.ghom) {
-          return message.channel.send(
-            "C'est Ghom qui gère les sous <:stalin:564536294512918548>"
-          )
-        }
+        key = "remove"
+        break
+      case "give":
+      case "send":
+        key = "give"
+        break
+    }
+
+    if (
+      key === "add" ||
+      key === "remove" ||
+      (key === "give" && message.content.includes("as bank"))
+    ) {
+      if (message.author.id !== app.ghom) {
+        return message.channel.send(
+          "C'est Ghom qui gère les sous <:stalin:564536294512918548>"
+        )
+      }
     }
 
     switch (key) {
       case "add":
-      case "gen":
-      case "create":
-      case "delete":
       case "remove":
-      case "rm":
-      case "del":
       case "give":
-      case "send":
         amount = app.getArgument(message, "number") ?? 0
 
         if (amount < 1) {
@@ -44,50 +63,50 @@ const command: app.Command = {
 
     switch (key) {
       case "add":
-      case "gen":
-      case "create":
         app.money.set("bank", app.money.ensure("bank", 0) + amount)
 
         return message.channel.send(
           `Ok, ${amount}${app.currency} ont été ajoutés à la banque. <:STONKS:772181235526533150>`
         )
-      case "delete":
       case "remove":
-      case "rm":
-      case "del":
         app.money.set("bank", app.money.ensure("bank", 0) - amount)
 
         return message.channel.send(
           `Ok, ${amount}${app.currency} ont été retirés de la banque. <:oui:703398234718208080>`
         )
-      case "give":
-      case "send":
+      case "give": {
         if (!message.mentions.members || message.mentions.members.size === 0) {
           return message.channel.send(
             "Tu dois mentionner la ou les personnes ciblées <:jpp:564431015377108992>"
           )
         }
 
-        const money = app.money.ensure(message.author.id, 0)
+        const bank = message.content.includes("as bank")
+
+        const money = app.money.ensure(bank ? "bank" : message.author.id, 0)
 
         const loss = message.mentions.members.size * amount
 
         if (loss > money) {
           return message.channel.send(
-            `Tu ne possèdes pas assez d'argent <:lul:507420611484712971>\nIl te manque ${
-              loss - money
-            }${app.currency}`
+            bank
+              ? `La banque ne possède pas assez d'argent. Il manque ${
+                  loss - money
+                }${app.currency}`
+              : `Tu ne possèdes pas assez d'argent <:lul:507420611484712971>\nIl te manque ${
+                  loss - money
+                }${app.currency}`
           )
         }
 
-        app.money.set(message.author.id, money - loss)
+        app.money.set(bank ? "bank" : message.author.id, money - loss)
 
         message.mentions.members.forEach((member) => {
           app.money.set(member.id, app.money.ensure(member.id, 0) + amount)
         })
 
         return message.channel.send(
-          `Tu as perdu ${loss}${
+          `${bank ? "La banque a" : "Tu as"} perdu ${loss}${
             app.currency
           } en tout.\nLes membres suivants ont chacun reçus ${amount}${
             app.currency
@@ -99,8 +118,20 @@ const command: app.Command = {
               .join("\n")
           )}`
         )
+      }
       default:
-        return message.channel.send("<:what:657667833509052444>")
+        const bank = message.content.includes("as bank")
+        const money = app.money.ensure(bank ? "bank" : message.author.id, 0)
+
+        if (bank) {
+          return message.channel.send(
+            `Il y a actuellement ${money}${app.currency} en banque.`
+          )
+        } else {
+          return message.channel.send(
+            `Vous possédez actuellement ${money}${app.currency}`
+          )
+        }
     }
   },
 }
