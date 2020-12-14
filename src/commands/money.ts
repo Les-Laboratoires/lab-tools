@@ -16,6 +16,8 @@ const command: app.Command = {
       "send",
     ])
 
+    // todo: ladder, log, target bank
+
     let amount = 0
 
     switch (key) {
