@@ -116,7 +116,7 @@ const listener: app.Listener<"message"> = {
         )
       }
       app.money.set(
-        app.money.ensure(message.author.id, 0),
+        message.author.id,
         userMoney - cmd.needMoney
       )
     }
