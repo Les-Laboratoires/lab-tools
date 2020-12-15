@@ -121,6 +121,10 @@ const listener: app.Listener<"message"> = {
         app.money.ensure(message.author.id, 0),
         userMoney - cmd.needMoney
       )
+      app.money.set(
+        "bank",
+        app.money.ensure("bank", 0) + cmd.needMoney
+      )
     }
 
     message.content = message.content.slice(key.length).trim()
