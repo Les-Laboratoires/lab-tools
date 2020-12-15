@@ -103,6 +103,24 @@ const listener: app.Listener<"message"> = {
       }
     }
 
+    if (cmd.needMoney) {
+      const userMoney = app.money.ensure(message.author.id, 0)
+      if(userMoney < cmd.needMoney) {
+        return message.channel.send(
+          new app.MessageEmbed()
+            .setColor("RED")
+            .setAuthor(
+              `You don't have enough money to do this. You need ${Math.abs(userMoney - cmd.needMoney)}${app.currency} more.`,
+              message.client.user?.displayAvatarURL()
+            )
+        )
+      }
+      app.money.set(
+        app.money.ensure(message.author.id, 0),
+        userMoney - cmd.needMoney
+      )
+    }
+
     message.content = message.content.slice(key.length).trim()
 
     try {

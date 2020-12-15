@@ -40,6 +40,7 @@ export interface Command {
   botOwner?: boolean
   userPermissions?: Discord.PermissionString[]
   botPermissions?: Discord.PermissionString[]
+  needMoney?: number
   run: (message: CommandMessage) => unknown
 }
 
