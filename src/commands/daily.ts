@@ -21,22 +21,19 @@ const command: app.Command = {
       app.daily.set(message.author.id, today)
 
       const gain = Math.round(10 + Math.random() * 10)
-      
-      if((app.money.ensure("bank", 0) - gain) < 0) {
+
+      if (app.money.ensure("bank", 0) - gain < 0) {
         return message.channel.send(
-          `Mayde, mayde ! La banque fait fallite ! Elle ne peut vous payer et ferme... <:wtfhappened:744158053506744321>`  
+          `Mayde, mayde ! La banque fait fallite ! Elle ne peut vous payer et ferme... <:wtfhappened:744158053506744321>`
         )
       }
-      
+
       app.money.set(
         message.author.id,
         app.money.ensure(message.author.id, 0) + gain
       )
-      
-      app.money.set(
-        "bank",
-        app.money.ensure("bank", 0) - gain
-      )
+
+      app.money.set("bank", app.money.ensure("bank", 0) - gain)
       return message.channel.send(
         `Youhouuuu ! T'as gagné ${gain}${app.currency} <:yay:557124850326437888>`
       )
