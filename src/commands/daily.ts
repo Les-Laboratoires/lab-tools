@@ -1,4 +1,4 @@
-const tims = require("tims")
+import tims from "tims"
 import * as app from "../app"
 
 const command: app.Command = {

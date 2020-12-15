@@ -20,7 +20,7 @@
     "dotenv": "^8.2.0",
     "enmap": "^5.8.0",
     "ghom-prettify": "^1.1.1-bite",
-    "tims": "^2.0.3"
+    "tims": "^2.0.4"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.0",
