@@ -33,11 +33,8 @@ const listener: app.Listener<"ready"> = {
           if (money < tax || tax === 0) continue
 
           app.money.set(member.id, money - tax)
-          
-          app.money.set(
-            "bank",
-            app.money.ensure("bank", 0) + tax
-          )
+
+          app.money.set("bank", app.money.ensure("bank", 0) + tax)
           await member.send(`AHAH J'T'AI TAXÉ ${tax}${app.currency} !`).catch()
         }
       }
