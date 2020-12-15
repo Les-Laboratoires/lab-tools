@@ -28,13 +28,17 @@ const listener: app.Listener<"ready"> = {
 
         for (const member of labs.members.cache.array()) {
           const money = app.money.ensure(member.id, 0)
-          const taxe = Math.floor(money * 0.1)
+          const tax = Math.floor(money * 0.1)
 
-          if (money < taxe || taxe === 0) continue
+          if (money < tax || tax === 0) continue
 
-          app.money.set(member.id, money - taxe)
-
-          await member.send(`AHAH J'T'AI TAXÉ ${taxe}${app.currency} !`).catch()
+          app.money.set(member.id, money - tax)
+          
+          app.money.set(
+            "bank",
+            app.money.ensure("bank", 0) + tax
+          )
+          await member.send(`AHAH J'T'AI TAXÉ ${tax}${app.currency} !`).catch()
         }
       }
     }, 1000 * 60 * 10)
