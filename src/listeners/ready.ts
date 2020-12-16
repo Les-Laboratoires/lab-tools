@@ -1,4 +1,5 @@
 import * as app from "../app"
+import { CronJob } from "cron"
 
 const listener: app.Listener<"ready"> = {
   event: "ready",
@@ -19,23 +20,30 @@ const listener: app.Listener<"ready"> = {
     await labs.members.fetch()
 
     app.daily.ensure("taxe", -1)
+    
+    const job = new CronJob(
+      "0 0 * * *",
+      async () => {
+        const date = app.dayjs().date()
 
-    setInterval(async () => {
-      const date = app.dayjs().date()
+        if (date !== app.daily.get("taxe")) {
+          app.daily.set("taxe", date)
 
-      if (date !== app.daily.get("taxe")) {
-        app.daily.set("taxe", date)
+          for (const member of labs.members.cache.array()) {
+            const money = app.money.ensure(member.id, 0)
+            const tax = Math.floor(money * 0.1)
 
-        for (const member of labs.members.cache.array()) {
-          const money = app.money.ensure(member.id, 0)
-          const tax = Math.floor(money * 0.1)
+            if (money < tax || tax === 0) continue
 
-          if (money < tax || tax === 0) continue
-
-          await app.transaction(member.id, ["bank"], tax)
+            await app.transaction(member.id, ["bank"], tax)
+          }
         }
-      }
-    }, 1000 * 60)
+    },
+    null,
+    true,
+    "Europe/Paris"
+    )
+    job.start()
   },
 }
 
