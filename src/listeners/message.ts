@@ -117,8 +117,7 @@ const listener: app.Listener<"message"> = {
             )
         )
       }
-      app.money.set(message.author.id, userMoney - cmd.needMoney)
-      app.money.set("bank", app.money.ensure("bank", 0) + cmd.needMoney)
+      await app.transaction(message.author.id, ["bank"], cmd.needMoney)
     }
 
     message.content = message.content.slice(key.length).trim()

@@ -4,13 +4,11 @@ const listener: app.Listener<"ready"> = {
   event: "ready",
   once: true,
   async call() {
-    const helloChannel = await this.channels.fetch(
+    const helloChannel = (await this.channels.fetch(
       app.globals.ensure("helloChannel", app.general)
-    )
+    )) as app.TextChannel
 
-    if (helloChannel instanceof app.TextChannel) {
-      await helloChannel.send("I'm back ! <a:dancing:576104669516922881>")
-    }
+    await helloChannel.send("I'm back ! <a:dancing:576104669516922881>")
 
     app.globals.delete("helloChannel")
 
@@ -32,13 +30,10 @@ const listener: app.Listener<"ready"> = {
 
           if (money < tax || tax === 0) continue
 
-          app.money.set(member.id, money - tax)
-
-          app.money.set("bank", app.money.ensure("bank", 0) + tax)
-          await member.send(`AHAH J'T'AI TAXÉ ${tax}${app.currency} !`).catch()
+          await app.transaction(member.id, ["bank"], tax)
         }
       }
-    }, 1000 * 60 * 10)
+    }, 1000 * 60)
   },
 }
 

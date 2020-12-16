@@ -4,7 +4,7 @@ const command: app.Command = {
   name: "fake",
   coolDown: 10000,
   userPermissions: ["MANAGE_WEBHOOKS"],
-  needMoney: 5,
+  needMoney: 10,
   async run(message) {
     const [memberResolvable, content] = message.content.split(/\s+say\s+|\n/)
     if (!content || !memberResolvable)

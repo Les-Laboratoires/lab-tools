@@ -1,4 +1,5 @@
 import Enmap from "enmap"
+import * as app from "../app"
 
 export const cache = new Enmap<string, any>()
 
@@ -7,6 +8,29 @@ export const globals = new Enmap<string, any>({
 })
 
 export const money = new Enmap<string, number>({ name: "money" })
+export async function transaction(
+  taxed: string,
+  paid: string[],
+  amount: number,
+  callback?: (missing: number) => unknown
+): Promise<boolean> {
+  const taxedMoney = money.ensure(taxed, 0)
+
+  const total = paid.length * amount
+
+  if (taxedMoney < total) {
+    await callback?.(total - taxedMoney)
+    return false
+  }
+
+  money.set(taxed, taxedMoney - total)
+
+  paid.forEach((id) => {
+    app.money.set(id, app.money.ensure(id, 0) + amount)
+  })
+
+  return true
+}
 
 export const scores = new Enmap<string, Score>({
   name: "scores",

@@ -84,41 +84,45 @@ const command: app.Command = {
         }
 
         const bank = message.content.includes("as bank")
+        const taxed = bank ? "bank" : message.author.id
+        const members = message.mentions.members
+        const tax = members.size * amount
 
-        const money = app.money.ensure(bank ? "bank" : message.author.id, 0)
-
-        const loss = message.mentions.members.size * amount
-
-        if (loss > money) {
-          return message.channel.send(
-            bank
-              ? `La banque ne possède pas assez d'argent. Il manque ${
-                  loss - money
-                }${app.currency}`
-              : `Tu ne possèdes pas assez d'argent <:lul:507420611484712971>\nIl te manque ${
-                  loss - money
-                }${app.currency}`
-          )
-        }
-
-        app.money.set(bank ? "bank" : message.author.id, money - loss)
-
-        message.mentions.members.forEach((member) => {
-          app.money.set(member.id, app.money.ensure(member.id, 0) + amount)
-        })
-
-        return message.channel.send(
-          `${bank ? "La banque a" : "Tu as"} perdu ${loss}${
-            app.currency
-          } en tout.\nLes membres suivants ont chacun reçus ${amount}${
-            app.currency
-          }.${app.code(
-            message.mentions.members
-              .map((member) => {
-                return member.displayName
-              })
-              .join("\n")
-          )}`
+        return app.transaction(
+          taxed,
+          members.map((m) => m.id),
+          amount,
+          (missing) => {
+            if (missing) {
+              return message.channel.send(
+                bank
+                  ? `La banque ne possède pas assez d'argent. Il manque ${missing}${app.currency}`
+                  : `Tu ne possèdes pas assez d'argent <:lul:507420611484712971>\nIl te manque ${missing}${app.currency}`
+              )
+            } else {
+              if (members.size === 1) {
+                return message.channel.send(
+                  `${bank ? "La banque a" : "Tu as"} transféré ${tax}${
+                    app.currency
+                  } vers le compte de **${members.first()?.user.tag}**`
+                )
+              } else {
+                return message.channel.send(
+                  `${bank ? "La banque a" : "Tu as"} perdu ${tax}${
+                    app.currency
+                  } en tout.\nLes membres suivants ont chacun reçus ${amount}${
+                    app.currency
+                  }.${app.code(
+                    members
+                      .map((member) => {
+                        return member.displayName
+                      })
+                      .join("\n")
+                  )}`
+                )
+              }
+            }
+          }
         )
       }
       default:
