@@ -16,6 +16,8 @@ const listener: app.Listener<"ready"> = {
 
     const labs = await this.guilds.fetch(app.labs)
 
+    await labs.members.fetch()
+
     app.daily.ensure("taxe", -1)
 
     setInterval(async () => {
