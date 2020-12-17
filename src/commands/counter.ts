@@ -110,7 +110,7 @@ const command: app.Command = {
             }))
             .sort((a, b) => b.score - a.score)
             .slice(0, 15)
-            .map(leaderItem)
+            .map(app.leaderItem)
             .join("\n")
         )
       )
@@ -119,10 +119,3 @@ const command: app.Command = {
 }
 
 module.exports = command
-
-function leaderItem(obj: { score: number; id: string }, i: number) {
-  const position = String(i + 1)
-  return `\`# ${position}${position.length === 1 ? " " : ""} | ${
-    obj.score
-  } pts\` - <@${obj.id}>`
-}
