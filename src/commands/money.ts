@@ -167,4 +167,11 @@ const command: app.Command = {
   },
 }
 
+function leaderItem(obj: { score: number; id: string }, i: number) {
+  const position = String(i + 1)
+  return `\`# ${position}${position.length === 1 ? " " : ""} | ${
+    obj.score
+  } pts\` - <@${obj.id}>`
+}
+
 module.exports = command
