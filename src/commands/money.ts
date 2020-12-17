@@ -14,6 +14,9 @@ const command: app.Command = {
       "del",
       "give",
       "send",
+      "ladder",
+      "leaderboard",
+      "lead"
     ])
 
     // todo: ladder, log, target bank
@@ -35,6 +38,11 @@ const command: app.Command = {
       case "give":
       case "send":
         key = "give"
+        break
+      case "leaderboard":
+      case "lead":
+      case "ladder":
+        key = "ladder"
         break
     }
 
@@ -64,6 +72,23 @@ const command: app.Command = {
     }
 
     switch (key) {
+      case "ladder": {
+        return message.channel.send(
+          new app.MessageEmbed().setAuthor(`Leaderboard | ${app.currency}`).setDescription(
+            app.money
+              .map((money, id) => ({
+                id,
+                money
+              })
+              .filter((el) => el.id !== "bank")
+              .sort((a, b) => b.money - a.money)
+              .slice(0, 15)
+              .map(leaderItem)
+              .join("\n")
+         )
+        )
+      }
+          
       case "add":
         app.money.set("bank", app.money.ensure("bank", 0) + amount)
 
