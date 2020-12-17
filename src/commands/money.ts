@@ -83,7 +83,7 @@ const command: app.Command = {
               .filter((el) => el.id !== "bank")
               .sort((a, b) => b.money - a.money)
               .slice(0, 15)
-              .map(leaderItem)
+              .map(app.leaderItem)
               .join("\n")
          )
         )
@@ -165,13 +165,6 @@ const command: app.Command = {
         }
     }
   },
-}
-
-function leaderItem(obj: { score: number; id: string }, i: number) {
-  const position = String(i + 1)
-  return `\`# ${position}${position.length === 1 ? " " : ""} | ${
-    obj.score
-  } pts\` - <@${obj.id}>`
 }
 
 module.exports = command
