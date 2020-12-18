@@ -18,7 +18,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
     if (reaction.message.channel.id === app.presentations) {
       const authorMember = reaction.message.guild?.members.resolve(user.id)
 
-      if (user.bot || !authorMember || !app.isModo(authorMember)) return
+      if (user.bot || !authorMember || !app.isMod(authorMember)) return
 
       const member = reaction.message.member
 

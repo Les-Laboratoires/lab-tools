@@ -16,7 +16,7 @@ const command: app.Command = {
       "send",
       "ladder",
       "leaderboard",
-      "lead"
+      "lead",
     ])
 
     // todo: ladder, log, target bank
@@ -74,21 +74,23 @@ const command: app.Command = {
     switch (key) {
       case "ladder": {
         return message.channel.send(
-          new app.MessageEmbed().setAuthor(`Leaderboard | ${app.currency}`).setDescription(
-            app.money
-              .map((money, id) => ({
-                id,
-                money
-              })
-              .filter((el) => el.id !== "bank")
-              .sort((a, b) => b.money - a.money)
-              .slice(0, 15)
-              .map(app.leaderItem)
-              .join("\n")
-         )
+          new app.MessageEmbed()
+            .setAuthor(`Leaderboard | ${app.currency}`)
+            .setDescription(
+              app.money
+                .map((money, id) => ({
+                  id,
+                  score: money,
+                }))
+                .filter((el) => el.id !== "bank")
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 15)
+                .map(app.leaderItem)
+                .join("\n")
+            )
         )
       }
-          
+
       case "add":
         app.money.set("bank", app.money.ensure("bank", 0) + amount)
 

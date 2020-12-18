@@ -78,7 +78,7 @@ const command: app.Command = {
         .map((score, id) => ({ score: score[counter.name], id }))
         .sort((a, b) => b.score - a.score)
         .slice(0, 15)
-        .map(leaderItem)
+        .map(app.leaderItem)
         .join("\n")
 
       return message.channel.send(
