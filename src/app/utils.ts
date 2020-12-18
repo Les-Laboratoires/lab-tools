@@ -14,6 +14,7 @@ export const staff = "620657235533758494"
 export const modo = "620302774638215168"
 export const general = "620664805400772621"
 export const cobaye = "620640927089688587"
+export const publiclogs = "789522053728305250"
 
 export const currency = "Ɠ"
 
