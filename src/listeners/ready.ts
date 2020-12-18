@@ -38,8 +38,8 @@ const listener: app.Listener<"ready"> = {
             totalTax =+ tax
             await app.transaction(member.id, ["bank"], tax)
           }
-          const channel = labs.channels.cache.get(app.publiclogs)
-          channel?.send(`Les taxes de ce soir s'élèvent à un total de... ||${totalTax}${app.currency}|| !`)
+          const channel = labs.channels.cache.get(app.publiclogs) as app.TextChannel
+          channel.send(`Les taxes de ce soir s'élèvent à un total de... ||${totalTax}${app.currency}|| !`)
         }
       },
       null,
