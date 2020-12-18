@@ -15,6 +15,7 @@ export const modo = "620302774638215168"
 export const general = "620664805400772621"
 export const cobaye = "620640927089688587"
 export const publiclogs = "789522053728305250"
+export const admin = "620658954195828736"
 
 export const currency = "Ɠ"
 
@@ -101,6 +102,10 @@ export function isMod(member: Discord.GuildMember) {
     member.permissions.has("ADMINISTRATOR", true) ||
     member.roles.cache.has(module.exports.modo)
   )
+}
+    
+export function isAdmin(member: Discord.GuildMember) {
+  return member.roles.cache.has(module.exports.admin)
 }
 
 export function leaderItem(
