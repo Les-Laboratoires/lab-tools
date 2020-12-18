@@ -102,11 +102,11 @@ export function isMod(member: Discord.GuildMember) {
   )
 }
 
-export function leaderItem(obj: { score: number; id: string }, i: number) {
+export function leaderItem(obj: { score: number; id: string }, i: number, typeName: string) {
   const position = String(i + 1)
   return `\`# ${position}${position.length === 1 ? " " : ""} | ${
     obj.score
-  } pts\` - <@${obj.id}>`
+  } ${typeName}\` - <@${obj.id}>`
 }
 
 dayjs.locale("fr")
