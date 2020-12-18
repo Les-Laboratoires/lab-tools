@@ -29,14 +29,17 @@ const listener: app.Listener<"ready"> = {
         if (date !== app.daily.get("taxe")) {
           app.daily.set("taxe", date)
 
+          let totalTax;
           for (const member of labs.members.cache.array()) {
             const money = app.money.ensure(member.id, 0)
             const tax = Math.floor(money * 0.1)
 
             if (money < tax || tax === 0) continue
-
+            totalTax =+ tax
             await app.transaction(member.id, ["bank"], tax)
           }
+          const channel = labs.channels.cache.get(app.publiclogs)
+          channel.send(`Les taxes de ce soir s'élèvent à un total de... ||${totalTax}${app.currency}|| !`)
         }
       },
       null,
