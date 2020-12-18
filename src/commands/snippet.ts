@@ -3,7 +3,6 @@ import * as app from "../app"
 
 const command: app.Command = {
   name: "snippet",
-  botOwner: true,
   aliases: [
     "snip",
     "snippets",
