@@ -102,7 +102,11 @@ export function isMod(member: Discord.GuildMember) {
   )
 }
 
-export function leaderItem(obj: { score: number; id: string }, i: number, typeName: string) {
+export function leaderItem(
+  obj: { score: number; id: string },
+  i: number,
+  typeName: string
+) {
   const position = String(i + 1)
   return `\`# ${position}${position.length === 1 ? " " : ""} | ${
     obj.score
