@@ -3,7 +3,7 @@ import * as app from "../app"
 const command: app.Command = {
   name: "mute",
   async run(message) {
-    if (!app.isModo(message.member)) {
+    if (!app.isMod(message.member)) {
       return message.channel.send("T'es pas modo mon salaud!")
     }
 
@@ -13,7 +13,7 @@ const command: app.Command = {
       return message.channel.send("Cible incorrecte...")
     }
 
-    if (app.isModo(target)) {
+    if (app.isMod(target)) {
       return message.channel.send(
         "Ah je suis navré mais non... Fini la guéguerre entre le staff <:oui:703398234718208080>"
       )

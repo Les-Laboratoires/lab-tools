@@ -95,7 +95,7 @@ export async function resolveMember(
   return message.member
 }
 
-export function isModo(member: Discord.GuildMember) {
+export function isMod(member: Discord.GuildMember) {
   return (
     member.permissions.has("ADMINISTRATOR", true) ||
     member.roles.cache.has(module.exports.modo)
