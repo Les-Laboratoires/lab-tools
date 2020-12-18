@@ -110,7 +110,7 @@ const command: app.Command = {
             }))
             .sort((a, b) => b.score - a.score)
             .slice(0, 15)
-            .map(app.leaderItem)
+            .map((el, i) => app.leaderItem(el, i, app.currency))
             .join("\n")
         )
       )
