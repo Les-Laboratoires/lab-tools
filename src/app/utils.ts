@@ -103,7 +103,7 @@ export function isMod(member: Discord.GuildMember) {
     member.roles.cache.has(module.exports.modo)
   )
 }
-    
+
 export function isAdmin(member: Discord.GuildMember) {
   return member.roles.cache.has(module.exports.admin)
 }
