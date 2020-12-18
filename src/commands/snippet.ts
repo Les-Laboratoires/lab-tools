@@ -21,6 +21,7 @@ const command: app.Command = {
     switch (key) {
       case "add":
       case "set": {
+        if(process.env.OWNER !== message.author.id) return message.channel.send("Seul l'owner du bot peut faire ça :p") 
         const name = app.getArgument(message)
 
         if (!name) {
@@ -48,6 +49,7 @@ const command: app.Command = {
       case "rm":
       case "delete":
       case "del": {
+        if(process.env.OWNER !== message.author.id) return message.channel.send("Seul l'owner du bot peut faire ça :p")
         const name = app.getArgument(message)
 
         if (!name)
@@ -88,6 +90,7 @@ const command: app.Command = {
         )
       }
       default: {
+        if(!app.isAdmin(message.member)) return message.channel.send("Seuls les admins peuvent exécuter les snippets 👀")
         if (!key) {
           return message.channel.send("bite")
         } else {
