@@ -35,7 +35,7 @@ const listener: app.Listener<"ready"> = {
             const tax = Math.floor(money * 0.1)
 
             if (money < tax || tax === 0) continue
-            totalTax = +tax
+            totalTax += tax
             await app.transaction(member.id, ["bank"], tax)
           }
           const channel = labs.channels.cache.get(
