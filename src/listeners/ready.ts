@@ -29,7 +29,7 @@ const listener: app.Listener<"ready"> = {
         if (date !== app.daily.get("taxe")) {
           app.daily.set("taxe", date)
 
-          let totalTax: number
+          let totalTax = 0
           for (const member of labs.members.cache.array()) {
             const money = app.money.ensure(member.id, 0)
             const tax = Math.floor(money * 0.1)
