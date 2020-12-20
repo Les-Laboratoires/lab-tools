@@ -166,7 +166,7 @@ const command: app.Command = {
           return message.channel.send(
             `Vous possédez actuellement ${money}${
               app.currency
-            }\nVotre taxe quotidienne s'élève à ${Math.floor(money / 10)}${
+            }\nVotre taxe quotidienne s'élève à ${Math.floor(money * app.tax)}${
               app.currency
             }`
           )
