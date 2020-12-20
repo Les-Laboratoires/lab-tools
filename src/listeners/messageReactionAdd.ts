@@ -38,7 +38,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
 
             const general = await member.client.channels.cache.get(app.general)
 
-            if (general instanceof app.TextChannel) {
+            if (general?.isText()) {
               await general.send(
                 `Bienvenue à ${member} dans l'équipe de recherches ! <:durif:565598499459039252>`,
                 {

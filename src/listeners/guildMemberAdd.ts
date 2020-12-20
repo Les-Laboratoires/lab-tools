@@ -8,7 +8,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
 
       const general = member.client.channels.cache.get(app.general)
 
-      if (general instanceof app.TextChannel) {
+      if (general?.isText()) {
         return general.send(
           new app.MessageEmbed()
             .setAuthor(
