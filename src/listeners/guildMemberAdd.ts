@@ -6,7 +6,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
     member = member as app.GuildMember
     if (member.user.bot) {
       await member.roles.add(app.cobaye)
-      const general = await member.client.channels.cache.get(app.general)
+      const general = member.client.channels.cache.get(app.general)
       if (general instanceof app.TextChannel) {
         await general.send(
           new app.MessageEmbed()
