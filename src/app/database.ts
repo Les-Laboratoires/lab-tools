@@ -29,6 +29,7 @@ export async function transaction(
     app.money.set(id, app.money.ensure(id, 0) + amount)
   })
 
+  await callback?.(0)
   return true
 }
 
