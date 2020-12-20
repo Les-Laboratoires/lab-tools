@@ -30,19 +30,21 @@ const listener: app.Listener<"ready"> = {
           app.daily.set("taxe", date)
 
           let totalTax = 0
+          let taxed = 0
           for (const member of labs.members.cache.array()) {
             const money = app.money.ensure(member.id, 0)
             const tax = Math.floor(money * 0.05)
 
             if (money < tax || tax === 0) continue
             totalTax += tax
+            taxed++
             await app.transaction(member.id, ["bank"], tax)
           }
           const channel = labs.channels.cache.get(
             app.publiclogs
           ) as app.TextChannel
           channel.send(
-            `Les taxes de ce soir s'élèvent à un total de... ||${totalTax}${app.currency}|| !`
+            `Les taxes de ce soir s'élèvent à un total de... ||${totalTax}${app.currency}|| pour ${taxed} membres taxés !`
           )
         }
       },
