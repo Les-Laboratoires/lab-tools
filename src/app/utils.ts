@@ -111,12 +111,14 @@ export function isAdmin(member: Discord.GuildMember) {
 export function leaderItem(
   obj: { score: number; id: string },
   i: number,
+  arr: { score: number; id: string },
   typeName: string
 ) {
+  const maxLen = Math.max(...arr.map(el=>el.score)).length
   const position = String(i + 1)
   return `\`# ${position}${position.length === 1 ? " " : ""} | ${
     obj.score
-  } ${typeName}\` - <@${obj.id}>`
+  } ${typeName}\` ${" ".repeat(maxLen-obj.score)}- <@${obj.id}>`
 }
 
 dayjs.locale("fr")
