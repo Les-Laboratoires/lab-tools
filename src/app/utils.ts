@@ -119,7 +119,7 @@ export function leaderItem(
   const position = String(i + 1)
   return `\`# ${position}${position.length === 1 ? " " : ""} | ${
     obj.score
-  } ${typeName}\`${" ".repeat(maxLen - obj.score + 1)}- <@${obj.id}>`
+  } ${typeName}\`${" ".repeat(maxLen - String(obj.score).length + 1)}- <@${obj.id}>`
 }
 
 dayjs.locale("fr")
