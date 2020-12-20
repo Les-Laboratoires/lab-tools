@@ -3,6 +3,7 @@ import * as app from "../app"
 const listener: app.Listener<"guildMemberAdd"> = {
   event: "guildMemberAdd",
   async call(member) {
+    member = member as app.GuildMember
     if (member.user.bot) {
       await member.roles.add(app.cobaye)
       const general = await member.client.channels.cache.get(app.general)
