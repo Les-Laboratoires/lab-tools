@@ -125,6 +125,7 @@ const listener: app.Listener<"message"> = {
     try {
       await cmd.run(message)
     } catch (error) {
+      console.error(error)
       message.channel
         .send(
           app.code(
