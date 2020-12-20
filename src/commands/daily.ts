@@ -10,10 +10,9 @@ const command: app.Command = {
 
     const midnight = new Date()
 
-    midnight.setUTCHours(0)
-    midnight.setUTCMinutes(0)
-    midnight.setUTCMilliseconds(0)
-    midnight.setUTCDate(midnight.getUTCDate() + 1)
+    midnight.setHours(23)
+    midnight.setMinutes(0)
+    midnight.setMilliseconds(0)
 
     const rest = midnight.getTime() - Date.now()
 
