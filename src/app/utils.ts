@@ -111,7 +111,7 @@ export function isAdmin(member: Discord.GuildMember) {
 export function leaderItem(
   obj: { score: number; id: string },
   i: number,
-  arr: { score: number; id: string },
+  arr: { score: number; id: string }[],
   typeName: string
 ) {
   const maxLen = Math.max(...arr.map(el=>el.score)).length
