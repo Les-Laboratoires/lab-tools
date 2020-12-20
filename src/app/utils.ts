@@ -117,11 +117,9 @@ export function leaderItem(
   const maxLen = String(Math.max(...arr.map((el) => el.score))).length
   console.log(maxLen)
   const position = String(i + 1)
-  return `\`# ${position}${position.length === 1 ? " " : ""} | ${
-    String(obj.score).padStart(maxLen, "0")
-  } ${typeName}\` - <@${
-    obj.id
-  }>`
+  return `\`# ${position}${position.length === 1 ? " " : ""} | ${String(
+    obj.score
+  ).padStart(maxLen, "0")} ${typeName}\` - <@${obj.id}>`
 }
 
 dayjs.locale("fr")
