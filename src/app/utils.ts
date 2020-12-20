@@ -118,8 +118,8 @@ export function leaderItem(
   console.log(maxLen)
   const position = String(i + 1)
   return `\`# ${position}${position.length === 1 ? " " : ""} | ${
-    obj.score
-  } ${typeName}\`${" ".repeat(maxLen - String(obj.score).length + 1)}- <@${
+    String(obj.score).padStart(maxLen, "0")
+  } ${typeName}\` - <@${
     obj.id
   }>`
 }
