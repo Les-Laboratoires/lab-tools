@@ -20,12 +20,14 @@ const listener: app.Listener<"messageReactionAdd"> = {
 
       if (user.bot || !authorMember || !app.isMod(authorMember)) return
 
-      const member = reaction.message.member
+      const { member } = reaction.message
 
       if (member) {
+        await member.fetch()
+
         if (reaction.emoji.id === app.approved) {
           if (reaction.message.author === user) {
-            await reaction.users.remove(user)
+            return reaction.users.remove(user)
           } else if (!member.roles.cache.has(app.scientifique)) {
             const disapproved = reaction.message.reactions.cache.get(
               app.disapproved
@@ -39,7 +41,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
             const general = await member.client.channels.cache.get(app.general)
 
             if (general?.isText()) {
-              await general.send(
+              return general.send(
                 `Bienvenue à ${member} dans l'équipe de recherches ! <:durif:565598499459039252>`,
                 {
                   embed: new app.MessageEmbed()
@@ -62,7 +64,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
         } else if (reaction.emoji.id === app.disapproved) {
           if (!member.roles.cache.has(app.scientifique)) {
             await member.kick()
-            await reaction.message.delete()
+            return reaction.message.delete()
           }
         }
       }
