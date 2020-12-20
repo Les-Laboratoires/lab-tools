@@ -5,8 +5,8 @@ const command: app.Command = {
   name: "daily",
   aliases: ["dl", "day"],
   async run(message) {
-    if (message.author.bot) return;
-    
+    if (message.author.bot) return
+
     const lastDay = app.daily.ensure(message.author.id, -1)
     const today = app.dayjs().date()
 
