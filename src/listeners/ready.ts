@@ -32,7 +32,7 @@ const listener: app.Listener<"ready"> = {
           let totalTax = 0
           for (const member of labs.members.cache.array()) {
             const money = app.money.ensure(member.id, 0)
-            const tax = Math.floor(money * 0.1)
+            const tax = Math.floor(money * 0.05)
 
             if (money < tax || tax === 0) continue
             totalTax += tax
