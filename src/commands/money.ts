@@ -15,6 +15,7 @@ const command: app.Command = {
       "give",
       "send",
       "ladder",
+      "top",
       "leaderboard",
       "lead",
     ])
@@ -41,6 +42,7 @@ const command: app.Command = {
         break
       case "leaderboard":
       case "lead":
+      case "top":
       case "ladder":
         key = "ladder"
         break
