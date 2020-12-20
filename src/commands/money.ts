@@ -85,7 +85,7 @@ const command: app.Command = {
                 .filter((el) => el.id !== "bank")
                 .sort((a, b) => b.score - a.score)
                 .slice(0, 15)
-                .map((el, i) => app.leaderItem(el, i, app.currency))
+                .map((el, i, arr) => app.leaderItem(el, i, arr, app.currency))
                 .join("\n")
             )
         )
