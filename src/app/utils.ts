@@ -115,6 +115,7 @@ export function leaderItem(
   typeName: string
 ) {
   const maxLen = String(Math.max(...arr.map((el) => el.score))).length
+  console.log(maxLen)
   const position = String(i + 1)
   return `\`# ${position}${position.length === 1 ? " " : ""} | ${
     obj.score
