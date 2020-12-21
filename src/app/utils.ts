@@ -20,6 +20,8 @@ export const cobaye = "620640927089688587"
 export const publiclogs = "789522053728305250"
 export const admin = "620658954195828736"
 
+export const owners = [ "272676235946098688", "352176756922253321" ]
+
 // Money
 export const tax = 0.05
 export const currency = "Ɠ"
