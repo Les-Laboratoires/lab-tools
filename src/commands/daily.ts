@@ -10,14 +10,6 @@ const command: app.Command = {
     const lastDay = app.daily.ensure(message.author.id, -1)
     const today = app.dayjs().date()
 
-    const midnight = new Date()
-
-    midnight.setHours(23)
-    midnight.setMinutes(0)
-    midnight.setMilliseconds(0)
-
-    const rest = midnight.getTime() - Date.now()
-
     if (lastDay !== today) {
       app.daily.set(message.author.id, today)
 
@@ -35,8 +27,17 @@ const command: app.Command = {
         )
       }
     } else {
+      const midnight = app
+        .dayjs()
+        .add(1, "date")
+        .set("hour", 0)
+        .set("minute", 0)
+        .set("millisecond", 0)
+
+      const timeout = midnight.valueOf() - Date.now()
+
       return message.channel.send(
-        `Nope ! Faut attendre ${tims.duration(rest, {
+        `Nope ! Faut attendre ${tims.duration(timeout, {
           locale: "fr",
           format: "minute",
         })} <:shrug:709330366967578625>`
