@@ -12,7 +12,7 @@ const command: app.Command = {
 
     const midnight = new Date()
 
-    midnight.setHours(23)
+    midnight.setHours(24)
     midnight.setMinutes(0)
     midnight.setMilliseconds(0)
 
