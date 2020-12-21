@@ -1,7 +1,10 @@
 import dayjs from "dayjs"
+import utc from "dayjs/plugin/utc"
+import timezone from "dayjs/plugin/timezone"
 import Discord from "discord.js"
 import * as command from "./command"
 
+// Snowflakes
 export const labs = "507389389098188820"
 export const ghom = "352176756922253321"
 export const loockeeer = "272676235946098688"
@@ -16,8 +19,9 @@ export const general = "620664805400772621"
 export const cobaye = "620640927089688587"
 export const publiclogs = "789522053728305250"
 export const admin = "620658954195828736"
-export const tax = 0.05
 
+// Money
+export const tax = 0.05
 export const currency = "Ɠ"
 
 export const codeRegex = /^```(?:js)?\s(.+[^\\])```$/is
@@ -122,6 +126,9 @@ export function leaderItem(
   ).padStart(maxLen, " ")} ${typeName}\` - <@${obj.id}>`
 }
 
+dayjs.extend(utc)
+dayjs.extend(timezone)
 dayjs.locale("fr")
+dayjs.tz.setDefault(process.env.TZ)
 
 export { dayjs }
