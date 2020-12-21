@@ -129,6 +129,7 @@ export function leaderItem(
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.locale("fr")
-dayjs.tz.setDefault(process.env.TZ)
+dayjs.utc(1)
+dayjs.tz.setDefault("France/Paris")
 
 export { dayjs }
