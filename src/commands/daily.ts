@@ -1,6 +1,7 @@
 import tims from "tims"
 import * as app from "../app"
 
+
 const command: app.Command = {
   name: "daily",
   aliases: ["dl", "day"],
@@ -8,18 +9,20 @@ const command: app.Command = {
     if (message.author.bot) return
     
     const now = app.dayjs()
-    const lastDay = app.dayjs(app.daily.ensure(message.author.id, now.toObject() as any, "last") as any)
+
+    const lastDay = app.ensurePath<number>(app.daily, message.author.id, now.valueOf(), "last")
 
     const lasted = now.diff(lastDay)
     if (lasted > 8.64e+7) {
-      app.daily.set(message.author.id, now, "last")
+      app.daily.set(message.author.id, now.valueOf(), "last")
       
       if (lasted < 1.728e+8) app.daily.inc(message.author.id, "combo")
       else app.daily.set(message.author.id, 1, "combo")
 
-      const combo = app.daily.ensure(message.author.id, 1 as any, "combo")
+      const combo = app.ensurePath<number>(app.daily, message.author.id, 1, "combo")
+      
 
-      const gain = Math.round(10*Math.min(combo as any, app.maxcombo) + Math.random() * Math.min(combo as any, app.maxcombo))
+      const gain = Math.round(10*Math.min(combo, app.maxcombo) + Math.random() * Math.min(combo as any, app.maxcombo))
 
       const success = await app.transaction("bank", [message.author.id], gain)
 

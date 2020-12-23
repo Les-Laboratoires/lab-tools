@@ -130,6 +130,15 @@ export function leaderItem(
   ).padStart(maxLen, " ")} ${typeName}\` - <@${obj.id}>`
 }
 
+export function ensurePath<T>(enmap: any, key: string, def: T, path: string): T {
+  const value = enmap.get(key, path)
+  if(!value) {
+    enmap.set(key, def, path)
+  }
+  return value || def
+}
+
+
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(toObject)
