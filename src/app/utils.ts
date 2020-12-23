@@ -1,6 +1,7 @@
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
+import toObject from "dayjs/plugin/toObject"
 import Discord from "discord.js"
 import * as command from "./command"
 
@@ -131,6 +132,7 @@ export function leaderItem(
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
+dayjs.extend(toObject)
 dayjs.locale("fr")
 dayjs.utc(1)
 dayjs.tz.setDefault("France/Paris")
