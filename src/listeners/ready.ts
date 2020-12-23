@@ -19,8 +19,6 @@ const listener: app.Listener<"ready"> = {
 
     await labs.members.fetch()
 
-    app.daily.ensure("taxe", -1)
-
     const job = new CronJob(
       "0 0 * * *",
       async () => {
