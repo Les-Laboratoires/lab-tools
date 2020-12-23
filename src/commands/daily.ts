@@ -22,7 +22,7 @@ const command: app.Command = {
       const combo = app.ensurePath<number>(app.daily, message.author.id, 1, "combo")
       
 
-      const gain = Math.round(10*Math.min(combo, app.maxcombo) + Math.random() * Math.min(combo as any, app.maxcombo))
+      const gain = Math.round(10*Math.min(combo, app.maxcombo) + Math.random() * Math.min(combo, app.maxcombo))
 
       const success = await app.transaction("bank", [message.author.id], gain)
 
