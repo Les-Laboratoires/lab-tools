@@ -75,6 +75,6 @@ export interface Counter {
 }
 
 export interface Daily {
-  last: object
+  last: any
   combo: number
 }

@@ -8,7 +8,7 @@ const command: app.Command = {
     if (message.author.bot) return
     
     const today = app.dayjs()
-    const lastDay = app.dayjs(app.daily.ensure(message.author.id, today.toObject(), "last"))
+    const lastDay = app.dayjs(app.daily.ensure(message.author.id, today.toObject() as any, "last") as any)
 
     const lasted = today.diff(lastDay)
     if (lasted > 8.64e+7) {
@@ -17,9 +17,9 @@ const command: app.Command = {
       if (lasted < 1.728e+8) app.daily.inc(message.author.id, "combo")
       else app.daily.set(message.author.id, 1, "combo")
 
-      const combo = app.daily.ensure(message.author.id, 1, "combo")
+      const combo = app.daily.ensure(message.author.id, 1 as any, "combo")
 
-      const gain = Math.round(10*Math.min(combo, app.maxcombo) + Math.random() * Math.min(combo, app.maxcombo))
+      const gain = Math.round(10*Math.min(combo as any, app.maxcombo) + Math.random() * Math.min(combo as any, app.maxcombo))
 
       const success = await app.transaction("bank", [message.author.id], gain)
 
