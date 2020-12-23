@@ -7,12 +7,12 @@ const command: app.Command = {
   async run(message) {
     if (message.author.bot) return
     
-    const today = app.dayjs()
-    const lastDay = app.dayjs(app.daily.ensure(message.author.id, today.toObject() as any, "last") as any)
+    const now = app.dayjs()
+    const lastDay = app.dayjs(app.daily.ensure(message.author.id, now.toObject() as any, "last") as any)
 
-    const lasted = today.diff(lastDay)
+    const lasted = now.diff(lastDay)
     if (lasted > 8.64e+7) {
-      app.daily.set(message.author.id, today, "last")
+      app.daily.set(message.author.id, now, "last")
       
       if (lasted < 1.728e+8) app.daily.inc(message.author.id, "combo")
       else app.daily.set(message.author.id, 1, "combo")
@@ -33,14 +33,9 @@ const command: app.Command = {
         )
       }
     } else {
-      const midnight = app
-        .dayjs()
-        .add(1, "date")
-        .set("hour", 0)
-        .set("minute", 0)
-        .set("millisecond", 0)
+      const now = app.dayjs()
 
-      const timeout = midnight.diff(new Date()).valueOf()
+      const timeout = now.diff(new Date()).valueOf()
 
       return message.channel.send(
         `Nope ! Faut attendre ${tims.duration(timeout, {
