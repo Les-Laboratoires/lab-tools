@@ -133,12 +133,12 @@ export function leaderItem(
   ).padStart(maxLen, " ")} ${typeName}\` - <@${obj.id}>`
 }
 
-export function ensurePath<T, EA extends string | number = string | number, EB = any>(enmap: Enmap<EA, EB>, key: EA, def: T, path: string): T {
-  const value = enmap.get(key, path)
+export function ensurePath<T, EA extends string | number = string | number>(enmap: Enmap<EA, any>, key: EA, def: T, path: string): T {
+  const value = enmap.get(key, path) as T | undefined
   if(!value) {
     enmap.set(key, def, path)
   }
-  return value || def as T
+  return value || def
 }
 
 export function calculateMinMaxDaily(combo: number, maxCombo: number): number[] {
