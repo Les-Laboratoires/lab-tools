@@ -141,6 +141,10 @@ export function ensurePath<T>(enmap: Enmap<any, any>, key: any, def: T, path: st
   return value || def
 }
 
+export function calculateMinMaxDaily(combo: number, maxCombo: number) {
+  const min = 10 * Math.min(combo, maxCombo)
+  const max = 20 * Math.min(combo, maxCombo)
+}
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
