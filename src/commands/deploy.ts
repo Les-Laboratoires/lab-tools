@@ -14,6 +14,9 @@ const command: app.Command = {
     const timer = Date.now()
 
     try {
+      const branch = app.getArgument(message) || "master"
+      await exec("git fetch")
+      await exec("git checkout " + branch)
       await exec("git reset --hard && git pull && npm i && npm run build")
       await subject.edit(
         `Déploiement réussi ! <:yay:557124850326437888>\n*Effectué en ${
