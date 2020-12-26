@@ -74,7 +74,6 @@ export interface Counter {
   type: "match" | "react"
 }
 
-
 export interface Daily {
   last: number
   combo: number

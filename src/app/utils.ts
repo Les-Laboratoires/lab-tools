@@ -133,15 +133,23 @@ export function leaderItem(
   ).padStart(maxLen, " ")} ${typeName}\` - <@${obj.id}>`
 }
 
-export function ensurePath<T>(enmap: any, key: string | number, def: T, path: string): T {
+export function ensurePath<T>(
+  enmap: any,
+  key: string | number,
+  def: T,
+  path: string
+): T {
   const value = enmap.get(key, path) as T | undefined
-  if(!value) {
+  if (!value) {
     enmap.set(key, def, path)
   }
   return value || def
 }
 
-export function calculateMinMaxDaily(combo: number, maxCombo: number): number[] {
+export function calculateMinMaxDaily(
+  combo: number,
+  maxCombo: number
+): number[] {
   const min = 10 * Math.min(combo, maxCombo)
   const max = 20 * Math.min(combo, maxCombo)
   return [min, max]
