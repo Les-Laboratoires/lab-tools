@@ -138,7 +138,7 @@ export function ensurePath<T, EA extends string | number = string | number, EB =
   if(!value) {
     enmap.set(key, def, path)
   }
-  return value || def
+  return value || def as T
 }
 
 export function calculateMinMaxDaily(combo: number, maxCombo: number): number[] {
