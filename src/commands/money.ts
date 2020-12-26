@@ -158,7 +158,7 @@ const command: app.Command = {
         const bank = message.content.includes("as bank")
         const money = app.money.ensure(bank ? "bank" : message.author.id, 0)
         const combo = app.ensurePath<number>(
-          app.money,
+          app.daily,
           message.author.id,
           0,
           "combo"
