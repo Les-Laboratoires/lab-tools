@@ -133,7 +133,7 @@ export function leaderItem(
   ).padStart(maxLen, " ")} ${typeName}\` - <@${obj.id}>`
 }
 
-export function ensurePath<T, EA extends string | number = string | number>(enmap: Enmap<EA, any>, key: EA, def: T, path: string): T {
+export function ensurePath<T>(enmap: Enmap, key: string | number, def: T, path: string): T {
   const value = enmap.get(key, path) as T | undefined
   if(!value) {
     enmap.set(key, def, path)
