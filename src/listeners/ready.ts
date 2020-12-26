@@ -19,34 +19,26 @@ const listener: app.Listener<"ready"> = {
 
     await labs.members.fetch()
 
-    app.daily.ensure("taxe", -1)
-
     const job = new CronJob(
       "0 0 * * *",
       async () => {
-        const date = app.dayjs().date()
+        let totalTax = 0
+        let taxed = 0
+        for (const member of labs.members.cache.array()) {
+          const money = app.money.ensure(member.id, 0)
+          const tax = Math.floor(money * app.tax)
 
-        if (date !== app.daily.get("taxe")) {
-          app.daily.set("taxe", date)
-
-          let totalTax = 0
-          let taxed = 0
-          for (const member of labs.members.cache.array()) {
-            const money = app.money.ensure(member.id, 0)
-            const tax = Math.floor(money * app.tax)
-
-            if (money < tax || tax === 0) continue
-            totalTax += tax
-            taxed++
-            await app.transaction(member.id, ["bank"], tax)
-          }
-          const channel = labs.channels.cache.get(
-            app.publiclogs
-          ) as app.TextChannel
-          channel.send(
-            `Les taxes de ce soir s'élèvent à un total de... ||${totalTax}${app.currency}|| pour ${taxed} membres taxés !`
-          )
+          if (money < tax || tax === 0) continue
+          totalTax += tax
+          taxed++
+          await app.transaction(member.id, ["bank"], tax)
         }
+        const channel = labs.channels.cache.get(
+          app.publiclogs
+        ) as app.TextChannel
+        channel.send(
+          `Les taxes de ce soir s'élèvent à un total de... ||${totalTax}${app.currency}|| pour ${taxed} membres taxés !`
+        )
       },
       null,
       true,

@@ -1,8 +1,12 @@
+// file deepcode ignore no-any: ensurePath must have Enmap<any, any>
+
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
+import toObject from "dayjs/plugin/toObject"
 import Discord from "discord.js"
 import * as command from "./command"
+import Enmap from "enmap"
 
 // Snowflakes
 export const labs = "507389389098188820"
@@ -19,6 +23,7 @@ export const general = "620664805400772621"
 export const cobaye = "620640927089688587"
 export const publiclogs = "789522053728305250"
 export const admin = "620658954195828736"
+export const maxcombo = 5
 
 export const owners = ["272676235946098688", "352176756922253321"]
 
@@ -128,8 +133,23 @@ export function leaderItem(
   ).padStart(maxLen, " ")} ${typeName}\` - <@${obj.id}>`
 }
 
+export function ensurePath<T>(enmap: any, key: string | number, def: T, path: string): T {
+  const value = enmap.get(key, path) as T | undefined
+  if(!value) {
+    enmap.set(key, def, path)
+  }
+  return value || def
+}
+
+export function calculateMinMaxDaily(combo: number, maxCombo: number): number[] {
+  const min = 10 * Math.min(combo, maxCombo)
+  const max = 20 * Math.min(combo, maxCombo)
+  return [min, max]
+}
+
 dayjs.extend(utc)
 dayjs.extend(timezone)
+dayjs.extend(toObject)
 dayjs.locale("fr")
 dayjs.utc(1)
 dayjs.tz.setDefault("France/Paris")

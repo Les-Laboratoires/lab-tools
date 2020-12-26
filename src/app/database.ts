@@ -37,7 +37,7 @@ export const scores = new Enmap<string, Score>({
   name: "scores",
 })
 
-export const daily = new Enmap<string, number>({ name: "daily" })
+export const daily = new Enmap<string, Daily>({ name: "daily" })
 
 export const counters = new Enmap<string, Counter>({
   name: "counters",
@@ -72,4 +72,10 @@ export interface Counter {
   target: string
   name: string
   type: "match" | "react"
+}
+
+
+export interface Daily {
+  last: number
+  combo: number
 }

@@ -1,19 +1,28 @@
 import tims from "tims"
 import * as app from "../app"
 
+
 const command: app.Command = {
   name: "daily",
   aliases: ["dl", "day"],
   async run(message) {
     if (message.author.bot) return
+    
+    const now = app.dayjs()
 
-    const lastDay = app.daily.ensure(message.author.id, -1)
-    const today = app.dayjs().date()
+    const lastDay = app.ensurePath<number>(app.daily, message.author.id, now.valueOf(), "last")
 
-    if (lastDay !== today) {
-      app.daily.set(message.author.id, today)
+    const lasted = now.diff(lastDay)
+    if (lasted > 8.64e+7) {
+      app.daily.set(message.author.id, now.valueOf(), "last")
+      
+      if (lasted < 1.728e+8) app.daily.inc(message.author.id, "combo")
+      else app.daily.set(message.author.id, 1, "combo")
 
-      const gain = Math.round(10 + Math.random() * 10)
+      const combo = app.ensurePath<number>(app.daily, message.author.id, 1, "combo")
+      
+
+      const gain = Math.round(10*Math.min(combo, app.maxcombo) + Math.random() * Math.min(combo, app.maxcombo))
 
       const success = await app.transaction("bank", [message.author.id], gain)
 
@@ -27,14 +36,9 @@ const command: app.Command = {
         )
       }
     } else {
-      const midnight = app
-        .dayjs()
-        .add(1, "date")
-        .set("hour", 0)
-        .set("minute", 0)
-        .set("millisecond", 0)
+      const now = app.dayjs()
 
-      const timeout = midnight.valueOf() - Date.now()
+      const timeout = now.diff(new Date()).valueOf()
 
       return message.channel.send(
         `Nope ! Faut attendre ${tims.duration(timeout, {
