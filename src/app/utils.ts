@@ -139,11 +139,11 @@ export function ensurePath<T>(
   def: T,
   path: string
 ): T {
-  const value = enmap.get(key, path) as T | undefined
-  if (!value) {
+  if (!enmap.has(key, path)) {
     enmap.set(key, def, path)
+    return def
   }
-  return value || def
+  return enmap.get(key, path)
 }
 
 export function calculateMinMaxDaily(
