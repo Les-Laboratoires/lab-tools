@@ -147,10 +147,8 @@ export function ensurePath<T>(
   return enmap.get(key, path)
 }
 
-export function calculateMinMaxDaily(
-  combo: number
-): number[] {
-  const min = 2 * Math.sqrt(100*combo)
+export function calculateMinMaxDaily(combo: number): number[] {
+  const min = 2 * Math.sqrt(100 * combo)
   const max = min + module.exports.minmaxgap
   return [min, max]
 }
