@@ -9,23 +9,14 @@ const command: app.Command = {
 
     const now = app.dayjs()
 
-    const lastDay = app.ensurePath<number>(
-      app.daily,
-      message.author.id,
-      -1,
-      "last"
-    )
+    const { combo, last: lastDay } = app.daily.ensure(message.author.id, {
+      combo: 0,
+      last: -1,
+    })
 
     const lasted = now.diff(lastDay)
     if (lasted > 8.64e7) {
       app.daily.set(message.author.id, now.valueOf(), "last")
-
-      const combo = app.ensurePath<number>(
-        app.daily,
-        message.author.id,
-        0,
-        "combo"
-      )
 
       if (lasted < 1.728e8) app.daily.inc(message.author.id, "combo")
       else app.daily.set(message.author.id, 1, "combo")
@@ -47,9 +38,7 @@ const command: app.Command = {
     } else {
       const now = app.dayjs()
 
-      const endCooldown =
-        app.ensurePath<number>(app.daily, message.author.id, -1, "last") +
-        8.64e7
+      const endCooldown = lastDay + 8.64e7
 
       const timeout = now.diff(endCooldown).valueOf()
 

@@ -157,13 +157,14 @@ const command: app.Command = {
       default:
         const bank = message.content.includes("as bank")
         const money = app.money.ensure(bank ? "bank" : message.author.id, 0)
-        const combo = app.ensurePath<number>(
-          app.daily,
-          message.author.id,
-          0,
-          "combo"
-        )
+
+        const { combo } = app.daily.ensure(message.author.id, {
+          combo: 0,
+          last: -1,
+        })
+
         const [dailyMin, dailyMax] = app.calculateMinMaxDaily(combo)
+
         if (bank) {
           return message.channel.send(
             `Il y a actuellement ${money}${app.currency} en banque.`

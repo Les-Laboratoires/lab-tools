@@ -133,20 +133,6 @@ export function leaderItem(
   ).padStart(maxLen, " ")} ${typeName}\` - <@${obj.id}>`
 }
 
-export function ensurePath<T>(
-  enmap: any,
-  key: string | number,
-  def: T,
-  path: string
-): T {
-  enmap.ensure(key, {})
-  if (!enmap.has(key, path)) {
-    enmap.set(key, def, path)
-    return def
-  }
-  return enmap.get(key, path)
-}
-
 export function calculateMinMaxDaily(combo: number): number[] {
   const min = 2 * Math.sqrt(100 * combo)
   const max = min + module.exports.minmaxgap
