@@ -164,8 +164,7 @@ const command: app.Command = {
           "combo"
         )
         const [dailyMin, dailyMax] = app.calculateMinMaxDaily(
-          combo,
-          app.maxcombo
+          combo
         )
         if (bank) {
           return message.channel.send(
