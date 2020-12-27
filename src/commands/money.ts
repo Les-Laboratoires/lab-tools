@@ -170,7 +170,7 @@ const command: app.Command = {
               app.currency
             }\nVotre taxe quotidienne s'élève à ${Math.floor(money * app.tax)}${
               app.currency
-            }\nVous avez cummulé ${combo} dailys. Vous pouvez toucher entre ${dailyMin}${
+            }\nVous avez cummulé ${combo - 1} dailys. Vous pouvez toucher entre ${dailyMin}${
               app.currency
             } et ${dailyMax}${app.currency} inclus au prochain daily. `
           )
