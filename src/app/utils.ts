@@ -150,7 +150,7 @@ export function ensurePath<T>(
 export function calculateMinMaxDaily(combo: number): number[] {
   const min = 2 * Math.sqrt(100 * combo)
   const max = min + module.exports.minmaxgap
-  return [min, max]
+  return [Math.round(min), Math.round(max)]
 }
 
 dayjs.extend(utc)
