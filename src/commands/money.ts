@@ -157,8 +157,12 @@ const command: app.Command = {
       default:
         const bank = message.content.includes("as bank")
         const money = app.money.ensure(bank ? "bank" : message.author.id, 0)
-        const combo =
-          app.ensurePath<number>(app.daily, message.author.id, 0, "combo") 
+        const combo = app.ensurePath<number>(
+          app.daily,
+          message.author.id,
+          0,
+          "combo"
+        )
         const [dailyMin, dailyMax] = app.calculateMinMaxDaily(combo)
         if (bank) {
           return message.channel.send(
@@ -170,9 +174,9 @@ const command: app.Command = {
               app.currency
             }\nVotre taxe quotidienne s'élève à ${Math.floor(money * app.tax)}${
               app.currency
-            }\nVous avez cummulé ${
-              combo
-            } daily${combo > 1 ? "s" : ""}. Vous pouvez toucher entre ${dailyMin}${
+            }\nVous avez cummulé ${combo} daily${
+              combo > 1 ? "s" : ""
+            }. Vous pouvez toucher entre ${dailyMin}${
               app.currency
             } et ${dailyMax}${app.currency} inclus au prochain daily. `
           )
