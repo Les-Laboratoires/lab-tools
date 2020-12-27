@@ -47,7 +47,11 @@ const listener: app.Listener<"message"> = {
     const key = message.content.split(/\s+/)[0]
     const cmd = app.commands.resolve(key)
 
-    if (!cmd) return
+    if (!cmd) {
+      const cc = app.customCommands.get(key)
+      if (cc) return message.channel.send(cc)
+      return
+    }
 
     if (key !== "turn" && !app.cache.ensure("turn", true)) return
 
