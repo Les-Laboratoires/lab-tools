@@ -20,18 +20,16 @@ const command: app.Command = {
     if (lasted > 8.64e7) {
       app.daily.set(message.author.id, now.valueOf(), "last")
 
-
-
       const combo = app.ensurePath<number>(
         app.daily,
         message.author.id,
         0,
         "combo"
       )
-      
+
       if (lasted < 1.728e8) app.daily.inc(message.author.id, "combo")
       else app.daily.set(message.author.id, 1, "combo")
-      
+
       const [min, max] = app.calculateMinMaxDaily(combo)
       const gain = Math.round(Math.random() * (max - min + 1) + min)
 
