@@ -163,9 +163,7 @@ const command: app.Command = {
           0,
           "combo"
         )
-        const [dailyMin, dailyMax] = app.calculateMinMaxDaily(
-          combo
-        )
+        const [dailyMin, dailyMax] = app.calculateMinMaxDaily(combo)
         if (bank) {
           return message.channel.send(
             `Il y a actuellement ${money}${app.currency} en banque.`
