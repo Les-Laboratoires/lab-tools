@@ -23,7 +23,7 @@ export const general = "620664805400772621"
 export const cobaye = "620640927089688587"
 export const publiclogs = "789522053728305250"
 export const admin = "620658954195828736"
-export const maxcombo = 5
+export const minmaxgab = 15
 
 export const owners = ["272676235946098688", "352176756922253321"]
 
@@ -148,11 +148,10 @@ export function ensurePath<T>(
 }
 
 export function calculateMinMaxDaily(
-  combo: number,
-  maxCombo: number
+  combo: number
 ): number[] {
-  const min = 10 * Math.min(combo || 1, maxCombo)
-  const max = 20 * Math.min(combo || 1, maxCombo)
+  const min = 2 * Math.sqrt(100*combo)
+  const max = min + module.exports.minmaxgap
   return [min, max]
 }
 
