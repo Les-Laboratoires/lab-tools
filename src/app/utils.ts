@@ -151,8 +151,8 @@ export function calculateMinMaxDaily(
   combo: number,
   maxCombo: number
 ): number[] {
-  const min = 10 * Math.min(combo, maxCombo)
-  const max = 20 * Math.min(combo, maxCombo)
+  const min = 10 * Math.min(combo || 1, maxCombo)
+  const max = 20 * Math.min(combo || 1, maxCombo)
   return [min, max]
 }
 
