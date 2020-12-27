@@ -30,9 +30,7 @@ const command: app.Command = {
         "combo"
       )
       const [min, max] = app.getMinMaxDaily(combo, app.maxcombo)
-      const gain = Math.round(
-        Math.random() * (max - min + 1) + min
-      )
+      const gain = Math.round(Math.random() * (max - min + 1) + min)
 
       const success = await app.transaction("bank", [message.author.id], gain)
 
