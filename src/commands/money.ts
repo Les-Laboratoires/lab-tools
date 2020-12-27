@@ -179,7 +179,7 @@ const command: app.Command = {
               combo > 1 ? "s" : ""
             }. Vous pouvez toucher entre ${dailyMin}${
               app.currency
-            } et ${dailyMax}${app.currency} inclus au prochain daily. `
+            } et ${dailyMax}${app.currency} inclus au prochain daily.`
           )
         }
     }

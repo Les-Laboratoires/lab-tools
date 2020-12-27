@@ -103,6 +103,19 @@ const listener: app.Listener<"message"> = {
       }
     }
 
+    if (cmd.modOnly) {
+      if (!app.isMod(message.member)) {
+        return message.channel.send(
+          new app.MessageEmbed()
+            .setColor("RED")
+            .setAuthor(
+              "You must bu a moderator.",
+              message.client.user?.displayAvatarURL()
+            )
+        )
+      }
+    }
+
     if (cmd.needMoney) {
       const userMoney = app.money.ensure(message.author.id, 0)
       if (userMoney < cmd.needMoney) {

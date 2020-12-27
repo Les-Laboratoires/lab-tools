@@ -7,6 +7,10 @@ export const globals = new Enmap<string, any>({
   name: "globals",
 })
 
+export const customCommands = new Enmap<string, string>({
+  name: "cc",
+})
+
 export const money = new Enmap<string, number>({ name: "money" })
 export async function transaction(
   taxed: string,
