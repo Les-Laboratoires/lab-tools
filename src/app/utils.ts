@@ -139,8 +139,8 @@ export function ensurePath<T>(
   def: T,
   path: string
 ): T {
+  enmap.ensure(key, {})
   if (!enmap.has(key, path)) {
-    console.log("SUUUCE")
     enmap.set(key, def, path)
     return def
   }
