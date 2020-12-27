@@ -10,7 +10,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
           const score = app.scores.ensure(reaction.message.author.id, {})
           score[counter.name] = (score[counter.name] ?? 0) + 1
           app.scores.set(reaction.message.author.id, score)
-          if(counter.name === "help") app.transaction("bank", [message.author.id], 10)
+          if(counter.name === "help") app.transaction("bank", [reaction.message.author.id], 10)
         }
       }
     })
