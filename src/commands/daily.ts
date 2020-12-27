@@ -45,13 +45,10 @@ const command: app.Command = {
       }
     } else {
       const now = app.dayjs()
-      
-      const endCooldown = app.ensurePath<number>(
-      app.daily,
-      message.author.id,
-      -1,
-      "last"
-      ) + 8.64e7
+
+      const endCooldown =
+        app.ensurePath<number>(app.daily, message.author.id, -1, "last") +
+        8.64e7
 
       const timeout = now.diff(endCooldown).valueOf()
 
