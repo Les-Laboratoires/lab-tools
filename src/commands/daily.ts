@@ -12,7 +12,7 @@ const command: app.Command = {
     const lastDay = app.ensurePath<number>(
       app.daily,
       message.author.id,
-      now.valueOf(),
+      -1,
       "last"
     )
 
@@ -29,10 +29,9 @@ const command: app.Command = {
         1,
         "combo"
       )
-
+      const [min, max] = app.getMinMaxDaily(combo, app.maxcombo)
       const gain = Math.round(
-        10 * Math.min(combo, app.maxcombo) +
-          Math.random() * Math.min(combo, app.maxcombo)
+        Math.random() * (max - min + 1) + min
       )
 
       const success = await app.transaction("bank", [message.author.id], gain)
