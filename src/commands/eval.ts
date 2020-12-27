@@ -56,9 +56,18 @@ const command: app.Command = {
       message.content = "return " + message.content
     }
 
-    message.content = `const req = {${[...installed]
-      .map((pack) => `"${pack}": require("${pack}")`)
-      .join(", ")}}; ${message.content}`
+    message.content = `
+      ${
+        message.content.includes("app")
+          ? 'const app = require(require("path").join(process.cwd(), "dist", "app.js"));'
+          : ""
+      } ${
+      match
+        ? `const req = {${[...installed]
+            .map((pack) => `"${pack}": require("${pack}")`)
+            .join(", ")}};`
+        : ""
+    } ${message.content}`
 
     await discordEval(
       message.content,
