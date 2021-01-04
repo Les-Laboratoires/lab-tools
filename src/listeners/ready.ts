@@ -34,8 +34,14 @@ const listener: app.Listener<"ready"> = {
           await app.transaction(member.id, ["bank"], tax)
         }
         const toTake = Math.round(app.royalties * totalTax)
-        const admins = labs.members.cache.filter(member=>member.roles.cache.has(app.admin)).map(member=>member.id)
-        await app.transaction("bank", admins, Math.round(toTake/admins.length))
+        const admins = labs.members.cache
+          .filter((member) => member.roles.cache.has(app.admin))
+          .map((member) => member.id)
+        await app.transaction(
+          "bank",
+          admins,
+          Math.round(toTake / admins.length)
+        )
         const channel = labs.channels.cache.get(
           app.publiclogs
         ) as app.TextChannel
