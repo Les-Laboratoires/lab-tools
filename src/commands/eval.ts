@@ -29,11 +29,12 @@ const command: app.Command = {
       for (const pack of given) {
         if (alreadyInstalled(pack)) {
           await message.channel.send(`✅ **${pack}** - installed`)
+          installed.add(pack)
         } else {
           let log
           try {
             log = await message.channel.send(
-              `<a:wait:560972897376665600> **${pack}** - isntall...`
+              `<a:wait:560972897376665600> **${pack}** - install...`
             )
             await exec(`npm i ${pack}@latest`)
             await log.edit(`✅ **${pack}** - installed`)
@@ -76,6 +77,7 @@ const command: app.Command = {
     )
 
     for (const pack of installed) {
+      if (alreadyInstalled(pack)) continue
       let log
       try {
         log = await message.channel.send(
@@ -88,6 +90,8 @@ const command: app.Command = {
         else await message.channel.send(`❌ **${pack}** - error`)
       }
     }
+
+    return message.channel.send(`<:yay:557124850326437888> process completed`)
   },
 }
 
