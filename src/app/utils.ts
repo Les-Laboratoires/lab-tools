@@ -30,6 +30,7 @@ export const owners = ["272676235946098688", "352176756922253321"]
 // Money
 export const tax = 0.05
 export const currency = "Ɠ"
+export const royalties = .1
 
 export const codeRegex = /^```(?:js)?\s(.+[^\\])```$/is
 
