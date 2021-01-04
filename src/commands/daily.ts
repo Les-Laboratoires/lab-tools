@@ -9,26 +9,29 @@ const command: app.Command = {
 
     const now = app.dayjs()
 
-    const { combo, last: lastDay } = app.daily.ensure(message.author.id, {
+    const daily = app.daily.ensure(message.author.id, {
       combo: 0,
       last: -1,
     })
 
-    const lasted = now.diff(lastDay)
-    if (lasted > 8.64e7) {
-      app.daily.set(message.author.id, now.valueOf(), "last")
+    const last = app.dayjs(daily.last)
 
-      if (lasted < 1.728e8) app.daily.inc(message.author.id, "combo")
-      else app.daily.set(message.author.id, 1, "combo")
+    if (last.date() !== now.date()) {
+      daily.last = now.valueOf()
 
-      const [min, max] = app.calculateMinMaxDaily(combo)
+      if (app.dayjs(last).diff(now, "day") < 2) daily.combo++
+      else daily.combo = 1
+
+      app.daily.set(message.author.id, daily)
+
+      const [min, max] = app.calculateMinMaxDaily(daily.combo)
       const gain = Math.round(Math.random() * (max - min + 1) + min)
 
       const success = await app.transaction("bank", [message.author.id], gain)
 
       if (success) {
         return message.channel.send(
-          `Youhouuuu ! T'as gagné ${gain}${app.currency} <:yay:557124850326437888>`
+          `Youhouuuu ! T'as gagné ${gain}${app.currency} <:yay:557124850326437888>\n(combo: ${daily.combo})`
         )
       } else {
         return message.channel.send(
@@ -36,11 +39,14 @@ const command: app.Command = {
         )
       }
     } else {
-      const now = app.dayjs()
+      const midnight = now
+        .add(1, "day")
+        .set("hour", 0)
+        .set("minute", 0)
+        .set("second", 0)
+        .set("millisecond", 0)
 
-      const endCooldown = lastDay + 8.64e7
-
-      const timeout = now.diff(endCooldown).valueOf()
+      const timeout = now.diff(midnight, "millisecond")
 
       return message.channel.send(
         `Nope ! Faut attendre ${tims.duration(timeout, {

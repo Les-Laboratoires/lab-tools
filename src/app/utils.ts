@@ -1,12 +1,12 @@
 // file deepcode ignore no-any: ensurePath must have Enmap<any, any>
 
+import "dayjs/locale/fr"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
 import toObject from "dayjs/plugin/toObject"
 import Discord from "discord.js"
 import * as command from "./command"
-import Enmap from "enmap"
 
 // Snowflakes
 export const labs = "507389389098188820"
