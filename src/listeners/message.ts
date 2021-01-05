@@ -37,7 +37,7 @@ const listener: app.Listener<"message"> = {
     }
 
     const prefix = app.globals.ensure("prefix", process.env.PREFIX)
-
+    if(app.dayjs().day() === 1 && app.dayjs().month() === 3) return message.channel.send("Nope je suis en grève !")
     if (message.content.startsWith(prefix)) {
       message.content = message.content.slice(prefix.length)
     } else {
