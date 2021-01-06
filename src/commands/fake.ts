@@ -3,6 +3,7 @@ import * as app from "../app"
 const command: app.Command = {
   name: "fake",
   coolDown: 10000,
+  needMoney: 10 / 100,
   userPermissions: ["MANAGE_WEBHOOKS"],
   async run(message) {
     const [memberResolvable, content] = message.content.split(/\s+say\s+|\n/)

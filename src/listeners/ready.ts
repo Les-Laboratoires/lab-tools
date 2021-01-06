@@ -25,13 +25,14 @@ const listener: app.Listener<"ready"> = {
         let totalTax = 0
         let taxed = 0
         for (const member of labs.members.cache.array()) {
-          const money = app.money.ensure(member.id, 0)
-          const tax = Math.floor(money * app.tax)
+          const profile = app.getProfile(member.id)
 
-          if (money < tax || tax === 0) continue
+          const tax = Math.floor(profile.money * app.tax)
+
+          if (profile.money < tax || tax === 0) continue
           totalTax += tax
           taxed++
-          await app.transaction(member.id, ["bank"], tax)
+          await app.transaction(member.id, "bank", tax)
         }
         const toTake = Math.round(app.royalties * totalTax)
         const admins = labs.members.cache
@@ -45,7 +46,7 @@ const listener: app.Listener<"ready"> = {
         const channel = labs.channels.cache.get(
           app.publiclogs
         ) as app.TextChannel
-        channel.send(
+        await channel.send(
           `Les taxes de ce soir s'élèvent à un total de... ||${totalTax}${app.currency}|| pour ${taxed} membres taxés !`
         )
       },

@@ -7,9 +7,9 @@ const listener: app.Listener<"messageReactionAdd"> = {
     app.counters.forEach((counter) => {
       if (counter.type === "react") {
         if ((reaction.emoji.id || reaction.emoji.name) === counter.target) {
-          const score = app.scores.ensure(reaction.message.author.id, {})
-          score[counter.name] = (score[counter.name] ?? 0) + 1
-          app.scores.set(reaction.message.author.id, score)
+          const profile = app.getProfile(reaction.message.author.id)
+          profile.scores[counter.name] = (profile.scores[counter.name] ?? 0) + 1
+          app.setProfile(profile)
         }
       }
     })

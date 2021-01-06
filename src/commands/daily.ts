@@ -9,10 +9,9 @@ const command: app.Command = {
 
     const now = app.dayjs()
 
-    const daily = app.daily.ensure(message.author.id, {
-      combo: 0,
-      last: -1,
-    })
+    const profile = app.getProfile(message.author.id)
+
+    const { daily } = profile
 
     const last = app.dayjs(daily.last)
 
@@ -22,7 +21,9 @@ const command: app.Command = {
       if (app.dayjs(last).diff(now, "day") < 2) daily.combo++
       else daily.combo = 1
 
-      app.daily.set(message.author.id, daily)
+      profile.daily = daily
+
+      app.setProfile(profile)
 
       const [min, max] = app.calculateMinMaxDaily(daily.combo)
       const gain = Math.round(Math.random() * (max - min + 1) + min)

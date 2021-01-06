@@ -5,12 +5,6 @@ const command: app.Command = {
   aliases: ["count", "score", "point", "pt", "c", "sc"],
   async run(message) {
     if (message.content.startsWith("list")) {
-      if (message.content.includes("--debug")) {
-        await message.channel.send(
-          JSON.stringify(Array.from(app.scores.entries())).slice(0, 1999)
-        )
-      }
-
       const lines = await Promise.all(
         app.counters.map(async (counter) => {
           return `**${counter.name}** - [${counter.type}] - \`${counter.target}\``
@@ -46,36 +40,39 @@ const command: app.Command = {
 
       app.counters.delete(name)
 
-      app.scores.forEach((score, id) => {
-        delete score[name]
-        app.scores.set(id, score)
+      app.profiles.forEach((profile) => {
+        delete profile.scores[name]
+
+        app.setProfile(profile)
       })
 
       return message.channel.send(
         `Ok le compteur de ${name} a bien été supprimé.`
       )
     } else if (message.content.startsWith("me")) {
-      const score = app.scores.ensure(message.author.id, {})
+      const me = app.getProfile(message.author.id)
+
       return message.channel.send(
         new app.MessageEmbed()
           .setTitle(`Scores | ${message.author.tag}`)
           .setDescription(
-            app.code(JSON.stringify(score, null, 2).replace(/"/g, ""), "js")
+            app.code(JSON.stringify(me.scores, null, 2).replace(/"/g, ""), "js")
           )
           .addField(
             "total",
-            `**${eval(Object.values(score).join(" + "))}** points.`
+            `**${eval(Object.values(me.scores).join(" + "))}** points.`
           )
       )
     } else if (app.counters.has(message.content)) {
       const counter = app.counters.get(message.content) as app.Counter
 
-      const leaderboard = app.scores
+      const leaderboard = app.profiles
         .filter(
-          (score) =>
-            score.hasOwnProperty(counter.name) && score[counter.name] > 0
+          (profile) =>
+            profile.scores.hasOwnProperty(counter.name) &&
+            profile.scores[counter.name] > 0
         )
-        .map((score, id) => ({ score: score[counter.name], id }))
+        .map((profile, id) => ({ score: profile.scores[counter.name], id }))
         .sort((a, b) => b.score - a.score)
         .slice(0, 15)
         .map((el, i, arr) => app.leaderItem(el, i, arr, "pts"))
@@ -88,25 +85,32 @@ const command: app.Command = {
       )
     } else if (message.mentions.members && message.mentions.members.size > 0) {
       const target = message.mentions.members.first() as app.GuildMember
-      const score = app.scores.ensure(target.id, {})
+
+      const profile = app.getProfile(target.id)
+
       return message.channel.send(
         new app.MessageEmbed()
           .setTitle(`Scores | ${target.user.tag}`)
           .setDescription(
-            app.code(JSON.stringify(score, null, 2).replace(/"/g, ""), "js")
+            app.code(
+              JSON.stringify(profile.scores, null, 2).replace(/"/g, ""),
+              "js"
+            )
           )
           .addField(
             "total",
-            `**${eval(Object.values(score).join(" + ")) || 0}** points.`
+            `**${
+              eval(Object.values(profile.scores).join(" + ")) || 0
+            }** points.`
           )
       )
     } else {
       return message.channel.send(
         new app.MessageEmbed().setAuthor(`Leaderboard | Total`).setDescription(
-          app.scores
-            .map((score, id) => ({
+          app.profiles
+            .map((profile, id) => ({
               id,
-              score: eval(Object.values(score).join(" + ")),
+              score: eval(Object.values(profile.scores).join(" + ")),
             }))
             .sort((a, b) => b.score - a.score)
             .slice(0, 15)

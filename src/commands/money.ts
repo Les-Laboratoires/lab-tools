@@ -79,10 +79,10 @@ const command: app.Command = {
           new app.MessageEmbed()
             .setAuthor(`Leaderboard | ${app.currency}`)
             .setDescription(
-              app.money
-                .map((money, id) => ({
+              app.profiles
+                .map((profile, id) => ({
                   id,
-                  score: money,
+                  score: profile.money,
                 }))
                 .filter((el) => el.id !== "bank")
                 .sort((a, b) => b.score - a.score)
@@ -93,18 +93,28 @@ const command: app.Command = {
         )
       }
 
-      case "add":
-        app.money.set("bank", app.money.ensure("bank", 0) + amount)
+      case "add": {
+        const bank = app.getProfile("bank")
+
+        bank.money += amount
+
+        app.setProfile(bank)
 
         return message.channel.send(
           `Ok, ${amount}${app.currency} ont été ajoutés à la banque. <:STONKS:772181235526533150>`
         )
-      case "remove":
-        app.money.set("bank", app.money.ensure("bank", 0) - amount)
+      }
+      case "remove": {
+        const bank = app.getProfile("bank")
+
+        bank.money -= amount
+
+        app.setProfile(bank)
 
         return message.channel.send(
           `Ok, ${amount}${app.currency} ont été retirés de la banque. <:oui:703398234718208080>`
         )
+      }
       case "give": {
         if (!message.mentions.members || message.mentions.members.size === 0) {
           return message.channel.send(
@@ -154,34 +164,51 @@ const command: app.Command = {
           }
         )
       }
-      default:
-        const bank = message.content.includes("as bank")
-        const money = app.money.ensure(bank ? "bank" : message.author.id, 0)
+      default: {
+        const asBank = message.content.includes("as bank")
 
-        const { combo } = app.daily.ensure(message.author.id, {
-          combo: 0,
-          last: -1,
-        })
+        const profile = app.getProfile(asBank ? "bank" : message.author.id)
 
-        const [dailyMin, dailyMax] = app.calculateMinMaxDaily(combo)
+        const [dailyMin, dailyMax] = app.calculateMinMaxDaily(
+          profile.daily.combo
+        )
 
-        if (bank) {
+        if (asBank) {
           return message.channel.send(
-            `Il y a actuellement ${money}${app.currency} en banque.`
+            `Il y a actuellement ${profile.money}${app.currency} en banque.`
           )
         } else {
           return message.channel.send(
-            `Vous possédez actuellement ${money}${
+            `Vous possédez actuellement ${profile.money}${
               app.currency
-            }\nVotre taxe quotidienne s'élève à ${Math.floor(money * app.tax)}${
+            }\nVotre taxe quotidienne s'élève à ${Math.floor(
+              profile.money * app.tax
+            )}${app.currency}\nDaily combo: x${
+              profile.daily.combo
+            }\nVotre daily rapporte entre ${dailyMin}${
               app.currency
-            }\nVous avez cummulé ${combo} daily${
-              combo > 1 ? "s" : ""
-            }. Vous pouvez toucher entre ${dailyMin}${
+            } et ${dailyMax}${
               app.currency
-            } et ${dailyMax}${app.currency} inclus au prochain daily.`
+            } inclus.\nVos 10 derniers logs:${app.code(
+              profile.moneyLogs
+                .reverse()
+                .slice(0, 10)
+                .map((log) => {
+                  return `${app
+                    .dayjs(log.at)
+                    .format("DD-MMM HH:mm:ss")} | ${app.resizeText(
+                    log.state,
+                    10,
+                    true
+                  )} ${log.diff > 0 ? "+" : "-"}${app
+                    .resizeText(log.diff, 10)
+                    .replace("-", "")}`
+                })
+                .join("\n")
+            )}`
           )
         }
+      }
     }
   },
 }

@@ -6,7 +6,7 @@ import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
 import toObject from "dayjs/plugin/toObject"
 import Discord from "discord.js"
-import * as command from "./command"
+import * as app from "../app"
 
 // Snowflakes
 export const labs = "507389389098188820"
@@ -33,6 +33,85 @@ export const currency = "Ɠ"
 export const royalties = 0.1
 
 export const codeRegex = /^```(?:js)?\s(.+[^\\])```$/is
+
+export function getProfile(id: string) {
+  return app.profiles.ensure(id, {
+    id,
+    money: 0,
+    scores: {},
+    moneyLogs: [],
+    daily: {
+      combo: 0,
+      last: -1,
+    },
+  })
+}
+
+export function setProfile(profile: app.Profile) {
+  const last = app.profiles.get(profile.id) as app.Profile
+
+  const moneyDiff = profile.money - last.money
+
+  if (moneyDiff !== 0) {
+    profile.moneyLogs.push({
+      at: Date.now(),
+      diff: moneyDiff,
+      state: profile.money,
+    })
+  }
+
+  app.profiles.set(profile.id, profile)
+}
+
+export function resizeText(
+  text: string | number,
+  size: number,
+  before = false
+): string {
+  text = String(text)
+  if (text.length < size) {
+    return before
+      ? " ".repeat(size - text.length) + text
+      : text + " ".repeat(size - text.length)
+  } else if (text.length > size) {
+    return before ? text.slice(text.length - size, size) : text.slice(0, size)
+  } else {
+    return text
+  }
+}
+
+export async function transaction(
+  debitedID: string,
+  debtorsID: string[] | string,
+  amount: number,
+  callback?: (missing: number) => unknown
+): Promise<boolean> {
+  const debited = getProfile(debitedID)
+
+  if (typeof debtorsID === "string") debtorsID = [debtorsID]
+
+  const total = debtorsID.length * amount
+
+  if (debited.money < total) {
+    await callback?.(total - debited.money)
+    return false
+  }
+
+  debited.money -= total
+
+  setProfile(debited)
+
+  debtorsID.forEach((id) => {
+    const debtor = getProfile(id)
+
+    debtor.money += amount
+
+    setProfile(debtor)
+  })
+
+  await callback?.(0)
+  return true
+}
 
 export function code(text: string, lang = ""): string {
   return "```" + lang + "\n" + text.replace(/```/g, "\\```") + "\n```"
@@ -86,7 +165,7 @@ export function getArgument(
 }
 
 export async function resolveMember(
-  message: command.CommandMessage,
+  message: app.CommandMessage,
   text?: string
 ): Promise<Discord.GuildMember> {
   if (message.mentions.members && message.mentions.members.size > 0) {
