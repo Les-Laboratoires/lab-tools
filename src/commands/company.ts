@@ -35,7 +35,7 @@ const command: app.Command = {
             return message.channel.send('Je peux pas supprimer ton entreprise si t\'en a pas...')
           }
           message.channel.send('Pour confirmer, envoie `ok`, sinon, envoie `stop`')
-          const collector = message.channel.createMessageCollector(() => true, { time: 60000 })
+          const collector = message.channel.createMessageCollector(m => m.author.id === message.author.id, { time: 60000 })
           collector
             .on('collect', m => {
               switch(m.content) {
@@ -50,9 +50,40 @@ const command: app.Command = {
             .on('end', (_, reason) => 
               reason === "time" && message.channel.send('Trop lent, j\'annule la procédure')
             )
+            break;
         }
-        case "list":
-        case "add":
+        case "list": {
+          const pages = app.splitChunks<app.Company>(app.companies.array(), 10).map((chunk, i, arr) => {
+            const embed = new app.Discord.MessageEmbed()
+            embed.setDescription(`Page ${i+1}/${arr.length}`)
+            chunk.map(async company => {
+              const owner = await message.client.users.fetch(company.ownerID)
+              embed.addField(company.name, `${owner.tag} - ${company.description}`)
+            })
+            return embed
+          })
+          if(pages.length === 0) return message.channel.send(`Aucune entreprise...`)
+          let currentPage = 0;
+          const menu = await message.channel.send(pages[currentPage])
+          const collector = menu.createReactionCollector((r, user) => user.id === message.author.id)
+          await menu.react("◀️")
+          await menu.react("▶️")
+          await menu.react("🛑")
+          collector.on('collect', (reaction) => {
+            if(reaction.emoji.name === "arrow_forward") {
+              if(currentPage+1 !== pages.length) currentPage++
+              menu.edit(pages[currentPage])
+            }
+            if(reaction.emoji.name === "arrow_backward") {
+              if(currentPage-1 !== -1) currentPage--
+              menu.edit(pages[currentPage]) 
+            }
+            if(reaction.emoji.name === "octagonal_sign") {
+              collector.stop()
+              message.channel.send('Arrêt du menu...')
+            }
+          })
+        }
         default:
             return message.channel.send(`Not yet implemented`)
     }
