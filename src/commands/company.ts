@@ -54,13 +54,13 @@ const command: app.Command = {
             break;
         }
         case "list": {
-          const pages = app.splitChunks<app.Company>(app.companies.array(), 10).map((chunk, i, arr) => {
+          const pages = app.splitChunks<app.Company>(app.companies.array(), 10).map(async (chunk, i, arr) => {
             const embed = new app.Discord.MessageEmbed()
             embed.setDescription(`Page ${i+1}/${arr.length}`)
-            chunk.map(async company => {
+            for(const company of chunks) {
               const owner = await message.client.users.fetch(company.ownerID)
               embed.addField(company.name, `${owner.tag} - ${company.description}`)
-            })
+            }
             return embed
           })
           if(pages.length === 0) return message.channel.send(`Aucune entreprise...`)
