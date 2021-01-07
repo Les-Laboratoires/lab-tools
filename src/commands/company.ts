@@ -57,7 +57,7 @@ const command: app.Command = {
           const pages = await Promise.all(app.splitChunks<app.Company>(app.companies.array(), 10).map(async (chunk, i, arr) => {
             const embed = new app.Discord.MessageEmbed()
             embed.setDescription(`Page ${i+1}/${arr.length}`)
-            for(const company of chunks) {
+            for(const company of chunk) {
               const owner = await message.client.users.fetch(company.ownerID)
               embed.addField(company.name, `${owner.tag} - ${company.description}`)
             }
