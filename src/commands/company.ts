@@ -23,7 +23,7 @@ const command: app.Command = {
             name: companyName,
             description,
             ownerID: message.author.id,
-            money: 0
+            money: 0,
           } as app.Company
           app.companies.set(companyName, company)
           return message.channel.send('Ton entreprise a été crée, jeune entrepreneur !')
