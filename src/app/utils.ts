@@ -146,6 +146,9 @@ export function ensurePath<T>(enmap: Enmap<any, any>, key: string, def: T, path:
   return value || def
 }
 
+export function splitChunks<T = any>(array: T[], chunks: number): T[][] {
+  return [...Array(Math.ceil(array.length / chunks))].map(_ => array.splice(0,chunks))
+
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
