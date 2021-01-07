@@ -1,12 +1,12 @@
 // file deepcode ignore no-any: ensurePath must have Enmap<any, any>
 
+import "dayjs/locale/fr"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
 import toObject from "dayjs/plugin/toObject"
 import Discord from "discord.js"
 import * as command from "./command"
-import Enmap from "enmap"
 
 // Snowflakes
 export const labs = "507389389098188820"
@@ -23,7 +23,7 @@ export const general = "620664805400772621"
 export const cobaye = "620640927089688587"
 export const publiclogs = "789522053728305250"
 export const admin = "620658954195828736"
-export const maxcombo = 5
+export const minmaxgap = 15
 
 export const owners = ["272676235946098688", "352176756922253321"]
 
@@ -35,6 +35,7 @@ export const tax = {
   stocksToPrivateTax: 0.25 
 }
 export const currency = "Ɠ"
+export const royalties = 0.1
 
 export const codeRegex = /^```(?:js)?\s(.+[^\\])```$/is
 
@@ -138,18 +139,16 @@ export function leaderItem(
   ).padStart(maxLen, " ")} ${typeName}\` - <@${obj.id}>`
 }
 
-export function ensurePath<T>(enmap: Enmap<any, any>, key: string, def: T, path: string): T {
-  const value = enmap.get(key, path)
-  if(!value) {
-    enmap.set(key, def, path)
-  }
-  return value || def
+export function calculateMinMaxDaily(combo: number): number[] {
+  const min = 2 * Math.sqrt(100 * combo)
+  const max = min + minmaxgap
+  return [Math.round(min), Math.round(max)]
 }
 
 export function splitChunks<T = any>(array: T[], chunks: number): T[][] {
   return [...Array(Math.ceil(array.length / chunks))].map(_ => array.splice(0,chunks))
-
-
+}
+    
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(toObject)

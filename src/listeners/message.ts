@@ -37,7 +37,8 @@ const listener: app.Listener<"message"> = {
     }
 
     const prefix = app.globals.ensure("prefix", process.env.PREFIX)
-
+    if (app.dayjs().day() === 1 && app.dayjs().month() === 3)
+      return message.channel.send("Nope je suis en grève !")
     if (message.content.startsWith(prefix)) {
       message.content = message.content.slice(prefix.length)
     } else {
@@ -47,7 +48,11 @@ const listener: app.Listener<"message"> = {
     const key = message.content.split(/\s+/)[0]
     const cmd = app.commands.resolve(key)
 
-    if (!cmd) return
+    if (!cmd) {
+      const cc = app.customCommands.get(key)
+      if (cc) return message.channel.send(cc)
+      return
+    }
 
     if (key !== "turn" && !app.cache.ensure("turn", true)) return
 
@@ -97,6 +102,19 @@ const listener: app.Listener<"message"> = {
             .setColor("RED")
             .setAuthor(
               "You must be the guild owner.",
+              message.client.user?.displayAvatarURL()
+            )
+        )
+      }
+    }
+
+    if (cmd.modOnly) {
+      if (!app.isMod(message.member)) {
+        return message.channel.send(
+          new app.MessageEmbed()
+            .setColor("RED")
+            .setAuthor(
+              "You must bu a moderator.",
               message.client.user?.displayAvatarURL()
             )
         )
