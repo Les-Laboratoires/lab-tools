@@ -16,6 +16,7 @@ const command: app.Command = {
           if(app.companies.find('ownerID', message.author.id)) {
             return message.channel.send('Kestufou t\'as déjà une entreprise !')
           }
+          console.log(app.companies)
           const companyName = app.getArgument(message)
           if(!companyName) return message.channel.send('Faut renseigner le nom de ton entreprise du con')
           const description = app.getArgument(message, "rest")
