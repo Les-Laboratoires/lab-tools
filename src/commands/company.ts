@@ -71,15 +71,15 @@ const command: app.Command = {
           await menu.react("▶️")
           await menu.react("🛑")
           collector.on('collect', (reaction) => {
-            if(reaction.emoji.name === "arrow_forward") {
+            if(reaction.emoji.toString() === "▶️") {
               if(currentPage+1 !== pages.length) currentPage++
               menu.edit(pages[currentPage])
             }
-            if(reaction.emoji.name === "arrow_backward") {
+            if(reaction.emoji.toString() === "◀️") {
               if(currentPage-1 !== -1) currentPage--
               menu.edit(pages[currentPage]) 
             }
-            if(reaction.emoji.name === "octagonal_sign") {
+            if(reaction.emoji.toString() === "🛑") {
               collector.stop()
               message.channel.send('Arrêt du menu...')
             }
