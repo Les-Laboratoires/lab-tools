@@ -38,6 +38,7 @@ export interface Command {
   examples?: string[]
   guildOwner?: boolean
   botOwner?: boolean
+  modOnly?: boolean
   userPermissions?: Discord.PermissionString[]
   botPermissions?: Discord.PermissionString[]
   needMoney?: number

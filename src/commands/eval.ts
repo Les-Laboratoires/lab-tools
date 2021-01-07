@@ -16,6 +16,7 @@ const command: app.Command = {
   name: "js",
   botOwner: true,
   aliases: ["eval", "code", "run", "=", "test"],
+  needMoney: 5,
   async run(message) {
     const match = regex.exec(message.content)
     const installed = new Set<string>()
@@ -28,11 +29,12 @@ const command: app.Command = {
       for (const pack of given) {
         if (alreadyInstalled(pack)) {
           await message.channel.send(`✅ **${pack}** - installed`)
+          installed.add(pack)
         } else {
           let log
           try {
             log = await message.channel.send(
-              `<a:wait:560972897376665600> **${pack}** - isntall...`
+              `<a:wait:560972897376665600> **${pack}** - install...`
             )
             await exec(`npm i ${pack}@latest`)
             await log.edit(`✅ **${pack}** - installed`)
@@ -55,9 +57,18 @@ const command: app.Command = {
       message.content = "return " + message.content
     }
 
-    message.content = `const req = {${[...installed]
-      .map((pack) => `"${pack}": require("${pack}")`)
-      .join(", ")}}; ${message.content}`
+    message.content = `
+      ${
+        message.content.includes("app")
+          ? 'const app = require(require("path").join(process.cwd(), "dist", "app.js"));'
+          : ""
+      } ${
+      match
+        ? `const req = {${[...installed]
+            .map((pack) => `"${pack}": require("${pack}")`)
+            .join(", ")}};`
+        : ""
+    } ${message.content}`
 
     await discordEval(
       message.content,
@@ -66,6 +77,7 @@ const command: app.Command = {
     )
 
     for (const pack of installed) {
+      if (alreadyInstalled(pack)) continue
       let log
       try {
         log = await message.channel.send(
@@ -78,6 +90,8 @@ const command: app.Command = {
         else await message.channel.send(`❌ **${pack}** - error`)
       }
     }
+
+    return message.channel.send(`<:yay:557124850326437888> process completed`)
   },
 }
 
