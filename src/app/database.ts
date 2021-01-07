@@ -47,6 +47,10 @@ export const snippets = new Enmap<string, string>({
   name: "snippets",
 })
 
+export const companies = new Enmap<string,Company>({ 
+  name: "companies"
+})
+
 export const coolDowns = new Enmap<string, CoolDown>()
 
 // /** Enmap[Guild, Prefix] */
@@ -72,6 +76,13 @@ export interface Counter {
   target: string
   name: string
   type: "match" | "react"
+}
+
+export interface Company {
+  name: string,
+  ownerID: app.Discord.Snowflake,
+  description: string,
+  money: number
 }
 
 
