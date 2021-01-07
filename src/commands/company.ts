@@ -54,7 +54,7 @@ const command: app.Command = {
             break;
         }
         case "list": {
-          const pages = app.splitChunks<app.Company>(app.companies.array(), 10).map(async (chunk, i, arr) => {
+          const pages = await Promise.all(app.splitChunks<app.Company>(app.companies.array(), 10).map(async (chunk, i, arr) => {
             const embed = new app.Discord.MessageEmbed()
             embed.setDescription(`Page ${i+1}/${arr.length}`)
             for(const company of chunks) {
@@ -62,7 +62,7 @@ const command: app.Command = {
               embed.addField(company.name, `${owner.tag} - ${company.description}`)
             }
             return embed
-          })
+          }))
           if(pages.length === 0) return message.channel.send(`Aucune entreprise...`)
           let currentPage = 0;
           const menu = await message.channel.send(pages[currentPage])
