@@ -84,6 +84,7 @@ const command: app.Command = {
               message.channel.send('Arrêt du menu...')
             }
           })
+          break;
         }
         default:
             return message.channel.send(`Not yet implemented`)
