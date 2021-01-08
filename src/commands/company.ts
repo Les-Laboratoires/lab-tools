@@ -8,7 +8,6 @@ const command: app.Command = {
         "list",
         "create",
         "remove",
-        "join"
     ])
     
     switch(key) {
