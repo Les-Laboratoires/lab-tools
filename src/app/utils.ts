@@ -29,7 +29,7 @@ export const owners = ["272676235946098688", "352176756922253321"]
 
 // Money
 export const tax = {
-  privateTax: 0.05,
+  privateTax: 0.10,
   companyTax: 0.1,
   stocksWallet: 0,
   stocksToPrivateTax: 0.25 
