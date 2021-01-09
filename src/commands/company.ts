@@ -15,17 +15,16 @@ const command: app.Command = {
           if(app.companies.find('ownerID', message.author.id)) {
             return message.channel.send('Kestufou t\'as déjà une entreprise !')
           }
-          console.log(app.companies)
           const companyName = app.getArgument(message)
           if(!companyName) return message.channel.send('Faut renseigner le nom de ton entreprise du con')
           const description = app.getArgument(message, "rest")
           const company = {
             name: companyName,
             description,
-            ownerID: message.author.id,
-            money: 0,
+            ownerID: message.author.id
           } as app.Company
           app.companies.set(companyName, company)
+          app.money.set(`company:${company.name}`, 0)
           return message.channel.send('Ton entreprise a été crée, jeune entrepreneur !')
         }
 
@@ -95,7 +94,7 @@ const command: app.Command = {
 Nom: ${companyName}
 Owner: ${(await message.client.users.fetch(company.ownerID)).tag}
 Description: ${company.description}
-Money: ${app.money.ensure(companyName, 0)}${app.currency}
+Money: ${app.money.ensure(`company:${company.name}`, 0)}${app.currency}
 Bilan 24h: WIP (waiting for Ghom's new money system)
 \`\`\`
           `)
