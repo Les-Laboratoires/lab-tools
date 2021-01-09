@@ -153,7 +153,7 @@ export function splitChunks<T = any>(array: T[], chunks: number): T[][] {
 export async function getTargets(message: Discord.Message, limit: number = Infinity,  members: boolean = true, companies: boolean = true, bank: boolean = true): Promise<(Discord.GuildMember|string)[]> {
   const targets: (Discord.GuildMember|string)[] = []
   const IDRegex = /\d{18}/
-  const mentionRegex = /<@\d{18}>/
+  const mentionRegex = /<@!?\d{18}>/
   if(!members && !companies) return targets
   while(true) {
     const word = getArgument(message, 'word')
@@ -169,13 +169,7 @@ export async function getTargets(message: Discord.Message, limit: number = Infin
         continue
       }
     }
-    if(IDRegex.test(word) && members) {
-      const member = await message?.guild?.members.fetch(word)
-      if(member) {
-        targets.push(member)
-        continue
-      }
-    }
+
     if(mentionRegex.test(word) && members) {
       const member = message.mentions.members?.first()
       if(member) {
@@ -184,6 +178,16 @@ export async function getTargets(message: Discord.Message, limit: number = Infin
         continue
       }
     }
+
+    if(IDRegex.test(word) && members) {
+      const member = await message?.guild?.members.fetch(word)
+      if(member) {
+        targets.push(member)
+        continue
+      }
+    }
+
+
     if(members) {
       const member = (await message?.guild?.members?.fetch({ query: word, limit: 1}))?.first()
       if(member) {
