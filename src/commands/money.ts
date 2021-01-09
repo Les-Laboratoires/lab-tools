@@ -85,10 +85,24 @@ const command: app.Command = {
                   id,
                   score: money,
                 }))
-                .filter((el: {id: string, score: number}) => el.id !== "bank" && !el.id.startsWith("company:"))
-                .sort((a: {id: string, score: number}, b: {id: string, score: number}) => b.score - a.score)
+                .filter(
+                  (el: { id: string; score: number }) =>
+                    el.id !== "bank" && !el.id.startsWith("company:")
+                )
+                .sort(
+                  (
+                    a: { id: string; score: number },
+                    b: { id: string; score: number }
+                  ) => b.score - a.score
+                )
                 .slice(0, 15)
-                .map((el: {id: string, score: number}, i: number, arr: {id: string, score: number}[]) => app.leaderItem(el, i, arr, app.currency))
+                .map(
+                  (
+                    el: { id: string; score: number },
+                    i: number,
+                    arr: { id: string; score: number }[]
+                  ) => app.leaderItem(el, i, arr, app.currency)
+                )
                 .join("\n")
             )
         )
@@ -107,56 +121,65 @@ const command: app.Command = {
           `Ok, ${amount}${app.currency} ont été retirés de la banque. <:oui:703398234718208080>`
         )
       case "give": {
-        const as = app.getArgument(message, [
-          "as company",
-          "as bank"
-        ])
-        const targets = await app.getTargets(message)
-          .catch(err => {
-            const word = err.message.split(' at ')[1]
-            return message.channel.send("Aucune entreprise/membre ne correspond à "+word)
-          })
+        const as = app.getArgument(message, ["as company", "as bank"])
+        const targets = await app.getTargets(message).catch((err) => {
+          const word = err.message.split(" at ")[1]
+          return message.channel.send(
+            "Aucune entreprise/membre ne correspond à " + word
+          )
+        })
 
-        if(targets instanceof app.Discord.Message) return;
+        if (targets instanceof app.Discord.Message) return
 
-        if(targets.length === 0) return message.channel.send(
-          "Tu dois mentionner la ou les personnes / entreprise(s) ciblées  <:jpp:564431015377108992>"
-        )
+        if (targets.length === 0)
+          return message.channel.send(
+            "Tu dois mentionner la ou les personnes / entreprise(s) ciblées  <:jpp:564431015377108992>"
+          )
         const bank = as === "as bank"
-        const company = as === "as company" && app.companies.find('ownerID', message.author.id)
-        if(!company && as === "as company") return message.channel.send(`Tu ne peux pas débiter ton entreprise si tu n'en n'a pas <:notLikeThis:507420569482952704>`)
-        
-        let taxed;
-        if(bank) taxed = "bank";
-        else if(company) taxed = `company:${company.name}`
+        const company =
+          as === "as company" &&
+          app.companies.find("ownerID", message.author.id)
+        if (!company && as === "as company")
+          return message.channel.send(
+            `Tu ne peux pas débiter ton entreprise si tu n'en n'a pas <:notLikeThis:507420569482952704>`
+          )
+
+        let taxed
+        if (bank) taxed = "bank"
+        else if (company) taxed = `company:${company.name}`
         else taxed = message.author.id
 
         const tax = targets.length * amount
 
         return app.transaction(
           taxed,
-          targets.map(target => target instanceof app.Discord.GuildMember ? target.id : target),
+          targets.map((target) =>
+            target instanceof app.Discord.GuildMember ? target.id : target
+          ),
           amount,
           (missing) => {
             if (missing) {
               return message.channel.send(
                 bank
                   ? `La banque ne possède pas assez d'argent. Il manque ${missing}${app.currency}`
-                  : 
-                  company 
-                    ? `Ton entreprise ${company.name} ne possède pas assez d'argent il manque ${missing}${app.currency}`
-                    : `Tu ne possèdes pas assez d'argent <:lul:507420611484712971>\nIl te manque ${missing}${app.currency}`
+                  : company
+                  ? `Ton entreprise ${company.name} ne possède pas assez d'argent il manque ${missing}${app.currency}`
+                  : `Tu ne possèdes pas assez d'argent <:lul:507420611484712971>\nIl te manque ${missing}${app.currency}`
               )
             } else {
               if (targets.length === 1) {
                 return message.channel.send(
-                  `${bank ? "La banque a" : company ? "Ton entreprise" : "Tu as"} transféré ${tax}${
-                    app.currency
-                  } vers le compte de **${targets[0]}**`
+                  `${
+                    bank ? "La banque a" : company ? "Ton entreprise" : "Tu as"
+                  } transféré ${tax}${app.currency} vers le compte de **${
+                    targets[0]
+                  }**`
                 )
               } else {
                 return message.channel.send(
-                  `${bank ? "La banque a" : company ? "Ton entreprise" : "Tu as"} perdu ${tax}${
+                  `${
+                    bank ? "La banque a" : company ? "Ton entreprise" : "Tu as"
+                  } perdu ${tax}${
                     app.currency
                   } en tout.\nLes membres suivants ont chacun reçus ${amount}${
                     app.currency
@@ -192,9 +215,9 @@ const command: app.Command = {
           return message.channel.send(
             `Vous possédez actuellement ${money}${
               app.currency
-            }\nVotre taxe quotidienne s'élève à ${Math.floor(money * app.tax.privateTax)}${
-              app.currency
-            }\nVous avez cummulé ${combo} daily${
+            }\nVotre taxe quotidienne s'élève à ${Math.floor(
+              money * app.tax.privateTax
+            )}${app.currency}\nVous avez cummulé ${combo} daily${
               combo > 1 ? "s" : ""
             }. Vous pouvez toucher entre ${dailyMin}${
               app.currency

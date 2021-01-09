@@ -50,8 +50,8 @@ export const snippets = new Enmap<string, string>({
   name: "snippets",
 })
 
-export const companies = new Enmap<string,Company>({ 
-  name: "companies"
+export const companies = new Enmap<string, Company>({
+  name: "companies",
 })
 
 export const coolDowns = new Enmap<string, CoolDown>()
@@ -82,8 +82,8 @@ export interface Counter {
 }
 
 export interface Company {
-  name: string,
-  ownerID: app.Discord.Snowflake,
+  name: string
+  ownerID: app.Discord.Snowflake
   description: string
 }
 
