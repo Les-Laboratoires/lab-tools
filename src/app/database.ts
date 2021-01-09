@@ -18,35 +18,17 @@ export async function transaction(
   amount: number,
   callback?: (missing: number) => unknown
 ): Promise<boolean> {
-  let taxedMoney;
-  if(!taxed.startsWith("company:")) {
-    taxedMoney = money.ensure(taxed, 0)
-  } else {
-    const company = companies.ensure(taxed.replace("company:", ""), {
-      name: "",
-      ownerID: "",
-      description: "",
-      money: 0
-    })
-    taxedMoney = company.money
-  }
+  const taxedMoney = money.ensure(taxed, 0)
+
   const total = paid.length * amount
 
   if (taxedMoney < total) {
     await callback?.(total - taxedMoney)
     return false
   }
-  if(!taxed.startsWith("company:")) money.set(taxed, taxedMoney - total)
-  else companies.set(taxed.replace("company:", ""), taxedMoney - total, "money")
+  money.set(taxed, taxedMoney - total)
 
   paid.forEach((id) => {
-    if(id.startsWith("company:")) {
-      const companyName = id.replace("company:", "")
-      const company = companies.has(companyName)
-      if(company) {
-        companies.math(companyName, "+", amount, "money")
-      }
-    }
     app.money.set(id, app.money.ensure(id, 0) + amount)
   })
 
@@ -102,8 +84,7 @@ export interface Counter {
 export interface Company {
   name: string,
   ownerID: app.Discord.Snowflake,
-  description: string,
-  money: number
+  description: string
 }
 
 export interface Daily {
