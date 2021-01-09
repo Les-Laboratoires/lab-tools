@@ -150,7 +150,7 @@ export function splitChunks<T = any>(array: T[], chunks: number): T[][] {
   return [...Array(Math.ceil(array.length / chunks))].map(_ => array.splice(0,chunks))
 }
 
-export async function getTargets(message: Discord.Message, members: boolean = true, companies: boolean = true): Promise<(Discord.GuildMember|string)[]> {
+export async function getTargets(message: Discord.Message, limit: number = Infinity,  members: boolean = true, companies: boolean = true, bank: boolean = true): Promise<(Discord.GuildMember|string)[]> {
   const targets: (Discord.GuildMember|string)[] = []
   const IDRegex = /\d{18}/
   const mentionRegex = /<@\d{18}>/
@@ -158,6 +158,7 @@ export async function getTargets(message: Discord.Message, members: boolean = tr
   while(true) {
     const word = getArgument(message, 'word')
     if(!word) break;
+    if(word === "bank" && bank) targets.push("bank")
     if(word.startsWith("company:") && companies) {
       const company = database.companies.has(word.replace("company:", ""))
       if(company) {
@@ -187,6 +188,7 @@ export async function getTargets(message: Discord.Message, members: boolean = tr
         continue
       }
     }
+    if(targets.length === limit) return targets
     throw Error("No company/member at " + word)
   }
   return targets
