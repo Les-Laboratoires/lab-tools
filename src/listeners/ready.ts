@@ -46,7 +46,7 @@ const listener: app.Listener<"ready"> = {
           app.publiclogs
         ) as app.TextChannel
         channel.send(
-          `Les taxes de ce soir s'élèvent à un total de... ||${totalTax}${app.currency}|| pour ${taxed} membres taxés !`
+          `Les taxes de ce soir s'élèvent à un total de... ||${totalTax}${app.currency}|| pour ${taxed} membres taxés, les admins prennent ||${toTake}${app.currency}|| !`
         )
       },
       null,
