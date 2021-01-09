@@ -79,10 +79,11 @@ const command: app.Command = {
                 const owner = await message.client.users.fetch(company.ownerID)
                 embed.addField(
                   company.name,
-                  `${owner.tag} - ${company.description  || "Pas de description"} - ${app.money.ensure(
-                    `company:${company.name}`,
-                    0
-                  )}${app.currency}`
+                  `${owner.tag} - ${
+                    company.description || "Pas de description"
+                  } - ${app.money.ensure(`company:${company.name}`, 0)}${
+                    app.currency
+                  }`
                 )
               }
               return embed
