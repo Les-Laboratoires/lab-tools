@@ -63,9 +63,12 @@ const command: app.Command = {
         break
       }
       case "list": {
+        const companies = app.companies.array().sort((a,b) => {
+          return app.money.ensure(`company:${a.name}`, 0) - app.money.ensure(`company:${b.name}`, 0)
+        })
         const pages = await Promise.all(
           app
-            .splitChunks<app.Company>(app.companies.array(), 10)
+            .splitChunks<app.Company>(companies, 10)
             .map(async (chunk, i, arr) => {
               const embed = new app.Discord.MessageEmbed()
               embed.setDescription(`Page ${i + 1}/${arr.length}`)
