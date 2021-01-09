@@ -86,7 +86,8 @@ const command: app.Command = {
           break;
         }
         default:
-          const companyName = app.getArgument(message, "word")
+          const companyName = app.getArgument(message, "word") || app.companies.find('ownerID', message.author.id)
+          if(!companyName) return message.channel.send("Vous n'avez pas d'entreprise, essayez de renseigner le nom d'une entreprise !")
           const company = app.companies.get(companyName)
           if(!company) return message.channel.send(`Aucune entreprise ne répond au nom de ${companyName} :/`)
           return message.channel.send(`
