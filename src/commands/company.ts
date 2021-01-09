@@ -74,7 +74,7 @@ const command: app.Command = {
                 embed.addField(
                   company.name,
                   `${owner.tag} - ${company.description} - ${app.money.ensure(
-                    company.name,
+                    `company:${company.name}`,
                     0
                   )}${app.currency}`
                 )
