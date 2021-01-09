@@ -58,7 +58,7 @@ const command: app.Command = {
             embed.setDescription(`Page ${i+1}/${arr.length}`)
             for(const company of chunk) {
               const owner = await message.client.users.fetch(company.ownerID)
-              embed.addField(company.name, `${owner.tag} - ${company.description} - ${company.money}${app.currency}`)
+              embed.addField(company.name, `${owner.tag} - ${company.description} - ${app.money.ensure(company.name, 0)}${app.currency}`)
             }
             return embed
           }))
@@ -95,7 +95,7 @@ const command: app.Command = {
 Nom: ${companyName}
 Owner: ${(await message.client.users.fetch(company.ownerID)).tag}
 Description: ${company.description}
-Money: ${company.money}${app.currency}
+Money: ${app.money.ensure(companyName, 0)}${app.currency}
 Bilan 24h: WIP (waiting for Ghom's new money system)
 \`\`\`
           `)
