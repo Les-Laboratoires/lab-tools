@@ -47,6 +47,7 @@ const command: app.Command = {
           .on("collect", (m) => {
             switch (m.content) {
               case "ok":
+                app.transaction(`company:${company.name}`, [message.author.id], app.money.ensure(`company:${company.name}`, 0))
                 app.companies.delete(company.name)
                 return message.channel.send("Ok, bye bye " + company.name)
               case "stop":
