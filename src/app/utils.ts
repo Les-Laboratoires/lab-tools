@@ -35,7 +35,7 @@ export const tax = {
   stocksToPrivateTax: 0.25 
 }
 export const currency = "Ɠ"
-export const royalties = 0.1
+export const royalties = 0.2
 
 export const codeRegex = /^```(?:js)?\s(.+[^\\])```$/is
 
