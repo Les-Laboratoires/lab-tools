@@ -18,16 +18,20 @@ export async function transaction(
   amount: number,
   callback?: (missing: number) => unknown
 ): Promise<boolean> {
-  const taxedMoney = money.ensure(taxed, 0)
-
+  let taxedMoney;
+  if(!taxed.startsWith("company:")) {
+    taxedMoney = money.ensure(taxed, 0)
+  } else {
+    taxedMoney = companies.ensure(taxed.replace("company:", ""), 0, "money")
+  }
   const total = paid.length * amount
 
   if (taxedMoney < total) {
     await callback?.(total - taxedMoney)
     return false
   }
-
-  money.set(taxed, taxedMoney - total)
+  if(!taxed.startsWith("company:")) money.set(taxed, taxedMoney - total)
+  else companies.set(taxed.replace("company:", ""), taxedMoney - total, "money")
 
   paid.forEach((id) => {
     if(id.startsWith("company:")) {
