@@ -1,3 +1,4 @@
+import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS, S_IFMT } from "constants"
 import * as app from "../app"
 
 const command: app.Command = {
@@ -106,20 +107,55 @@ const command: app.Command = {
           `Ok, ${amount}${app.currency} ont été retirés de la banque. <:oui:703398234718208080>`
         )
       case "give": {
-        if (!message.mentions.members || message.mentions.members.size === 0) {
-          return message.channel.send(
-            "Tu dois mentionner la ou les personnes ciblées <:jpp:564431015377108992>"
-          )
+
+        const targets: (app.Discord.GuildMember|string)[] = []
+        const IDRegex = /\d{18}/
+        const mentionRegex = /<@\d{18}>/
+        while(true) {
+          const word = app.getArgument(message, 'word')
+          if(!word) break;
+          if(word.startsWith("company:")) {
+            const company = app.companies.has(word.replace("company:", ""))
+            if(company) {
+              targets.push(word)
+              continue
+            }
+          }
+          if(IDRegex.test(word)) {
+            const member = await message.guild.members.fetch(word)
+            if(member) {
+              targets.push(member)
+              continue
+            }
+          }
+          if(mentionRegex.test(word)) {
+            const member = message.mentions.members?.first()
+            if(member) {
+              targets.push(member)
+              message.mentions.users.delete(member.id)
+              continue
+            }
+          }
+          const member = (await message.guild.members.fetch({ query: word, limit: 1})).first()
+          if(member) {
+            targets.push(member)
+            continue
+          }
+          return message.channel.send(`Aucun membre/entreprise ne correspond à ${word}`)
         }
+
+        if(targets.length === 0) return message.channel.send(
+          "Tu dois mentionner la ou les personnes / entreprise(s) ciblées  <:jpp:564431015377108992>"
+        )
 
         const bank = message.content.includes("as bank")
         const taxed = bank ? "bank" : message.author.id
-        const members = message.mentions.members
-        const tax = members.size * amount
+
+        const tax = targets.length * amount
 
         return app.transaction(
           taxed,
-          members.map((m) => m.id),
+          targets.map(target => target instanceof app.Discord.GuildMember ? target.id : target),
           amount,
           (missing) => {
             if (missing) {
@@ -129,11 +165,11 @@ const command: app.Command = {
                   : `Tu ne possèdes pas assez d'argent <:lul:507420611484712971>\nIl te manque ${missing}${app.currency}`
               )
             } else {
-              if (members.size === 1) {
+              if (targets.length === 1) {
                 return message.channel.send(
                   `${bank ? "La banque a" : "Tu as"} transféré ${tax}${
                     app.currency
-                  } vers le compte de **${members.first()?.user.tag}**`
+                  } vers le compte de **${targets[0]}**`
                 )
               } else {
                 return message.channel.send(
@@ -142,9 +178,9 @@ const command: app.Command = {
                   } en tout.\nLes membres suivants ont chacun reçus ${amount}${
                     app.currency
                   }.${app.code(
-                    members
-                      .map((member) => {
-                        return member.displayName
+                    targets
+                      .map((target) => {
+                        return target.toString()
                       })
                       .join("\n")
                   )}`
