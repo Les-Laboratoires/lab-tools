@@ -85,7 +85,7 @@ const command: app.Command = {
                   id,
                   score: money,
                 }))
-                .filter((el: {id: string, score: number}) => el.id !== "bank")
+                .filter((el: {id: string, score: number}) => el.id !== "bank" && !el.id.startsWith("company:"))
                 .sort((a: {id: string, score: number}, b: {id: string, score: number}) => b.score - a.score)
                 .slice(0, 15)
                 .map((el: {id: string, score: number}, i: number, arr: {id: string, score: number}[]) => app.leaderItem(el, i, arr, app.currency))
