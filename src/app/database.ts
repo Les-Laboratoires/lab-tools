@@ -22,7 +22,13 @@ export async function transaction(
   if(!taxed.startsWith("company:")) {
     taxedMoney = money.ensure(taxed, 0)
   } else {
-    taxedMoney = companies.ensure(taxed.replace("company:", ""), 0, "money")
+    const company = companies.ensure(taxed.replace("company:", ""), {
+      name: "",
+      ownerID: "",
+      description: "",
+      money: 0
+    })
+    taxedMoney = company.money
   }
   const total = paid.length * amount
 
