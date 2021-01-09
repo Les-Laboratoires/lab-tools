@@ -59,17 +59,16 @@ const listener: app.Listener<"ready"> = {
         channel.send(
 `
 \`\`\`diff
-Membres du serveur :
-- ${totalPrivateTax}
+~ Membres du serveur :
+- ${totalPrivateTax}${app.currency}
  = ${totalPrivateTaxed} taxés
 
-Entreprises :
+~ Entreprises :
 - ${totalCompanyTax}${app.currency}
  = ${totalCompaniesTaxed} taxées
 
-Royalties admins :
-+ ${toTake / admins.length}${app.currency} / admin
- = ${toTake}${app.currency}
+~ Royalties admins :
++ ${toTake}${app.currency}
  = ${admins.length} admins
 \`\`\`
 `
