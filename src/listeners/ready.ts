@@ -22,18 +22,29 @@ const listener: app.Listener<"ready"> = {
     const job = new CronJob(
       "0 0 * * *",
       async () => {
-        let totalTax = 0
-        let taxed = 0
-        for (const member of labs.members.cache.array()) {
-          const money = app.money.ensure(member.id, 0)
-          const tax = Math.floor(money * app.tax)
+        let totalCompanyTax = 0;
+        let totalCompaniesTaxed = 0;
+        let totalPrivateTax = 0;
+        let totalPrivateTaxed = 0;
 
-          if (money < tax || tax === 0) continue
-          totalTax += tax
-          taxed++
-          await app.transaction(member.id, ["bank"], tax)
+        for(const [id, money] of app.money.entries()) {
+          const tax = id.startsWith("company:") ? app.tax.companyTax : app.tax.privateTax
+          const formattedID = id.startsWith("company:") ? id.replace("company:", "") : id
+
+          const taxAmount = Math.floor(money * app.tax.privateTax)
+
+          if(money < taxAmount || taxAmount === 0) continue;
+          
+          await app.transaction(id, ["bank"], taxAmount)
+          if(id.startsWith("company:")) {
+            totalCompanyTax+=taxAmount
+            totalCompaniesTaxed++
+          } else {
+            totalPrivateTax+=taxAmount
+            totalPrivateTaxed++
+          }
         }
-        const toTake = Math.round(app.royalties * totalTax)
+        const toTake = Math.round(app.royalties * (totalPrivateTax + totalCompanyTax))
         const admins = labs.members.cache
           .filter((member) => member.roles.cache.has(app.admin))
           .map((member) => member.id)
@@ -46,7 +57,21 @@ const listener: app.Listener<"ready"> = {
           app.publiclogs
         ) as app.TextChannel
         channel.send(
-          `Les taxes de ce soir s'élèvent à un total de... ||${totalTax}${app.currency}|| pour ${taxed} membres taxés !`
+`
+\`\`\`diff
+~ Membres du serveur :
+- ${totalPrivateTax}${app.currency}
+ = ${totalPrivateTaxed} taxés
+
+~ Entreprises :
+- ${totalCompanyTax}${app.currency}
+ = ${totalCompaniesTaxed} taxées
+
+~ Royalties admins :
++ ${toTake}${app.currency}
+ = ${admins.length} admins
+\`\`\`
+`
         )
       },
       null,

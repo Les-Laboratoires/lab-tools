@@ -26,7 +26,6 @@ export async function transaction(
     await callback?.(total - taxedMoney)
     return false
   }
-
   money.set(taxed, taxedMoney - total)
 
   paid.forEach((id) => {
@@ -49,6 +48,10 @@ export const counters = new Enmap<string, Counter>({
 
 export const snippets = new Enmap<string, string>({
   name: "snippets",
+})
+
+export const companies = new Enmap<string,Company>({ 
+  name: "companies"
 })
 
 export const coolDowns = new Enmap<string, CoolDown>()
@@ -76,6 +79,12 @@ export interface Counter {
   target: string
   name: string
   type: "match" | "react"
+}
+
+export interface Company {
+  name: string,
+  ownerID: app.Discord.Snowflake,
+  description: string
 }
 
 export interface Daily {

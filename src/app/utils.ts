@@ -7,6 +7,7 @@ import timezone from "dayjs/plugin/timezone"
 import toObject from "dayjs/plugin/toObject"
 import Discord from "discord.js"
 import * as command from "./command"
+import * as database from "./database"
 
 // Snowflakes
 export const labs = "507389389098188820"
@@ -28,9 +29,14 @@ export const minmaxgap = 15
 export const owners = ["272676235946098688", "352176756922253321"]
 
 // Money
-export const tax = 0.05
+export const tax = {
+  privateTax: 0.7,
+  companyTax: 0.1,
+  stocksWallet: 0,
+  stocksToPrivateTax: 0.25 
+}
 export const currency = "Ɠ"
-export const royalties = 0.1
+export const royalties = 0.2
 
 export const codeRegex = /^```(?:js)?\s(.+[^\\])```$/is
 
@@ -63,11 +69,11 @@ export function getArgument(
     const regex = /^-?[1-9]\d*/
     const result = regex.exec(message.content)
     if (result) {
-      message.content.replace(regex, "").trim()
+      message.content = message.content.replace(regex, "").trim()
       return Number(result[0])
     }
   } else if (Array.isArray(match)) {
-    for (const key of match) {
+    for (const key of match) {  
       if (message.content.startsWith(key)) {
         message.content = message.content.slice(key.length).trim()
         return key
@@ -140,6 +146,61 @@ export function calculateMinMaxDaily(combo: number): number[] {
   return [Math.round(min), Math.round(max)]
 }
 
+export function splitChunks<T = any>(array: T[], chunks: number): T[][] {
+  return [...Array(Math.ceil(array.length / chunks))].map(_ => array.splice(0,chunks))
+}
+
+export async function getTargets(message: Discord.Message, limit: number = Infinity,  members: boolean = true, companies: boolean = true, bank: boolean = true): Promise<(Discord.GuildMember|string)[]> {
+  const targets: (Discord.GuildMember|string)[] = []
+  const IDRegex = /\d{18}/
+  const mentionRegex = /<@!?\d{18}>/
+  if(!members && !companies) return targets
+  while(true) {
+    const word = getArgument(message, 'word')
+    if(!word) break;
+    if(word === "bank" && bank) {
+      targets.push("bank")
+      continue
+    }
+    if(word.startsWith("company:") && companies) {
+      const company = database.companies.has(word.replace("company:", ""))
+      if(company) {
+        targets.push(word)
+        continue
+      }
+    }
+
+    if(mentionRegex.test(word) && members) {
+      const member = message.mentions.members?.first()
+      if(member) {
+        targets.push(member)
+        message.mentions.users.delete(member.id)
+        continue
+      }
+    }
+
+    if(IDRegex.test(word) && members) {
+      const member = await message?.guild?.members.fetch(word)
+      if(member) {
+        targets.push(member)
+        continue
+      }
+    }
+
+
+    if(members) {
+      const member = (await message?.guild?.members?.fetch({ query: word, limit: 1}))?.first()
+      if(member) {
+        targets.push(member)
+        continue
+      }
+    }
+    if(targets.length === limit) return targets
+    throw Error("No company/member at " + word)
+  }
+  return targets
+}
+    
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(toObject)
