@@ -107,42 +107,12 @@ const command: app.Command = {
           `Ok, ${amount}${app.currency} ont été retirés de la banque. <:oui:703398234718208080>`
         )
       case "give": {
-
-        const targets: (app.Discord.GuildMember|string)[] = []
-        const IDRegex = /\d{18}/
-        const mentionRegex = /<@\d{18}>/
-        while(true) {
-          const word = app.getArgument(message, 'word')
-          if(!word) break;
-          if(word.startsWith("company:")) {
-            const company = app.companies.has(word.replace("company:", ""))
-            if(company) {
-              targets.push(word)
-              continue
-            }
-          }
-          if(IDRegex.test(word)) {
-            const member = await message.guild.members.fetch(word)
-            if(member) {
-              targets.push(member)
-              continue
-            }
-          }
-          if(mentionRegex.test(word)) {
-            const member = message.mentions.members?.first()
-            if(member) {
-              targets.push(member)
-              message.mentions.users.delete(member.id)
-              continue
-            }
-          }
-          const member = (await message.guild.members.fetch({ query: word, limit: 1})).first()
-          if(member) {
-            targets.push(member)
-            continue
-          }
-          return message.channel.send(`Aucun membre/entreprise ne correspond à ${word}`)
-        }
+        const targets = await app.getTargets(message).catch(err => {
+          console.log(err)
+          const word = err.split(' at ')[1]
+          return message.channel.send("Aucune entreprise/membre ne correspond à "+word)
+        })
+        if(targets instanceof app.Discord.Message) return;
 
         if(targets.length === 0) return message.channel.send(
           "Tu dois mentionner la ou les personnes / entreprise(s) ciblées  <:jpp:564431015377108992>"

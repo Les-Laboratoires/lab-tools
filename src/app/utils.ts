@@ -7,6 +7,7 @@ import timezone from "dayjs/plugin/timezone"
 import toObject from "dayjs/plugin/toObject"
 import Discord from "discord.js"
 import * as command from "./command"
+import * as database from "./database"
 
 // Snowflakes
 export const labs = "507389389098188820"
@@ -147,6 +148,48 @@ export function calculateMinMaxDaily(combo: number): number[] {
 
 export function splitChunks<T = any>(array: T[], chunks: number): T[][] {
   return [...Array(Math.ceil(array.length / chunks))].map(_ => array.splice(0,chunks))
+}
+
+export async function getTargets(message: Discord.Message, members: boolean = true, companies: boolean = true): Promise<(Discord.GuildMember|string)[]> {
+  const targets: (Discord.GuildMember|string)[] = []
+  const IDRegex = /\d{18}/
+  const mentionRegex = /<@\d{18}>/
+  if(!members && !companies) return targets
+  while(true) {
+    const word = getArgument(message, 'word')
+    if(!word) break;
+    if(word.startsWith("company:") && companies) {
+      const company = database.companies.has(word.replace("company:", ""))
+      if(company) {
+        targets.push(word)
+        continue
+      }
+    }
+    if(IDRegex.test(word) && members) {
+      const member = await message?.guild?.members.fetch(word)
+      if(member) {
+        targets.push(member)
+        continue
+      }
+    }
+    if(mentionRegex.test(word) && members) {
+      const member = message.mentions.members?.first()
+      if(member) {
+        targets.push(member)
+        message.mentions.users.delete(member.id)
+        continue
+      }
+    }
+    if(members) {
+      const member = (await message?.guild?.members?.fetch({ query: word, limit: 1}))?.first()
+      if(member) {
+        targets.push(member)
+        continue
+      }
+    }
+    throw Error("No company/member at " + word)
+  }
+  return targets
 }
     
 dayjs.extend(utc)
