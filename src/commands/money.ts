@@ -111,21 +111,25 @@ const command: app.Command = {
           "as company",
           "as bank"
         ])
-        const targets = await app.getTargets(message).catch(err => {
-          console.log(err)
-          const word = err.split(' at ')[1]
-          return message.channel.send("Aucune entreprise/membre ne correspond à "+word)
-        })
+        const targets = await app.getTargets(message)
+          .catch(err => {
+            const word = err.message.split(' at ')[1]
+            return message.channel.send("Aucune entreprise/membre ne correspond à "+word)
+          })
+
         if(targets instanceof app.Discord.Message) return;
 
         if(targets.length === 0) return message.channel.send(
           "Tu dois mentionner la ou les personnes / entreprise(s) ciblées  <:jpp:564431015377108992>"
         )
         const bank = as === "as bank"
-        const company = !bank && app.companies.find('ownerID', message.author.id)
-        if(!company) return message.channel.send(`Tu ne peux pas débiter ton entreprise si tu n'en n'a pas <:notLikeThis:507420569482952704>`)
+        const company = as === "as company" && app.companies.find('ownerID', message.author.id)
+        if(!company && as === "as company") return message.channel.send(`Tu ne peux pas débiter ton entreprise si tu n'en n'a pas <:notLikeThis:507420569482952704>`)
         
-        const taxed = bank ? "bank" : company ? company.name : message.author.id
+        let taxed;
+        if(bank) taxed = "bank";
+        else if(company) taxed = `company:${company.name}`
+        else taxed = message.author.id
 
         const tax = targets.length * amount
 
