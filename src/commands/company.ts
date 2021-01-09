@@ -58,7 +58,7 @@ const command: app.Command = {
             embed.setDescription(`Page ${i+1}/${arr.length}`)
             for(const company of chunk) {
               const owner = await message.client.users.fetch(company.ownerID)
-              embed.addField(company.name, `${owner.tag} - ${company.description}`)
+              embed.addField(company.name, `${owner.tag} - ${company.description} - ${company.money}${app.currency}`)
             }
             return embed
           }))
