@@ -30,6 +30,13 @@ export async function transaction(
   money.set(taxed, taxedMoney - total)
 
   paid.forEach((id) => {
+    if(id.startsWith("company:")) {
+      const companyName = id.replace("company:", "")
+      const company = companies.has(companyName)
+      if(company) {
+        companies.math(companyName, "+", amount, "money")
+      }
+    }
     app.money.set(id, app.money.ensure(id, 0) + amount)
   })
 
