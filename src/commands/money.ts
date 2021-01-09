@@ -81,14 +81,14 @@ const command: app.Command = {
             .setAuthor(`Leaderboard | ${app.currency}`)
             .setDescription(
               app.money
-                .map((money, id) => ({
+                .map((money: number, id: string) => ({
                   id,
                   score: money,
                 }))
-                .filter((el) => el.id !== "bank")
-                .sort((a, b) => b.score - a.score)
+                .filter((el: {id: string, score: number}) => el.id !== "bank")
+                .sort((a: {id: string, score: number}, b: {id: string, score: number}) => b.score - a.score)
                 .slice(0, 15)
-                .map((el, i, arr) => app.leaderItem(el, i, arr, app.currency))
+                .map((el: {id: string, score: number}, i: number, arr: {id: string, score: number}[]) => app.leaderItem(el, i, arr, app.currency))
                 .join("\n")
             )
         )
@@ -107,6 +107,10 @@ const command: app.Command = {
           `Ok, ${amount}${app.currency} ont été retirés de la banque. <:oui:703398234718208080>`
         )
       case "give": {
+        const as = app.getArgument(message, [
+          "as company",
+          "as bank"
+        ])
         const targets = await app.getTargets(message).catch(err => {
           console.log(err)
           const word = err.split(' at ')[1]
@@ -117,9 +121,11 @@ const command: app.Command = {
         if(targets.length === 0) return message.channel.send(
           "Tu dois mentionner la ou les personnes / entreprise(s) ciblées  <:jpp:564431015377108992>"
         )
-
-        const bank = message.content.includes("as bank")
-        const taxed = bank ? "bank" : message.author.id
+        const bank = as === "as bank"
+        const company = !bank && app.companies.find('ownerID', message.author.id)
+        if(!company) return message.channel.send(`Tu ne peux pas débiter ton entreprise si tu n'en n'a pas <:notLikeThis:507420569482952704>`)
+        
+        const taxed = bank ? "bank" : company ? company.name : message.author.id
 
         const tax = targets.length * amount
 
@@ -132,18 +138,21 @@ const command: app.Command = {
               return message.channel.send(
                 bank
                   ? `La banque ne possède pas assez d'argent. Il manque ${missing}${app.currency}`
-                  : `Tu ne possèdes pas assez d'argent <:lul:507420611484712971>\nIl te manque ${missing}${app.currency}`
+                  : 
+                  company 
+                    ? `Ton entreprise ${company.name} ne possède pas assez d'argent il manque ${missing}${app.currency}`
+                    : `Tu ne possèdes pas assez d'argent <:lul:507420611484712971>\nIl te manque ${missing}${app.currency}`
               )
             } else {
               if (targets.length === 1) {
                 return message.channel.send(
-                  `${bank ? "La banque a" : "Tu as"} transféré ${tax}${
+                  `${bank ? "La banque a" : company ? "Ton entreprise" : "Tu as"} transféré ${tax}${
                     app.currency
                   } vers le compte de **${targets[0]}**`
                 )
               } else {
                 return message.channel.send(
-                  `${bank ? "La banque a" : "Tu as"} perdu ${tax}${
+                  `${bank ? "La banque a" : company ? "Ton entreprise" : "Tu as"} perdu ${tax}${
                     app.currency
                   } en tout.\nLes membres suivants ont chacun reçus ${amount}${
                     app.currency
