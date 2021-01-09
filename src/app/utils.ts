@@ -69,11 +69,11 @@ export function getArgument(
     const regex = /^-?[1-9]\d*/
     const result = regex.exec(message.content)
     if (result) {
-      message.content.replace(regex, "").trim()
+      message.content = message.content.replace(regex, "").trim()
       return Number(result[0])
     }
   } else if (Array.isArray(match)) {
-    for (const key of match) {
+    for (const key of match) {  
       if (message.content.startsWith(key)) {
         message.content = message.content.slice(key.length).trim()
         return key
@@ -158,7 +158,10 @@ export async function getTargets(message: Discord.Message, limit: number = Infin
   while(true) {
     const word = getArgument(message, 'word')
     if(!word) break;
-    if(word === "bank" && bank) targets.push("bank")
+    if(word === "bank" && bank) {
+      targets.push("bank")
+      continue
+    }
     if(word.startsWith("company:") && companies) {
       const company = database.companies.has(word.replace("company:", ""))
       if(company) {
