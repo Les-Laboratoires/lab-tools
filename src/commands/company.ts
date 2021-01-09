@@ -86,7 +86,18 @@ const command: app.Command = {
           break;
         }
         default:
-            return message.channel.send(`Cette commande n'existe pas :/`)
+          const companyName = app.getArgument(message, "word")
+          const company = app.companies.get(companyName)
+          if(!company) return message.channel.send(`Aucune entreprise ne répond au nom de ${companyName} :/`)
+          return message.channel.send(`
+\`\`\`
+Nom: ${companyName}
+Owner: ${(await message.client.users.fetch(company.ownerID)).tag}
+Description: ${company.description}
+Money: ${company.money}${app.currency}
+Bilan 24h: WIP (waiting for Ghom's new money system)
+\`\`\`
+          `)
     }
   },
 }
