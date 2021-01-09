@@ -71,7 +71,7 @@ const command: app.Command = {
         })
         const pages = await Promise.all(
           app
-            .splitChunks<app.Company>(companies, 10)
+            .splitChunks<app.Company>(companies, 5)
             .map(async (chunk, i, arr) => {
               const embed = new app.Discord.MessageEmbed()
               embed.setDescription(`Page ${i + 1}/${arr.length}`)
