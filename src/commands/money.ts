@@ -85,10 +85,24 @@ const command: app.Command = {
                   id,
                   score: money,
                 }))
-                .filter((el: {id: string, score: number}) => el.id !== "bank" && !el.id.startsWith("company:"))
-                .sort((a: {id: string, score: number}, b: {id: string, score: number}) => b.score - a.score)
+                .filter(
+                  (el: { id: string; score: number }) =>
+                    el.id !== "bank" && !el.id.startsWith("company:")
+                )
+                .sort(
+                  (
+                    a: { id: string; score: number },
+                    b: { id: string; score: number }
+                  ) => b.score - a.score
+                )
                 .slice(0, 15)
-                .map((el: {id: string, score: number}, i: number, arr: {id: string, score: number}[]) => app.leaderItem(el, i, arr, app.currency))
+                .map(
+                  (
+                    el: { id: string; score: number },
+                    i: number,
+                    arr: { id: string; score: number }[]
+                  ) => app.leaderItem(el, i, arr, app.currency)
+                )
                 .join("\n")
             )
         ).then(app.handleMessage)
@@ -123,19 +137,26 @@ const command: app.Command = {
           "Tu dois mentionner la ou les personnes / entreprise(s) ciblées  <:jpp:564431015377108992>"
         ).then(app.handleMessage)
         const bank = as === "as bank"
-        const company = as === "as company" && app.companies.find('ownerID', message.author.id)
-        if(!company && as === "as company") return message.channel.send(`Tu ne peux pas débiter ton entreprise si tu n'en n'a pas <:notLikeThis:507420569482952704>`)
-        
-        let taxed;
-        if(bank) taxed = "bank";
-        else if(company) taxed = `company:${company.name}`
+        const company =
+          as === "as company" &&
+          app.companies.find("ownerID", message.author.id)
+        if (!company && as === "as company")
+          return message.channel.send(
+            `Tu ne peux pas débiter ton entreprise si tu n'en n'a pas <:notLikeThis:507420569482952704>`
+          )
+
+        let taxed
+        if (bank) taxed = "bank"
+        else if (company) taxed = `company:${company.name}`
         else taxed = message.author.id
 
         const tax = targets.length * amount
 
         return app.transaction(
           taxed,
-          targets.map(target => target instanceof app.Discord.GuildMember ? target.id : target),
+          targets.map((target) =>
+            target instanceof app.Discord.GuildMember ? target.id : target
+          ),
           amount,
           (missing) => {
             if (missing) {
@@ -156,7 +177,9 @@ const command: app.Command = {
                 ).then(app.handleMessage)
               } else {
                 return message.channel.send(
-                  `${bank ? "La banque a" : company ? "Ton entreprise" : "Tu as"} perdu ${tax}${
+                  `${
+                    bank ? "La banque a" : company ? "Ton entreprise" : "Tu as"
+                  } perdu ${tax}${
                     app.currency
                   } en tout.\nLes membres suivants ont chacun reçus ${amount}${
                     app.currency
@@ -192,9 +215,9 @@ const command: app.Command = {
           return message.channel.send(
             `Vous possédez actuellement ${money}${
               app.currency
-            }\nVotre taxe quotidienne s'élève à ${Math.floor(money * app.tax.privateTax)}${
-              app.currency
-            }\nVous avez cummulé ${combo} daily${
+            }\nVotre taxe quotidienne s'élève à ${Math.floor(
+              money * app.tax.privateTax
+            )}${app.currency}\nVous avez cummulé ${combo} daily${
               combo > 1 ? "s" : ""
             }. Vous pouvez toucher entre ${dailyMin}${
               app.currency
