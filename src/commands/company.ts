@@ -23,7 +23,7 @@ const command: app.Command = {
           ownerID: message.author.id,
         } as app.Company
         app.companies.set(companyName, company)
-        app.money.set(`company:${company.name}`, 0)
+        app.transaction(message.author.id, [`company:${company.name}`], 0)
         return message.channel.send(
           "Ton entreprise a été crée, jeune entrepreneur !"
         )
@@ -50,7 +50,7 @@ const command: app.Command = {
                 app.transaction(
                   `company:${company.name}`,
                   [message.author.id],
-                  app.money.ensure(`company:${company.name}`, 0)
+                  app.money.ensure(`company:${company.name}`, {history: [], money: 0}).money
                 )
                 app.companies.delete(company.name)
                 return message.channel.send("Ok, bye bye " + company.name)
@@ -70,8 +70,10 @@ const command: app.Command = {
       case "list": {
         const companies = app.companies.array().sort((a, b) => {
           return (
-            app.money.ensure(`company:${b.name}`, 0) -
-            app.money.ensure(`company:${a.name}`, 0)
+            app.money.ensure(`company:${b.name}`, {history: [], money: 0}).money
+            -
+            app.money.ensure(`company:${a.name}`, {history: [], money: 0}).money
+
           )
         })
         const pages = await Promise.all(
@@ -86,7 +88,7 @@ const command: app.Command = {
                   company.name,
                   `${owner.tag} - ${
                     company.description || "Pas de description"
-                  } - ${app.money.ensure(`company:${company.name}`, 0)}${
+                  } - ${app.money.ensure(`company:${company.name}`, {history: [], money: 0}).money}${
                     app.currency
                   }`
                 )
@@ -138,7 +140,7 @@ const command: app.Command = {
 Nom: ${companyName}
 Owner: ${(await message.client.users.fetch(company.ownerID)).tag}
 Description: ${company.description}
-Money: ${app.money.ensure(`company:${company.name}`, 0)}${app.currency}
+Money: ${app.money.ensure(`company:${company.name}`, {history: [], money: 0}).money}${app.currency}
 Bilan 24h: WIP (waiting for Ghom's new money system)
 \`\`\`
           `)
