@@ -135,13 +135,32 @@ const command: app.Command = {
           return message.channel.send(
             `Aucune entreprise ne répond au nom de ${companyName} :/`
           )
+        const account = app.money.ensure(`company:${company.name}`, {history: [], money: 0})
+        
+        let totalPlus: number = 0;
+        let totalMinus: number = 0;
+        account.history
+          .filter(entry => {
+            return (Date.now() - entry.date)  < 86400000
+          })
+          .forEach((el) => {
+            if(el.amount >= 0) {
+              totalPlus += el.amount
+            } else {
+              totalMinus += el.amount
+            }
+          })
+        
         return message.channel.send(`
-\`\`\`
+\`\`\`diff
 Nom: ${companyName}
 Owner: ${(await message.client.users.fetch(company.ownerID)).tag}
 Description: ${company.description}
-Money: ${app.money.ensure(`company:${company.name}`, {history: [], money: 0}).money}${app.currency}
-Bilan 24h: WIP (waiting for Ghom's new money system)
+Money: ${account.money}${app.currency}
+Bilan 24h: 
++ ${totalPlus}
+- ${totalMinus}
+ = ${totalPlus + totalMinus}
 \`\`\`
           `)
     }
