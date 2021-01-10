@@ -27,23 +27,7 @@ const command: app.Command = {
           app.money.set(`company:${company.name}`, 0)
           return message.channel.send('Ton entreprise a été crée, jeune entrepreneur !').then(app.handleMessage)
         }
-        const companyName = app.getArgument(message)
-        if (!companyName)
-          return message.channel.send(
-            "Faut renseigner le nom de ton entreprise du con"
-          )
-        const description = app.getArgument(message, "rest")
-        const company = {
-          name: companyName,
-          description,
-          ownerID: message.author.id,
-        } as app.Company
-        app.companies.set(companyName, company)
-        app.money.set(`company:${company.name}`, 0)
-        return message.channel.send(
-          "Ton entreprise a été crée, jeune entrepreneur !"
-        )
-      }
+        
         case "remove": {
           const company = app.companies.find('ownerID', message.author.id)
           if(!company) {
