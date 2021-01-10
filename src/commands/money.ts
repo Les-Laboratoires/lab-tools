@@ -57,7 +57,7 @@ const command: app.Command = {
       if (message.author.id !== app.ghom) {
         return message.channel.send(
           "C'est Ghom qui gère les sous <:stalin:564536294512918548>"
-        )
+        ).then(app.handleMessage)
       }
     }
 
@@ -70,7 +70,7 @@ const command: app.Command = {
         if (amount < 1) {
           return message.channel.send(
             "Le montant est incorrect <:hum:703399199382700114>"
-          )
+          ).then(app.handleMessage)
         }
     }
 
@@ -91,7 +91,7 @@ const command: app.Command = {
                 .map((el: {id: string, score: number}, i: number, arr: {id: string, score: number}[]) => app.leaderItem(el, i, arr, app.currency))
                 .join("\n")
             )
-        )
+        ).then(app.handleMessage)
       }
 
       case "add":
@@ -99,13 +99,13 @@ const command: app.Command = {
 
         return message.channel.send(
           `Ok, ${amount}${app.currency} ont été ajoutés à la banque. <:STONKS:772181235526533150>`
-        )
+        ).then(app.handleMessage)
       case "remove":
         app.money.set("bank", app.money.ensure("bank", 0) - amount)
 
         return message.channel.send(
           `Ok, ${amount}${app.currency} ont été retirés de la banque. <:oui:703398234718208080>`
-        )
+        ).then(app.handleMessage)
       case "give": {
         const as = app.getArgument(message, [
           "as company",
@@ -114,14 +114,14 @@ const command: app.Command = {
         const targets = await app.getTargets(message)
           .catch(err => {
             const word = err.message.split(' at ')[1]
-            return message.channel.send("Aucune entreprise/membre ne correspond à "+word)
+            return message.channel.send("Aucune entreprise/membre ne correspond à "+word).then(app.handleMessage)
           })
 
         if(targets instanceof app.Discord.Message) return;
 
         if(targets.length === 0) return message.channel.send(
           "Tu dois mentionner la ou les personnes / entreprise(s) ciblées  <:jpp:564431015377108992>"
-        )
+        ).then(app.handleMessage)
         const bank = as === "as bank"
         const company = as === "as company" && app.companies.find('ownerID', message.author.id)
         if(!company && as === "as company") return message.channel.send(`Tu ne peux pas débiter ton entreprise si tu n'en n'a pas <:notLikeThis:507420569482952704>`)
@@ -146,14 +146,14 @@ const command: app.Command = {
                   company 
                     ? `Ton entreprise ${company.name} ne possède pas assez d'argent il manque ${missing}${app.currency}`
                     : `Tu ne possèdes pas assez d'argent <:lul:507420611484712971>\nIl te manque ${missing}${app.currency}`
-              )
+              ).then(app.handleMessage)
             } else {
               if (targets.length === 1) {
                 return message.channel.send(
                   `${bank ? "La banque a" : company ? "Ton entreprise" : "Tu as"} transféré ${tax}${
                     app.currency
                   } vers le compte de **${targets[0]}**`
-                )
+                ).then(app.handleMessage)
               } else {
                 return message.channel.send(
                   `${bank ? "La banque a" : company ? "Ton entreprise" : "Tu as"} perdu ${tax}${
@@ -167,7 +167,7 @@ const command: app.Command = {
                       })
                       .join("\n")
                   )}`
-                )
+                ).then(app.handleMessage)
               }
             }
           }
@@ -187,7 +187,7 @@ const command: app.Command = {
         if (bank) {
           return message.channel.send(
             `Il y a actuellement ${money}${app.currency} en banque.`
-          )
+          ).then(app.handleMessage)
         } else {
           return message.channel.send(
             `Vous possédez actuellement ${money}${
@@ -199,7 +199,7 @@ const command: app.Command = {
             }. Vous pouvez toucher entre ${dailyMin}${
               app.currency
             } et ${dailyMax}${app.currency} inclus au prochain daily.`
-          )
+          ).then(app.handleMessage)
         }
     }
   },
