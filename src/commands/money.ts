@@ -110,13 +110,13 @@ const command: app.Command = {
 
       case "add":
         app.money.math("bank", "+", amount, "money")
-        app.money.push("bank", {from: "void", amount}, "history")
+        app.money.push("bank", {from: "void", amount, date: Date.now()}, "history")
         return message.channel.send(
           `Ok, ${amount}${app.currency} ont été ajoutés à la banque. <:STONKS:772181235526533150>`
         )
       case "remove":
         app.money.math("bank", "-", amount, "money")
-        app.money.push("bank", {from: "void", amount: -amount}, "history")
+        app.money.push("bank", {from: "void", amount: -amount, date: Date.now()}, "history")
         return message.channel.send(
           `Ok, ${amount}${app.currency} ont été retirés de la banque. <:oui:703398234718208080>`
         )

@@ -34,8 +34,8 @@ export async function transaction(
 
   paid.forEach((id) => {
     money.math(id, "+", amount, "money")
-    money.push(id, {from: taxed, amount: amount}, "history")
-    money.push(taxed, {from: id, amount: -amount}, "history")
+    money.push(id, {from: taxed, amount: amount, date: Date.now()}, "history")
+    money.push(taxed, {from: id, amount: -amount, date: Date.now()}, "history")
   })
 
   await callback?.(0)
