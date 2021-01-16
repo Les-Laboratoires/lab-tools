@@ -7,6 +7,13 @@ const exec = promisify(child.exec)
 const command: app.Command = {
   name: "deploy",
   botOwner: true,
+  args: [
+    {
+      name: "branch",
+      default: "master",
+      aliases: ["b"],
+    },
+  ],
   async run(message) {
     const subject = await message.channel.send(
       "<a:wait:560972897376665600> En cours de déploiement..."
@@ -14,7 +21,7 @@ const command: app.Command = {
     const timer = Date.now()
 
     try {
-      const branch = app.getArgument(message) || "master"
+      const branch = message.args.branch
       await exec("git fetch")
       await exec("git checkout " + branch)
       await exec("git reset --hard")
