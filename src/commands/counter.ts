@@ -2,68 +2,9 @@ import * as app from "../app"
 
 const command: app.Command = {
   name: "counter",
-  aliases: ["count", "score", "point", "pt", "c", "sc"],
+  aliases: ["count", "score", "c"],
   async run(message) {
-    if (message.content.startsWith("list")) {
-      const lines = await Promise.all(
-        app.counters.map(async (counter) => {
-          return `**${counter.name}** - [${counter.type}] - \`${counter.target}\``
-        })
-      )
-
-      return message.channel.send(lines.join("\n"))
-    } else if (message.content.startsWith("add")) {
-      if (message.guild.ownerID !== message.author.id) {
-        return message.channel.send("Raté, ya que Ghom qui peut faire ça !")
-      }
-
-      message.content = message.content.replace("add", "").trim()
-
-      const [name, type, target] = message.content.split(/\s+/)
-
-      if (!name || (type !== "match" && type !== "react") || !target) {
-        return message.channel.send(
-          "Raté, ça s'utilise comme ça:\n`!counter add [name] match|react [pattern|emoji]`"
-        )
-      }
-
-      app.counters.set(name, { name, type, target })
-
-      return message.channel.send(`Le compteur de ${name} a bien été ajouté.`)
-    } else if (message.content.startsWith("remove")) {
-      const [, name] = message.content.split(/\s+/)
-
-      if (!name) return message.channel.send("Il manque le nom du compteur...")
-
-      if (!app.counters.has(name))
-        return message.channel.send(`Le compteur de ${name} n'existe pas.`)
-
-      app.counters.delete(name)
-
-      app.profiles.forEach((profile) => {
-        delete profile.scores[name]
-
-        app.setProfile(profile)
-      })
-
-      return message.channel.send(
-        `Ok le compteur de ${name} a bien été supprimé.`
-      )
-    } else if (message.content.startsWith("me")) {
-      const me = app.getProfile(message.author.id)
-
-      return message.channel.send(
-        new app.MessageEmbed()
-          .setTitle(`Scores | ${message.author.tag}`)
-          .setDescription(
-            app.code(JSON.stringify(me.scores, null, 2).replace(/"/g, ""), "js")
-          )
-          .addField(
-            "total",
-            `**${eval(Object.values(me.scores).join(" + "))}** points.`
-          )
-      )
-    } else if (app.counters.has(message.content)) {
+    if (app.counters.has(message.content)) {
       const counter = app.counters.get(message.content) as app.Counter
 
       const leaderboard = app.profiles
@@ -120,6 +61,105 @@ const command: app.Command = {
       )
     }
   },
+  subs: [
+    {
+      name: "list",
+      aliases: ["ls"],
+      async run(message) {
+        const lines = app.counters.map((counter) => {
+          return `**${counter.name}** - [${counter.type}] - \`${counter.target}\``
+        })
+
+        return message.channel.send(
+          lines.join("\n") || "Aucun compteur ajouté."
+        )
+      },
+    },
+    {
+      name: "add",
+      aliases: ["push"],
+      args: [
+        {
+          name: "name",
+          required: true,
+        },
+        {
+          name: "target",
+          aliases: ["match", "pattern", "emoji", "emote", "regex"],
+          required: true,
+        },
+        {
+          name: "reaction",
+          aliases: ["r", "react"],
+          flag: true,
+        },
+      ],
+      async run(message) {
+        if (message.guild.ownerID !== message.author.id) {
+          return message.channel.send("Raté, ya que Ghom qui peut faire ça !")
+        }
+
+        const type = message.args.reaction ? "react" : "match"
+        const { name, target } = message.args
+
+        if (!name || !target) {
+          return message.channel.send(
+            "Raté, ça s'utilise comme ça:\n`!counter add [name] match|react [pattern|emoji]`"
+          )
+        }
+
+        app.counters.set(name, { name, type, target })
+
+        return message.channel.send(`Le compteur de ${name} a bien été ajouté.`)
+      },
+    },
+    {
+      name: "remove",
+      aliases: ["rm", "delete", "del"],
+      async run(message) {
+        const name = message.args[0]
+
+        if (!name)
+          return message.channel.send("Il manque le nom du compteur...")
+
+        if (!app.counters.has(name))
+          return message.channel.send(`Le compteur de ${name} n'existe pas.`)
+
+        app.counters.delete(name)
+
+        app.profiles.forEach((profile) => {
+          delete profile.scores[name]
+
+          app.setProfile(profile)
+        })
+
+        return message.channel.send(
+          `Ok le compteur de ${name} a bien été supprimé.`
+        )
+      },
+    },
+    {
+      name: "me",
+      async run(message) {
+        const me = app.getProfile(message.author.id)
+
+        return message.channel.send(
+          new app.MessageEmbed()
+            .setTitle(`Scores | ${message.author.tag}`)
+            .setDescription(
+              app.code(
+                JSON.stringify(me.scores, null, 2).replace(/"/g, ""),
+                "js"
+              )
+            )
+            .addField(
+              "total",
+              `**${eval(Object.values(me.scores).join(" + "))}** points.`
+            )
+        )
+      },
+    },
+  ],
 }
 
 module.exports = command
