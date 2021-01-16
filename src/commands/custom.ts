@@ -3,7 +3,7 @@ import * as app from "../app"
 const command: app.Command = {
   name: "custom",
   aliases: ["cc", "cmd", "command"],
-  modOnly: true,
+  staffOnly: true,
   async run(message) {
     const key = app.getArgument(message, ["set", "delete"])
     const name = app.getArgument(message)

@@ -2,6 +2,7 @@
 
 import "dayjs/locale/fr"
 import dayjs from "dayjs"
+import { join } from "path"
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
 import toObject from "dayjs/plugin/toObject"
@@ -189,10 +190,10 @@ export async function resolveMember(
   return message.member
 }
 
-export function isMod(member: Discord.GuildMember) {
+export function isStaff(member: Discord.GuildMember) {
   return (
     member.permissions.has("ADMINISTRATOR", true) ||
-    member.roles.cache.has(module.exports.modo)
+    member.roles.cache.has(staff)
   )
 }
 
@@ -217,6 +218,10 @@ export function calculateMinMaxDaily(combo: number): number[] {
   const min = 2 * Math.sqrt(100 * combo)
   const max = min + minmaxgap
   return [Math.round(min), Math.round(max)]
+}
+
+export function rootPath(...path: string[]): string {
+  return join(process.cwd(), ...path)
 }
 
 dayjs.extend(utc)

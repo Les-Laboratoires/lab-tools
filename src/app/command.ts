@@ -1,5 +1,24 @@
 import Discord from "discord.js"
 import path from "path"
+import yargsParser from "yargs-parser"
+
+export interface Arg {
+  name: string
+  flag?: boolean
+  aliases?: string[] | string
+  default?: string | (() => string | Promise<string>)
+  required?: boolean
+  castValue?:
+    | "number"
+    | "date"
+    | "json"
+    | "boolean"
+    | "regex"
+    | "array"
+    | ((value: string) => unknown)
+  checkValue?: RegExp | ((value: string) => boolean | Promise<boolean>)
+  description?: string
+}
 
 export function isCommandMessage(
   message: Discord.Message
@@ -7,10 +26,7 @@ export function isCommandMessage(
   return (
     !message.system &&
     !!message.guild &&
-    message.author.id !== "555419470894596096" &&
-    message.channel.isText() &&
-    !message.webhookID &&
-    (message.member?.roles.cache.size ?? 0) > 0
+    message.channel instanceof Discord.TextChannel
   )
 }
 
@@ -24,6 +40,9 @@ export type CommandMessage = Discord.Message & {
   channel: Discord.TextChannel
   guild: Discord.Guild
   member: Discord.GuildMember
+  args: yargsParser.Arguments & {
+    rest: string
+  }
 }
 
 export type CommandResolvable = Command | (() => Command)
@@ -38,15 +57,17 @@ export interface Command {
   examples?: string[]
   guildOwner?: boolean
   botOwner?: boolean
-  modOnly?: boolean
+  staffOnly?: boolean
+  needMoney?: number
   userPermissions?: Discord.PermissionString[]
   botPermissions?: Discord.PermissionString[]
-  needMoney?: number
+  args?: Arg[]
   run: (message: CommandMessage) => unknown
+  subs?: Command[]
 }
 
 export class Commands extends Discord.Collection<string, CommandResolvable> {
-  resolve(key: string): Command | undefined {
+  public resolve(key: string): Command | undefined {
     const resolvable = this.find((resolvable) => {
       const command = resolve(resolvable) as Command
       return (
@@ -57,7 +78,7 @@ export class Commands extends Discord.Collection<string, CommandResolvable> {
     return resolve(resolvable)
   }
 
-  add(resolvable: CommandResolvable) {
+  public add(resolvable: CommandResolvable) {
     const command = resolve(resolvable) as Command
     this.set(command.name, resolvable)
   }
