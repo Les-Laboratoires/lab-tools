@@ -4,24 +4,22 @@ import * as app from "../app"
 const command: app.Command = {
   name: "invite",
   aliases: ["invitation", "bot", "cobaye"],
+  args: [
+    {
+      name: "here",
+      aliases: ["h"],
+      flag: true,
+    },
+  ],
   async run(message) {
-    let here = true,
-      bot
+    const here = message.args.here as boolean
 
-    if (message.content.includes("--here")) {
-      message.content = message.content.replace("--here", "").trim()
-      here = true
-    } else if (message.content.includes("--no-here")) {
-      message.content = message.content.replace("--no-here", "").trim()
-      here = false
-    }
+    let bot: app.User | false = false
 
     if (message.mentions.members && message.mentions.members.size > 0) {
       bot = (message.mentions.members.first() as app.GuildMember).user
-      here = here ?? false
     } else if (/^\d+$/.test(message.content)) {
-      bot = await message.client.users.fetch(message.content, false, true)
-      here = here ?? true
+      bot = await message.client.users.fetch(message.args.rest, false, true)
     }
 
     if (!bot) {
