@@ -30,7 +30,7 @@ const command: app.Command = {
           )
         }
 
-        const match = app.codeRegex.exec(message.content)
+        const match = app.jsCodeBlockRegex.exec(message.content)
         const code = match ? match[1] : message.content
 
         if (!code.trim()) {

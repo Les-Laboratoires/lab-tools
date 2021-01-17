@@ -2,11 +2,8 @@ import * as app from "../app"
 
 const command: app.Command = {
   name: "mute",
+  staffOnly: true,
   async run(message) {
-    if (!app.isStaff(message.member)) {
-      return message.channel.send("T'es pas modo mon salaud!")
-    }
-
     const target = await app.resolveMember(message)
 
     if (target === message.member) {

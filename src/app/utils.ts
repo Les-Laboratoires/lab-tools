@@ -33,7 +33,8 @@ export const tax = 0.05
 export const currency = "Ɠ"
 export const royalties = 0.1
 
-export const codeRegex = /^```(?:js)?\s(.+[^\\])```$/is
+export const jsCodeBlockRegex = /^```(?:js)?\s(.+[^\\])```$/is
+export const codeBlockRegex = /^```([a-z-]+)?\s(.+[^\\])```$/is
 
 export function getProfile(id: string) {
   return app.profiles.ensure(id, {
