@@ -21,7 +21,7 @@ const command: app.Command = {
         semi: message.args.semi,
       })
 
-      await message.channel.send(app.code(prettified, lang))
+      await message.channel.send(app.toCodeBlock(prettified, lang))
     } else {
       await message.channel.send(
         "Commande mal utilisée. Place ton code entre balises pour que je sache quel est son language."

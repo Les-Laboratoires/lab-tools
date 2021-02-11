@@ -11,13 +11,13 @@ const command: app.Command = {
     if (name.includes("help-room")) {
       if (name.endsWith("⛔")) {
         await channel.setName(name.replace("⛔", ""))
-        message.channel.send(`Le salon a été marqué comme non occupé !`)
+        return message.channel.send(`Le salon a été marqué comme non occupé !`)
       } else {
         await channel.setName(name + "⛔")
-        message.channel.send(`Le salon a bien été marqué comme occupé !`)
+        return message.channel.send(`Le salon a bien été marqué comme occupé !`)
       }
     } else {
-      message.channel.send(
+      return message.channel.send(
         `Gneuh... Cette commande ne fonctionne que dans les salons d'aide !`
       )
     }

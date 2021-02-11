@@ -37,7 +37,7 @@ const command: app.Command = {
       process.exit(0)
     } catch (error) {
       await subject.edit(
-        `Une erreur est survenue lors du déploiement <:why:557124850422906880>\nGo le faire à la main... ${app.code(
+        `Une erreur est survenue lors du déploiement <:why:557124850422906880>\nGo le faire à la main... ${app.toCodeBlock(
           `${error.name}: ${error.message}`,
           ""
         )}`

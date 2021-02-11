@@ -33,7 +33,7 @@ const command: app.Command = {
         new app.MessageEmbed()
           .setTitle(`Scores | ${target.user.tag}`)
           .setDescription(
-            app.code(
+            app.toCodeBlock(
               JSON.stringify(profile.scores, null, 2).replace(/"/g, ""),
               "js"
             )
@@ -147,7 +147,7 @@ const command: app.Command = {
           new app.MessageEmbed()
             .setTitle(`Scores | ${message.author.tag}`)
             .setDescription(
-              app.code(
+              app.toCodeBlock(
                 JSON.stringify(me.scores, null, 2).replace(/"/g, ""),
                 "js"
               )

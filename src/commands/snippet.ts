@@ -61,7 +61,7 @@ const command: app.Command = {
         app.snippets.set(name, code)
 
         return message.channel.send(
-          "Ok le snippet est enregistré." + app.code(code, "js")
+          "Ok le snippet est enregistré." + app.toCodeBlock(code, "js")
         )
       },
     },
@@ -116,7 +116,7 @@ const command: app.Command = {
         }
 
         return message.channel.send(
-          `Code du snippet \`${name}\`: ${app.code(
+          `Code du snippet \`${name}\`: ${app.toCodeBlock(
             app.snippets.get(name) as string,
             "js"
           )}`

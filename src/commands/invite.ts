@@ -48,7 +48,7 @@ const command: app.Command = {
           url.toString()
         )
         .setDescription(
-          app.code(
+          app.toCodeBlock(
             JSON.stringify(
               Object.fromEntries(url.searchParams.entries()),
               (key, val) => {
