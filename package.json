@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "tsc && node .",
     "watch": "tsc-watch --onSuccess \"node .\"",
-    "format": "prettier --write src"
+    "format": "prettier --write src",
+    "make": "cd node_modules/better-sqlite 3 && make"
   },
   "author": "ghom",
   "bugs": {
