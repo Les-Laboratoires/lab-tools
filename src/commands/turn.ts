@@ -7,13 +7,13 @@ const command: app.Command = {
     {
       name: "mode",
       description: "Power mode of bot. on/off",
-      default: app.cache.ensure("turn", false) ? "off" : "on",
+      default: () => app.cache.ensure("turn", false) ? "off" : "on",
       checkValue: /^on|off$/,
       required: true,
     },
   ],
   async run(message) {
-    const turn = message.args.mode === "on"
+    const turn = message.positional.mode === "on"
     app.cache.set("turn", turn)
     return message.channel.send(
       turn
