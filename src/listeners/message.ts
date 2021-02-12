@@ -15,7 +15,8 @@ const listener: app.Listener<"message"> = {
     if (message.channel.id === app.presentations) {
       if (
         message.member.roles.cache.has(app.scientifique) ||
-        message.member.roles.cache.has(app.validation)
+        message.member.roles.cache.has(app.validation) ||
+        message.author.bot
       )
         return
       await message.member.roles.add(app.validation)

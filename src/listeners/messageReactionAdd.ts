@@ -6,12 +6,18 @@ const listener: app.Listener<"messageReactionAdd"> = {
     // presentations
     if (reaction.message.channel.id === app.presentations) {
       const authorMember = reaction.message.guild?.members.resolve(user.id)
+      const targetMember = reaction.message.guild?.members.resolve(
+        reaction.message.author.id
+      )
 
       if (
         user.bot ||
         !authorMember ||
-        authorMember.user.bot ||
-        !app.isStaff(authorMember)
+        !targetMember ||
+        !app.isStaff(authorMember) ||
+        reaction.message.author.bot ||
+        targetMember.roles.cache.has(app.scientifique) ||
+        targetMember.roles.cache.has(app.validation)
       )
         return
 
