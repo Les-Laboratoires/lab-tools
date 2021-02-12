@@ -36,35 +36,6 @@ export const royalties = 0.1
 export const jsCodeBlockRegex = /^```(?:js)?\s(.+[^\\])```$/is
 export const codeBlockRegex = /^```([a-z-]+)?\s(.+[^\\])```$/is
 
-export function getProfile(id: string) {
-  return app.profiles.ensure(id, {
-    id,
-    money: 0,
-    scores: {},
-    moneyLogs: [],
-    daily: {
-      combo: 0,
-      last: -1,
-    },
-  })
-}
-
-export function setProfile(profile: app.Profile) {
-  const last = app.profiles.get(profile.id) as app.Profile
-
-  const moneyDiff = profile.money - last.money
-
-  if (moneyDiff !== 0) {
-    profile.moneyLogs.push({
-      at: Date.now(),
-      diff: moneyDiff,
-      state: profile.money,
-    })
-  }
-
-  app.profiles.set(profile.id, profile)
-}
-
 export function resizeText(
   text: string | number,
   size: number,
@@ -80,39 +51,6 @@ export function resizeText(
   } else {
     return text
   }
-}
-
-export async function transaction(
-  debitedID: string,
-  debtorsID: string[] | string,
-  amount: number,
-  callback?: (missing: number) => unknown
-): Promise<boolean> {
-  const debited = getProfile(debitedID)
-
-  if (typeof debtorsID === "string") debtorsID = [debtorsID]
-
-  const total = debtorsID.length * amount
-
-  if (debited.money < total) {
-    await callback?.(total - debited.money)
-    return false
-  }
-
-  debited.money -= total
-
-  setProfile(debited)
-
-  debtorsID.forEach((id) => {
-    const debtor = getProfile(id)
-
-    debtor.money += amount
-
-    setProfile(debtor)
-  })
-
-  await callback?.(0)
-  return true
 }
 
 /**

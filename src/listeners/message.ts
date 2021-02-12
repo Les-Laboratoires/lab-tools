@@ -11,20 +11,6 @@ const listener: app.Listener<"message"> = {
       return message.delete()
     }
 
-    // add scores
-    app.counters.forEach((counter) => {
-      if (counter.type === "match") {
-        try {
-          const regex = new RegExp(counter.target, "ig")
-          const count = [...message.content.matchAll(regex)].length
-          const profile = app.getProfile(message.author.id)
-          profile.scores[counter.name] =
-            (profile.scores[counter.name] ?? 0) + count
-          app.setProfile(profile)
-        } catch (error) {}
-      }
-    })
-
     // presentations checks
     if (message.channel.id === app.presentations) {
       if (
@@ -144,28 +130,6 @@ const listener: app.Listener<"message"> = {
             )
         )
       }
-    }
-
-    if (cmd.needMoney) {
-      const profile = app.getProfile(message.author.id)
-
-      const price =
-        cmd.needMoney < 1 ? profile.money * cmd.needMoney : cmd.needMoney
-
-      if (profile.money < price) {
-        return message.channel.send(
-          new app.MessageEmbed()
-            .setColor("RED")
-            .setAuthor(
-              `You don't have enough money to do this. You need ${Math.abs(
-                profile.money - price
-              )}${app.currency} more.`,
-              message.client.user?.displayAvatarURL()
-            )
-        )
-      }
-
-      await app.transaction(message.author.id, "bank", price)
     }
 
     message.content = message.content.slice(key.length).trim()

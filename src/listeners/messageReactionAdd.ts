@@ -3,17 +3,6 @@ import * as app from "../app"
 const listener: app.Listener<"messageReactionAdd"> = {
   event: "messageReactionAdd",
   async call(reaction, user) {
-    // add scores
-    app.counters.forEach((counter) => {
-      if (counter.type === "react") {
-        if ((reaction.emoji.id || reaction.emoji.name) === counter.target) {
-          const profile = app.getProfile(reaction.message.author.id)
-          profile.scores[counter.name] = (profile.scores[counter.name] ?? 0) + 1
-          app.setProfile(profile)
-        }
-      }
-    })
-
     // presentations
     if (reaction.message.channel.id === app.presentations) {
       const authorMember = reaction.message.guild?.members.resolve(user.id)

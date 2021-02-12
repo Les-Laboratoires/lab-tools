@@ -161,7 +161,6 @@ export interface Command {
   examples?: string[]
   loading?: boolean
   coolDown?: number
-  needMoney?: number
   description?: string
   longDescription?: string
   guildOwner?: boolean

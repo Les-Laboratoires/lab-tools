@@ -3,7 +3,6 @@ import * as app from "../app"
 const command: app.Command = {
   name: "fake",
   coolDown: 10000,
-  needMoney: 10 / 100,
   userPermissions: ["MANAGE_WEBHOOKS"],
   args: [
     {

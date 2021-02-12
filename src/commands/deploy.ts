@@ -23,9 +23,10 @@ const command: app.Command = {
     try {
       const branch = message.args.branch
       await exec("git fetch")
+      await exec("git reset --hard")
       await exec("git checkout " + branch)
       await exec("git reset --hard")
-      await exec("git pull")
+      await exec("git pull origin " + branch)
       await exec("npm i")
       await exec("npm run build")
       await subject.edit(
