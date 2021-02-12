@@ -10,28 +10,15 @@ import Discord from "discord.js"
 import * as app from "../app"
 
 // Snowflakes
-export const labs = "507389389098188820"
-export const ghom = "352176756922253321"
-export const loockeeer = "272676235946098688"
 export const validation = "659513985552351261"
 export const scientifique = "620641458168397845"
 export const presentations = "622383963511717928"
 export const approved = "640661715108888595"
 export const disapproved = "507420627821527040"
 export const staff = "620657235533758494"
-export const modo = "620302774638215168"
 export const general = "620664805400772621"
 export const cobaye = "620640927089688587"
-export const publiclogs = "789522053728305250"
-export const admin = "620658954195828736"
 export const minmaxgap = 15
-
-export const owners = ["272676235946098688", "352176756922253321"]
-
-// Money
-export const tax = 0.05
-export const currency = "Ɠ"
-export const royalties = 0.1
 
 export const jsCodeBlockRegex = /^```(?:js)?\s(.+[^\\])```$/is
 export const codeBlockRegex = /^```([a-z-]+)?\s(.+[^\\])```$/is
@@ -103,6 +90,14 @@ export function isStaff(member: Discord.GuildMember) {
 
 export function isAdmin(member: Discord.GuildMember) {
   return member.roles.cache.has(module.exports.admin)
+}
+
+export function scrap<T, A extends any[] = any[]>(
+  item: T | ((...args: A) => T),
+  ...args: A
+): T {
+  // @ts-ignore
+  return typeof item === "function" ? item(...args) : item
 }
 
 export function leaderItem(

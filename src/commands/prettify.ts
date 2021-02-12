@@ -8,7 +8,8 @@ const command: app.Command = {
   args: [
     {
       name: "semi",
-      flag: true,
+      flag: "s",
+      isFlag: true,
     },
   ],
   async run(message) {

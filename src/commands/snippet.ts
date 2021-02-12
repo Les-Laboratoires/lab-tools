@@ -18,8 +18,9 @@ const command: app.Command = {
   args: [
     {
       name: "muted",
+      flag: "m",
       aliases: ["silent", "mute", "quiet", "q"],
-      flag: true,
+      isFlag: true,
     },
   ],
   async run(message) {

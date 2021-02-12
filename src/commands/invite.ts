@@ -7,8 +7,8 @@ const command: app.Command = {
   args: [
     {
       name: "here",
-      aliases: ["h"],
-      flag: true,
+      flag: "h",
+      isFlag: true,
     },
   ],
   async run(message) {

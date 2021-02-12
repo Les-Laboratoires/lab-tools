@@ -132,10 +132,20 @@ const listener: app.Listener<"message"> = {
       }
     }
 
-    message.content = message.content.slice(key.length).trim()
-    message.args = yargsParser(message.content) as app.CommandMessage["args"]
-    message.args.rest = message.args._.join(" ")
-    message.positional = message.args._.slice(0)
+    // parse CommandMessage arguments
+    {
+      message.content = message.content.slice(key.length).trim()
+      message.args = yargsParser(message.content) as app.CommandMessage["args"]
+      message.rest = message.args._?.join(" ") ?? ""
+      message.positional = (message.args._?.slice(0) ?? []).map(
+        (positional) => {
+          if (/^(?:".+"|'.+')$/.test(positional))
+            return positional.slice(1, positional.length - 1)
+          return positional
+        }
+      )
+      delete message.args._
+    }
 
     if (cmd.positional) {
       for (const positional of cmd.positional) {
@@ -218,6 +228,11 @@ const listener: app.Listener<"message"> = {
           }
         }
 
+        if (!given && arg.isFlag && arg.flag) {
+          usedName = arg.flag
+          given = message.args.hasOwnProperty(arg.flag)
+        }
+
         if (arg.required && !given)
           return await message.channel.send(
             new app.MessageEmbed()
@@ -233,7 +248,7 @@ const listener: app.Listener<"message"> = {
               )
           )
 
-        if (arg.flag)
+        if (arg.isFlag)
           message.args[arg.name] = message.args.hasOwnProperty(usedName)
         else {
           message.args[arg.name] = message.args[usedName]
@@ -253,7 +268,7 @@ const listener: app.Listener<"message"> = {
                     message.client.user?.displayAvatarURL()
                   )
                   .setDescription(
-                    "Please add a `arg.default` value or activate the `arg.flag` property."
+                    "Please add a `arg.default` value or activate the `arg.isFlag` property."
                   )
               )
             }

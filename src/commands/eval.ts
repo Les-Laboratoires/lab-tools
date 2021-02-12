@@ -26,7 +26,8 @@ const command: app.Command = {
     {
       name: "muted",
       aliases: ["mute", "silent"],
-      flag: true,
+      flag: "m",
+      isFlag: true,
       description: "Disable message feedback",
     },
   ],

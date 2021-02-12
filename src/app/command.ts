@@ -6,7 +6,8 @@ import * as app from "../app"
 
 export interface Argument {
   name: string
-  flag?: boolean
+  flag?: string
+  isFlag?: boolean
   aliases?: string[] | string
   default?: string | ((message: CommandMessage) => string | Promise<string>)
   required?: boolean
@@ -24,7 +25,8 @@ export interface Argument {
   description?: string
 }
 
-export interface Positional extends Omit<Argument, "flag" | "aliases"> {}
+export interface Positional
+  extends Omit<Argument, "flag" | "isFlag" | "aliases"> {}
 
 export async function checkValue(
   subject: Pick<Argument, "checkValue" | "name">,
@@ -141,16 +143,17 @@ export function resolve(
   return typeof resolvable === "function" ? resolvable() : resolvable
 }
 
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
 export type CommandMessage = Discord.Message & {
   channel: Discord.TextChannel
   guild: Discord.Guild
   member: Discord.GuildMember
-  args: yargsParser.Arguments & {
-    rest: string
-  }
+  args: PartialBy<yargsParser.Arguments, "_">
   positional: any[] & {
     [name: string]: any
   }
+  rest: string
 }
 
 export type CommandResolvable = Command | (() => Command)
