@@ -11,14 +11,14 @@ import * as app from "../app"
 
 // Snowflakes
 export const validation = "659513985552351261"
-export const scientifique = "620641458168397845"
+export const dickHead = "620641458168397845"
 export const presentations = "622383963511717928"
 export const approved = "640661715108888595"
 export const disapproved = "507420627821527040"
 export const staff = "620657235533758494"
 export const general = "620664805400772621"
 export const cobaye = "620640927089688587"
-export const minmaxgap = 15
+export const minMaxGap = 15
 
 export const jsCodeBlockRegex = /^```(?:js)?\s(.+[^\\])```$/is
 export const codeBlockRegex = /^```([a-z-]+)?\s(.+[^\\])```$/is
@@ -115,7 +115,7 @@ export function leaderItem(
 
 export function calculateMinMaxDaily(combo: number): number[] {
   const min = 2 * Math.sqrt(100 * combo)
-  const max = min + minmaxgap
+  const max = min + minMaxGap
   return [Math.round(min), Math.round(max)]
 }
 
