@@ -45,6 +45,15 @@ const command: app.Command = {
       )
     }
   },
+  subs: [
+    {
+      name: "atom-clicker",
+      aliases: ["atom"],
+      async run(message) {
+        return message.channel.send("Coucou")
+      },
+    },
+  ],
 }
 
 module.exports = command
