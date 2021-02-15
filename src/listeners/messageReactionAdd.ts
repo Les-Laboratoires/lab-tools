@@ -35,9 +35,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
           await redactor.roles.add(app.dickHead)
           await redactor.roles.remove(app.validation)
 
-          const general = await redactor.client.channels.cache.get(
-            app.general
-          )
+          const general = await redactor.client.channels.cache.get(app.general)
 
           if (general?.isText()) {
             return general.send(
