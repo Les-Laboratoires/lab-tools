@@ -4,16 +4,13 @@ import * as app from "../app"
 const command: app.Command = {
   name: "snippet",
   botOwner: true,
-  aliases: [
-    "snip",
-    "snippets",
-    "record",
-    "rec",
-    "call",
-    "!",
-    "fn",
-    "function",
-    "functions",
+  aliases: ["!", "fn", "function", "snippets", "functions"],
+  positional: [
+    {
+      name: "key",
+      required: true,
+      checkValue: (value) => app.snippets.has(value),
+    },
   ],
   args: [
     {
@@ -24,34 +21,23 @@ const command: app.Command = {
     },
   ],
   async run(message) {
-    const key = message.args.rest
-
-    if (!key) {
-      return message.channel.send("bite")
-    } else {
-      const snippet = app.snippets.get(key)
-      if (snippet) {
-        return discordEval(snippet, message, message.args.muted)
-      } else {
-        return message.channel.send("Snippet inexistant.")
-      }
-    }
+    const snippet = app.snippets.get(message.positional.key) as string
+    return discordEval(snippet, message, message.args.muted)
   },
   subs: [
     {
       name: "add",
       aliases: ["set"],
       botOwner: true,
-      args: [
+      positional: [
         {
-          name: "name",
+          name: "key",
           required: true,
         },
       ],
       async run(message) {
-        const name = message.args.name
-        const match = app.jsCodeBlockRegex.exec(message.args.rest)
-        const code = match ? match[1] : message.args.rest
+        const match = app.jsCodeBlockRegex.exec(message.rest)
+        const code = match ? match[1] : message.rest
 
         if (!code.trim()) {
           return message.channel.send(
@@ -59,7 +45,7 @@ const command: app.Command = {
           )
         }
 
-        app.snippets.set(name, code)
+        app.snippets.set(message.positional.key, code)
 
         return message.channel.send(
           "Ok le snippet est enregistré." + app.toCodeBlock(code, "js")
@@ -70,20 +56,15 @@ const command: app.Command = {
       name: "remove",
       aliases: ["rm", "delete", "del"],
       botOwner: true,
-      args: [
+      positional: [
         {
-          name: "name",
+          name: "key",
           required: true,
+          checkValue: (value) => app.snippets.has(value),
         },
       ],
       async run(message) {
-        const name = message.args.name
-
-        if (!app.snippets.has(name)) {
-          return message.channel.send("Snippet inexistant.")
-        }
-
-        app.snippets.delete(name)
+        app.snippets.delete(message.positional.key)
 
         return message.channel.send("Ok le snippet est effacé.")
       },
@@ -98,27 +79,17 @@ const command: app.Command = {
     {
       name: "show",
       aliases: ["display", "view"],
-      args: [
+      positional: [
         {
-          name: "name",
+          name: "key",
           required: true,
+          checkValue: (value) => app.snippets.has(value),
         },
       ],
       async run(message) {
-        const name = message.args.name
-
-        if (!name)
-          return message.channel.send(
-            "Il manque un peu le nom du snippet là quand même"
-          )
-
-        if (!app.snippets.has(name)) {
-          return message.channel.send("Snippet inexistant.")
-        }
-
         return message.channel.send(
-          `Code du snippet \`${name}\`: ${app.toCodeBlock(
-            app.snippets.get(name) as string,
+          `Code du snippet \`${message.positional.key}\`: ${app.toCodeBlock(
+            app.snippets.get(message.positional.key) as string,
             "js"
           )}`
         )
