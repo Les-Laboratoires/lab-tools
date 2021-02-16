@@ -28,7 +28,7 @@ const command: app.Command = {
     },
   ],
   async run(message) {
-    await message.reply(
+    return message.channel.send(
       new app.MessageEmbed()
         .setTitle("Command debugging")
         .setDescription(

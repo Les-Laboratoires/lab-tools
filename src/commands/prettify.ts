@@ -13,7 +13,7 @@ const command: app.Command = {
     },
   ],
   async run(message) {
-    const match = app.codeBlockRegex.exec(message.args.rest)
+    const match = app.codeBlockRegex.exec(message.rest)
 
     if (match) {
       const [, lang, code] = match

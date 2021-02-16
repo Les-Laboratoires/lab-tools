@@ -126,7 +126,7 @@ const listener: app.Listener<"message"> = {
           new app.MessageEmbed()
             .setColor("RED")
             .setAuthor(
-              "You must bu a moderator.",
+              "You must be a member of staff.",
               message.client.user?.displayAvatarURL()
             )
         )
@@ -143,17 +143,12 @@ const listener: app.Listener<"message"> = {
           if (/^(?:".+"|'.+')$/.test(positional))
             return positional.slice(1, positional.length - 1)
           return positional
-        }
+        },
       )
-      delete message.args._
     }
 
     if (cmd.positional) {
       for (const positional of cmd.positional) {
-        const caught = message.rest.split(" ")
-        caught.shift()
-        message.rest = caught.join(" ")
-
         const index = cmd.positional.indexOf(positional)
 
         const getValue = () => message.positional[positional.name]
@@ -208,6 +203,10 @@ const listener: app.Listener<"message"> = {
             setValue
           )
         }
+
+        message.rest = message.rest.replace(
+          message.args._?.[index] ?? "", ""
+        ).trim()
       }
     }
 
@@ -293,6 +292,8 @@ const listener: app.Listener<"message"> = {
         }
       }
     }
+
+    delete message.args._
 
     try {
       await cmd.run(message)

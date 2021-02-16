@@ -30,7 +30,7 @@ const command: app.Command = {
             "Cette commande existe déjà <:notLikeThis:507420569482952704>"
           )
 
-        app.customCommands.set(name, message.args.rest)
+        app.customCommands.set(name, message.rest)
 
         return message.channel.send(
           `La commande \`!${name}\` à été créée <:yay:557124850326437888>`

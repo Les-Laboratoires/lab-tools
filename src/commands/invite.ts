@@ -19,7 +19,7 @@ const command: app.Command = {
     if (message.mentions.members && message.mentions.members.size > 0) {
       bot = (message.mentions.members.first() as app.GuildMember).user
     } else if (/^\d+$/.test(message.content)) {
-      bot = await message.client.users.fetch(message.args.rest, false, true)
+      bot = await message.client.users.fetch(message.rest, false, true)
     }
 
     if (!bot) {

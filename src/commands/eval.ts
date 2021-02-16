@@ -14,7 +14,7 @@ const alreadyInstalled = (pack: string): boolean =>
 const command: app.Command = {
   name: "js",
   botOwner: true,
-  aliases: ["eval", "code", "run", "=", "test"],
+  aliases: ["eval", "code", "run", "="],
   description: "JS code emulator",
   args: [
     {
@@ -60,19 +60,19 @@ const command: app.Command = {
       }
     }
 
-    if (app.jsCodeBlockRegex.test(message.args.rest))
-      message.args.rest = message.args.rest.replace(app.jsCodeBlockRegex, "$1")
+    if (app.jsCodeBlockRegex.test(message.rest))
+      message.rest = message.rest.replace(app.jsCodeBlockRegex, "$1")
 
     if (
-      message.args.rest.split("\n").length === 1 &&
-      !/const|let|return/.test(message.args.rest)
+      message.rest.split("\n").length === 1 &&
+      !/const|let|return/.test(message.rest)
     ) {
-      message.args.rest = "return " + message.args.rest
+      message.rest = "return " + message.rest
     }
 
-    message.args.rest = `
+    message.rest = `
       ${
-        message.args.rest.includes("app")
+        message.rest.includes("app")
           ? 'const app = require(require("path").join(process.cwd(), "dist", "app.js"));'
           : ""
       } ${
@@ -81,9 +81,9 @@ const command: app.Command = {
             .map((pack) => `"${pack}": require("${pack}")`)
             .join(", ")}};`
         : ""
-    } ${message.args.rest}`
+    } ${message.rest}`
 
-    await discordEval(message.args.rest, message, message.args.muted)
+    await discordEval(message.rest, message, message.args.muted)
 
     for (const pack of installed) {
       if (alreadyInstalled(pack)) continue
