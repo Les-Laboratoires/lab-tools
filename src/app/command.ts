@@ -73,7 +73,7 @@ export async function castValue(
   try {
     switch (subject.castValue) {
       case "boolean":
-        setValue(Boolean(baseValue))
+        setValue(/true/i.test(baseValue ?? ""))
         break
       case "date":
         if (!baseValue) {

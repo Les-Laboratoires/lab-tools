@@ -37,7 +37,7 @@ const command: app.Command = {
       ],
       async run(message) {
         const match = app.jsCodeBlockRegex.exec(message.rest)
-        const code = match ? match[0] : message.rest
+        const code = match ? match[1] : message.rest
 
         if (!code.trim()) {
           return message.channel.send(

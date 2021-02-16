@@ -143,7 +143,7 @@ const listener: app.Listener<"message"> = {
           if (/^(?:".+"|'.+')$/.test(positional))
             return positional.slice(1, positional.length - 1)
           return positional
-        },
+        }
       )
     }
 
@@ -204,9 +204,9 @@ const listener: app.Listener<"message"> = {
           )
         }
 
-        message.rest = message.rest.replace(
-          message.args._?.[index] ?? "", ""
-        ).trim()
+        message.rest = message.rest
+          .replace(message.args._?.[index] ?? "", "")
+          .trim()
       }
     }
 
