@@ -150,6 +150,10 @@ const listener: app.Listener<"message"> = {
 
     if (cmd.positional) {
       for (const positional of cmd.positional) {
+        const caught = message.rest.split(" ")
+        caught.shift()
+        message.rest = caught.join(" ")
+
         const index = cmd.positional.indexOf(positional)
 
         const getValue = () => message.positional[positional.name]
