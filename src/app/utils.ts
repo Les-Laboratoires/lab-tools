@@ -18,6 +18,7 @@ export const disapproved = "507420627821527040"
 export const staff = "810947385911803964"
 export const general = "620664805400772621"
 export const cobaye = "620640927089688587"
+export const emoteOnly = "811720508239380561"
 export const minMaxGap = 15
 
 export const jsCodeBlockRegex = /^```(?:js)?\s(.+[^\\])```$/is

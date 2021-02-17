@@ -6,6 +6,12 @@ const listener: app.Listener<"message"> = {
   async call(message) {
     if (!app.isCommandMessage(message)) return
 
+    if (message.channel.id === app.emoteOnly) {
+      if (/(?:^|\s)[^:]+(\s|$)/.test(message.cleanContent)) {
+        return message.delete()
+      }
+    }
+
     // delete muted messages
     if (app.globals.ensure("muted", []).includes(message.author.id)) {
       return message.delete()
