@@ -14,6 +14,10 @@ export const snippets = new Enmap<string, string>({
   name: "snippets",
 })
 
+export const todo = new Enmap<string, string[]>({
+  name: "todo",
+})
+
 export const coolDowns = new Enmap<string, CoolDown>()
 
 export interface CoolDown {
