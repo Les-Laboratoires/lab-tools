@@ -143,9 +143,7 @@ export function isCommandMessage(
   )
 }
 
-export function resolve(
-  resolvable: CommandResolvable | undefined
-): Command | undefined {
+export function resolve(resolvable: CommandResolvable): Command {
   return typeof resolvable === "function" ? resolvable() : resolvable
 }
 
@@ -183,6 +181,20 @@ export interface Command {
   subs?: Command[]
 }
 
+export function validateArguments(command: Command): void | never {
+  if (command.args) {
+    for (const arg of command.args) {
+      if (arg.isFlag && arg.flag) {
+        if (arg.flag.length !== 1) {
+          throw new Error(
+            `The "${arg.name}" flag length of "${command.name}" command must be equal to 1`
+          )
+        }
+      }
+    }
+  }
+}
+
 export class Commands extends Discord.Collection<string, CommandResolvable> {
   public resolve(key: string): Command | undefined {
     const resolvable = this.find((resolvable) => {
@@ -192,11 +204,12 @@ export class Commands extends Discord.Collection<string, CommandResolvable> {
         !!command.aliases?.some((alias) => key === alias)
       )
     })
-    return resolve(resolvable)
+    return resolvable ? resolve(resolvable) : undefined
   }
 
   public add(resolvable: CommandResolvable) {
     const command = resolve(resolvable) as Command
+    validateArguments(command)
     this.set(command.name, resolvable)
   }
 }
