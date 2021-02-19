@@ -1,5 +1,4 @@
 import * as app from "../app"
-import { todo } from "../app"
 
 const command: app.Command = {
   name: "todo",
@@ -12,7 +11,7 @@ const command: app.Command = {
           return `\`[${app.resizeText(i, 3, true).replace(/\s/g, "·")}]\` ${todo
             .replace(/[`*_~]/g, "")
             .replace(/[\s\n]+/g, " ")
-            .slice(0, 64)}`
+            .slice(0, 40)}`
         })
       )
     )
@@ -36,6 +35,35 @@ const command: app.Command = {
       },
     },
     {
+      name: "get",
+      aliases: ["show"],
+      positional: [
+        {
+          name: "index",
+          castValue: "number",
+          required: true,
+        },
+      ],
+      async run(message) {
+        const todoList = app.todo.ensure(message.author.id, [])
+        const index: number = message.positional.index
+
+        if (index > todoList.length - 1) {
+          return message.channel.send(`L'index donné est trop élevé...`)
+        } else if (index < 0) {
+          return message.channel.send(`L'index donné n'est pas positif...`)
+        }
+
+        const todo = todoList[index]
+
+        return message.channel.send(
+          new app.MessageEmbed()
+            .setTitle("Voici votre todo")
+            .setDescription(todo)
+        )
+      },
+    },
+    {
       name: "remove",
       aliases: ["delete", "del", "rm"],
       positional: [
@@ -47,14 +75,15 @@ const command: app.Command = {
       ],
       async run(message) {
         const todoList = app.todo.ensure(message.author.id, [])
+        const index: number = message.positional.index
 
-        if (message.positional.index > todoList.length - 1) {
+        if (index > todoList.length - 1) {
           return message.channel.send(`L'index donné est trop élevé...`)
-        } else if (message.positional.index < 0) {
+        } else if (index < 0) {
           return message.channel.send(`L'index donné n'est pas positif...`)
         }
 
-        const [deleted] = todoList.splice(message.positional.index, 1)
+        const [deleted] = todoList.splice(index, 1)
 
         app.todo.set(message.author.id, todoList)
 
@@ -62,6 +91,30 @@ const command: app.Command = {
           new app.MessageEmbed()
             .setTitle("Le todo suivant a bien éé effacé")
             .setDescription(deleted)
+        )
+      },
+    },
+    {
+      name: "find",
+      aliases: ["search", "q", "query"],
+      async run(message) {
+        const todoList = app.todo.ensure(message.author.id, [])
+        const query = message.rest.toLowerCase()
+
+        const todo = todoList.find(
+          (todo) =>
+            todo.toLowerCase().includes(query) ||
+            todo
+              .replace(/[`*_~]/g, "")
+              .replace(/[\s\n]+/g, " ")
+              .toLowerCase()
+              .includes(query)
+        )
+
+        return message.channel.send(
+          new app.MessageEmbed()
+            .setTitle("Résultat de votre recherche")
+            .setDescription(todo || "No result.")
         )
       },
     },
