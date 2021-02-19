@@ -33,15 +33,15 @@ export async function checkValue(
   subjectType: "positional" | "argument",
   value: string,
   message: CommandMessage
-): Promise<unknown> {
-  if (!subject.checkValue) return
+): Promise<boolean> {
+  if (!subject.checkValue) return true
 
   if (
     typeof subject.checkValue === "function"
       ? !(await subject.checkValue(value, message))
       : !subject.checkValue.test(value)
   ) {
-    return await message.channel.send(
+    await message.channel.send(
       new app.MessageEmbed()
         .setColor("RED")
         .setAuthor(
@@ -56,7 +56,10 @@ export async function checkValue(
             : `Expected pattern: \`${subject.checkValue.source}\``
         )
     )
+
+    return false
   }
+  return true
 }
 
 export async function castValue(
@@ -65,15 +68,15 @@ export async function castValue(
   baseValue: string | undefined,
   message: CommandMessage,
   setValue: (value: any) => unknown
-): Promise<unknown> {
-  if (!subject.castValue) return
+): Promise<boolean> {
+  if (!subject.castValue) return true
 
   const empty = new Error("The value is empty!")
 
   try {
     switch (subject.castValue) {
       case "boolean":
-        setValue(/true/i.test(baseValue ?? ""))
+        setValue(/true|1|oui|on|o|y|yes/i.test(baseValue ?? ""))
         break
       case "date":
         if (!baseValue) {
@@ -92,7 +95,7 @@ export async function castValue(
         break
       case "number":
         setValue(Number(baseValue))
-        if (Number.isNaN(baseValue))
+        if (!/-?[1-9]\d*/.test(baseValue ?? ""))
           throw new Error("The value is not a Number!")
         break
       case "regex":
@@ -109,7 +112,7 @@ export async function castValue(
         break
     }
   } catch (error) {
-    return await message.channel.send(
+    await message.channel.send(
       new app.MessageEmbed()
         .setColor("RED")
         .setAuthor(
@@ -124,7 +127,10 @@ export async function castValue(
           }\n${app.toCodeBlock(`Error: ${error.message}`, "js")}`
         )
     )
+
+    return false
   }
+  return true
 }
 
 export function isCommandMessage(
