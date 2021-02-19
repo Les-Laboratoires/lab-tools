@@ -122,6 +122,7 @@ const command: app.CommandResolvable = () => ({
     {
       name: "count",
       examples: ["help count"],
+      description: "Show count of all created commands.",
       async run(message) {
         return message.channel.send(
           new app.MessageEmbed()
