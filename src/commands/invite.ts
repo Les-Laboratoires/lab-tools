@@ -12,13 +12,13 @@ const command: app.Command = {
     },
   ],
   async run(message) {
-    const here = message.args.here as boolean
+    const here = !!message.args.here
 
     let bot: app.User | false = false
 
     if (message.mentions.members && message.mentions.members.size > 0) {
       bot = (message.mentions.members.first() as app.GuildMember).user
-    } else if (/^\d+$/.test(message.content)) {
+    } else if (/^\d+$/.test(message.rest)) {
       bot = await message.client.users.fetch(message.rest, false, true)
     }
 

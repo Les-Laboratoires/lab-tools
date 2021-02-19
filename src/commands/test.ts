@@ -26,6 +26,11 @@ const command: app.Command = {
       name: "boolean",
       castValue: "boolean",
     },
+    {
+      name: "flag",
+      flag: "f",
+      isFlag: true,
+    },
   ],
   async run(message) {
     return message.channel.send(

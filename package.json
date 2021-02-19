@@ -1,5 +1,6 @@
 {
   "main": "dist/index.js",
+  "license": "MIT",
   "prettier": {
     "semi": false
   },

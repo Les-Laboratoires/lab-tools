@@ -25,6 +25,7 @@ const listener: app.Listener<"message"> = {
         message.author.bot
       )
         return
+
       await message.member.roles.add(app.validation)
       await message.react(app.approved)
       await message.react(app.disapproved)
