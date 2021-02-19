@@ -72,7 +72,6 @@ const command: app.CommandResolvable = () => ({
             )
             .addField(
               "needed permissions:",
-              `**Bot**: ${cmd.botPermissions?.join(", ") || "none"}\n` +
                 `**User**: ${cmd.userPermissions?.join(", ") || "none"}`,
               false
             )
