@@ -3,6 +3,15 @@ import * as app from "../app"
 const listener: app.Listener<"messageReactionAdd"> = {
   event: "messageReactionAdd",
   async call(reaction, user) {
+    // pagination
+    const paginator = app.Paginator.getByMessage(reaction.message)
+    if (paginator && !user.bot) {
+      const message = reaction.message
+      const guild = message.guild
+      if (guild) paginator.handleReaction(reaction, user)
+      return
+    }
+
     // presentations
     if (reaction.message.channel.id === app.presentations) {
       const reactor = await reaction.message.guild?.members.fetch(
