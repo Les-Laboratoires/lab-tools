@@ -3,6 +3,7 @@ import * as app from "../app"
 const command: app.Command = {
   name: "mute",
   staffOnly: true,
+  description: "Mute a guild member",
   async run(message) {
     const target = await app.resolveMember(message)
 

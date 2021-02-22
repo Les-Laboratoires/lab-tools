@@ -3,7 +3,8 @@ import * as app from "../app"
 const command: app.Command = {
   name: "toggle",
   coolDown: 60000,
-  userPermissions: ["MANAGE_CHANNELS"],
+  staffOnly: true,
+  description: "Toggle the ⛔ icon to a channel",
   async run(message) {
     const { channel } = message
     const { name } = channel

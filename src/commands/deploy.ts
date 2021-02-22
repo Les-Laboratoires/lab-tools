@@ -8,6 +8,7 @@ const exec = promisify(child.exec)
 const command: app.Command = {
   name: "deploy",
   botOwner: true,
+  description: "Deploy some Labs apps",
   args: [
     {
       name: "branch",
@@ -50,6 +51,7 @@ const command: app.Command = {
   subs: [
     {
       name: "atom",
+      description: "Deploy Ayfri's atom-clicker game",
       async run(message) {
         const subject = await message.channel.send(
           "<a:wait:560972897376665600> Déploiement d'atom-clicker en cours..."

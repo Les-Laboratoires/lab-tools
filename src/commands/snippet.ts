@@ -5,6 +5,7 @@ const command: app.Command = {
   name: "snippet",
   botOwner: true,
   aliases: ["!", "fn", "function", "snippets", "functions"],
+  description: "Run a code snippet",
   positional: [
     {
       name: "key",
@@ -29,6 +30,7 @@ const command: app.Command = {
       name: "add",
       aliases: ["set"],
       botOwner: true,
+      description: "Set a code snippet",
       positional: [
         {
           name: "key",
@@ -56,6 +58,7 @@ const command: app.Command = {
       name: "remove",
       aliases: ["rm", "delete", "del"],
       botOwner: true,
+      description: "Remove a code snippet",
       positional: [
         {
           name: "key",
@@ -72,6 +75,7 @@ const command: app.Command = {
     {
       name: "list",
       aliases: ["ls"],
+      description: "List code snippets",
       async run(message) {
         return message.channel.send(app.snippets.keyArray().join(", "))
       },
@@ -79,6 +83,7 @@ const command: app.Command = {
     {
       name: "show",
       aliases: ["display", "view"],
+      description: "Show a code snippet",
       positional: [
         {
           name: "key",

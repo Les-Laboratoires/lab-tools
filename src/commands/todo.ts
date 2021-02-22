@@ -3,6 +3,7 @@ import * as app from "../app"
 const command: app.Command = {
   name: "todo",
   aliases: ["td"],
+  description: "Manage todo list",
   async run(message) {
     const todoList = app.todo.ensure(message.author.id, [])
     return message.channel.send(
@@ -20,6 +21,7 @@ const command: app.Command = {
     {
       name: "add",
       aliases: ["set", "new"],
+      description: "Add a todo task",
       async run(message) {
         const todoList = app.todo.ensure(message.author.id, [])
         app.todo.set(message.author.id, [...todoList, message.rest])
@@ -29,6 +31,7 @@ const command: app.Command = {
     {
       name: "clear",
       aliases: ["clean"],
+      description: "Clean todo list",
       async run(message) {
         app.todo.set(message.author.id, [])
         return message.channel.send("Votre liste de todo a bien été effacée.")
@@ -37,6 +40,7 @@ const command: app.Command = {
     {
       name: "get",
       aliases: ["show"],
+      description: "Get a todo task",
       positional: [
         {
           name: "index",
@@ -66,6 +70,7 @@ const command: app.Command = {
     {
       name: "remove",
       aliases: ["delete", "del", "rm"],
+      description: "Remove a todo task",
       positional: [
         {
           name: "index",
@@ -96,6 +101,7 @@ const command: app.Command = {
     },
     {
       name: "find",
+      description: "Find a todo task",
       aliases: ["search", "q", "query"],
       async run(message) {
         const todoList = app.todo.ensure(message.author.id, [])

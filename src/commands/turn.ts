@@ -3,6 +3,7 @@ import * as app from "../app"
 const command: app.Command = {
   name: "turn",
   botOwner: true,
+  description: "Turn on/off command handling",
   positional: [
     {
       name: "mode",

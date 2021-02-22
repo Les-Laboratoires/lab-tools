@@ -4,6 +4,7 @@ import * as app from "../app"
 const command: app.Command = {
   name: "invite",
   aliases: ["invitation", "bot", "cobaye"],
+  description: "Generate an invitation link",
   args: [
     {
       name: "here",

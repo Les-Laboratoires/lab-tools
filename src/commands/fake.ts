@@ -4,6 +4,7 @@ const command: app.Command = {
   name: "fake",
   coolDown: 10000,
   userPermissions: ["MANAGE_WEBHOOKS"],
+  description: "Make a fake of a guild member",
   args: [
     {
       name: "target",

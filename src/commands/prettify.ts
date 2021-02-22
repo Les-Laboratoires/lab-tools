@@ -5,6 +5,7 @@ const prettify = require("ghom-prettify")
 const command: app.Command = {
   name: "pretty",
   aliases: ["beauty", "prettify", "beautify", "format", "prettier"],
+  description: "Format the given code",
   args: [
     {
       name: "semi",
