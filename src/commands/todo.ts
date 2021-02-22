@@ -6,15 +6,22 @@ const command: app.Command = {
   description: "Manage todo list",
   async run(message) {
     const todoList = app.todo.ensure(message.author.id, [])
-    return message.channel.send(
-      new app.MessageEmbed().setTitle("Voici ta todo list").setDescription(
+    new app.Paginator(
+      app.Paginator.divider(
         todoList.map((todo, i) => {
           return `\`[${app.resizeText(i, 3, true).replace(/\s/g, "·")}]\` ${todo
             .replace(/[`*_~]/g, "")
             .replace(/[\s\n]+/g, " ")
             .slice(0, 40)}`
-        })
-      )
+        }),
+        10
+      ).map((page) =>
+        new app.MessageEmbed()
+          .setTitle("Voici ta todo list")
+          .setDescription(page.join("\n"))
+      ),
+      message.channel,
+      (reaction, user) => user.id === message.author.id
     )
   },
   subs: [
