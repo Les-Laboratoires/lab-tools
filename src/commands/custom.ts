@@ -3,9 +3,21 @@ import * as app from "../app"
 const command: app.Command = {
   name: "custom",
   aliases: ["cc", "cmd", "command"],
+  description: "Custom commands",
   async run(message) {
-    return message.channel.send(
-      "En vrai je sais pas ce que tu veux <:harold:556967769304727564>"
+    new app.Paginator(
+      app.Paginator.divider(app.customCommands.keyArray(), 10).map((page) =>
+        new app.MessageEmbed()
+          .setTitle("Custom command list")
+          .setDescription(
+            app.toCodeBlock(
+              page.map((name) => process.env.PREFIX + name).join("\n") ||
+                "Nothing."
+            )
+          )
+      ),
+      message.channel,
+      (reaction, user) => user.id === message.author.id
     )
   },
   subs: [
@@ -13,14 +25,15 @@ const command: app.Command = {
       name: "set",
       aliases: ["add"],
       staffOnly: true,
-      args: [
+      description: "Set custom command",
+      positional: [
         {
           name: "name",
           required: true,
         },
       ],
       async run(message) {
-        const name = message.args.name
+        const { name } = message.positional
 
         if (!message.content)
           return message.channel.send("Il manque le contenu de ta commande...")
@@ -33,7 +46,7 @@ const command: app.Command = {
         app.customCommands.set(name, message.rest)
 
         return message.channel.send(
-          `La commande \`!${name}\` à été créée <:yay:557124850326437888>`
+          `La commande \`${process.env.PREFIX}${name}\` à été créée <:yay:557124850326437888>`
         )
       },
     },
@@ -41,14 +54,15 @@ const command: app.Command = {
       name: "remove",
       aliases: ["delete", "rm", "del"],
       staffOnly: true,
-      args: [
+      description: "Remove custom command",
+      positional: [
         {
           name: "name",
           required: true,
         },
       ],
       async run(message) {
-        const { name } = message.args
+        const { name } = message.positional
 
         if (!app.customCommands.has(name))
           return message.channel.send(
@@ -58,7 +72,7 @@ const command: app.Command = {
         app.customCommands.delete(name)
 
         return message.channel.send(
-          `Ok j'ai effacé la commande \`!${name}\` <:pepeOK:689790261429272596>`
+          `Ok j'ai effacé la commande \`${process.env.PREFIX}${name}\` <:pepeOK:689790261429272596>`
         )
       },
     },
