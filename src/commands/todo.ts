@@ -1,10 +1,33 @@
 import * as app from "../app"
 
+function listTodo(message: app.Message) {
+  const todoList = app.todo.ensure(message.author.id, [])
+  new app.Paginator(
+    app.Paginator.divider(
+      todoList.map((todo, i) => {
+        return `\`[${app.resizeText(i, 3, true).replace(/\s/g, "·")}]\` ${todo
+          .replace(/[`*_~]/g, "")
+          .replace(/[\s\n]+/g, " ")
+          .slice(0, 40)}`
+      }),
+      10
+    ).map((page) =>
+      new app.MessageEmbed()
+        .setTitle("Voici ta todo list")
+        .setDescription(page.join("\n"))
+    ),
+    message.channel,
+    (reaction, user) => user.id === message.author.id
+  )
+}
+
 const command: app.Command = {
   name: "todo",
   aliases: ["td"],
   description: "Add a todo task",
   async run(message) {
+    if (message.rest.length === 0) return listTodo(message)
+
     if (message.rest.startsWith("-"))
       message.rest = message.rest.slice(1).trim()
 
@@ -17,28 +40,7 @@ const command: app.Command = {
       name: "list",
       aliases: ["ls"],
       description: "Show todo list",
-      async run(message) {
-        const todoList = app.todo.ensure(message.author.id, [])
-        new app.Paginator(
-          app.Paginator.divider(
-            todoList.map((todo, i) => {
-              return `\`[${app
-                .resizeText(i, 3, true)
-                .replace(/\s/g, "·")}]\` ${todo
-                .replace(/[`*_~]/g, "")
-                .replace(/[\s\n]+/g, " ")
-                .slice(0, 40)}`
-            }),
-            10
-          ).map((page) =>
-            new app.MessageEmbed()
-              .setTitle("Voici ta todo list")
-              .setDescription(page.join("\n"))
-          ),
-          message.channel,
-          (reaction, user) => user.id === message.author.id
-        )
-      },
+      run: listTodo,
     },
     {
       name: "clear",
