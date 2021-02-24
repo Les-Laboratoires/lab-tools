@@ -3,36 +3,41 @@ import * as app from "../app"
 const command: app.Command = {
   name: "todo",
   aliases: ["td"],
-  description: "Manage todo list",
+  description: "Add a todo task",
   async run(message) {
+    if (message.rest.startsWith("-"))
+      message.rest = message.rest.slice(1).trim()
+
     const todoList = app.todo.ensure(message.author.id, [])
-    new app.Paginator(
-      app.Paginator.divider(
-        todoList.map((todo, i) => {
-          return `\`[${app.resizeText(i, 3, true).replace(/\s/g, "·")}]\` ${todo
-            .replace(/[`*_~]/g, "")
-            .replace(/[\s\n]+/g, " ")
-            .slice(0, 40)}`
-        }),
-        10
-      ).map((page) =>
-        new app.MessageEmbed()
-          .setTitle("Voici ta todo list")
-          .setDescription(page.join("\n"))
-      ),
-      message.channel,
-      (reaction, user) => user.id === message.author.id
-    )
+    app.todo.set(message.author.id, [...todoList, message.rest])
+    return message.channel.send(`Votre todo a bien été enregistré.`)
   },
   subs: [
     {
-      name: "add",
-      aliases: ["set", "new"],
-      description: "Add a todo task",
+      name: "list",
+      aliases: ["ls"],
+      description: "Show todo list",
       async run(message) {
         const todoList = app.todo.ensure(message.author.id, [])
-        app.todo.set(message.author.id, [...todoList, message.rest])
-        return message.channel.send(`Votre todo a bien été enregistré.`)
+        new app.Paginator(
+          app.Paginator.divider(
+            todoList.map((todo, i) => {
+              return `\`[${app
+                .resizeText(i, 3, true)
+                .replace(/\s/g, "·")}]\` ${todo
+                .replace(/[`*_~]/g, "")
+                .replace(/[\s\n]+/g, " ")
+                .slice(0, 40)}`
+            }),
+            10
+          ).map((page) =>
+            new app.MessageEmbed()
+              .setTitle("Voici ta todo list")
+              .setDescription(page.join("\n"))
+          ),
+          message.channel,
+          (reaction, user) => user.id === message.author.id
+        )
       },
     },
     {

@@ -1,5 +1,4 @@
 import * as app from "../app"
-import { CronJob } from "cron"
 
 const listener: app.Listener<"ready"> = {
   event: "ready",
