@@ -1,5 +1,6 @@
 import Discord from "discord.js"
 import path from "path"
+import tims from "tims"
 import yargsParser from "yargs-parser"
 import regexParser from "regex-parser"
 import * as app from "../app"
@@ -52,7 +53,10 @@ export async function checkValue(
         )
         .setDescription(
           typeof subject.checkValue === "function"
-            ? app.toCodeBlock(subject.checkValue.toString(), "js")
+            ? app.toCodeBlock(
+                app.formatJSCode(subject.checkValue.toString()),
+                "js"
+              )
             : `Expected pattern: \`${subject.checkValue.source}\``
         )
     )
@@ -143,10 +147,6 @@ export function isCommandMessage(
   )
 }
 
-export function resolve(resolvable: CommandResolvable): Command {
-  return typeof resolvable === "function" ? resolvable() : resolvable
-}
-
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
 export type CommandMessage = Discord.Message & {
@@ -160,13 +160,10 @@ export type CommandMessage = Discord.Message & {
   rest: string
 }
 
-export type CommandResolvable = Command | (() => Command)
-
 export interface Command {
   name: string
   aliases?: string[]
   examples?: string[]
-  loading?: boolean
   coolDown?: number
   description?: string
   longDescription?: string
@@ -179,38 +176,152 @@ export interface Command {
   args?: Argument[]
   run: (message: CommandMessage) => unknown
   subs?: Command[]
+  path?: string
 }
 
-export function validateArguments(command: Command): void | never {
-  if (command.args) {
-    for (const arg of command.args) {
-      if (arg.isFlag && arg.flag) {
-        if (arg.flag.length !== 1) {
-          throw new Error(
-            `The "${arg.name}" flag length of "${command.name}" command must be equal to 1`
-          )
-        }
+export function validateArguments(
+  command: Command,
+  path?: string
+): void | never {
+  const help: Argument = {
+    name: "help",
+    flag: "h",
+    isFlag: true,
+    description: "Get help from the command",
+  }
+  command.path = path
+
+  if (!command.args) command.args = [help]
+  else command.args.push(help)
+
+  for (const arg of command.args)
+    if (arg.isFlag && arg.flag)
+      if (arg.flag.length !== 1)
+        throw new Error(
+          `The "${arg.name}" flag length of "${
+            path ? path + " " + command.name : command.name
+          }" command must be equal to 1`
+        )
+
+  if (command.subs)
+    for (const sub of command.subs)
+      validateArguments(sub, path ? path + " " + command.name : command.name)
+}
+
+export async function sendCommandDetails(
+  message: CommandMessage,
+  cmd: Command,
+  prefix: string
+): Promise<void> {
+  let pattern = `${prefix}${cmd.path ? cmd.path + " " : ""}${cmd.name}`
+
+  const positionalList: string[] = []
+  const argumentList: string[] = []
+  const flagList: string[] = []
+
+  if (cmd.positional) {
+    for (const positional of cmd.positional) {
+      const dft =
+        positional.default !== undefined
+          ? `="${await app.scrap(positional.default, message)}"`
+          : ""
+      positionalList.push(
+        positional.required && !dft
+          ? `<${positional.name}>`
+          : `[${positional.name}${dft}]`
+      )
+    }
+  }
+
+  if (cmd.args) {
+    for (const arg of cmd.args) {
+      if (arg.isFlag) {
+        flagList.push(`[-${arg.flag ?? `-${arg.name}`}]`)
+      } else {
+        const dft =
+          arg.default !== undefined
+            ? `="${app.scrap(arg.default, message)}"`
+            : ""
+        argumentList.push(
+          arg.required
+            ? `--${arg.name}${dft}`
+            : `--${arg.name}${dft || "=null"}`
+        )
       }
     }
   }
+
+  const specialPermissions = []
+
+  if (cmd.botOwner) specialPermissions.push("BOT_OWNER")
+  if (cmd.guildOwner) specialPermissions.push("GUILD_OWNER")
+
+  const embed = new app.MessageEmbed()
+    .setColor("BLURPLE")
+    .setAuthor("Command details", message.client.user?.displayAvatarURL())
+    .setTitle(`${pattern} ${[...positionalList, ...flagList].join(" ")}`)
+    .setDescription(cmd.longDescription ?? cmd.description ?? "no description")
+
+  if (cmd.aliases)
+    embed.addField(
+      "aliases",
+      cmd.aliases.map((alias) => `\`${alias}\``).join(", "),
+      true
+    )
+
+  if (argumentList.length > 0)
+    embed.addField(
+      "options",
+      app.CODE.stringify({ content: argumentList.join(" "), lang: "shell" }),
+      false
+    )
+
+  if (cmd.examples)
+    embed.addField(
+      "examples:",
+      app.CODE.stringify({
+        content: cmd.examples.map((example) => prefix + example).join("\n"),
+      }),
+      false
+    )
+
+  if (cmd.botPermissions)
+    embed.addField("bot permissions", cmd.botPermissions.join(", "), true)
+
+  if (cmd.userPermissions)
+    embed.addField("user permissions", cmd.userPermissions.join(", "), true)
+
+  if (specialPermissions.length > 0)
+    embed.addField("special permissions", specialPermissions.join(", "), true)
+
+  if (cmd.coolDown)
+    embed.addField("cool down", tims.duration(cmd.coolDown), true)
+
+  if (cmd.subs)
+    embed.addField(
+      "sub commands:",
+      cmd.subs
+        .map((sub) => `**${sub.name}**: ${sub.description ?? "no description"}`)
+        .join("\n"),
+      true
+    )
+
+  await message.channel.send(embed)
 }
 
-export class Commands extends Discord.Collection<string, CommandResolvable> {
+export class Commands extends Discord.Collection<string, Command> {
   public resolve(key: string): Command | undefined {
-    const resolvable = this.find((resolvable) => {
-      const command = resolve(resolvable) as Command
+    return this.find((command) => {
       return (
         key === command.name ||
         !!command.aliases?.some((alias) => key === alias)
       )
     })
-    return resolvable ? resolve(resolvable) : undefined
   }
 
-  public add(resolvable: CommandResolvable) {
-    const command = resolve(resolvable) as Command
+  public add(command: Command) {
     validateArguments(command)
-    this.set(command.name, resolvable)
+    this.set(command.name, command)
   }
 }
 

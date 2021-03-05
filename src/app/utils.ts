@@ -2,6 +2,7 @@
 
 import "dayjs/locale/fr"
 import dayjs from "dayjs"
+import prettier from "prettier"
 import { join } from "path"
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
@@ -56,6 +57,39 @@ export function fromCodeBlock(codeBlock: string): null | string {
   const match = codeBlockRegex.exec(codeBlock)
   if (match) return match[1]
   return null
+}
+
+export function formatJSCode(code: string, options?: prettier.Options): string {
+  return prettier.format(code, {
+    semi: false,
+    ...(options ?? {}),
+  })
+}
+
+export interface Code {
+  lang?: string
+  content: string
+}
+
+export const CODE = {
+  pattern: /^```(\S+)?\s(.+[^\\])```$/is,
+  /**
+   * extract the code from code block and return code
+   */
+  parse(raw: string): Code | undefined {
+    const match = this.pattern.exec(raw)
+    if (!match) return
+    return {
+      lang: match[1],
+      content: match[2],
+    }
+  },
+  /**
+   * inject the code in the code block and return code block
+   */
+  stringify({ lang, content }: Code): string {
+    return "```" + (lang ?? "") + "\n" + content + "\n```"
+  },
 }
 
 export async function resolveMember(

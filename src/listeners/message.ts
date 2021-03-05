@@ -41,7 +41,11 @@ const listener: app.Listener<"message"> = {
     }
 
     let key = message.content.split(/\s+/)[0]
-    let cmd = app.commands.resolve(key)
+
+    // turn ON/OFF
+    if (key !== "turn" && !app.cache.ensure("turn", true)) return
+
+    let cmd: app.Command = app.commands.resolve(key) as app.Command
 
     if (!cmd) {
       const cc = app.customCommands.get(key)
@@ -57,8 +61,7 @@ const listener: app.Listener<"message"> = {
       while (cmd.subs && cursor < cmd.subs.length) {
         const subKey = message.content.split(/\s+/)[depth + 1]
 
-        for (let sub of cmd.subs) {
-          sub = app.resolve(sub)
+        for (const sub of cmd.subs) {
           if (sub.name === subKey) {
             key += ` ${subKey}`
             cursor = 0
@@ -80,8 +83,23 @@ const listener: app.Listener<"message"> = {
       }
     }
 
-    // turn ON/OFF
-    if (key !== "turn" && !app.cache.ensure("turn", true)) return
+    // parse CommandMessage arguments
+    {
+      message.content = message.content.slice(key.length).trim()
+      message.args = yargsParser(message.content) as app.CommandMessage["args"]
+      message.rest = message.args._?.join(" ") ?? ""
+      message.positional = (message.args._?.slice(0) ?? []).map(
+        (positional) => {
+          if (/^(?:".+"|'.+')$/.test(positional))
+            return positional.slice(1, positional.length - 1)
+          return positional
+        }
+      )
+    }
+
+    // handle help argument
+    if (message.args.help || message.args.h)
+      return app.sendCommandDetails(message, cmd, prefix)
 
     // coolDown
     {
@@ -125,8 +143,11 @@ const listener: app.Listener<"message"> = {
       }
     }
 
-    if (cmd.guildOwner) {
-      if (message.guild.owner !== message.member) {
+    if (cmd.guildOwner)
+      if (
+        message.guild.owner !== message.member &&
+        process.env.OWNER !== message.member.id
+      )
         return await message.channel.send(
           new app.MessageEmbed()
             .setColor("RED")
@@ -135,8 +156,6 @@ const listener: app.Listener<"message"> = {
               message.client.user?.displayAvatarURL()
             )
         )
-      }
-    }
 
     if (cmd.staffOnly) {
       if (!app.isStaff(message.member)) {
@@ -151,19 +170,39 @@ const listener: app.Listener<"message"> = {
       }
     }
 
-    // parse CommandMessage arguments
-    {
-      message.content = message.content.slice(key.length).trim()
-      message.args = yargsParser(message.content) as app.CommandMessage["args"]
-      message.rest = message.args._?.join(" ") ?? ""
-      message.positional = (message.args._?.slice(0) ?? []).map(
-        (positional) => {
-          if (/^(?:".+"|'.+')$/.test(positional))
-            return positional.slice(1, positional.length - 1)
-          return positional
-        }
-      )
-    }
+    if (cmd.botPermissions)
+      for (const permission of cmd.botPermissions)
+        if (
+          !message.guild.me?.hasPermission(permission, {
+            checkAdmin: true,
+            checkOwner: true,
+          })
+        )
+          return await message.channel.send(
+            new app.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(
+                `I need the \`${permission}\` permission to run this command.`,
+                message.client.user?.displayAvatarURL()
+              )
+          )
+
+    if (cmd.userPermissions)
+      for (const permission of cmd.userPermissions)
+        if (
+          !message.member.hasPermission(permission, {
+            checkAdmin: true,
+            checkOwner: true,
+          })
+        )
+          return await message.channel.send(
+            new app.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(
+                `You need the \`${permission}\` permission to run this command.`,
+                message.client.user?.displayAvatarURL()
+              )
+          )
 
     if (cmd.positional) {
       for (const positional of cmd.positional) {
@@ -291,17 +330,7 @@ const listener: app.Listener<"message"> = {
                   ? await arg.default(message)
                   : arg.default
             } else if (arg.castValue !== "array") {
-              return await message.channel.send(
-                new app.MessageEmbed()
-                  .setColor("RED")
-                  .setAuthor(
-                    `Missing value for "${usedName}" argument`,
-                    message.client.user?.displayAvatarURL()
-                  )
-                  .setDescription(
-                    "Please add a `arg.default` value or activate the `arg.isFlag` property."
-                  )
-              )
+              message.args[arg.name] = null
             }
           } else if (arg.checkValue) {
             const checked = await app.checkValue(
@@ -314,7 +343,7 @@ const listener: app.Listener<"message"> = {
             if (!checked) return
           }
 
-          if (arg.castValue) {
+          if (value() !== null && arg.castValue) {
             const casted = await app.castValue(
               arg,
               "argument",

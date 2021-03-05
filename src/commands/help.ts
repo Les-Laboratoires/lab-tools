@@ -1,12 +1,11 @@
 import * as app from "../app"
 
-const command: app.CommandResolvable = () => ({
+const command: app.Command = {
   name: "help",
   aliases: ["h", "usage"],
   botPermissions: ["SEND_MESSAGES"],
   description: "Help menu",
   longDescription: "Display all commands of bot or detail a target command.",
-  examples: ["help", ...app.commands.map((cmd, key) => "help " + key)],
   positional: [
     {
       name: "command",
@@ -14,80 +13,13 @@ const command: app.CommandResolvable = () => ({
     },
   ],
   async run(message) {
-    const prefix = process.env.PREFIX
+    const prefix = process.env.PREFIX as string
 
     if (message.positional.command) {
       const cmd = app.commands.resolve(message.positional.command)
 
       if (cmd) {
-        let pattern = prefix + cmd.name
-
-        if (cmd.positional) {
-          for (const positional of cmd.positional) {
-            const dft =
-              positional.default !== undefined
-                ? `="${await app.scrap(positional.default, message)}"`
-                : ""
-            pattern += positional.required
-              ? ` <${positional.name}${dft}>`
-              : ` [${positional.name}${dft}]`
-          }
-        }
-
-        if (cmd.args) {
-          for (const arg of cmd.args) {
-            if (arg.isFlag) {
-              pattern += ` [-${arg.flag ?? `-${arg.name}`}]`
-            } else {
-              const dft =
-                arg.default !== undefined
-                  ? `="${app.scrap(arg.default, message)}"`
-                  : ""
-              pattern += arg.required
-                ? ` <${arg.name}${dft}>`
-                : ` [${arg.name}${dft}]`
-            }
-          }
-        }
-
-        await message.channel.send(
-          new app.MessageEmbed()
-            .setColor("BLURPLE")
-            .setAuthor(
-              `Command: ${cmd.name}`,
-              message.client.user?.displayAvatarURL()
-            )
-            .setTitle(`aliases: ${cmd.aliases?.join(", ") ?? "none"}`)
-            .setDescription(
-              cmd.longDescription ?? cmd.description ?? "no description"
-            )
-            .addField("pattern", app.toCodeBlock(pattern))
-            .addField(
-              "examples:",
-              app.toCodeBlock(
-                cmd.examples?.map((example) => prefix + example).join("\n") ??
-                  "none"
-              ),
-              false
-            )
-            .addField(
-              "needed user permissions:",
-              cmd.userPermissions?.join(", ") || "none",
-              true
-            )
-            .addField(
-              "sub commands:",
-              cmd.subs
-                ?.map((subResolvable) => {
-                  const sub = app.resolve(subResolvable)
-                  return `**${sub.name}**: ${
-                    sub.description ?? "no description"
-                  }`
-                })
-                .join("\n") || "none",
-              true
-            )
-        )
+        return app.sendCommandDetails(message, cmd, prefix)
       } else {
         await message.channel.send(
           new app.MessageEmbed()
@@ -101,8 +33,7 @@ const command: app.CommandResolvable = () => ({
     } else {
       new app.Paginator(
         app.Paginator.divider(
-          app.commands.map((resolvable) => {
-            const cmd = app.resolve(resolvable)
+          app.commands.map((cmd) => {
             return `**${prefix}${cmd.name}** - ${
               cmd.description ?? "no description"
             }`
@@ -133,19 +64,15 @@ const command: app.CommandResolvable = () => ({
             .setDescription(
               `There are currently ${
                 app.commands.size
-              } commands and ${app.commands.reduce<number>(
-                (acc, resolvableCommand) => {
-                  const command = app.resolve(resolvableCommand)
-                  if (command && command.subs) return acc + command.subs.length
-                  return acc
-                },
-                0
-              )} sub-commands`
+              } commands and ${app.commands.reduce<number>((acc, command) => {
+                if (command && command.subs) return acc + command.subs.length
+                return acc
+              }, 0)} sub-commands`
             )
         )
       },
     },
   ],
-})
+}
 
 module.exports = command
