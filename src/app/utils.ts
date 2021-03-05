@@ -11,7 +11,8 @@ import * as app from "../app"
 
 // Snowflakes
 export const validation = "659513985552351261"
-export const dickHead = "620641458168397845"
+export const logChannel = "622817980853780503"
+export const justAMember = "620641458168397845"
 export const presentations = "622383963511717928"
 export const approved = "640661715108888595"
 export const disapproved = "507420627821527040"

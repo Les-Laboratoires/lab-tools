@@ -27,21 +27,21 @@ const listener: app.Listener<"messageReactionAdd"> = {
         !redactor ||
         redactor.user.bot ||
         !app.isStaff(reactor) ||
-        redactor.roles.cache.has(app.dickHead)
+        redactor.roles.cache.has(app.justAMember)
       )
         return
 
       if (reaction.emoji.id === app.approved) {
         if (reaction.message.author === user) {
           return reaction.users.remove(user)
-        } else if (!redactor.roles.cache.has(app.dickHead)) {
+        } else if (!redactor.roles.cache.has(app.justAMember)) {
           const disapproved = reaction.message.reactions.cache.get(
             app.disapproved
           )
 
           if (disapproved) await disapproved.remove()
 
-          await redactor.roles.add(app.dickHead)
+          await redactor.roles.add(app.justAMember)
           await redactor.roles.remove(app.validation)
 
           const general = await redactor.client.channels.cache.get(app.general)
@@ -71,7 +71,18 @@ const listener: app.Listener<"messageReactionAdd"> = {
           }
         }
       } else if (reaction.emoji.id === app.disapproved) {
-        if (!redactor.roles.cache.has(app.dickHead)) {
+        if (!redactor.roles.cache.has(app.justAMember)) {
+          const logChannel = reaction.message.guild?.channels.cache.get(
+            app.logChannel
+          )
+
+          if (logChannel && logChannel.isText())
+            logChannel.send(
+              `${user} a désapprouvé la présentation de ${
+                reaction.message.author
+              }. ${app.toCodeBlock(reaction.message.content)}`
+            )
+
           await redactor.kick()
           return reaction.message.delete()
         }

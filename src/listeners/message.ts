@@ -20,7 +20,7 @@ const listener: app.Listener<"message"> = {
     // presentations checks
     if (message.channel.id === app.presentations) {
       if (
-        message.member.roles.cache.has(app.dickHead) ||
+        message.member.roles.cache.has(app.justAMember) ||
         message.member.roles.cache.has(app.validation) ||
         message.author.bot
       )
