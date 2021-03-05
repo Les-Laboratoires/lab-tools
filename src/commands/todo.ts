@@ -151,6 +151,13 @@ const command: app.Command = {
       async run(message) {
         const todoList = app.todo
           .ensure(message.author.id, [])
+          .map(
+            (todo, i) =>
+              `\`[${app.resizeText(i, 3, true).replace(/\s/g, "·")}]\` ${todo
+                .replace(/[`*_~]/g, "")
+                .replace(/[\s\n]+/g, " ")
+                .slice(0, 40)}`
+          )
           .filter((todo) => {
             return todo
               .toLowerCase()
@@ -158,15 +165,7 @@ const command: app.Command = {
           })
 
         new app.Paginator(
-          app.Paginator.divider(
-            todoList.map((todo) => {
-              return todo
-                .replace(/[`*_~]/g, "")
-                .replace(/[\s\n]+/g, " ")
-                .slice(0, 40)
-            }),
-            10
-          ).map((page) =>
+          app.Paginator.divider(todoList, 10).map((page) =>
             new app.MessageEmbed()
               .setTitle("Voici le résultat de ta recherche")
               .setDescription(page.join("\n"))
