@@ -138,6 +138,44 @@ const command: app.Command = {
         )
       },
     },
+    {
+      name: "filter",
+      aliases: ["findall"],
+      description: "Find some todo task",
+      positional: [
+        {
+          name: "search",
+          required: true,
+        },
+      ],
+      async run(message) {
+        const todoList = app.todo
+          .ensure(message.author.id, [])
+          .filter((todo) => {
+            return todo
+              .toLowerCase()
+              .includes(message.positional.search.toLowerCase())
+          })
+
+        new app.Paginator(
+          app.Paginator.divider(
+            todoList.map((todo) => {
+              return todo
+                .replace(/[`*_~]/g, "")
+                .replace(/[\s\n]+/g, " ")
+                .slice(0, 40)
+            }),
+            10
+          ).map((page) =>
+            new app.MessageEmbed()
+              .setTitle("Voici le résultat de ta recherche")
+              .setDescription(page.join("\n"))
+          ),
+          message.channel,
+          (reaction, user) => user.id === message.author.id
+        )
+      },
+    },
   ],
 }
 
