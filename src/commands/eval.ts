@@ -47,7 +47,7 @@ const command: app.Command = {
           let log
           try {
             log = await message.channel.send(
-              `<a:wait:560972897376665600> **${pack}** - install...`
+              `<a:wait:813551205283790889> **${pack}** - install...`
             )
             await exec(`npm i ${pack}@latest`)
             await log.edit(`✅ **${pack}** - installed`)
@@ -90,7 +90,7 @@ const command: app.Command = {
       let log
       try {
         log = await message.channel.send(
-          `<a:wait:560972897376665600> **${pack}** - uninstall...`
+          `<a:wait:813551205283790889> **${pack}** - uninstall...`
         )
         await exec(`npm remove --purge ${pack}`)
         await log.edit(`🗑️ **${pack}** - uninstalled`)

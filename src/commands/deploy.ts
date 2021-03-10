@@ -18,7 +18,7 @@ const command: app.Command = {
   ],
   async run(message) {
     const subject = await message.channel.send(
-      "<a:wait:560972897376665600> En cours de déploiement..."
+      "<a:wait:813551205283790889> En cours de déploiement..."
     )
     const timer = Date.now()
 
@@ -54,7 +54,7 @@ const command: app.Command = {
       description: "Deploy Ayfri's atom-clicker game",
       async run(message) {
         const subject = await message.channel.send(
-          "<a:wait:560972897376665600> Déploiement d'atom-clicker en cours..."
+          "<a:wait:813551205283790889> Déploiement d'atom-clicker en cours..."
         )
         const timer = Date.now()
 
