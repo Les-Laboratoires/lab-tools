@@ -19,6 +19,8 @@ const listener: app.Listener<"ready"> = {
           if (channel.isText()) channel.send(currentCron.message)
         })
 
+        job.start()
+
         app.cache.set("job-" + name, job)
       })
     })
