@@ -196,11 +196,11 @@ const command: app.Command = {
                   page
                     .map(([name, cron]) => {
                       const job = app.cache.get<cron.CronJob>("job-" + name)
-                      return `${app.resizeText(
+                      return `\`${app.resizeText(
                         name,
                         10,
                         true
-                      )} | period: \`${app.resizeText(cron.period, 20)}\` | ${
+                      )}\` | period: \`${app.resizeText(cron.period, 20)}\` | ${
                         job?.running ? "<a:wait:813551205283790889>" : "🛑"
                       }`
                     })
