@@ -167,3 +167,31 @@ dayjs.utc(1)
 dayjs.tz.setDefault("France/Paris")
 
 export { dayjs }
+
+/**
+ * Simple cache for manage temporary values
+ */
+export const cache = new (class {
+  private data: { [key: string]: any } = {}
+
+  get<T>(key: string): T | undefined {
+    return this.data[key]
+  }
+
+  set(key: string, value: any) {
+    this.data[key] = value
+  }
+
+  ensure<T>(key: string, defaultValue: T): T {
+    let value = this.get<T>(key)
+    if (value === undefined) {
+      value = defaultValue
+      this.set(key, value)
+    }
+    return value
+  }
+
+  delete(key: string) {
+    delete this.data[key]
+  }
+})()

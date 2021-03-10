@@ -1,4 +1,5 @@
 import * as app from "../app"
+import cron from "cron"
 
 const listener: app.Listener<"ready"> = {
   event: "ready",
@@ -11,6 +12,16 @@ const listener: app.Listener<"ready"> = {
     await helloChannel.send("I'm back ! <a:dancing:576104669516922881>")
 
     app.globals.delete("helloChannel")
+
+    app.cron.forEach((currentCron, name) => {
+      this.channels.fetch(currentCron.channelId).then((channel) => {
+        const job = cron.job(currentCron.period, () => {
+          if (channel.isText()) channel.send(currentCron.message)
+        })
+
+        app.cache.set("job-" + name, job)
+      })
+    })
 
     console.log("New deployment", app.dayjs().format("DD/MM/YYYY hh:mm:ss"))
   },

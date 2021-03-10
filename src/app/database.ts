@@ -1,7 +1,5 @@
 import Enmap from "enmap"
 
-export const cache = new Enmap<string, any>()
-
 export const globals = new Enmap<string, any>({
   name: "globals",
 })
@@ -18,9 +16,20 @@ export const todo = new Enmap<string, string[]>({
   name: "todo",
 })
 
+export const cron = new Enmap<string, Cron>({
+  name: "cron",
+})
+
 export const coolDowns = new Enmap<string, CoolDown>()
 
 export interface CoolDown {
   time: number
   trigger: boolean
+}
+
+export interface Cron {
+  channelId: string
+  authorId: string
+  message: string
+  period: string
 }
