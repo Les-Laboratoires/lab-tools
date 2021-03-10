@@ -183,6 +183,38 @@ const command: app.Command = {
         )
       },
     },
+    {
+      name: "list",
+      aliases: ["ls"],
+      async run(message) {
+        new app.Paginator(
+          app.Paginator.divider(Array.from(app.cron.entries()), 10).map(
+            (page) => {
+              return new app.MessageEmbed()
+                .setTitle("Voici une liste des cron")
+                .setDescription(
+                  page
+                    .map(([name, cron]) => {
+                      const job = app.cache.get<cron.CronJob>("job-" + name)
+                      return `${app.resizeText(
+                        name,
+                        10,
+                        true
+                      )} | period: \`${app.resizeText(cron.period, 20)}\` | ${
+                        job?.running ? "<a:wait:813551205283790889>" : "🛑"
+                      }`
+                    })
+                    .join("\n")
+                )
+            }
+          ),
+          message.channel,
+          (reaction, user) => {
+            return message.author.id === user.id
+          }
+        )
+      },
+    },
   ],
 }
 
