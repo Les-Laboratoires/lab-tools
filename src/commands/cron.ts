@@ -198,10 +198,10 @@ const command: app.Command = {
                       const job = app.cache.get<cron.CronJob>("job-" + name)
                       return `\`${app.resizeText(
                         name,
-                        10,
+                        6,
                         true
-                      )}\` | period: \`${app.resizeText(cron.period, 20)}\` | ${
-                        job?.running ? "<a:wait:813551205283790889>" : "🛑"
+                      )}\` | period: \`${app.resizeText(cron.period, 15)}\` | ${
+                        job?.running ? "<a:wait:813551205283790889> Running..." : "🛑 Stopped"
                       }`
                     })
                     .join("\n")
