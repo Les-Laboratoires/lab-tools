@@ -201,7 +201,9 @@ const command: app.Command = {
                         6,
                         true
                       )}\` | period: \`${app.resizeText(cron.period, 15)}\` | ${
-                        job?.running ? "<a:wait:813551205283790889> Running..." : "🛑 Stopped"
+                        job?.running
+                          ? "<a:wait:813551205283790889> Running..."
+                          : "🛑 Stopped"
                       }`
                     })
                     .join("\n")
