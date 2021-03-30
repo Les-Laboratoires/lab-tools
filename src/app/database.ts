@@ -1,14 +1,8 @@
 import knex from "knex"
 import { Knex } from "knex"
-import path from "path"
 import chalk from "chalk"
-import fs from "fs"
-
+import path from "path"
 import * as logger from "./logger"
-
-const dataDirectory = path.join(process.cwd(), "data")
-
-if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
 
 /**
  * Welcome to the database file!
@@ -16,16 +10,20 @@ if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
  */
 
 export const db = knex({
-  client: "sqlite3",
+  client: "pg",
   useNullAsDefault: true,
   connection: {
-    filename: path.join(process.cwd(), "data", "sqlite3.db"),
+    port: +(process.env.PORT ?? 5432),
+    host: process.env.HOST ?? "localhost",
+    user: process.env.USER ?? "postgres",
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE ?? "postgres",
   },
 })
 
 export interface TableOptions {
   name: string
-  setup: (table: Knex.CreateTableBuilder) => void
+  colMaker: (table: Knex.CreateTableBuilder) => void
 }
 
 export class Table<Type> {
@@ -37,7 +35,7 @@ export class Table<Type> {
 
   async make(): Promise<this> {
     try {
-      await db.schema.createTable(this.options.name, this.options.setup)
+      await db.schema.createTable(this.options.name, this.options.colMaker)
       logger.log(`created table ${chalk.blue(this.options.name)}`, "database")
     } catch (error) {
       logger.log(`loaded table ${chalk.blue(this.options.name)}`, "database")
