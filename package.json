@@ -1,0 +1,64 @@
+{
+  "name": "bot.ts",
+  "version": "1.0.0",
+  "author": "ghom",
+  "description": "Discord bot in TypeScript",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "gulp cleanAndBuild",
+    "start": "npm run build && node ../../../bot.ts-master",
+    "watch": "watch \\\"npm run start\\\" src",
+    "format": "prettier --write src"
+  },
+  "prettier": {
+    "semi": false
+  },
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CamilleAbella/bot.ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CamilleAbella/bot.ts/issues"
+  },
+  "homepage": "https://github.com/CamilleAbella/bot.ts#readme",
+  "dependencies": {
+    "@types/boxen": "^3.0.1",
+    "@types/yargs-parser": "^20.2.0",
+    "boxen": "^4.2.0",
+    "chalk": "^4.1.0",
+    "dayjs": "^1.10.4",
+    "discord-eval.ts": "^1.0.14",
+    "discord.js": "^12.4.1",
+    "dotenv": "^8.2.0",
+    "figlet": "^1.5.0",
+    "knex": "^0.95.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^2.2.5",
+    "oracledb": "^5.1.0",
+    "pg": "^8.5.1",
+    "prettier": "^2.1.2",
+    "regex-parser": "^2.2.11",
+    "sqlite3": "^5.0.2",
+    "tims": "^2.0.4",
+    "yargs-parser": "^20.2.4"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/figlet": "^1.2.1",
+    "@types/node": "^14.14.6",
+    "@types/prettier": "^2.2.1",
+    "@types/ws": "^7.2.9",
+    "del": "^6.0.0",
+    "esbuild": "^0.9.4",
+    "gulp": "^4.0.2",
+    "gulp-esbuild": "^0.6.1",
+    "make-bot.ts": "^1.4.3",
+    "typescript": "^4.0.5",
+    "watch": "^1.0.2"
+  },
+  "engines": {
+    "node": ">=14",
+    "npm": ">=7.5.2"
+  }
+}
