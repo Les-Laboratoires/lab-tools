@@ -28,7 +28,7 @@ const client = new Discord.Client()
     return Promise.all(
       tables
         .sort((a, b) => {
-          return (a.options.priority ?? 0) - (b.options.priority ?? 0)
+          return (b.options.priority ?? 0) - (a.options.priority ?? 0)
         })
         .map(async (table) => {
           app.tables.set(table.options.name, await table.make())
