@@ -42,20 +42,40 @@ const command: app.Command = {
 
       for (const pack of given) {
         if (alreadyInstalled(pack)) {
-          await message.channel.send(`✅ **${pack}** - installed`)
+          await message.channel.send(
+            `${message.client.emojis.resolve(
+              app.Emotes.CHECK
+            )} **${pack}** - installed`
+          )
           installed.add(pack)
         } else {
           let log
           try {
             log = await message.channel.send(
-              `<a:wait:560972897376665600> **${pack}** - install...`
+              `${message.client.emojis.resolve(
+                app.Emotes.WAIT
+              )} **${pack}** - install...`
             )
             await exec(`npm i ${pack}@latest`)
-            await log.edit(`✅ **${pack}** - installed`)
+            await log.edit(
+              `${message.client.emojis.resolve(
+                app.Emotes.CHECK
+              )} **${pack}** - installed`
+            )
             installed.add(pack)
           } catch (error) {
-            if (log) await log.edit(`❌ **${pack}** - error`)
-            else await message.channel.send(`❌ **${pack}** - error`)
+            if (log)
+              await log.edit(
+                `${message.client.emojis.resolve(
+                  app.Emotes.DENY
+                )} **${pack}** - error`
+              )
+            else
+              await message.channel.send(
+                `${message.client.emojis.resolve(
+                  app.Emotes.DENY
+                )} **${pack}** - error`
+              )
           }
         }
       }
@@ -94,14 +114,30 @@ const command: app.Command = {
           `<a:wait:560972897376665600> **${pack}** - uninstall...`
         )
         await exec(`npm remove --purge ${pack}`)
-        await log.edit(`🗑️ **${pack}** - uninstalled`)
+        await log.edit(
+          `${message.client.emojis.resolve(
+            app.Emotes.MINUS
+          )} **${pack}** - uninstalled`
+        )
       } catch (error) {
-        if (log) await log.edit(`❌ **${pack}** - error`)
-        else await message.channel.send(`❌ **${pack}** - error`)
+        if (log)
+          await log.edit(
+            `${message.client.emojis.resolve(
+              app.Emotes.DENY
+            )} **${pack}** - error`
+          )
+        else
+          await message.channel.send(
+            `${message.client.emojis.resolve(
+              app.Emotes.DENY
+            )} **${pack}** - error`
+          )
       }
     }
 
-    return message.channel.send(`✅ process completed`)
+    return message.channel.send(
+      `${message.client.emojis.resolve(app.Emotes.CHECK)} process completed`
+    )
   },
 }
 

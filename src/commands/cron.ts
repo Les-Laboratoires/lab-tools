@@ -18,6 +18,7 @@ const command: app.Command<app.GuildMessage> = {
       positional: [
         {
           name: "name",
+          required: true,
           description: "The name of task",
         },
       ],
@@ -31,13 +32,21 @@ const command: app.Command<app.GuildMessage> = {
             .first()
 
           if (!currentCron)
-            return message.channel.send("Ce cron n'existe pas...")
+            return message.channel.send(
+              `${message.client.emojis.resolve(
+                app.Emotes.DENY
+              )} Unknown cron task.`
+            )
 
           if (
             currentCron.user_id !== message.author.id &&
             message.author.id !== process.env.OWNER
           )
-            return message.channel.send("Ce cron ne t'appartient pas!")
+            return message.channel.send(
+              `${message.client.emojis.resolve(
+                app.Emotes.DENY
+              )} This is not your own cron task.`
+            )
 
           let job = app.cache.get<cron.CronJob>(slug)
 
@@ -52,12 +61,18 @@ const command: app.Command<app.GuildMessage> = {
           }
 
           if (job.running)
-            return message.channel.send("Le cron est déjà lancé.")
+            return message.channel.send(
+              `${message.client.emojis.resolve(
+                app.Emotes.DENY
+              )} This cron is already running.`
+            )
 
           job.start()
 
           return message.channel.send(
-            `Votre cron "${message.args.name}" s'est correctement lancé.`
+            `${message.client.emojis.resolve(
+              app.Emotes.CHECK
+            )} Successfully started.`
           )
         }
       },
@@ -83,21 +98,38 @@ const command: app.Command<app.GuildMessage> = {
             .first()
 
           if (!currentCron)
-            return message.channel.send("Ce cron n'existe pas...")
+            return message.channel.send(
+              `${message.client.emojis.resolve(
+                app.Emotes.DENY
+              )} Unknown cron task.`
+            )
 
           if (
             currentCron.user_id !== message.author.id &&
             message.author.id !== process.env.OWNER
           )
-            return message.channel.send("Ce cron ne t'appartient pas!")
+            return message.channel.send(
+              `${message.client.emojis.resolve(
+                app.Emotes.DENY
+              )} This is not your own cron task.`
+            )
 
           const job = app.cache.get<cron.CronJob>(slug)
 
-          if (!job) return message.channel.send("Ce cron n'est pas lancé...")
+          if (!job)
+            return message.channel.send(
+              `${message.client.emojis.resolve(
+                app.Emotes.DENY
+              )} This cron is already stopped.`
+            )
 
           job.stop()
 
-          return message.channel.send("Ton cron a correctement été stoppé.")
+          return message.channel.send(
+            `${message.client.emojis.resolve(
+              app.Emotes.CHECK
+            )} Successfully stopped.`
+          )
         }
       },
     },
@@ -122,13 +154,21 @@ const command: app.Command<app.GuildMessage> = {
             .first()
 
           if (!currentCron)
-            return message.channel.send("Ce cron n'existe pas...")
+            return message.channel.send(
+              `${message.client.emojis.resolve(
+                app.Emotes.DENY
+              )} Unknown cron task.`
+            )
 
           if (
             currentCron.user_id !== message.author.id &&
             message.author.id !== process.env.OWNER
           )
-            return message.channel.send("Ce cron ne t'appartient pas!")
+            return message.channel.send(
+              `${message.client.emojis.resolve(
+                app.Emotes.DENY
+              )} This is not your own cron task.`
+            )
 
           const job = app.cache.get<cron.CronJob>(slug)
 
@@ -138,7 +178,11 @@ const command: app.Command<app.GuildMessage> = {
 
           await cronTable.query.delete().where("name", message.args.name)
 
-          return message.channel.send("Ton cron a correctement été supprimé.")
+          return message.channel.send(
+            `${message.client.emojis.resolve(
+              app.Emotes.CHECK
+            )} Successfully removed.`
+          )
         }
       },
     },
@@ -178,11 +222,17 @@ const command: app.Command<app.GuildMessage> = {
         try {
           channel = await message.client.channels.fetch(message.args.channel)
         } catch (error) {
-          return message.channel.send("Le salon ciblé est inexistant.")
+          return message.channel.send(
+            `${message.client.emojis.resolve(app.Emotes.DENY)} Unknown channel.`
+          )
         }
 
         if (!channel.isText())
-          return message.channel.send("Le channel ciblé n'est pas textuel...")
+          return message.channel.send(
+            `${message.client.emojis.resolve(
+              app.Emotes.DENY
+            )} Bad channel type. (${channel.type})`
+          )
 
         const oldJob = app.cache.get<cron.CronJob>(slug)
 
@@ -201,7 +251,9 @@ const command: app.Command<app.GuildMessage> = {
           app.cache.set(slug, job)
         } catch (error) {
           return message.channel.send(
-            "La `period` renseignée est peut être mauvaise..."
+            `${message.client.emojis.resolve(
+              app.Emotes.DENY
+            )} Bad period pattern.\n> Check the following website to generate a valid cron period pattern. \n> http://www.cronmaker.com`
           )
         }
 
@@ -217,7 +269,9 @@ const command: app.Command<app.GuildMessage> = {
           .merge()
 
         return message.channel.send(
-          `Ton cron "${message.args.name}" a bien été sauvegardé et lancé !`
+          `${message.client.emojis.resolve(
+            app.Emotes.CHECK
+          )} Successfully saved and started.`
         )
       },
     },
@@ -225,32 +279,46 @@ const command: app.Command<app.GuildMessage> = {
       name: "list",
       aliases: ["ls"],
       description: "List tasks",
+      flags: [
+        {
+          name: "own",
+          flag: "o",
+          aliases: ["mine"],
+          description: "Only show own cron tasks",
+        },
+      ],
       async run(message) {
         new app.Paginator(
           app.Paginator.divider(
-            Array.from(await cronTable.query.select()),
+            message.args.own
+              ? await cronTable.query
+                  .select()
+                  .where("user_id", message.author.id)
+              : await cronTable.query.select(),
             10
           ).map((page) => {
-            return new app.MessageEmbed()
-              .setTitle("Voici une liste des cron")
-              .setDescription(
-                page
-                  .map((cron) => {
-                    const job = app.cache.get<cron.CronJob>(
-                      app.slug("job", cron.name)
-                    )
-                    return `\`${app.resizeText(
-                      cron.name,
-                      6,
-                      true
-                    )}\` | period: \`${app.resizeText(cron.period, 15)}\` | ${
-                      job?.running
-                        ? "<a:wait:813551205283790889> Running..."
-                        : "🛑 Stopped"
-                    }`
-                  })
-                  .join("\n")
-              )
+            return new app.MessageEmbed().setTitle("Cron list").setDescription(
+              page
+                .map((cron) => {
+                  const job = app.cache.get<cron.CronJob>(
+                    app.slug("job", cron.name)
+                  )
+                  return `\`${app.resizeText(
+                    cron.name,
+                    6,
+                    true
+                  )}\` | period: \`${app.resizeText(cron.period, 15)}\` | ${
+                    job?.running
+                      ? `${message.client.emojis.resolve(
+                          app.Emotes.WAIT
+                        )} Running...`
+                      : `${message.client.emojis.resolve(
+                          app.Emotes.MINUS
+                        )} Stopped`
+                  }`
+                })
+                .join("\n")
+            )
           }),
           message.channel,
           (reaction, user) => {
