@@ -17,7 +17,7 @@ const table = new app.Table<{
       .onDelete("CASCADE")
     table.string("channel_id")
     table.string("period")
-    table.string("content")
+    table.string("content", 2048)
     table.string("name")
   },
 })
