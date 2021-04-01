@@ -2,9 +2,12 @@ import * as app from "../app"
 
 const table = new app.Table<{
   user_id: string
+  channel_id: string
+  period: string
+  name: string
   content: string
 }>({
-  name: "todo",
+  name: "cron",
   setup: (table) => {
     table
       .string("user_id")
@@ -12,7 +15,10 @@ const table = new app.Table<{
       .references("id")
       .inTable("user")
       .onDelete("CASCADE")
+    table.string("channel_id")
+    table.string("period")
     table.string("content")
+    table.string("name")
   },
 })
 

@@ -25,6 +25,7 @@
   "dependencies": {
     "boxen": "^4.2.0",
     "chalk": "^4.1.0",
+    "cron": "^1.8.2",
     "dayjs": "^1.10.4",
     "discord-eval.ts": "^1.0.14",
     "discord.js": "^12.4.1",
@@ -39,12 +40,13 @@
   },
   "devDependencies": {
     "@types/boxen": "^3.0.1",
-    "@types/yargs-parser": "^20.2.0",
+    "@types/cron": "^1.7.2",
     "@types/dotenv": "^8.2.0",
     "@types/figlet": "^1.2.1",
     "@types/node": "^14.14.6",
     "@types/prettier": "^2.2.1",
     "@types/ws": "^7.2.9",
+    "@types/yargs-parser": "^20.2.0",
     "del": "^6.0.0",
     "esbuild": "^0.9.4",
     "gulp": "^4.0.2",

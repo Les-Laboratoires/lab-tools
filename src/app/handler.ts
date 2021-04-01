@@ -43,6 +43,10 @@ export interface Argument<Message extends CommandMessage> {
   typeDescription?: string
 }
 
+export type Middleware<Message extends CommandMessage> = (
+  message: Message
+) => Promise<true | string> | boolean | string
+
 export interface Positional<Message extends CommandMessage>
   extends Omit<Argument<Message>, "aliases"> {}
 
@@ -77,6 +81,7 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
   guildOnly?: boolean
   botOwner?: boolean
   dmOnly?: boolean
+  middlewares?: Middleware<Message>[]
   userPermissions?: Discord.PermissionString[]
   botPermissions?: Discord.PermissionString[]
   /**

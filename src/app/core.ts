@@ -19,6 +19,10 @@ export function scrap<T, A extends any[] = any[]>(
   return typeof item === "function" ? item(...args) : item
 }
 
+export function slug(...words: string[]): string {
+  return words.join("-")
+}
+
 /**
  * Make a path from root of project and return it
  * @param path
@@ -39,6 +43,10 @@ export const cache = new (class {
 
   set(key: string, value: any) {
     this.data[key] = value
+  }
+
+  delete(key: string) {
+    delete this.data[key]
   }
 
   ensure<T>(key: string, defaultValue: T): T {
