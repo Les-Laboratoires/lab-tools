@@ -71,16 +71,23 @@ const listener: app.Listener<"message"> = {
       return app.sendCommandDetails(message, cmd, prefix)
 
     // coolDown
-    {
-      const coolDownId = `${cmd.name}:${message.channel.id}`
-      const coolDown = app.cache.ensure("CD-" + coolDownId, {
+    if (cmd.coolDown) {
+      const slug = app.slug("coolDown", cmd.name, message.channel.id)
+      const coolDown = app.cache.ensure<app.CoolDown>(slug, {
         time: 0,
         trigger: false,
       })
 
-      if (cmd.coolDown && coolDown.trigger) {
+      message.triggerCoolDown = () => {
+        app.cache.set(slug, {
+          time: Date.now(),
+          trigger: true,
+        })
+      }
+
+      if (coolDown.trigger) {
         if (Date.now() > coolDown.time + cmd.coolDown) {
-          app.cache.set("CD-" + coolDownId, {
+          app.cache.set(slug, {
             time: 0,
             trigger: false,
           })
@@ -96,6 +103,13 @@ const listener: app.Listener<"message"> = {
               )
           )
         }
+      }
+    } else {
+      message.triggerCoolDown = () => {
+        app.warn(
+          `You must setup the cooldown of the "${cmd.name}" command before using the "triggerCoolDown" method`,
+          "system"
+        )
       }
     }
 

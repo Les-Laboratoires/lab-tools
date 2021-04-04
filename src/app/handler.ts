@@ -10,6 +10,7 @@ import yargsParser from "yargs-parser"
 
 export type CommandMessage = Discord.Message & {
   args: { [name: string]: any } & any[]
+  triggerCoolDown: () => void
   rest: string
 }
 
@@ -21,6 +22,11 @@ export type GuildMessage = CommandMessage & {
 
 export type DirectMessage = CommandMessage & {
   channel: Discord.DMChannel
+}
+
+export interface CoolDown {
+  time: number
+  trigger: boolean
 }
 
 export interface Argument<Message extends CommandMessage> {
@@ -53,12 +59,6 @@ export interface Positional<Message extends CommandMessage>
 export interface Flag<Message extends CommandMessage>
   extends Pick<Argument<Message>, "name" | "aliases" | "description"> {
   flag: string
-}
-
-export function isFlag<Message extends CommandMessage>(
-  arg: Argument<Message>
-): arg is Flag<Message> {
-  return arg.hasOwnProperty("flag")
 }
 
 export interface Command<Message extends CommandMessage = CommandMessage> {
@@ -448,6 +448,12 @@ export function isDirectMessage(
   message: CommandMessage
 ): message is DirectMessage {
   return message.channel instanceof Discord.DMChannel
+}
+
+export function isFlag<Message extends CommandMessage>(
+  arg: Argument<Message>
+): arg is Flag<Message> {
+  return arg.hasOwnProperty("flag")
 }
 
 export const commands = new Commands()
