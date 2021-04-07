@@ -41,7 +41,7 @@ const command: app.Command = {
 
     if (webhook.token) {
       const client = new app.WebhookClient(webhook.id, webhook.token)
-      await client.send(message.args.content)
+      await client.send(message.rest)
       client.destroy()
     } else {
       await message.channel.send(

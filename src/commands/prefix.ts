@@ -1,4 +1,5 @@
 import * as app from "../app"
+
 import guilds from "../tables/guilds"
 
 const command: app.Command<app.GuildMessage> = {
