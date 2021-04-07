@@ -5,5 +5,3 @@ dist
 data
 .idea
 .vscode
-*.lock
-yarn.lock
