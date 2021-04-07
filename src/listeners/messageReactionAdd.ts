@@ -64,7 +64,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
                       dynamic: true,
                       size: 512,
                     })
-                  )
+                  ),
               }
             )
             return general.send(`<a:labs_js:827280804233084928> Bienvenue sur Les Laboratoires JS ! <:pepeYay:557124850326437888>

@@ -8,7 +8,7 @@ const listener: app.Listener<"ready"> = {
     const helloChannel = (await this.channels.fetch(
       app.globals.ensure("helloChannel", app.general)
     )) as app.TextChannel
-    
+
     console.log("ready")
 
     await helloChannel.send("I'm back ! <a:dancing:576104669516922881>")
