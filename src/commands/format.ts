@@ -1,5 +1,5 @@
 import * as app from "../app"
-import prettier from "prettier"
+import * as prettify from "ghom-prettify"
 
 const command: app.Command = {
   name: "format",
@@ -11,7 +11,10 @@ const command: app.Command = {
     if (code) {
       const { lang, content } = code
 
-      const prettified = prettier.format(content)
+      const prettified = prettify.format(content, lang, {
+        semi: false,
+        printWidth: 86,
+      })
 
       await message.channel.send(
         app.CODE.stringify({
@@ -23,7 +26,7 @@ const command: app.Command = {
       await message.channel.send(
         `${message.client.emojis.resolve(
           app.Emotes.DENY
-        )} Bas usage, please use code block tags`
+        )} Bad usage, please use code block tags`
       )
     }
   },
