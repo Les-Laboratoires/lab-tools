@@ -13,11 +13,11 @@ export const db = knex({
   client: "pg",
   useNullAsDefault: true,
   connection: {
-    port: +(process.env.PORT ?? 5432),
+    port: +(process.env.PORT ?? 9090),
     host: process.env.HOST ?? "localhost",
     user: process.env.USER ?? "postgres",
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE ?? "postgres",
+    password: process.env.PASSWORD ?? "mysecretpassword",
+    database: process.env.DATABASE ?? "tool",
   },
 })
 

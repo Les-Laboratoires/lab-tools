@@ -1,4 +1,4 @@
-import discordEval from "discord-eval.ts"
+import evaluate from "ghom-eval"
 import cp from "child_process"
 import util from "util"
 import * as app from "../app"
@@ -91,12 +91,11 @@ const command: app.Command = {
       message.rest = "return " + message.rest
     }
 
-    message.rest = `
-      ${
-        message.rest.includes("app")
-          ? 'const _path = require("path");const _root = process.cwd();const _app_path = _path.join(_root, "dist", "app.js");const app = require(_app_path);'
-          : ""
-      } ${
+    message.rest = `${
+      message.rest.includes("app")
+        ? 'const _path = require("path");const _root = process.cwd();const _app_path = _path.join(_root, "dist", "app.js");const app = require(_app_path);'
+        : ""
+    } ${
       message.args.packages.length > 0
         ? `const req = {${[...installed]
             .map((pack) => `"${pack}": require("${pack}")`)
@@ -104,7 +103,39 @@ const command: app.Command = {
         : ""
     } ${message.rest}`
 
-    await discordEval(message.rest, message, message.args.muted)
+    const evaluated = await evaluate(message.rest, message, "message")
+
+    if (message.args.muted) {
+      await message.channel.send(
+        `${message.client.emojis.resolve(
+          app.Emotes.CHECK
+        )} successfully evaluated in ${evaluated.duration}ms`
+      )
+    } else {
+      await message.channel.send(
+        new app.MessageEmbed()
+          .setColor(evaluated.failed ? "RED" : "BLURPLE")
+          .setAuthor(
+            `Result of JS evaluation ${evaluated.failed ? "(failed)" : ""}`,
+            message.client.emojis.resolve(
+              evaluated.failed ? app.Emotes.DENY : app.Emotes.CHECK
+            )?.url
+          )
+          .setDescription(
+            app.CODE.stringify({
+              content: evaluated.output.slice(0, 2000),
+              lang: "js",
+            })
+          )
+          .addField(
+            "Information",
+            app.CODE.stringify({
+              content: `type: ${evaluated.type}\nclass: ${evaluated.class}\nduration: ${evaluated.duration}ms`,
+              lang: "yaml",
+            })
+          )
+      )
+    }
 
     for (const pack of installed) {
       if (alreadyInstalled(pack)) continue

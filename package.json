@@ -6,8 +6,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "gulp cleanAndBuild",
-    "start": "npm run build && node ../../../bot.ts-master",
-    "watch": "watch \\\"npm run start\\\" src",
+    "start": "npm run build && node .",
+    "watch": "watch \"npm run start\" src",
     "format": "prettier --write src"
   },
   "prettier": {
@@ -27,14 +27,13 @@
     "chalk": "^4.1.0",
     "cron": "^1.8.2",
     "dayjs": "^1.10.4",
-    "discord-eval.ts": "^1.0.14",
     "discord.js": "^12.4.1",
     "dotenv": "^8.2.0",
     "figlet": "^1.5.0",
-    "ghom-prettify": "^2.0.0",
+    "ghom-eval": "^1.0.2",
+    "ghom-prettify": "^2.0.1",
     "knex": "^0.95.1",
     "pg": "^8.5.1",
-    "prettier": "^2.1.2",
     "regex-parser": "^2.2.11",
     "tims": "^2.0.4",
     "yargs-parser": "^20.2.4"
@@ -45,7 +44,6 @@
     "@types/dotenv": "^8.2.0",
     "@types/figlet": "^1.2.1",
     "@types/node": "^14.14.6",
-    "@types/prettier": "^2.2.1",
     "@types/ws": "^7.2.9",
     "@types/yargs-parser": "^20.2.0",
     "del": "^6.0.0",
@@ -53,6 +51,7 @@
     "gulp": "^4.0.2",
     "gulp-esbuild": "^0.6.1",
     "make-bot.ts": "^1.4.6",
+    "prettier": "^2.1.2",
     "typescript": "^4.0.5",
     "watch": "^1.0.2"
   },
