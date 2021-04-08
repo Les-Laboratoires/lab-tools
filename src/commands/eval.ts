@@ -16,6 +16,11 @@ const command: app.Command = {
   botOwnerOnly: true,
   aliases: ["js", "code", "run", "="],
   description: "JS code evaluator",
+  rest: {
+    name: "code",
+    description: "The evaluated code",
+    required: true,
+  },
   options: [
     {
       name: "packages",
@@ -142,7 +147,9 @@ const command: app.Command = {
       let log
       try {
         log = await message.channel.send(
-          `<a:wait:560972897376665600> **${pack}** - uninstall...`
+          `${message.client.emojis.resolve(
+            app.Emotes.WAIT
+          )} **${pack}** - uninstall...`
         )
         await exec(`npm remove --purge ${pack}`)
         await log.edit(
