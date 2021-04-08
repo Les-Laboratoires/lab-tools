@@ -67,11 +67,12 @@ const listener: app.Listener<"messageReactionAdd"> = {
                   ),
               }
             )
-            return general.send(`<a:labs_js:827280804233084928> Bienvenue sur Les Laboratoires JS ! <:pepeYay:557124850326437888>
+            return general.send(`<a:labs_js:827280804233084928> **Bienvenue sur Les Laboratoires JS !** <:pepeYay:557124850326437888>
 
 - Pour nous montrer quelle techno/lang tu utilises : <#622848426484432952>
 - Pour aider ou te faire aider : <#622382324880900096> <#622382349426098200> (etc...)
-- Pour parcourir notre réseau : <#620661794410856451> <#713850539368251533> - Pour utiliser des commandes : <#620663106250604546> <#620663121622859776> (etc...)
+- Pour parcourir notre réseau : <#620661794410856451> <#713850539368251533>
+- Pour utiliser des commandes : <#620663106250604546> <#620663121622859776> (etc...)
 - Pour poser des questions rapides : <#622382556192571416>
 - Pour nos tips JS : <#627239007440338954>
 - Pour apprendre le JS : <#622381685820096512>
