@@ -34,10 +34,15 @@ export interface Argument {
   description: string
 }
 
+export interface Rest<Message extends CommandMessage> extends Argument {
+  required?: core.Scrap<boolean, [message: Message]>
+  default?: core.Scrap<string, [message: Message]>
+}
+
 export interface Option<Message extends CommandMessage> extends Argument {
   aliases?: string[] | string
   default?: core.Scrap<string, [message: Message]>
-  required?: core.Scrap<boolean, [value: string, message: Message]>
+  required?: core.Scrap<boolean, [message: Message]>
   castValue?:
     | "number"
     | "date"
@@ -102,7 +107,7 @@ export interface Command<Message extends CommandMessage = CommandMessage> {
   /**
    * The rest of message after excludes all other arguments.
    */
-  rest?: core.Scrap<Positional<Message>, [message: Message]>
+  rest?: core.Scrap<Rest<Message>, [message: Message]>
   /**
    * Yargs positional argument (e.g. `[arg] <arg>`)
    */
@@ -383,6 +388,19 @@ export async function sendCommandDetails<Message extends CommandMessage>(
   const positionalList: string[] = []
   const argumentList: string[] = []
   const flagList: string[] = []
+  let restPattern = ""
+
+  if (cmd.rest) {
+    const rest = await core.scrap(cmd.rest, message)
+    const dft =
+      rest.default !== undefined
+        ? `="${await core.scrap(rest.default, message)}"`
+        : ""
+
+    restPattern = (await core.scrap(rest.required, message))
+      ? `<...${rest.name}>`
+      : `[...${rest.name}${dft}]`
+  }
 
   if (cmd.positional) {
     const cmdPositional = await core.scrap(cmd.positional, message)
@@ -393,7 +411,7 @@ export async function sendCommandDetails<Message extends CommandMessage>(
           ? `="${await core.scrap(positional.default, message)}"`
           : ""
       positionalList.push(
-        positional.required && !dft
+        (await core.scrap(positional.required, message)) && !dft
           ? `<${positional.name}>`
           : `[${positional.name}${dft}]`
       )
@@ -409,7 +427,7 @@ export async function sendCommandDetails<Message extends CommandMessage>(
           ? `="${core.scrap(arg.default, message)}"`
           : ""
       argumentList.push(
-        arg.required
+        (await core.scrap(arg.required, message))
           ? `\`--${arg.name}${dft}\` (\`${getTypeDescriptionOf(arg)}\`) ${
               arg.description ?? ""
             }`
@@ -428,14 +446,16 @@ export async function sendCommandDetails<Message extends CommandMessage>(
 
   const specialPermissions = []
 
-  if (cmd.botOwnerOnly) specialPermissions.push("BOT_OWNER")
-  if (cmd.guildOwnerOnly) specialPermissions.push("GUILD_OWNER")
+  if (await core.scrap(cmd.botOwnerOnly, message))
+    specialPermissions.push("BOT_OWNER")
+  if (await core.scrap(cmd.guildOwnerOnly, message))
+    specialPermissions.push("GUILD_OWNER")
 
   const embed = new Discord.MessageEmbed()
     .setColor("BLURPLE")
     .setAuthor("Command details", message.client.user?.displayAvatarURL())
     .setTitle(
-      `${pattern} ${[...positionalList, ...flagList].join(" ")} ${
+      `${pattern} ${[...positionalList, restPattern, ...flagList].join(" ")} ${
         cmd.options ? "[OPTIONS]" : ""
       }`
     )

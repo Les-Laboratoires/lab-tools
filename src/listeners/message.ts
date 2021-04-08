@@ -234,7 +234,7 @@ const listener: app.Listener<"message"> = {
         set(value)
 
         if (!given) {
-          if (positional.required) {
+          if (await app.scrap(positional.required, message)) {
             return await message.channel.send(
               new app.MessageEmbed()
                 .setColor("RED")
@@ -294,7 +294,7 @@ const listener: app.Listener<"message"> = {
 
         if (value === true) value = undefined
 
-        if (option.required && !given)
+        if ((await app.scrap(option.required, message)) && !given)
           return await message.channel.send(
             new app.MessageEmbed()
               .setColor("RED")
@@ -360,6 +360,31 @@ const listener: app.Listener<"message"> = {
     }
 
     message.rest = restPositional.join(" ")
+
+    if (cmd.rest) {
+      const rest = await app.scrap(cmd.rest, message)
+
+      if (message.rest.length === 0) {
+        if (await app.scrap(rest.required, message)) {
+          return await message.channel.send(
+            new app.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(
+                `Missing rest "${rest.name}"`,
+                message.client.user?.displayAvatarURL()
+              )
+              .setDescription(
+                rest.description ??
+                  "Please use `--help` flag for more information."
+              )
+          )
+        } else if (rest.default) {
+          message.args[rest.name] = await app.scrap(rest.default, message)
+        }
+      } else {
+        message.args[rest.name] = message.rest
+      }
+    }
 
     try {
       await cmd.run(message)
