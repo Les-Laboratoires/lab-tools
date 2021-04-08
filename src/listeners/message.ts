@@ -86,7 +86,9 @@ const listener: app.Listener<"message"> = {
       }
 
       if (coolDown.trigger) {
-        if (Date.now() > coolDown.time + cmd.coolDown) {
+        const coolDownTime = await app.scrap(cmd.coolDown, message)
+
+        if (Date.now() > coolDown.time + coolDownTime) {
           app.cache.set(slug, {
             time: 0,
             trigger: false,
@@ -97,7 +99,7 @@ const listener: app.Listener<"message"> = {
               .setColor("RED")
               .setAuthor(
                 `Please wait ${Math.ceil(
-                  (coolDown.time + cmd.coolDown - Date.now()) / 1000
+                  (coolDown.time + coolDownTime - Date.now()) / 1000
                 )} seconds...`,
                 message.client.user?.displayAvatarURL()
               )
