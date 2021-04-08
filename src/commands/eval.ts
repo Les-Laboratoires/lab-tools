@@ -13,10 +13,10 @@ const alreadyInstalled = (pack: string): boolean =>
 
 const command: app.Command = {
   name: "eval",
-  botOwner: true,
+  botOwnerOnly: true,
   aliases: ["js", "code", "run", "="],
   description: "JS code evaluator",
-  args: [
+  options: [
     {
       name: "packages",
       aliases: ["use", "u", "req", "require", "import", "i"],

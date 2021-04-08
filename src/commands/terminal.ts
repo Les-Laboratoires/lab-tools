@@ -5,7 +5,7 @@ const command: app.Command = {
   name: "terminal",
   aliases: ["term", "cmd", "command", "exec", ">", "process", "shell"],
   description: "Run shell command from Discord",
-  botOwner: true,
+  botOwnerOnly: true,
   coolDown: 5000,
   async run(message) {
     const toEdit = await message.channel.send("The process is running...")

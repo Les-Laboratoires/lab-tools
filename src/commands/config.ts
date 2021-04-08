@@ -4,7 +4,7 @@ import guilds from "../tables/guilds"
 
 const command: app.Command<app.GuildMessage> = {
   name: "config",
-  guildOnly: true,
+  guildChannelOnly: true,
   description: "Display guild configs",
   async run(message) {
     return message.channel.send(
@@ -28,8 +28,8 @@ const command: app.Command<app.GuildMessage> = {
   subs: [
     {
       name: "set",
-      guildOnly: true,
-      guildOwner: true,
+      guildChannelOnly: true,
+      guildOwnerOnly: true,
       description: "Set guild config",
       positional: [
         {

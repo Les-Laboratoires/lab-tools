@@ -198,7 +198,7 @@ const command: app.Command<app.GuildMessage> = {
           required: true,
         },
       ],
-      args: [
+      options: [
         {
           name: "channel",
           description: "The channel id of task",

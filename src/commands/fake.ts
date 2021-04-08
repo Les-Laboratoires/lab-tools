@@ -3,7 +3,7 @@ import * as app from "../app"
 const command: app.Command = {
   name: "fake",
   coolDown: 10000,
-  guildOnly: true,
+  guildChannelOnly: true,
   userPermissions: ["MANAGE_WEBHOOKS"],
   description: "Fake an user message",
   positional: [
