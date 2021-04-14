@@ -6,7 +6,7 @@ const command: app.Command = {
   aliases: ["beautify", "prettier"],
   description: "Format the given code",
   async run(message) {
-    const code = app.CODE.parse(message.rest)
+    const code = app.code.parse(message.rest)
 
     if (code) {
       const { lang, content } = code
@@ -17,7 +17,7 @@ const command: app.Command = {
       })
 
       await message.channel.send(
-        app.CODE.stringify({
+        app.code.stringify({
           content: prettified,
           lang,
         })

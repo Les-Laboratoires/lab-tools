@@ -3,10 +3,10 @@ import path from "path"
 import tims from "tims"
 import chalk from "chalk"
 import regexParser from "regex-parser"
+import yargsParser from "yargs-parser"
 
 import * as core from "./core"
 import * as logger from "./logger"
-import yargsParser from "yargs-parser"
 
 export type CommandMessage = Discord.Message & {
   args: { [name: string]: any } & any[]
@@ -50,6 +50,10 @@ export interface Option<Message extends CommandMessage> extends Argument {
     | "boolean"
     | "regex"
     | "array"
+    | "user"
+    | "member"
+    | "channel"
+    | "message"
     | ((value: string, message: Message) => any)
   /**
    * If returns string, it used as error message
@@ -143,6 +147,8 @@ export class Commands extends Discord.Collection<string, Command<any>> {
   ): Command<Message> | undefined {
     for (const [name, command] of this) {
       if (key === name) {
+        return command
+      } else {
         const aliases = command.aliases ?? []
         const resolvedAliases = Array.isArray(aliases) ? aliases : [aliases]
         if (resolvedAliases.some((alias) => key === alias)) {
@@ -153,7 +159,7 @@ export class Commands extends Discord.Collection<string, Command<any>> {
   }
 
   public add<Message extends CommandMessage>(command: Command<Message>) {
-    validateArguments(command)
+    validateCommand(command)
     this.set(command.name, command)
   }
 }
@@ -227,8 +233,8 @@ export async function checkValue<Message extends CommandMessage>(
           )
           .setDescription(
             typeof subject.checkValue === "function"
-              ? core.CODE.stringify({
-                  content: core.CODE.format(subject.checkValue.toString()),
+              ? core.code.stringify({
+                  content: core.code.format(subject.checkValue.toString()),
                   lang: "js",
                 })
               : subject.checkValue instanceof RegExp
@@ -273,7 +279,8 @@ export async function castValue<Message extends CommandMessage>(
   try {
     switch (subject.castValue) {
       case "boolean":
-        setValue(/true|1|oui|on|o|y|yes/i.test(baseValue ?? ""))
+        if (baseValue === undefined) throw empty
+        else setValue(/^(?:true|1|oui|on|o|y|yes)$/i.test(baseValue))
         break
       case "date":
         if (!baseValue) {
@@ -292,7 +299,7 @@ export async function castValue<Message extends CommandMessage>(
         break
       case "number":
         setValue(Number(baseValue))
-        if (!/-?(?:0|[1-9]\d*)/.test(baseValue ?? ""))
+        if (!/^-?(?:0|[1-9]\d*)$/.test(baseValue ?? ""))
           throw new Error("The value is not a Number!")
         break
       case "regex":
@@ -302,6 +309,60 @@ export async function castValue<Message extends CommandMessage>(
       case "array":
         if (baseValue === undefined) setValue([])
         else setValue(baseValue.split(/[,;|]/))
+        break
+      case "channel":
+        if (baseValue) {
+          const match = /^(?:<#(\d+)>|(\d+))$/.exec(baseValue)
+          if (match) {
+            const id = match[1] ?? match[2]
+            const channel = message.client.channels.cache.get(id)
+            if (channel) setValue(channel)
+            else throw new Error("Unknown channel!")
+          } else throw new Error("Invalid channel value!")
+        } else throw empty
+        break
+      case "member":
+        if (baseValue) {
+          if (isGuildMessage(message)) {
+            const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
+            if (match) {
+              const id = match[1] ?? match[2]
+              const member = message.guild.members.cache.get(id)
+              if (member) setValue(member)
+              else throw new Error("Unknown member!")
+            } else throw new Error("Invalid member value!")
+          } else
+            throw new Error(
+              'The "GuildMember" casting is only available in a guild!'
+            )
+        } else throw empty
+        break
+      case "message":
+        if (baseValue) {
+          const match = /^https?:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)$/.exec(
+            baseValue
+          )
+          if (match) {
+            const [, channelID, messageID] = match
+            const channel = message.client.channels.cache.get(channelID)
+            if (channel) {
+              if (channel.isText()) {
+                setValue(await channel.messages.fetch(messageID, false))
+              } else throw new Error("Invalid channel type!")
+            } else throw new Error("Unknown channel!")
+          } else throw new Error("Invalid message link!")
+        } else throw empty
+        break
+      case "user":
+        if (baseValue) {
+          const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
+          if (match) {
+            const id = match[1] ?? match[2]
+            const user = await message.client.users.fetch(id, false)
+            if (user) setValue(user)
+            else throw new Error("Unknown user!")
+          } else throw new Error("Invalid user value!")
+        } else throw empty
         break
       default:
         if (baseValue === undefined) throw empty
@@ -321,7 +382,7 @@ export async function castValue<Message extends CommandMessage>(
             typeof subject.castValue === "function"
               ? "{*custom type*}"
               : "`" + subject.castValue + "`"
-          }\n${core.CODE.stringify({
+          }\n${core.code.stringify({
             content: `Error: ${error.message}`,
             lang: "js",
           })}`
@@ -333,7 +394,7 @@ export async function castValue<Message extends CommandMessage>(
   return true
 }
 
-export function validateArguments<Message extends CommandMessage>(
+export function validateCommand<Message extends CommandMessage>(
   command: Command<Message>,
   path?: string
 ): void | never {
@@ -356,14 +417,25 @@ export function validateArguments<Message extends CommandMessage>(
           }" command must be equal to 1`
         )
 
+  if (command.coolDown)
+    if (!command.run.toString().includes("triggerCoolDown"))
+      logger.warn(
+        `you forgot using ${chalk.greenBright(
+          "message.triggerCoolDown()"
+        )} in the ${chalk.blueBright(command.name)} command.`,
+        "handler"
+      )
+
   logger.log(
-    `loaded command ${chalk.blue((path ? path + " " : "") + command.name)}`,
+    `loaded command ${chalk.blueBright(
+      (path ? path + " " : "") + command.name
+    )}`,
     "handler"
   )
 
   if (command.subs)
     for (const sub of command.subs)
-      validateArguments(sub, path ? path + " " + command.name : command.name)
+      validateCommand(sub, path ? path + " " + command.name : command.name)
 }
 
 export function getTypeDescriptionOf<Message extends CommandMessage>(
@@ -483,7 +555,7 @@ export async function sendCommandDetails<Message extends CommandMessage>(
 
     embed.addField(
       "examples:",
-      core.CODE.stringify({
+      core.code.stringify({
         content: examples.map((example) => prefix + example).join("\n"),
       }),
       false

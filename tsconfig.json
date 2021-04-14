@@ -5,10 +5,10 @@
     "module": "commonjs",
     "outDir": "dist",
     "rootDir": "src",
-    "declaration": false,
     "strict": true,
-    "esModuleInterop": true,
     "sourceMap": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true
   }
 }

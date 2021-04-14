@@ -49,7 +49,7 @@ const command: app.Command = {
           url.toString()
         )
         .setDescription(
-          app.CODE.stringify({
+          app.code.stringify({
             content: JSON.stringify(
               Object.fromEntries(url.searchParams.entries()),
               (key, val) => {

@@ -303,11 +303,11 @@ const command: app.Command<app.GuildMessage> = {
                   const job = app.cache.get<cron.CronJob>(
                     app.slug("job", cron.name)
                   )
-                  return `\`${app.resizeText(
+                  return `\`${app.forceTextSize(
                     cron.name,
                     6,
                     true
-                  )}\` | period: \`${app.resizeText(cron.period, 15)}\` | ${
+                  )}\` | period: \`${app.forceTextSize(cron.period, 15)}\` | ${
                     job?.running
                       ? `${message.client.emojis.resolve(
                           app.Emotes.WAIT

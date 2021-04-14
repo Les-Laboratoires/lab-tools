@@ -86,8 +86,8 @@ const command: app.Command = {
       }
     }
 
-    if (app.CODE.pattern.test(message.rest))
-      message.rest = message.rest.replace(app.CODE.pattern, "$2")
+    if (app.code.pattern.test(message.rest))
+      message.rest = message.rest.replace(app.code.pattern, "$2")
 
     if (
       message.rest.split("\n").length === 1 &&
@@ -127,14 +127,14 @@ const command: app.Command = {
             )?.url
           )
           .setDescription(
-            app.CODE.stringify({
+            app.code.stringify({
               content: evaluated.output.slice(0, 2000),
               lang: "js",
             })
           )
           .addField(
             "Information",
-            app.CODE.stringify({
+            app.code.stringify({
               content: `type: ${evaluated.type}\nclass: ${evaluated.class}\nduration: ${evaluated.duration}ms`,
               lang: "yaml",
             })

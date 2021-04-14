@@ -9,7 +9,7 @@ async function showTodoList(message: app.Message, target: string) {
     app.Paginator.divider(
       todoList.map((todo) => {
         return `\`[${app
-          .resizeText(todo.id, 3, true)
+          .forceTextSize(todo.id, 3, true)
           .replace(/\s/g, "·")}]\` ${todo.content
           .replace(/[`*_~]/g, "")
           .replace(/[\s\n]+/g, " ")
@@ -192,7 +192,7 @@ const command: app.Command = {
           .map(
             (todo) =>
               `\`[${app
-                .resizeText(todo.id, 3, true)
+                .forceTextSize(todo.id, 3, true)
                 .replace(/\s/g, "·")}]\` ${todo.content
                 .replace(/[`*_~]/g, "")
                 .replace(/[\s\n]+/g, " ")

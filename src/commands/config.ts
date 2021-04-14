@@ -14,7 +14,7 @@ const command: app.Command<app.GuildMessage> = {
           message.guild.iconURL({ dynamic: true }) ?? undefined
         )
         .setDescription(
-          app.CODE.stringify({
+          app.code.stringify({
             lang: "json",
             content: JSON.stringify(
               await guilds.query.select().where("id", message.guild.id).first(),

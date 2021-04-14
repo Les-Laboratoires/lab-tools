@@ -1,10 +1,11 @@
 import { join } from "path"
-
-import prettier from "prettier"
+import prettify from "ghom-prettify"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
 import toObject from "dayjs/plugin/toObject"
+
+import * as logger from "./logger"
 
 /**
  * Resolve `T` value from `T | (() => T)`
@@ -38,7 +39,7 @@ export function rootPath(...path: string[]): string {
 /**
  * Simple cache for manage temporary values
  */
-export const cache = new (class {
+export const cache = new (class Cache {
   private data: { [key: string]: any } = {}
 
   get<T>(key: string): T | undefined {
@@ -68,7 +69,7 @@ export interface Code {
   content: string
 }
 
-export const CODE = {
+export const code = {
   pattern: /^```(\S+)?\s(.+[^\\])```$/is,
   /**
    * extract the code from code block and return code
@@ -90,18 +91,19 @@ export const CODE = {
   /**
    * format the code using prettier and return it
    */
-  format(raw: string, options?: prettier.Options): string {
-    return prettier.format(raw, {
-      semi: false,
-      ...(options ?? {}),
-    })
-  },
+  format: prettify.format,
 }
-;(() => {
-  return import(`dayjs/locale/${process.env.LOCALE}`).then(() =>
-    dayjs.locale(process.env.LOCALE)
+
+const locale = process.env.LOCALE
+
+import(`dayjs/locale/${locale}`)
+  .then(() => dayjs.locale(locale))
+  .catch(() =>
+    logger.warn(
+      `The "${locale}" is incorrect, please use a simple locale code.`,
+      "core"
+    )
   )
-})()
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -112,7 +114,7 @@ if (process.env.TIMEZONE) dayjs.tz.setDefault(process.env.TIMEZONE)
 
 export { dayjs }
 
-export function resizeText(
+export function forceTextSize(
   text: string | number,
   size: number,
   before = false

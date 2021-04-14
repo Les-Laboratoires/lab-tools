@@ -247,7 +247,7 @@ const listener: app.Listener<"message"> = {
                 .setDescription(
                   positional.description
                     ? "Description: " + positional.description
-                    : `Run the following command to learn more: ${app.CODE.stringify(
+                    : `Run the following command to learn more: ${app.code.stringify(
                         {
                           content: `${key} --help`,
                         }
@@ -394,7 +394,7 @@ const listener: app.Listener<"message"> = {
       app.error(error, "handler", true)
       message.channel
         .send(
-          app.CODE.stringify({
+          app.code.stringify({
             content: `Error: ${
               error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"
             }`,
