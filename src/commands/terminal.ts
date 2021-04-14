@@ -14,21 +14,25 @@ const command: app.Command = {
   },
   async run(message) {
     const toEdit = await message.channel.send("The process is running...")
+    let content: string
+
     cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
-      if (err) {
-        const errorMessage = `\\❌ An error has occurred. ${app.CODE.stringify({
-          content:
-            (err.stack ?? err.message ?? stderr).slice(0, 2000) || "No log",
-        })}`
-        return toEdit.edit(errorMessage).catch(() => {
-          message.channel.send(errorMessage).catch()
-        })
-      }
-      const successMessage = `\\✔ Successfully executed. ${app.CODE.stringify({
-        content: stdout.slice(0, 2000) || "No log",
-      })}`
-      toEdit.edit(successMessage).catch(() => {
-        message.channel.send(successMessage).catch()
+      const embed = new app.MessageEmbed()
+        .setTitle(
+          err ? "\\❌ An error has occurred." : "\\✔ Successfully executed."
+        )
+        .setDescription(
+          app.CODE.stringify({
+            content:
+              (err ? err.stack ?? err.message ?? stderr : stdout).slice(
+                0,
+                2000
+              ) || "No log",
+          })
+        )
+
+      toEdit.edit(content).catch(() => {
+        message.channel.send(content).catch()
       })
     })
   },
