@@ -67,7 +67,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
                   .setDescription(reaction.message.content)
                   .setImage(
                     redactor.user.displayAvatarURL({
-                      dynamic: true
+                      dynamic: true,
                     })
                   ),
               }
