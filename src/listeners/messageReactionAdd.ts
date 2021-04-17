@@ -42,6 +42,12 @@ const listener: app.Listener<"messageReactionAdd"> = {
           if (disapproved) await disapproved.remove()
 
           await redactor.roles.add(app.justAMember)
+          await redactor.roles.add("832615381377089546")
+          await redactor.roles.add("832620331969413191")
+          await redactor.roles.add("832613931893260350")
+          await redactor.roles.add("824924421818023956")
+          await redactor.roles.add("824924771065659402")
+          await redactor.roles.add("828648602381451314")
           await redactor.roles.remove(app.validation)
 
           const general = await redactor.client.channels.cache.get(app.general)
@@ -61,8 +67,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
                   .setDescription(reaction.message.content)
                   .setImage(
                     redactor.user.displayAvatarURL({
-                      dynamic: true,
-                      size: 512,
+                      dynamic: true
                     })
                   ),
               }
