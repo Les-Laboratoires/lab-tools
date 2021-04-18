@@ -277,7 +277,7 @@ const command: app.Command<app.GuildMessage> = {
     },
     {
       name: "list",
-      aliases: ["ls"],
+      aliases: ["ls", "all"],
       description: "List tasks",
       flags: [
         {
@@ -297,28 +297,33 @@ const command: app.Command<app.GuildMessage> = {
               : await cronTable.query.select(),
             10
           ).map((page) => {
-            return new app.MessageEmbed().setTitle("Cron list").setDescription(
-              page
-                .map((cron) => {
-                  const job = app.cache.get<cron.CronJob>(
-                    app.slug("job", cron.name)
-                  )
-                  return `\`${app.forceTextSize(
-                    cron.name,
-                    6,
-                    true
-                  )}\` | period: \`${app.forceTextSize(cron.period, 15)}\` | ${
-                    job?.running
-                      ? `${message.client.emojis.resolve(
-                          app.Emotes.WAIT
-                        )} Running...`
-                      : `${message.client.emojis.resolve(
-                          app.Emotes.MINUS
-                        )} Stopped`
-                  }`
-                })
-                .join("\n")
-            )
+            return new app.MessageEmbed()
+              .setTitle("Cron list")
+              .setDescription(
+                page
+                  .map((cron) => {
+                    const job = app.cache.get<cron.CronJob>(
+                      app.slug("job", cron.name)
+                    )
+                    return `${
+                      job?.running
+                        ? `${message.client.emojis.resolve(
+                            app.Emotes.WAIT
+                          )} Running`
+                        : `${message.client.emojis.resolve(
+                            app.Emotes.MINUS
+                          )} Stopped`
+                    } | \`${app.forceTextSize(
+                      cron.name,
+                      10,
+                      true
+                    )}\` | \`${app.forceTextSize(cron.period, 15)}\` | <#${
+                      cron.channel_id
+                    }>`
+                  })
+                  .join("\n")
+              )
+              .setFooter("🟢 Running | 🔴 Stopped")
           }),
           message.channel,
           (reaction, user) => {
