@@ -21,6 +21,8 @@ export const staff = "810947385911803964"
 export const general = "620664805400772621"
 export const cobaye = "620640927089688587"
 export const emoteOnly = "811720508239380561"
+export const gameChannel = "833685867502764092"
+export const ghom = "352176756922253321"
 export const minMaxGap = 15
 
 export const jsCodeBlockRegex = /^```(?:js)?\s(.+[^\\])```$/is
@@ -195,3 +197,47 @@ export const cache = new (class {
     delete this.data[key]
   }
 })()
+
+export let gameStarted = false
+
+export async function startGame(client: app.Client) {
+  if(gameStarted) return
+
+  gameStarted = true
+
+  const channel = client.channels.cache.get(gameChannel)
+  const number = Math.random() * Number.MAX_VALUE
+
+  if(!channel || !channel.isText()) return
+
+  await channel.send("**Trouvez le bon nombre !**\n<:btn_minus:827275974390579250> C'est moins\n<:btn_plus:827275935262048296> C'est plus\nBonne chance !")
+
+  function listenGame(message: app.Message): unknown {
+    if(message.channel !== channel) return client.once("message", listenGame)
+    if(message.system || message.author.bot) return client.once("message", listenGame)
+
+    if(message.content === "stop" && message.author.id === ghom) {
+      gameStarted = false
+      return message.channel.send("Partie annulée.")
+    }
+
+    const test = Number(message.content)
+
+    if(Number.isNaN(test)) return client.once("message", listenGame)
+
+    if(number > test) message.react("827275974390579250")
+    else if(number < test) message.react("827275935262048296")
+    else {
+      const score = app.score.ensure(message.author.id, 0)
+      message.channel.send(`**Le grand gagnant est ${message.author} !**\nIl gagne 1 point. (score: ${score} + 1)`)
+      app.score.inc(message.author.id)
+      gameStarted = false
+      return
+    }
+
+    return client.once("message", listenGame)
+  }
+
+  client.once("message", listenGame)
+}
+

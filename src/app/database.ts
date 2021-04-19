@@ -22,6 +22,8 @@ export const cron = new Enmap<string, Cron>({
 
 export const coolDowns = new Enmap<string, CoolDown>()
 
+export const score = new Enmap<string, number>()
+
 export interface CoolDown {
   time: number
   trigger: boolean
