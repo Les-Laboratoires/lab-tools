@@ -206,7 +206,7 @@ export async function startGame(client: app.Client) {
   gameStarted = true
 
   const channel = client.channels.cache.get(gameChannel)
-  const number = Math.random() * Number.MAX_VALUE
+  const number = Math.random() * 99999999999999999999999999999
 
   if (!channel || !channel.isText()) return
 
