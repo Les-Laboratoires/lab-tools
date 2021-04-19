@@ -71,9 +71,9 @@ const listener: app.Listener<"messageReactionAdd"> = {
             )
 
             return general.send(
-              new app.MessageEmbed()
-                .setTitle("Bienvenue sur Les Laboratoires JS !")
-                .setDescription(`
+              new app.MessageEmbed().setTitle(
+                "Bienvenue sur Les Laboratoires JS !"
+              ).setDescription(`
 - Gêrer tes rôles : <#622848426484432952>
 - L'entraide : <#622382324880900096> <#622382349426098200> (etc...)
 - Notre réseau : <#620661794410856451> <#713850539368251533>
