@@ -53,34 +53,36 @@ const listener: app.Listener<"messageReactionAdd"> = {
           const general = await redactor.client.channels.cache.get(app.general)
 
           if (general?.isText()) {
-            return general.send(
+            await general.send(
               new app.MessageEmbed()
                 .setAuthor(
-                  `Bienvenue à ${redactor} !`,
+                  `${redactor.displayname} vient de se présenter !`,
                   reaction.message.guild?.iconURL({
                     dynamic: true,
                     size: 64,
                   }) ?? undefined
                 )
                 .setDescription(reaction.message.content)
-                .setImage(
+                .setThumbnail(
                   redactor.user.displayAvatarURL({
                     dynamic: true,
                   })
                 )
-                .addField(
-                  "Bienvenue sur Les Laboratoires JS !",
-                  `
-- Pour gêrer tes rôles : <#622848426484432952>
-- Pour aider ou te faire aider : <#622382324880900096> <#622382349426098200> (etc...)
-- Pour parcourir notre réseau : <#620661794410856451> <#713850539368251533>
-- Pour utiliser des commandes : <#620663106250604546> <#620663121622859776> (etc...)
-- Pour poser des questions rapides : <#622382556192571416>
-- Pour nos tips JS : <#627239007440338954>
-- Pour apprendre le JS : <#622381685820096512>
+            )
 
-Nous te souhaitons un excellent séjour parmi nous ! <:pepeYay:557124850326437888>`
-                )
+            return general.send(
+              new app.MessageEmbed()
+                .setTitle("Bienvenue sur Les Laboratoires JS !")
+                .setDescription(`
+- Gêrer tes rôles : <#622848426484432952>
+- L'entraide : <#622382324880900096> <#622382349426098200> (etc...)
+- Notre réseau : <#620661794410856451> <#713850539368251533>
+- Utiliser des commandes : <#620663106250604546> <#620663121622859776> (etc...)
+- Questions rapides : <#622382556192571416>
+- Apprendre le JS : <#622381685820096512>
+- Tips JS : <#627239007440338954>
+
+Nous te souhaitons un excellent séjour parmi nous ! <:pepeYay:557124850326437888>`)
             )
           }
         }
