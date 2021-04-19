@@ -56,7 +56,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
             await general.send(
               new app.MessageEmbed()
                 .setAuthor(
-                  `${redactor.displayname} vient de se présenter !`,
+                  `${redactor.displayName} vient de se présenter !`,
                   reaction.message.guild?.iconURL({
                     dynamic: true,
                     size: 64,
