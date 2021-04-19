@@ -8,11 +8,9 @@ const listener: app.Listener<"guildMemberRemove"> = {
     const logChannel = member.guild.channels.cache.get(app.logChannel)
 
     if (!logChannel || !logChannel.isText()) return
-      
+
     logChannel
-      .send(
-        `${member.user?.tag ?? member.displayName} vient de nous quitter!`
-      )
+      .send(`${member.user?.tag ?? member.displayName} vient de nous quitter!`)
       .catch()
 
     if (presentations && presentations.isText()) {
