@@ -228,8 +228,8 @@ export async function startGame(client: app.Client) {
 
     if (Number.isNaN(test)) return client.once("message", listenGame)
 
-    if (number > test) message.react("827275974390579250")
-    else if (number < test) message.react("827275935262048296")
+    if (number < test) message.react("827275974390579250")
+    else if (number > test) message.react("827275935262048296")
     else {
       const score = app.score.ensure(message.author.id, 0)
       message.channel.send(
