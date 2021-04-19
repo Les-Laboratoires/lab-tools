@@ -201,35 +201,40 @@ export const cache = new (class {
 export let gameStarted = false
 
 export async function startGame(client: app.Client) {
-  if(gameStarted) return
+  if (gameStarted) return
 
   gameStarted = true
 
   const channel = client.channels.cache.get(gameChannel)
   const number = Math.random() * Number.MAX_VALUE
 
-  if(!channel || !channel.isText()) return
+  if (!channel || !channel.isText()) return
 
-  await channel.send("**Trouvez le bon nombre !**\n<:btn_minus:827275974390579250> C'est moins\n<:btn_plus:827275935262048296> C'est plus\nBonne chance !")
+  await channel.send(
+    "**Trouvez le bon nombre !**\n<:btn_minus:827275974390579250> C'est moins\n<:btn_plus:827275935262048296> C'est plus\nBonne chance !"
+  )
 
   function listenGame(message: app.Message): unknown {
-    if(message.channel !== channel) return client.once("message", listenGame)
-    if(message.system || message.author.bot) return client.once("message", listenGame)
+    if (message.channel !== channel) return client.once("message", listenGame)
+    if (message.system || message.author.bot)
+      return client.once("message", listenGame)
 
-    if(message.content === "stop" && message.author.id === ghom) {
+    if (message.content === "stop" && message.author.id === ghom) {
       gameStarted = false
       return message.channel.send("Partie annulée.")
     }
 
     const test = Number(message.content)
 
-    if(Number.isNaN(test)) return client.once("message", listenGame)
+    if (Number.isNaN(test)) return client.once("message", listenGame)
 
-    if(number > test) message.react("827275974390579250")
-    else if(number < test) message.react("827275935262048296")
+    if (number > test) message.react("827275974390579250")
+    else if (number < test) message.react("827275935262048296")
     else {
       const score = app.score.ensure(message.author.id, 0)
-      message.channel.send(`**Le grand gagnant est ${message.author} !**\nIl gagne 1 point. (score: ${score} + 1)`)
+      message.channel.send(
+        `**Le grand gagnant est ${message.author} !**\nIl gagne 1 point. (score: ${score} + 1)`
+      )
       app.score.inc(message.author.id)
       gameStarted = false
       return
@@ -240,4 +245,3 @@ export async function startGame(client: app.Client) {
 
   client.once("message", listenGame)
 }
-
