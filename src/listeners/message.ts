@@ -12,7 +12,11 @@ const listener: app.Listener<"message"> = {
       message.content = message.content.slice(key.length).trim()
     }
 
+    const mentionRegex = new RegExp(`^<@!?${message.client.user?.id}> `)
+
     if (message.content.startsWith(prefix)) cut(prefix)
+    else if (mentionRegex.test(message.content))
+      cut(message.content.split(" ")[0])
     else return
 
     let key = message.content.split(/\s+/)[0]
@@ -224,14 +228,14 @@ const listener: app.Listener<"message"> = {
 
       for (const positional of positionalList) {
         const index = positionalList.indexOf(positional)
-
-        const set = (value: any) => {
-          message.args[positional.name] = value
-          message.args[index] = value
-        }
-
-        const value = parsedArgs._[index]
+        let value = parsedArgs._[index]
         const given = value !== undefined
+
+        const set = (v: any) => {
+          message.args[positional.name] = v
+          message.args[index] = v
+          value = v
+        }
 
         set(value)
 
@@ -290,9 +294,12 @@ const listener: app.Listener<"message"> = {
       const options = await app.scrap(cmd.options, message)
 
       for (const option of options) {
-        const set = (value: any) => (message.args[option.name] = value)
-
         let { given, value } = app.resolveGivenArgument(parsedArgs, option)
+
+        const set = (v: any) => {
+          message.args[option.name] = v
+          value = v
+        }
 
         if (value === true) value = undefined
 
@@ -346,9 +353,12 @@ const listener: app.Listener<"message"> = {
 
     if (cmd.flags) {
       for (const flag of cmd.flags) {
-        const set = (value: boolean) => (message.args[flag.name] = value)
+        let { given, value } = app.resolveGivenArgument(parsedArgs, flag)
 
-        const { given, value } = app.resolveGivenArgument(parsedArgs, flag)
+        const set = (v: boolean) => {
+          message.args[flag.name] = v
+          value = v
+        }
 
         if (!given) set(false)
         else if (typeof value === "boolean") set(value)
