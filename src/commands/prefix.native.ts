@@ -1,9 +1,9 @@
 import * as app from "../app"
-
 import guilds from "../tables/guilds"
 
 const command: app.Command<app.GuildMessage> = {
   name: "prefix",
+  isDefault: true,
   guildOwnerOnly: true,
   guildChannelOnly: true,
   description: "Edit or show the bot prefix",

@@ -8,6 +8,7 @@ const command: app.Command = {
   botOwnerOnly: true,
   coolDown: 5000,
   rest: {
+    all: true,
     name: "cmd",
     description: "The cmd to run",
     required: true,
@@ -20,17 +21,23 @@ const command: app.Command = {
     )
 
     cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
-      const embed = new app.MessageEmbed()
-        .setTitle(
-          err ? "\\❌ An error has occurred." : "\\✔ Successfully executed."
-        )
-        .setDescription(
+      const output = err
+        ? err.stack ?? err.message
+        : stderr.trim() || stdout || null
+
+      const embed = new app.MessageEmbed().setTitle(
+        err ? "\\❌ An error has occurred." : "\\✔ Successfully executed."
+      )
+
+      if (output)
+        embed.setDescription(
           app.code.stringify({
-            content:
-              (err ? err.stack ?? err.message ?? stderr : stdout).slice(
-                0,
-                2000
-              ) || "No log",
+            content: output
+              .split("")
+              .reverse()
+              .slice(0, 2000)
+              .reverse()
+              .join(""),
           })
         )
 

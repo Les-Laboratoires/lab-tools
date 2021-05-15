@@ -40,6 +40,8 @@ const command: app.Command = {
   async run(message) {
     const installed = new Set<string>()
 
+    let code = message.args.code
+
     if (message.args.packages.length > 0) {
       const given = new Set<string>(
         message.args.packages.filter((p: string) => p)
@@ -47,57 +49,31 @@ const command: app.Command = {
 
       for (const pack of given) {
         if (alreadyInstalled(pack)) {
-          await message.channel.send(
-            `${message.client.emojis.resolve(
-              app.Emotes.CHECK
-            )} **${pack}** - installed`
-          )
+          await message.channel.send(`\\✔ **${pack}** - installed`)
           installed.add(pack)
         } else {
           let log
           try {
-            log = await message.channel.send(
-              `${message.client.emojis.resolve(
-                app.Emotes.WAIT
-              )} **${pack}** - install...`
-            )
+            log = await message.channel.send(`\\⏳ **${pack}** - install...`)
             await exec(`npm i ${pack}@latest`)
-            await log.edit(
-              `${message.client.emojis.resolve(
-                app.Emotes.CHECK
-              )} **${pack}** - installed`
-            )
+            await log.edit(`\\✔ **${pack}** - installed`)
             installed.add(pack)
           } catch (error) {
-            if (log)
-              await log.edit(
-                `${message.client.emojis.resolve(
-                  app.Emotes.DENY
-                )} **${pack}** - error`
-              )
-            else
-              await message.channel.send(
-                `${message.client.emojis.resolve(
-                  app.Emotes.DENY
-                )} **${pack}** - error`
-              )
+            if (log) await log.edit(`\\❌ **${pack}** - error`)
+            else await message.channel.send(`\\❌ **${pack}** - error`)
           }
         }
       }
     }
 
-    if (app.code.pattern.test(message.rest))
-      message.rest = message.rest.replace(app.code.pattern, "$2")
+    if (app.code.pattern.test(code)) code = code.replace(app.code.pattern, "$2")
 
-    if (
-      message.rest.split("\n").length === 1 &&
-      !/const|let|return/.test(message.rest)
-    ) {
-      message.rest = "return " + message.rest
+    if (code.split("\n").length === 1 && !/const|let|return/.test(code)) {
+      code = "return " + code
     }
 
-    message.rest = `${
-      message.rest.includes("app")
+    code = `${
+      code.includes("app")
         ? 'const _path = require("path");const _root = process.cwd();const _app_path = _path.join(_root, "dist", "app.js");const app = require(_app_path);'
         : ""
     } ${
@@ -106,25 +82,22 @@ const command: app.Command = {
             .map((pack) => `"${pack}": require("${pack}")`)
             .join(", ")}};`
         : ""
-    } ${message.rest}`
+    } ${code}`
 
-    const evaluated = await evaluate(message.rest, message, "message")
+    const evaluated = await evaluate(code, message, "message")
 
     if (message.args.muted) {
       await message.channel.send(
-        `${message.client.emojis.resolve(
-          app.Emotes.CHECK
-        )} successfully evaluated in ${evaluated.duration}ms`
+        `\\✔ successfully evaluated in ${evaluated.duration}ms`
       )
     } else {
       await message.channel.send(
         new app.MessageEmbed()
           .setColor(evaluated.failed ? "RED" : "BLURPLE")
-          .setAuthor(
-            `Result of JS evaluation ${evaluated.failed ? "(failed)" : ""}`,
-            message.client.emojis.resolve(
-              evaluated.failed ? app.Emotes.DENY : app.Emotes.CHECK
-            )?.url
+          .setTitle(
+            `${evaluated.failed ? "\\❌" : "\\✔"} Result of JS evaluation ${
+              evaluated.failed ? "(failed)" : ""
+            }`
           )
           .setDescription(
             app.code.stringify({
@@ -146,36 +119,16 @@ const command: app.Command = {
       if (alreadyInstalled(pack)) continue
       let log
       try {
-        log = await message.channel.send(
-          `${message.client.emojis.resolve(
-            app.Emotes.WAIT
-          )} **${pack}** - uninstall...`
-        )
+        log = await message.channel.send(`\\⏳ **${pack}** - uninstall...`)
         await exec(`npm remove --purge ${pack}`)
-        await log.edit(
-          `${message.client.emojis.resolve(
-            app.Emotes.MINUS
-          )} **${pack}** - uninstalled`
-        )
+        await log.edit(`\\✔ **${pack}** - uninstalled`)
       } catch (error) {
-        if (log)
-          await log.edit(
-            `${message.client.emojis.resolve(
-              app.Emotes.DENY
-            )} **${pack}** - error`
-          )
-        else
-          await message.channel.send(
-            `${message.client.emojis.resolve(
-              app.Emotes.DENY
-            )} **${pack}** - error`
-          )
+        if (log) await log.edit(`\\❌ **${pack}** - error`)
+        else await message.channel.send(`\\❌ **${pack}** - error`)
       }
     }
 
-    return message.channel.send(
-      `${message.client.emojis.resolve(app.Emotes.CHECK)} process completed`
-    )
+    return message.channel.send(`\\✔ process completed`)
   },
 }
 
