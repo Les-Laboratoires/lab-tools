@@ -3,15 +3,17 @@ import cron from "cron"
 
 import cronTable from "../tables/cron"
 
-const command: app.Command<app.GuildMessage> = {
+module.exports = new app.Command({
   name: "cron",
   description: "Manage cron jobs",
+  channelType: "all",
   async run(message) {
-    return app.sendCommandDetails(message, this, process.env.PREFIX ?? "!")
+    return app.sendCommandDetails(message, this)
   },
   subs: [
-    {
+    new app.Command({
       name: "start",
+      channelType: "guild",
       aliases: ["launch", "run", "play"],
       description: "Start a task",
       middlewares: [app.staffOnly],
@@ -76,11 +78,12 @@ const command: app.Command<app.GuildMessage> = {
           )
         }
       },
-    },
-    {
+    }),
+    new app.Command({
       name: "stop",
       aliases: ["exit", "kill"],
       description: "Stop a task",
+      channelType: "guild",
       middlewares: [app.staffOnly],
       positional: [
         {
@@ -132,11 +135,12 @@ const command: app.Command<app.GuildMessage> = {
           )
         }
       },
-    },
-    {
+    }),
+    new app.Command({
       name: "delete",
       aliases: ["remove", "rm", "del"],
       middlewares: [app.staffOnly],
+      channelType: "guild",
       description: "Remove a task",
       positional: [
         {
@@ -185,11 +189,12 @@ const command: app.Command<app.GuildMessage> = {
           )
         }
       },
-    },
-    {
+    }),
+    new app.Command({
       name: "add",
       aliases: ["set", "create", "make"],
       middlewares: [app.staffOnly],
+      channelType: "guild",
       description: "Add a task",
       positional: [
         {
@@ -274,11 +279,12 @@ const command: app.Command<app.GuildMessage> = {
           )} Successfully saved and started.`
         )
       },
-    },
-    {
+    }),
+    new app.Command({
       name: "list",
       aliases: ["ls", "all"],
       description: "List tasks",
+      channelType: "all",
       flags: [
         {
           name: "own",
@@ -288,8 +294,8 @@ const command: app.Command<app.GuildMessage> = {
         },
       ],
       async run(message) {
-        new app.Paginator(
-          app.Paginator.divider(
+        new app.Paginator({
+          pages: app.Paginator.divider(
             message.args.own
               ? await cronTable.query
                   .select()
@@ -325,14 +331,12 @@ const command: app.Command<app.GuildMessage> = {
               )
               .setFooter("🟢 Running | 🔴 Stopped")
           }),
-          message.channel,
-          (reaction, user) => {
+          channel: message.channel,
+          filter: (reaction, user) => {
             return message.author.id === user.id
-          }
-        )
+          },
+        })
       },
-    },
+    }),
   ],
-}
-
-module.exports = command
+})

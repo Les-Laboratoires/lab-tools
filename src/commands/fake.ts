@@ -1,9 +1,9 @@
 import * as app from "../app"
 
-const command: app.Command = {
+module.exports = new app.Command({
   name: "fake",
   coolDown: 10000,
-  guildChannelOnly: true,
+  channelType: "all",
   userPermissions: ["MANAGE_WEBHOOKS"],
   description: "Fake an user message",
   positional: [
@@ -51,6 +51,4 @@ const command: app.Command = {
     await message.delete().catch()
     await webhook.delete().catch()
   },
-}
-
-module.exports = command
+})

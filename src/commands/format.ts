@@ -1,10 +1,12 @@
 import * as app from "../app"
+
 import * as prettify from "ghom-prettify"
 
-const command: app.Command = {
+module.exports = new app.Command({
   name: "format",
-  aliases: ["beautify", "prettier"],
   description: "Format the given code",
+  aliases: ["beautify", "prettier"],
+  channelType: "all",
   async run(message) {
     const code = app.code.parse(message.rest)
 
@@ -30,6 +32,4 @@ const command: app.Command = {
       )
     }
   },
-}
-
-module.exports = command
+})

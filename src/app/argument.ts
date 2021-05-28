@@ -1,4 +1,4 @@
-import Discord from "discord.js"
+import discord from "discord.js"
 import yargsParser from "yargs-parser"
 import regexParser from "regex-parser"
 
@@ -32,6 +32,9 @@ export interface Option<Message extends command.CommandMessage>
     | "member"
     | "channel"
     | "message"
+    | "role"
+    | "emote"
+    | "invite"
     | ((value: string, message: Message) => any)
   /**
    * If returns string, it used as error message
@@ -40,6 +43,10 @@ export interface Option<Message extends command.CommandMessage>
     | RegExp
     | string[]
     | core.Scrap<boolean | RegExp | string, [value: string, message?: Message]>
+  checkCastedValue?: core.Scrap<
+    boolean | string,
+    [value: any, message?: Message]
+  >
   typeDescription?: core.Scrap<string, [value: string, message?: Message]>
 }
 
@@ -92,82 +99,109 @@ export async function checkValue<Message extends command.CommandMessage>(
   subjectType: "positional" | "argument",
   value: string,
   message: Message
-): Promise<boolean> {
+): Promise<discord.MessageEmbed | true> {
   if (!subject.checkValue) return true
 
   if (Array.isArray(subject.checkValue)) {
     if (subject.checkValue.includes(value)) {
-      await message.channel.send(
-        new Discord.MessageEmbed()
-          .setColor("RED")
-          .setAuthor(
-            `Bad ${subjectType} pattern "${subject.name}".`,
-            message.client.user?.displayAvatarURL()
-          )
-          .setDescription(
-            `Expected choice list: \`${subject.checkValue.join(" | ")}\``
-          )
-      )
-
-      return false
+      return new discord.MessageEmbed()
+        .setColor("RED")
+        .setAuthor(
+          `Bad ${subjectType} pattern "${subject.name}".`,
+          message.client.user?.displayAvatarURL()
+        )
+        .setDescription(
+          `Expected choice list: \`${subject.checkValue.join(" | ")}\``
+        )
     } else return true
   }
 
   const checkResult = await core.scrap(subject.checkValue, value, message)
 
   if (typeof checkResult === "string") {
-    await message.channel.send(
-      new Discord.MessageEmbed()
+    return new discord.MessageEmbed()
+      .setColor("RED")
+      .setAuthor(
+        `Bad ${subjectType} tested "${subject.name}".`,
+        message.client.user?.displayAvatarURL()
+      )
+      .setDescription(checkResult)
+  }
+
+  if (typeof checkResult === "boolean") {
+    if (!checkResult) {
+      return new discord.MessageEmbed()
         .setColor("RED")
         .setAuthor(
           `Bad ${subjectType} tested "${subject.name}".`,
           message.client.user?.displayAvatarURL()
         )
-        .setDescription(checkResult)
-    )
-
-    return false
-  }
-
-  if (typeof checkResult === "boolean") {
-    if (!checkResult) {
-      await message.channel.send(
-        new Discord.MessageEmbed()
-          .setColor("RED")
-          .setAuthor(
-            `Bad ${subjectType} tested "${subject.name}".`,
-            message.client.user?.displayAvatarURL()
-          )
-          .setDescription(
-            typeof subject.checkValue === "function"
-              ? core.code.stringify({
-                  content: core.code.format(subject.checkValue.toString()),
-                  lang: "js",
-                })
-              : subject.checkValue instanceof RegExp
-              ? `Expected pattern: \`${subject.checkValue.source}\``
-              : "Please use the `--help` flag for more information."
-          )
-      )
-
-      return false
+        .setDescription(
+          typeof subject.checkValue === "function"
+            ? core.code.stringify({
+                content: subject.checkValue.toString(),
+                format: true,
+                lang: "js",
+              })
+            : subject.checkValue instanceof RegExp
+            ? `Expected pattern: \`${subject.checkValue.source}\``
+            : "Please use the `--help` flag for more information."
+        )
     }
 
     return true
   }
 
   if (!checkResult.test(value)) {
-    await message.channel.send(
-      new Discord.MessageEmbed()
+    return new discord.MessageEmbed()
+      .setColor("RED")
+      .setAuthor(
+        `Bad ${subjectType} pattern "${subject.name}".`,
+        message.client.user?.displayAvatarURL()
+      )
+      .setDescription(`Expected pattern: \`${checkResult.source}\``)
+  }
+  return true
+}
+
+export async function checkCastedValue<Message extends command.CommandMessage>(
+  subject: Pick<Option<Message>, "checkCastedValue" | "name">,
+  subjectType: "positional" | "argument",
+  value: string,
+  message: Message
+): Promise<discord.MessageEmbed | true> {
+  if (!subject.checkCastedValue) return true
+
+  const checkResult = await core.scrap(subject.checkCastedValue, value, message)
+
+  if (typeof checkResult === "string") {
+    return new discord.MessageEmbed()
+      .setColor("RED")
+      .setAuthor(
+        `Bad ${subjectType} tested "${subject.name}".`,
+        message.client.user?.displayAvatarURL()
+      )
+      .setDescription(checkResult)
+  }
+
+  if (typeof checkResult === "boolean") {
+    if (!checkResult) {
+      return new discord.MessageEmbed()
         .setColor("RED")
         .setAuthor(
-          `Bad ${subjectType} pattern "${subject.name}".`,
+          `Bad ${subjectType} tested "${subject.name}".`,
           message.client.user?.displayAvatarURL()
         )
-        .setDescription(`Expected pattern: \`${checkResult.source}\``)
-    )
-
-    return false
+        .setDescription(
+          typeof subject.checkCastedValue === "function"
+            ? core.code.stringify({
+                content: subject.checkCastedValue.toString(),
+                format: true,
+                lang: "js",
+              })
+            : "Please use the `--help` flag for more information."
+        )
+    }
   }
   return true
 }
@@ -178,7 +212,7 @@ export async function castValue<Message extends command.CommandMessage>(
   baseValue: string | undefined,
   message: Message,
   setValue: (value: any) => unknown
-): Promise<boolean> {
+): Promise<discord.MessageEmbed | true> {
   if (!subject.castValue) return true
 
   const empty = new Error("The value is empty!")
@@ -246,9 +280,10 @@ export async function castValue<Message extends command.CommandMessage>(
         break
       case "message":
         if (baseValue) {
-          const match = /^https?:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)$/.exec(
-            baseValue
-          )
+          const match =
+            /^https?:\/\/discord\.com\/channels\/\d+\/(\d+)\/(\d+)$/.exec(
+              baseValue
+            )
           if (match) {
             const [, channelID, messageID] = match
             const channel = message.client.channels.cache.get(channelID)
@@ -271,32 +306,74 @@ export async function castValue<Message extends command.CommandMessage>(
           } else throw new Error("Invalid user value!")
         } else throw empty
         break
+      case "role":
+        if (baseValue) {
+          if (command.isGuildMessage(message)) {
+            const match = /^(?:<@&?(\d+)>|(\d+))$/.exec(baseValue)
+            if (match) {
+              const id = match[1] ?? match[2]
+              const role = message.guild.roles.cache.get(id)
+              if (role) setValue(role)
+              else throw new Error("Unknown role!")
+            } else throw new Error("Invalid role value!")
+          } else
+            throw new Error(
+              'The "GuildRole" casting is only available in a guild!'
+            )
+        } else throw empty
+        break
+      case "emote":
+        if (baseValue) {
+          const match = /^(?:<a?:.+:(\d+)>|(\d+))$/.exec(baseValue)
+          if (match) {
+            const id = match[1] ?? match[2]
+            const emote = message.client.emojis.cache.get(id)
+            if (emote) setValue(emote)
+            else throw new Error("Unknown emote!")
+          } else {
+            const unicodeMatch = /\p{Emoji_Presentation}/gu.exec(baseValue)
+            if (unicodeMatch) setValue(unicodeMatch[0])
+            else throw new Error("Invalid emote value!")
+          }
+        } else throw empty
+        break
+      case "invite":
+        if (baseValue) {
+          if (command.isGuildMessage(message)) {
+            const invites = await message.guild.fetchInvites()
+            const invite = invites.find(
+              (invite) => invite.code === baseValue || invite.url === baseValue
+            )
+            if (invite) setValue(invite)
+            else throw new Error("Unknown invite!")
+          } else
+            throw new Error(
+              'The "Invite" casting is only available in a guild!'
+            )
+        } else throw empty
+        break
       default:
         if (baseValue === undefined) throw empty
         else setValue(await subject.castValue(baseValue, message))
         break
     }
   } catch (error) {
-    await message.channel.send(
-      new Discord.MessageEmbed()
-        .setColor("RED")
-        .setAuthor(
-          `Bad ${subjectType} type "${subject.name}".`,
-          message.client.user?.displayAvatarURL()
-        )
-        .setDescription(
-          `Cannot cast the value of the "${subject.name}" ${subjectType} to ${
-            typeof subject.castValue === "function"
-              ? "{*custom type*}"
-              : "`" + subject.castValue + "`"
-          }\n${core.code.stringify({
-            content: `Error: ${error.message}`,
-            lang: "js",
-          })}`
-        )
-    )
-
-    return false
+    return new discord.MessageEmbed()
+      .setColor("RED")
+      .setAuthor(
+        `Bad ${subjectType} type "${subject.name}".`,
+        message.client.user?.displayAvatarURL()
+      )
+      .setDescription(
+        `Cannot cast the value of the "${subject.name}" ${subjectType} to ${
+          typeof subject.castValue === "function"
+            ? "{*custom type*}"
+            : "`" + subject.castValue + "`"
+        }\n${core.code.stringify({
+          content: `Error: ${error.message}`,
+          lang: "js",
+        })}`
+      )
   }
   return true
 }
@@ -317,4 +394,10 @@ export function isFlag<Message extends command.CommandMessage>(
   arg: Option<Message>
 ): arg is Flag<Message> {
   return arg.hasOwnProperty("flag")
+}
+
+export function trimArgumentValue(value: string): string {
+  const match = /^(?:"(.+)"|'(.+)'|(.+))$/s.exec(value)
+  if (match) return match[1] ?? match[2] ?? match[3]
+  return value
 }

@@ -2,10 +2,10 @@ import * as app from "../app"
 
 import guilds from "../tables/guilds"
 
-const command: app.Command<app.GuildMessage> = {
+module.exports = new app.Command({
   name: "config",
-  guildChannelOnly: true,
   description: "Display guild configs",
+  channelType: "guild",
   async run(message) {
     return message.channel.send(
       new app.MessageEmbed()
@@ -26,9 +26,9 @@ const command: app.Command<app.GuildMessage> = {
     )
   },
   subs: [
-    {
+    new app.Command({
       name: "set",
-      guildChannelOnly: true,
+      channelType: "guild",
       guildOwnerOnly: true,
       description: "Set guild config",
       positional: [
@@ -44,6 +44,8 @@ const command: app.Command<app.GuildMessage> = {
         },
       ],
       async run(message) {
+        if (!app.isGuildMessage(message)) return
+
         await guilds.query
           .update({
             [message.args.name]: message.args.value,
@@ -56,8 +58,6 @@ const command: app.Command<app.GuildMessage> = {
           )} Successfully updated \`${message.args.name}\` value. `
         )
       },
-    },
+    }),
   ],
-}
-
-module.exports = command
+})

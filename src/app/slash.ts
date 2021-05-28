@@ -7,6 +7,7 @@ import API from "discord-api-types/v8"
 import * as core from "./core"
 import * as logger from "./logger"
 import * as _command from "./command"
+import { CommandMessageType } from "./command"
 
 export let usable = false
 export let refreshInterval: any = null
@@ -84,22 +85,26 @@ export async function postSlashCommand(
 }
 
 function subCommandsToSlashCommandOptions<
-  Message extends _command.CommandMessage
+  Type extends keyof CommandMessageType = keyof CommandMessageType
 >(
-  cmd: _command.Command<Message>,
+  cmd: _command.Command<Type>,
   depth: number = 0,
   parent?: API.APIApplicationCommandOption
 ): API.APIApplicationCommandOption[] | undefined {
   const output: API.APIApplicationCommandOption[] = []
-  if (cmd.subs) {
-    for (const sub of cmd.subs) {
+  if (cmd.options.subs) {
+    for (const sub of cmd.options.subs) {
       const option: API.APIApplicationCommandOption = {
-        name: sub.name,
-        description: sub.description,
+        name: sub.options.name,
+        description: sub.options.description,
         type: API.ApplicationCommandOptionType.SUB_COMMAND_GROUP,
       }
 
-      option.options = subCommandsToSlashCommandOptions(sub, depth + 1, option)
+      option.options = subCommandsToSlashCommandOptions(
+        sub as any,
+        depth + 1,
+        option
+      )
 
       output.push(option)
     }
@@ -117,10 +122,13 @@ function isApplicationCommandOptionType(
 }
 
 export async function reloadSLashCommands(client: core.FullClient) {
-  if (!process.env.SECRET || /^{{.+}}$/.test(process.env.SECRET as string))
+  if (
+    !process.env.BOT_SECRET ||
+    /^{{.+}}$/.test(process.env.BOT_SECRET as string)
+  )
     return logger.warn(
       `slash commands are disabled because the ${chalk.bold(
-        "SECRET"
+        "BOT_SECRET"
       )} environment variable is missing.`,
       "handler"
     )
@@ -136,27 +144,27 @@ export async function reloadSLashCommands(client: core.FullClient) {
 
   const accessToken = await getSlashCommandAccessToken(
     client.user.id,
-    process.env.SECRET
+    process.env.BOT_SECRET
   )
 
   const slashCommands = await fetchSlashCommands(client.user.id, accessToken)
 
   for (const [name, command] of _command.commands) {
     if (
-      !command.isSlash ||
-      command.parent ||
+      !command.options.isSlash ||
+      command.options.parent ||
       slashCommands.some((cmd) => cmd.name === name)
     )
       continue
 
-    let slashCommand = command.slash ?? {
-      name: command.name,
-      description: command.description,
+    let slashCommand = command.options.slash ?? {
+      name: command.options.name,
+      description: command.options.description,
       options: [],
     }
 
-    if (command.flags)
-      for (const flag of command.flags)
+    if (command.options.flags)
+      for (const flag of command.options.flags)
         slashCommand.options?.push({
           name: flag.name,
           description: flag.description,
@@ -164,8 +172,8 @@ export async function reloadSLashCommands(client: core.FullClient) {
         })
 
     for (const option of [
-      ...(command.options ?? []),
-      ...(command.positional ?? []),
+      ...(command.options.options ?? []),
+      ...(command.options.positional ?? []),
     ]) {
       let type = API.ApplicationCommandOptionType.STRING
 
@@ -189,14 +197,14 @@ export async function reloadSLashCommands(client: core.FullClient) {
       })
     }
 
-    if (command.subs)
-      for (const sub of command.subs)
+    if (command.options.subs)
+      for (const sub of command.options.subs)
         if (slashCommand) {
           const options = subCommandsToSlashCommandOptions(command)
           if (options) slashCommand.options?.push(...options)
         }
 
-    command.slash = slashCommand
+    command.options.slash = slashCommand
 
     await postSlashCommand(client.user.id, accessToken, slashCommand)
   }

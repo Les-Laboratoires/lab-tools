@@ -5,8 +5,8 @@ import todoTable from "../tables/todo"
 async function showTodoList(message: app.Message, target: string) {
   const todoList =
     (await todoTable.query.select().where("user_id", target)) || []
-  new app.Paginator(
-    app.Paginator.divider(
+  new app.Paginator({
+    pages: app.Paginator.divider(
       todoList.map((todo) => {
         return `\`[${app
           .forceTextSize(todo.id, 3, true)
@@ -25,14 +25,15 @@ async function showTodoList(message: app.Message, target: string) {
         )
         .setDescription(page.join("\n"))
     ),
-    message.channel,
-    (reaction, user) => user.id === message.author.id
-  )
+    channel: message.channel,
+    filter: (reaction, user) => user.id === message.author.id,
+  })
 }
 
-const command: app.Command = {
+module.exports = new app.Command({
   name: "todo",
   aliases: ["td"],
+  channelType: "all",
   description: "Add task or list todo tasks",
   async run(message) {
     if (message.rest.length === 0)
@@ -64,25 +65,27 @@ const command: app.Command = {
     }
   },
   subs: [
-    {
+    new app.Command({
       name: "list",
-      aliases: ["ls"],
       description: "Show todo list",
+      aliases: ["ls"],
+      channelType: "all",
       positional: [
         {
           name: "target",
           description: "The target member",
-          default: (message) => message.author.id,
+          default: (message) => message?.author.id ?? "no default",
         },
       ],
       async run(message) {
         return showTodoList(message, message.args.target)
       },
-    },
-    {
+    }),
+    new app.Command({
       name: "clear",
-      aliases: ["clean"],
       description: "Clean todo list",
+      aliases: ["clean"],
+      channelType: "all",
       async run(message) {
         await todoTable.query.delete().where("user_id", message.author.id)
 
@@ -92,11 +95,12 @@ const command: app.Command = {
           )} Successfully deleted todo list`
         )
       },
-    },
-    {
+    }),
+    new app.Command({
       name: "get",
       aliases: ["show"],
       description: "Get a todo task",
+      channelType: "all",
       positional: [
         {
           name: "id",
@@ -129,11 +133,12 @@ const command: app.Command = {
             .setFooter(`Id: ${todo.id}`)
         )
       },
-    },
-    {
+    }),
+    new app.Command({
       name: "remove",
-      aliases: ["delete", "del", "rm"],
       description: "Remove a todo task",
+      aliases: ["delete", "del", "rm"],
+      channelType: "all",
       positional: [
         {
           name: "id",
@@ -170,11 +175,12 @@ const command: app.Command = {
           )} Successfully deleted todo task`
         )
       },
-    },
-    {
+    }),
+    new app.Command({
       name: "filter",
-      aliases: ["find", "search", "q", "query", "all"],
       description: "Find some todo task",
+      aliases: ["find", "search", "q", "query", "all"],
+      channelType: "all",
       positional: [
         {
           name: "search",
@@ -199,18 +205,16 @@ const command: app.Command = {
                 .slice(0, 40)}`
           )
 
-        new app.Paginator(
-          app.Paginator.divider(todoList, 10).map((page) =>
+        new app.Paginator({
+          pages: app.Paginator.divider(todoList, 10).map((page) =>
             new app.MessageEmbed()
               .setTitle(`Results of "${message.args.search}" search`)
               .setDescription(page.join("\n"))
           ),
-          message.channel,
-          (reaction, user) => user.id === message.author.id
-        )
+          channel: message.channel,
+          filter: (reaction, user) => user.id === message.author.id,
+        })
       },
-    },
+    }),
   ],
-}
-
-module.exports = command
+})

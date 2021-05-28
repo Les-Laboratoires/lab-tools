@@ -1,10 +1,11 @@
 import { URL } from "url"
 import * as app from "../app"
 
-const command: app.Command = {
+module.exports = new app.Command({
   name: "invite",
-  aliases: ["invitation", "bot", "cobaye"],
   description: "Generate an invitation link",
+  aliases: ["invitation", "bot", "cobaye"],
+  channelType: "all",
   flags: [
     {
       name: "here",
@@ -70,6 +71,4 @@ const command: app.Command = {
         .setURL(url.toString())
     )
   },
-}
-
-module.exports = command
+})

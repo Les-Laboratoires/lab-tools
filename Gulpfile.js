@@ -2,6 +2,7 @@ const gulp = require("gulp")
 const esbuild = require("gulp-esbuild")
 const filter = require("gulp-filter")
 const vinyl = require("vinyl-paths")
+const rename = require("gulp-rename")
 const del = require("del")
 const log = require("fancy-log")
 const chalk = require("chalk")
@@ -10,17 +11,13 @@ const cp = require("child_process")
 const path = require("path")
 const fs = require("fs")
 
-const currentVersion = git()
-
 function gitLog(cb) {
   const newVersion = git({ cwd: path.join(process.cwd(), "temp") })
 
   log(
     [
       `Updated  '${chalk.cyan("bot.ts")}'`,
-      `[${chalk.blueBright(currentVersion.shortCommit)} => ${chalk.blueBright(
-        newVersion.shortCommit
-      )}]`,
+      `[${chalk.blueBright(newVersion.shortCommit)}]`,
       `${newVersion.date} -`,
       `${chalk.grey(newVersion.message)}`,
     ].join(" ")
@@ -58,7 +55,17 @@ function build() {
 }
 
 function watch(cb) {
-  cp.exec("nodemon dist/index", cb)
+  const spawn = cp.spawn("nodemon dist/index", { shell: true })
+
+  spawn.stdout.on("data", (data) => {
+    console.log(chalk.white(`${data}`.trim()))
+  })
+
+  spawn.stderr.on("data", (data) => {
+    console.error(chalk.red(`${data}`.trim()))
+  })
+
+  spawn.on("close", () => cb())
 
   gulp.watch("src/**/*.ts", { delay: 500 }, gulp.series(cleanDist, build))
 }
@@ -74,10 +81,59 @@ function copyTemp() {
         "temp/.gitignore",
         "temp/Gulpfile.js",
         "temp/tsconfig.json",
+        "!temp/src/app/database.ts",
       ],
       { base: "temp" }
     )
     .pipe(gulp.dest(process.cwd(), { overwrite: true }))
+}
+
+function updateDependencies(cb) {
+  const packageJSON = require("./package.json")
+  const newPackageJSON = require("./temp/package.json")
+  for (const baseKey of ["dependencies", "devDependencies"]) {
+    const dependencies = packageJSON[baseKey]
+    const newDependencies = newPackageJSON[baseKey]
+    for (const key of Object.keys(newDependencies)) {
+      if (/^(?:sqlite3|pg|mysql2)$/.test(key)) continue
+      if (
+        !dependencies.hasOwnProperty(key) ||
+        dependencies[key] !== newDependencies[key]
+      ) {
+        log(
+          `Updated  '${chalk.cyan(key)}' [${
+            dependencies[key]
+              ? `${chalk.blueBright(dependencies[key])} => ${chalk.blueBright(
+                  newDependencies[key]
+                )}`
+              : chalk.blueBright(newDependencies[key])
+          }]`
+        )
+        dependencies[key] = newDependencies[key]
+      }
+    }
+  }
+
+  if (fs.existsSync("./package-lock.json")) fs.unlinkSync("./package-lock.json")
+
+  fs.writeFileSync(
+    "./package.json",
+    JSON.stringify(packageJSON, null, 2),
+    "utf8"
+  )
+
+  cp.exec("npm i", cb)
+}
+
+function updateDatabaseFile() {
+  const packageJSON = require("./package.json")
+  const database = ["mysql2", "sqlite3", "pg"].find(
+    (name) => name in packageJSON.dependencies
+  )
+  return gulp
+    .src("node_modules/make-bot.ts/templates/" + database)
+    .pipe(rename("database.ts"))
+    .pipe(gulp.dest("src/app"))
 }
 
 function removeDuplicates() {
@@ -100,6 +156,8 @@ exports.update = gulp.series(
   downloadTemp,
   copyTemp,
   removeDuplicates,
+  updateDependencies,
+  updateDatabaseFile,
   gitLog,
   cleanTemp
 )
