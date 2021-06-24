@@ -44,7 +44,11 @@ module.exports = new app.Command({
 
       await channel.setName(name.replace("⛔", ""))
 
-      return message.channel.send(`⛔ This help room is now **free**.`)
+      return message.channel.send(
+        new app.MessageEmbed()
+          .setColor("BLURPLE")
+          .setDescription(`⛔ This help room is now **free**.`)
+      )
     } else {
       await busy.query.insert({
         user_id: user?.id,
@@ -54,9 +58,16 @@ module.exports = new app.Command({
       await channel.setName(name + "⛔")
 
       return message.channel.send(
-        `⛔ This help room is now **busy**${
-          user ? ` by ${user.username}` : ""
-        }.`
+        new app.MessageEmbed()
+          .setColor("BLURPLE")
+          .setDescription(
+            `⛔ This help room is now **busy**${
+              user ? ` by ${user.username}` : ""
+            }.`
+          )
+          .setFooter(
+            `Please use the ${message.usedPrefix}toggle command to free the channel when your fix is done.`
+          )
       )
     }
   },
