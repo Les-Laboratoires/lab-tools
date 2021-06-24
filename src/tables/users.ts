@@ -8,9 +8,9 @@ const table = new app.Table<{
   name: "users",
   priority: 1,
   setup: (table) => {
-    table.string("id").unique()
-    table.string("locale")
-    table.string("presentation", 2048).nullable()
+    table.string("id").unique().notNullable()
+    table.string("locale").notNullable()
+    table.string("presentation", 2048)
   },
 })
 

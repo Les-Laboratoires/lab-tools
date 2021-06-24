@@ -14,7 +14,8 @@ const table = new app.Table<{
       .references("id")
       .inTable("user")
       .onDelete("CASCADE")
-    table.string("content", 2048)
+      .notNullable()
+    table.string("content", 2048).notNullable()
   },
 })
 

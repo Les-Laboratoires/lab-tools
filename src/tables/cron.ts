@@ -15,10 +15,11 @@ const table = new app.Table<{
       .references("id")
       .inTable("user")
       .onDelete("CASCADE")
-    table.string("channel_id")
-    table.string("period")
-    table.string("content", 2048)
-    table.string("name")
+      .notNullable()
+    table.string("channel_id").notNullable()
+    table.string("period").notNullable()
+    table.string("content", 2048).notNullable()
+    table.string("name").notNullable()
   },
 })
 

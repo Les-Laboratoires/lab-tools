@@ -12,14 +12,14 @@ const table = new app.Table<{
 }>({
   name: "guilds",
   setup: (table) => {
-    table.string("id").unique()
-    table.string("prefix").nullable()
-    table.string("general_channel_id").nullable()
-    table.string("presentation_channel_id").nullable()
-    table.string("member_welcome_message", 2048).nullable()
-    table.string("bot_welcome_message", 2048).nullable()
-    table.string("member_default_role").nullable()
-    table.string("bot_default_role").nullable()
+    table.string("id").unique().notNullable()
+    table.string("prefix")
+    table.string("general_channel_id")
+    table.string("presentation_channel_id")
+    table.string("member_welcome_message", 2048)
+    table.string("bot_welcome_message", 2048)
+    table.string("member_default_role")
+    table.string("bot_default_role")
   },
 })
 
