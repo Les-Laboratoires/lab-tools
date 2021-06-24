@@ -1,6 +1,7 @@
 import discord from "discord.js"
 import yargsParser from "yargs-parser"
 import regexParser from "regex-parser"
+import emojiRegex from "emoji-regex/es2015/RGI_Emoji"
 
 import * as core from "./core"
 import * as command from "./command"
@@ -8,6 +9,9 @@ import * as command from "./command"
 export interface Argument {
   name: string
   description: string
+  castingErrorMessage?: string | discord.MessageEmbed
+  checkingErrorMessage?: string | discord.MessageEmbed
+  missingErrorMessage?: string | discord.MessageEmbed
 }
 
 export interface Rest<Message extends command.CommandMessage> extends Argument {
@@ -56,7 +60,10 @@ export type Positional<Message extends command.CommandMessage> = Omit<
 >
 
 export interface Flag<Message extends command.CommandMessage>
-  extends Pick<Option<Message>, "name" | "aliases" | "description"> {
+  extends Pick<
+    Option<Message>,
+    "name" | "aliases" | "description" | "castingErrorMessage"
+  > {
   flag: string
 }
 
@@ -116,7 +123,11 @@ export async function checkValue<Message extends command.CommandMessage>(
     } else return true
   }
 
-  const checkResult = await core.scrap(subject.checkValue, value, message)
+  const checkResult: string | boolean | RegExp = await core.scrap(
+    subject.checkValue,
+    value,
+    message
+  )
 
   if (typeof checkResult === "string") {
     return new discord.MessageEmbed()
@@ -165,59 +176,70 @@ export async function checkValue<Message extends command.CommandMessage>(
 }
 
 export async function checkCastedValue<Message extends command.CommandMessage>(
-  subject: Pick<Option<Message>, "checkCastedValue" | "name">,
+  subject: Pick<
+    Option<Message>,
+    "checkCastedValue" | "name" | "checkingErrorMessage"
+  >,
   subjectType: "positional" | "argument",
   value: string,
   message: Message
 ): Promise<discord.MessageEmbed | true> {
   if (!subject.checkCastedValue) return true
 
-  const checkResult = await core.scrap(subject.checkCastedValue, value, message)
+  const checkResult: string | boolean = await core.scrap(
+    subject.checkCastedValue,
+    value,
+    message
+  )
 
-  if (typeof checkResult === "string") {
-    return new discord.MessageEmbed()
+  const errorEmbed = (errorMessage: string): discord.MessageEmbed => {
+    const embed = new discord.MessageEmbed()
       .setColor("RED")
       .setAuthor(
         `Bad ${subjectType} tested "${subject.name}".`,
         message.client.user?.displayAvatarURL()
       )
-      .setDescription(checkResult)
+      .setDescription(errorMessage)
+
+    if (subject.checkingErrorMessage) {
+      if (typeof subject.checkingErrorMessage === "string") {
+        return embed.setDescription(subject.checkingErrorMessage)
+      } else {
+        return subject.checkingErrorMessage
+      }
+    }
+
+    return embed
   }
 
-  if (typeof checkResult === "boolean") {
-    if (!checkResult) {
-      return new discord.MessageEmbed()
-        .setColor("RED")
-        .setAuthor(
-          `Bad ${subjectType} tested "${subject.name}".`,
-          message.client.user?.displayAvatarURL()
-        )
-        .setDescription(
-          typeof subject.checkCastedValue === "function"
-            ? core.code.stringify({
-                content: subject.checkCastedValue.toString(),
-                format: true,
-                lang: "js",
-              })
-            : "Please use the `--help` flag for more information."
-        )
-    }
-  }
+  if (typeof checkResult === "string") return errorEmbed(checkResult)
+
+  if (!checkResult)
+    return errorEmbed(
+      typeof subject.checkCastedValue === "function"
+        ? core.code.stringify({
+            content: subject.checkCastedValue.toString(),
+            format: true,
+            lang: "js",
+          })
+        : "Please use the `--help` flag for more information."
+    )
+
   return true
 }
 
 export async function castValue<Message extends command.CommandMessage>(
-  subject: Pick<Option<Message>, "castValue" | "name">,
+  subject: Pick<Option<Message>, "castValue" | "name" | "castingErrorMessage">,
   subjectType: "positional" | "argument",
   baseValue: string | undefined,
   message: Message,
   setValue: (value: any) => unknown
 ): Promise<discord.MessageEmbed | true> {
-  if (!subject.castValue) return true
-
   const empty = new Error("The value is empty!")
 
-  try {
+  const cast = async () => {
+    if (!subject.castValue) return
+
     switch (subject.castValue) {
       case "boolean":
         if (baseValue === undefined) throw empty
@@ -331,8 +353,8 @@ export async function castValue<Message extends command.CommandMessage>(
             if (emote) setValue(emote)
             else throw new Error("Unknown emote!")
           } else {
-            const unicodeMatch = /\p{Emoji_Presentation}/gu.exec(baseValue)
-            if (unicodeMatch) setValue(unicodeMatch[0])
+            const emojiMatch = emojiRegex().exec(baseValue)
+            if (emojiMatch) setValue(emojiMatch[0])
             else throw new Error("Invalid emote value!")
           }
         } else throw empty
@@ -357,7 +379,33 @@ export async function castValue<Message extends command.CommandMessage>(
         else setValue(await subject.castValue(baseValue, message))
         break
     }
+  }
+
+  try {
+    await cast()
+    return true
   } catch (error) {
+    const errorCode = core.code.stringify({
+      content: `${error.name}: ${error.message}`,
+      lang: "js",
+    })
+
+    if (subject.castingErrorMessage) {
+      if (typeof subject.castingErrorMessage === "string") {
+        return new discord.MessageEmbed()
+          .setColor("RED")
+          .setAuthor(
+            `Bad ${subjectType} type "${subject.name}".`,
+            message.client.user?.displayAvatarURL()
+          )
+          .setDescription(
+            subject.castingErrorMessage.replace(/@error/g, errorCode)
+          )
+      } else {
+        return subject.castingErrorMessage
+      }
+    }
+
     return new discord.MessageEmbed()
       .setColor("RED")
       .setAuthor(
@@ -369,13 +417,9 @@ export async function castValue<Message extends command.CommandMessage>(
           typeof subject.castValue === "function"
             ? "{*custom type*}"
             : "`" + subject.castValue + "`"
-        }\n${core.code.stringify({
-          content: `Error: ${error.message}`,
-          lang: "js",
-        })}`
+        }\n${errorCode}`
       )
   }
-  return true
 }
 
 export function getTypeDescriptionOf<Message extends command.CommandMessage>(
