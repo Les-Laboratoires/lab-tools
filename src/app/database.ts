@@ -38,7 +38,7 @@ export const db = knex({
     host: process.env.DB_HOST ?? "localhost",
     user: process.env.DB_USER ?? "postgres",
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE ?? "postgres"
+    database: process.env.DB_DATABASE ?? "postgres",
   },
 })
 
@@ -58,9 +58,15 @@ export class Table<Type> {
   async make(): Promise<this> {
     try {
       await db.schema.createTable(this.options.name, this.options.setup)
-      logger.log(`created table ${chalk.blueBright(this.options.name)}`, "database")
+      logger.log(
+        `created table ${chalk.blueBright(this.options.name)}`,
+        "database"
+      )
     } catch (error) {
-      logger.log(`loaded table ${chalk.blueBright(this.options.name)}`, "database")
+      logger.log(
+        `loaded table ${chalk.blueBright(this.options.name)}`,
+        "database"
+      )
     }
     return this
   }
