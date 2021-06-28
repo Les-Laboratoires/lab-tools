@@ -17,10 +17,11 @@ module.exports = new app.Command({
       name: "user",
       castValue: "user",
       description: "User who occupies room",
+      default: (message) => message?.author.id ?? "",
     },
   ],
   async run(message) {
-    const user: app.User | undefined = message.args.user
+    const user: app.User = message.args.user
     const { channel } = message
     const { name } = channel
 
@@ -34,7 +35,7 @@ module.exports = new app.Command({
         if (busyItem.user_id !== message.author.id) {
           const error = await app.staffOnly(message)
           if (error !== true)
-            return message.channel.send(
+            return channel.send(
               new app.MessageEmbed().setColor("RED").setDescription(error)
             )
         }
@@ -44,20 +45,20 @@ module.exports = new app.Command({
 
       await channel.setName(name.replace("⛔", ""))
 
-      return message.channel.send(
+      return channel.send(
         new app.MessageEmbed()
           .setColor("BLURPLE")
           .setDescription(`⛔ This help room is now **free**.`)
       )
     } else {
       await busy.query.insert({
-        user_id: user?.id,
+        user_id: user.id,
         channel_id: channel.id,
       })
 
       await channel.setName(name + "⛔")
 
-      return message.channel.send(
+      return channel.send(
         new app.MessageEmbed()
           .setColor("BLURPLE")
           .setDescription(
