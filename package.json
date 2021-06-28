@@ -40,9 +40,9 @@
     "knex": "^0.95.6",
     "prettier": "^2.3.1",
     "regex-parser": "^2.2.11",
+    "sqlite3": "^5.0.2",
     "tims": "^2.0.5",
-    "yargs-parser": "^20.2.9",
-    "sqlite3": "^5.0.2"
+    "yargs-parser": "^20.2.9"
   },
   "devDependencies": {
     "@types/boxen": "^3.0.1",
