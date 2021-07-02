@@ -1,10 +1,12 @@
 import * as app from "../app"
 
-const table = new app.Table<{
+export interface ToDo {
   id: number
   user_id: string
   content: string
-}>({
+}
+
+const table = new app.Table<ToDo>({
   name: "todo",
   setup: (table) => {
     table.increments("id").primary().unsigned()

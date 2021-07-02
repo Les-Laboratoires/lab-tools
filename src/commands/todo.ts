@@ -1,33 +1,59 @@
 import * as app from "../app"
 
-import todoTable from "../tables/todo"
+import todoTable, { ToDo } from "../tables/todo"
 
-async function showTodoList(message: app.Message, target: string) {
-  const todoList =
-    (await todoTable.query.select().where("user_id", target)) || []
+function todoId(todo: ToDo) {
+  return `\`[${app.forceTextSize(todo.id, 3, true).replace(/\s/g, "·")}]\``
+}
+
+function todoItem(todo: ToDo) {
+  return `${todoId(todo)} ${todo.content
+    .replace(/[`*_~]/g, "")
+    .replace(/[\s\n]+/g, " ")
+    .slice(0, 40)}`
+}
+
+async function showTodoList(message: app.Message, user: app.User) {
+  const todoList = await todoTable.query.where("user_id", user.id)
+
   new app.Paginator({
-    pages: app.Paginator.divider(
-      todoList.map((todo) => {
-        return `\`[${app
-          .forceTextSize(todo.id, 3, true)
-          .replace(/\s/g, "·")}]\` ${todo.content
-          .replace(/[`*_~]/g, "")
-          .replace(/[\s\n]+/g, " ")
-          .slice(0, 40)}`
-      }),
-      10
-    ).map((page) =>
-      new app.MessageEmbed()
-        .setTitle(
-          `List of ${todoList.length} todo tasks of ${
-            message.client.users.cache.get(target)?.username
-          }`
-        )
-        .setDescription(page.join("\n"))
-    ),
+    placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
     channel: message.channel,
     filter: (reaction, user) => user.id === message.author.id,
+    pages: app.Paginator.divider(todoList.map(todoItem), 10).map(
+      (page, i, pages) =>
+        new app.MessageEmbed()
+          .setTitle(`Todo list of ${user.tag}`)
+          .setDescription(page.join("\n"))
+          .setFooter(
+            `Page ${i + 1} sur ${pages.length} | ${todoList.length} items`
+          )
+    ),
   })
+}
+
+async function insertTodo(message: app.CommandMessage) {
+  if (message.rest.startsWith("-")) message.rest = message.rest.slice(1).trim()
+
+  const todo = await todoTable.query
+    .insert({
+      user_id: message.author.id,
+      content: message.rest,
+    })
+    .returning("*")
+    .first()
+
+  if (todo) {
+    return message.channel.send(
+      `${message.client.emojis.resolve(app.Emotes.CHECK)} Saved with ${todoId(
+        todo
+      )} as identifier.`
+    )
+  } else {
+    return message.channel.send(
+      `${message.client.emojis.resolve(app.Emotes.DENY)} An error has occurred.`
+    )
+  }
 }
 
 module.exports = new app.Command({
@@ -36,35 +62,24 @@ module.exports = new app.Command({
   channelType: "all",
   description: "Add task or list todo tasks",
   async run(message) {
-    if (message.rest.length === 0)
-      return showTodoList(message, message.author.id)
-
-    if (message.rest.startsWith("-"))
-      message.rest = message.rest.slice(1).trim()
-
-    const id = await todoTable.query
-      .insert({
-        user_id: message.author.id,
-        content: message.rest,
-      })
-      .returning("id")
-      .first()
-
-    if (id) {
-      return message.channel.send(
-        `${message.client.emojis.resolve(
-          app.Emotes.CHECK
-        )} Saved with \`${id}\` as identifier.`
-      )
-    } else {
-      return message.channel.send(
-        `${message.client.emojis.resolve(
-          app.Emotes.DENY
-        )} An error has occurred.`
-      )
-    }
+    return message.rest.length === 0
+      ? showTodoList(message, message.author)
+      : message.channel.send(
+          `${message.client.emojis.resolve(
+            app.Emotes.DENY
+          )} Bad command usage. Show command detail with \`${
+            message.usedPrefix
+          }todo -h\``
+        )
   },
   subs: [
+    new app.Command({
+      name: "add",
+      description: "Add new todo task",
+      aliases: ["new", "+=", "++", "+"],
+      channelType: "all",
+      run: insertTodo,
+    }),
     new app.Command({
       name: "list",
       description: "Show todo list",
@@ -113,6 +128,7 @@ module.exports = new app.Command({
         const todo = await todoTable.query
           .select()
           .where("id", message.args.id)
+          .and.where("user_id", message.author.id)
           .first()
 
         if (!todo)
@@ -124,20 +140,15 @@ module.exports = new app.Command({
 
         return message.channel.send(
           new app.MessageEmbed()
-            .setTitle(
-              `Todo task of ${
-                message.client.users.cache.get(todo.user_id)?.username
-              }`
-            )
-            .setDescription(todo.content)
-            .setFooter(`Id: ${todo.id}`)
+            .setTitle(`Todo task of ${message.author.tag}`)
+            .setDescription(`${todoId(todo)} ${todo.content}`)
         )
       },
     }),
     new app.Command({
       name: "remove",
       description: "Remove a todo task",
-      aliases: ["delete", "del", "rm"],
+      aliases: ["delete", "del", "rm", "-=", "--", "-"],
       channelType: "all",
       positional: [
         {
@@ -195,24 +206,20 @@ module.exports = new app.Command({
               .toLowerCase()
               .includes(message.args.search.toLowerCase())
           })
-          .map(
-            (todo) =>
-              `\`[${app
-                .forceTextSize(todo.id, 3, true)
-                .replace(/\s/g, "·")}]\` ${todo.content
-                .replace(/[`*_~]/g, "")
-                .replace(/[\s\n]+/g, " ")
-                .slice(0, 40)}`
-          )
+          .map(todoItem)
 
         new app.Paginator({
-          pages: app.Paginator.divider(todoList, 10).map((page) =>
+          channel: message.channel,
+          placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
+          filter: (reaction, user) => user.id === message.author.id,
+          pages: app.Paginator.divider(todoList, 10).map((page, i, pages) =>
             new app.MessageEmbed()
               .setTitle(`Results of "${message.args.search}" search`)
               .setDescription(page.join("\n"))
+              .setFooter(
+                `Page ${i + 1} sur ${pages.length} | ${todoList.length} items`
+              )
           ),
-          channel: message.channel,
-          filter: (reaction, user) => user.id === message.author.id,
         })
       },
     }),
