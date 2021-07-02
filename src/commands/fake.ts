@@ -10,21 +10,12 @@ module.exports = new app.Command({
     {
       name: "target",
       description: "The faked user id",
+      castValue: "user",
       required: true,
     },
   ],
   async run(message) {
-    let user: app.User
-
-    try {
-      user = await message.client.users.fetch(message.args.target)
-    } catch (error) {
-      return message.channel.send(
-        `${message.client.emojis.resolve(app.Emotes.DENY)} Unknown user (${
-          message.args.target
-        })`
-      )
-    }
+    const user: app.User = message.args.target
 
     if (!app.isGuildMessage(message)) return
 
