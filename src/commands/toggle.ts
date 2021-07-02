@@ -22,6 +22,9 @@ module.exports = new app.Command({
   ],
   async run(message) {
     const user: app.User = message.args.user
+
+    console.log(user)
+
     const { channel } = message
     const { name } = channel
 
@@ -50,17 +53,23 @@ module.exports = new app.Command({
       return channel.send(
         new app.MessageEmbed()
           .setColor("BLURPLE")
-          .setDescription(`⛔ This help room is now **free**.`)
+          .setDescription(
+            `${message.client.emojis.resolve(
+              app.Emotes.CHECK
+            )} This help room is now **free**.`
+          )
       )
     } else {
       message.triggerCoolDown()
 
-      await busy.query.insert({
-        user_id: user.id,
-        channel_id: channel.id,
-      })
+      console.log(
+        await busy.query.insert({
+          user_id: user.id,
+          channel_id: channel.id,
+        })
+      )
 
-      await channel.setName(name + "⛔")
+      console.log(await channel.setName(name + "⛔"))
 
       return channel.send(
         new app.MessageEmbed()
