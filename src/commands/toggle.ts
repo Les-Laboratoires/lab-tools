@@ -23,8 +23,6 @@ module.exports = new app.Command({
   async run(message) {
     const user: app.User = message.args.user
 
-    console.log(user)
-
     const { channel } = message
     const { name } = channel
 
@@ -62,14 +60,12 @@ module.exports = new app.Command({
     } else {
       message.triggerCoolDown()
 
-      console.log(
-        await busy.query.insert({
-          user_id: user.id,
-          channel_id: channel.id,
-        })
-      )
+      await busy.query.insert({
+        user_id: user.id,
+        channel_id: channel.id,
+      })
 
-      console.log(await channel.setName(name + "⛔"))
+      await channel.setName(name + "⛔")
 
       return channel.send(
         new app.MessageEmbed()
