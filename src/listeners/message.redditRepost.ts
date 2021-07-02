@@ -6,7 +6,7 @@ import URL from "url"
 const listener: app.Listener<"message"> = {
   event: "message",
   async run(message) {
-    if (message.webhookID && message.channel.id === "623018940662022163") {
+    if (message.webhookID && message.channel.id === app.Channels.MEMES) {
       if (
         message.embeds[0].url &&
         message.embeds[0].title === "New link post"
