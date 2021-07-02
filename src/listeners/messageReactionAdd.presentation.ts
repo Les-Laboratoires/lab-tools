@@ -31,52 +31,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
 
           if (disapproved) await disapproved.remove()
 
-          await redactor.roles.add(app.Roles.MEMBER)
-          await redactor.roles.add(app.Roles.EVENT_NOTIFICATION)
-          await redactor.roles.add(app.Roles.SURVEY_NOTIFICATION)
-          await redactor.roles.add(app.Roles.ANNOUNCE_NOTIFICATION)
-          await redactor.roles.add(app.Roles.HELP_ACCESS)
-          await redactor.roles.add(app.Roles.LABS_ACCESS)
-          await redactor.roles.add(app.Roles.SHARE_ACCESS)
-          await redactor.roles.remove(app.Roles.VALIDATION)
-
-          const general = await redactor.client.channels.cache.get(
-            app.Channels.GENERAL
-          )
-
-          if (general?.isText()) {
-            await general.send(
-              new app.MessageEmbed()
-                .setAuthor(
-                  `${redactor.displayName} vient de se présenter !`,
-                  reaction.message.guild?.iconURL({
-                    dynamic: true,
-                    size: 64,
-                  }) ?? undefined
-                )
-                .setDescription(reaction.message.content)
-                .setThumbnail(
-                  redactor.user.displayAvatarURL({
-                    dynamic: true,
-                  })
-                )
-            )
-
-            return general.send(
-              new app.MessageEmbed().setTitle(
-                "Bienvenue sur Les Laboratoires JS !"
-              ).setDescription(`
-- Gêrer tes rôles : <#622848426484432952>
-- L'entraide : <#622382324880900096> <#622382349426098200> (etc...)
-- Notre réseau : <#620661794410856451> <#713850539368251533>
-- Utiliser des commandes : <#620663106250604546> <#620663121622859776> (etc...)
-- Questions rapides : <#622382556192571416>
-- Apprendre le JS : <#622381685820096512>
-- Tips JS : <#627239007440338954>
-
-Nous te souhaitons un excellent séjour parmi nous ! <:pepeYay:557124850326437888>`)
-            )
-          }
+          return app.approveMember(redactor, reaction.message.content)
         }
       } else if (reaction.emoji.id === app.Emotes.DISAPPROVED) {
         if (!redactor.roles.cache.has(app.Roles.MEMBER)) {
@@ -86,9 +41,7 @@ Nous te souhaitons un excellent séjour parmi nous ! <:pepeYay:55712485032643788
 
           if (logChannel && logChannel.isText())
             logChannel.send(
-              `${user} a désapprouvé la présentation de ${
-                reaction.message.author
-              }. ${app.code.stringify({ content: reaction.message.content })}`
+              `${user} disapproves **${reaction.message.author.tag}**.`
             )
 
           await redactor.kick()

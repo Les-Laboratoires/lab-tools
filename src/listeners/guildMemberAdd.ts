@@ -9,7 +9,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
       const general = member.client.channels.cache.get(app.Channels.GENERAL)
 
       if (general?.isText()) {
-        return general.send(
+        await general.send(
           new app.MessageEmbed()
             .setAuthor(
               `${member.user.username} est notre nouveau cobaye!`,
@@ -28,6 +28,16 @@ const listener: app.Listener<"guildMemberAdd"> = {
             .setImage(member.user.displayAvatarURL({ dynamic: true }))
         )
       }
+    }
+
+    const logs = member.client.channels.cache.get(app.Channels.LOG)
+
+    if (logs?.isText()) {
+      logs.send(
+        `**${member.user.tag}** is a new **${
+          member.user.bot ? "bot" : "member"
+        }**.`
+      )
     }
   },
 }
