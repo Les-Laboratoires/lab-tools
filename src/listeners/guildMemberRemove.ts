@@ -1,44 +1,54 @@
 import * as app from "../app"
+import guilds from "../tables/guilds"
 
 const listener: app.Listener<"guildMemberRemove"> = {
   event: "guildMemberRemove",
   async run(member) {
-    const presentations = member.guild.channels.cache.get(
-      app.Channels.PRESENTATION
-    )
-    const logChannel = member.guild.channels.cache.get(app.Channels.LOG)
+    const { guild } = member
 
-    if (!logChannel || !logChannel.isText()) return
+    const config = await guilds.query.where("id", guild.id).first()
+
+    if (!config) return
 
     try {
       const user = await member.client.users.fetch(member.id)
 
-      await logChannel.send(`**${user.tag}** user was removed.`)
+      await app.sendLog(guild, `**${user.tag}** user was removed.`, config)
     } catch (error) {
-      await logChannel.send(
-        `**${member.user?.tag ?? member.displayName}** left the guild.`
+      await app.sendLog(
+        guild,
+        `**${member.user?.tag ?? member.displayName}** left the guild.`,
+        config
       )
     }
 
-    if (presentations && presentations.isText()) {
-      const messages = await presentations.messages.fetch()
+    if (config.presentation_channel_id) {
+      const presentations = guild.channels.cache.get(
+        config.presentation_channel_id
+      )
 
-      let hasPresentation = false
+      if (presentations?.isText()) {
+        const messages = await presentations.messages.fetch()
 
-      for (const [, message] of messages) {
-        if (message.author.id === member.id) {
-          hasPresentation = true
+        let hasPresentation = false
 
-          logChannel
-            .send(
-              `**Description**: ${app.code.stringify({
-                content: message.content,
-              })}`
-            )
-            .catch()
+        for (const [, message] of messages) {
+          if (message.author.id === member.id) {
+            hasPresentation = true
 
-          message.delete().catch()
-          break
+            app
+              .sendLog(
+                member.guild,
+                `**Description**: ${app.code.stringify({
+                  content: message.content,
+                })}`,
+                config
+              )
+              .catch()
+
+            message.delete().catch()
+            break
+          }
         }
       }
     }

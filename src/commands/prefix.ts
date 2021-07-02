@@ -4,7 +4,6 @@ import guilds from "../tables/guilds"
 
 module.exports = new app.Command({
   name: "prefix",
-  isDefault: true,
   guildOwnerOnly: true,
   channelType: "guild",
   description: "Edit or show the bot prefix",

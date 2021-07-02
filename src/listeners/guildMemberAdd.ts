@@ -1,44 +1,66 @@
 import * as app from "../app"
 
+import guilds from "../tables/guilds"
+
+/*
+{
+  "author": {
+    "name": "{username} est notre nouveau cobaye!",
+    "icon_url": "{guild_icon}"
+  },
+  "description": "Merci de **copyright son prefix** dans <#633294676761247745>\nSi le prefix existe déjà, merci de le changer ou le bot sera kick.\n\n***Let's test !*** <:yay:557124850326437888>",
+  "thumbnail": {
+    "url": "https://cdn.discordapp.com/emojis/772181235526533150.png"
+  }
+}
+ */
+
 const listener: app.Listener<"guildMemberAdd"> = {
   event: "guildMemberAdd",
   async run(member) {
+    const config = await guilds.query.where("id", member.guild.id).first()
+
+    if (!config) return
+
     if (member.user.bot) {
-      await member.roles.add(app.Roles.BOT)
+      if (config.bot_default_role)
+        await member.roles.add(config.bot_default_role)
 
-      const general = member.client.channels.cache.get(app.Channels.GENERAL)
-
-      if (general?.isText()) {
-        await general.send(
-          new app.MessageEmbed()
-            .setAuthor(
-              `${member.user.username} est notre nouveau cobaye!`,
-              member.guild.iconURL({ dynamic: true }) ?? undefined
-            )
-            .setDescription(
-              [
-                "Merci de **copyright son prefix** dans <#633294676761247745>",
-                "Si le prefix existe déjà, merci de le changer ou le bot sera kick.\n",
-                "***Let's test !*** <:yay:557124850326437888>",
-              ].join("\n")
-            )
-            .setThumbnail(
-              `https://cdn.discordapp.com/emojis/772181235526533150.png`
-            )
-            .setImage(member.user.displayAvatarURL({ dynamic: true }))
+      if (config.general_channel_id && config.bot_welcome_message) {
+        const general = member.client.channels.cache.get(
+          config.general_channel_id
         )
+
+        if (general?.isText()) {
+          const guildIcon = member.guild.iconURL({ dynamic: true })
+
+          let message = config.bot_welcome_message
+            .replace(/{username}/g, member.user.username)
+            .replace(/{user_tag}/g, member.user.tag)
+
+          if (guildIcon) message = message.replace(/{guild_icon}/g, guildIcon)
+
+          let embed
+          try {
+            embed = new app.MessageEmbed(JSON.parse(message))
+          } catch (error) {}
+
+          await general.send(embed ? embed : message)
+        }
+      }
+    } else {
+      if (!config.validation_role || !config.presentation_channel_id) {
+        await app.approveMember(member, undefined, config)
       }
     }
 
-    const logs = member.client.channels.cache.get(app.Channels.LOG)
-
-    if (logs?.isText()) {
-      logs.send(
-        `**${member.user.tag}** is a new **${
-          member.user.bot ? "bot" : "member"
-        }**.`
-      )
-    }
+    return app.sendLog(
+      member.guild,
+      `**${member.user.tag}** is a new **${
+        member.user.bot ? "bot" : "member"
+      }**.`,
+      config
+    )
   },
 }
 

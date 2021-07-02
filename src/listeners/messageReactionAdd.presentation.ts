@@ -3,11 +3,24 @@ import * as app from "../app"
 const listener: app.Listener<"messageReactionAdd"> = {
   event: "messageReactionAdd",
   async run(reaction, user) {
-    if (reaction.message.channel.id === app.Channels.PRESENTATION) {
-      const reactor = await reaction.message.guild?.members.fetch(
+    if (!app.isCommandMessage(reaction.message)) return
+    if (!app.isGuildMessage(reaction.message)) return
+
+    const config = await app.getConfig(reaction.message.guild)
+
+    if (
+      !config ||
+      !config.presentation_channel_id ||
+      !config.staff_role_id ||
+      !config.member_default_role
+    )
+      return
+
+    if (reaction.message.channel.id === config.presentation_channel_id) {
+      const reactor = await reaction.message.guild.members.fetch(
         user as app.User
       )
-      const redactor = await reaction.message.guild?.members.fetch(
+      const redactor = await reaction.message.guild.members.fetch(
         reaction.message.author
       )
 
@@ -16,15 +29,15 @@ const listener: app.Listener<"messageReactionAdd"> = {
         !reactor ||
         !redactor ||
         redactor.user.bot ||
-        !reactor.roles.cache.has(app.Roles.STAFF) ||
-        redactor.roles.cache.has(app.Roles.MEMBER)
+        !reactor.roles.cache.has(config.staff_role_id) ||
+        redactor.roles.cache.has(config.member_default_role)
       )
         return
 
       if (reaction.emoji.id === app.Emotes.APPROVED) {
         if (reaction.message.author === user) {
           return reaction.users.remove(user)
-        } else if (!redactor.roles.cache.has(app.Roles.MEMBER)) {
+        } else if (!redactor.roles.cache.has(config.member_default_role)) {
           const disapproved = reaction.message.reactions.cache.get(
             app.Emotes.DISAPPROVED
           )
@@ -34,15 +47,12 @@ const listener: app.Listener<"messageReactionAdd"> = {
           return app.approveMember(redactor, reaction.message.content)
         }
       } else if (reaction.emoji.id === app.Emotes.DISAPPROVED) {
-        if (!redactor.roles.cache.has(app.Roles.MEMBER)) {
-          const logChannel = reaction.message.guild?.channels.cache.get(
-            app.Channels.LOG
+        if (!redactor.roles.cache.has(config.member_default_role)) {
+          await app.sendLog(
+            reaction.message.guild,
+            `${user} disapproves **${reaction.message.author.tag}**.`,
+            config
           )
-
-          if (logChannel && logChannel.isText())
-            logChannel.send(
-              `${user} disapproves **${reaction.message.author.tag}**.`
-            )
 
           await redactor.kick()
           return reaction.message.delete()
