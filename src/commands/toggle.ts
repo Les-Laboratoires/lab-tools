@@ -34,7 +34,7 @@ module.exports = new app.Command({
 
       if (busyItem) {
         if (busyItem.user_id !== message.author.id) {
-          const error = await app.staffOnly(message)
+          const error = await app.staffOnly()(message)
           if (error !== true)
             return channel.send(
               new app.MessageEmbed().setColor("RED").setDescription(error)

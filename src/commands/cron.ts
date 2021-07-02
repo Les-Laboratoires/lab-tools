@@ -16,7 +16,7 @@ module.exports = new app.Command({
       channelType: "guild",
       aliases: ["launch", "run", "play"],
       description: "Start a task",
-      middlewares: [app.staffOnly],
+      middlewares: [app.staffOnly()],
       positional: [
         {
           name: "name",
@@ -84,7 +84,7 @@ module.exports = new app.Command({
       aliases: ["exit", "kill"],
       description: "Stop a task",
       channelType: "guild",
-      middlewares: [app.staffOnly],
+      middlewares: [app.staffOnly()],
       positional: [
         {
           name: "name",
@@ -139,7 +139,7 @@ module.exports = new app.Command({
     new app.Command({
       name: "delete",
       aliases: ["remove", "rm", "del"],
-      middlewares: [app.staffOnly],
+      middlewares: [app.staffOnly()],
       channelType: "guild",
       description: "Remove a task",
       positional: [
@@ -193,7 +193,7 @@ module.exports = new app.Command({
     new app.Command({
       name: "add",
       aliases: ["set", "create", "make"],
-      middlewares: [app.staffOnly],
+      middlewares: [app.staffOnly()],
       channelType: "guild",
       description: "Add a task",
       positional: [
