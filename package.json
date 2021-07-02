@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/CamilleAbella/bot.ts#readme",
   "dependencies": {
+    "@types/node-fetch": "^2.5.10",
     "axios": "^0.21.1",
     "boxen": "^5.0.1",
     "chalk": "^4.1.1",
@@ -38,6 +39,7 @@
     "ghom-eval": "^1.0.3",
     "ghom-prettify": "^2.0.1",
     "knex": "^0.95.6",
+    "node-fetch": "^2.6.1",
     "prettier": "^2.3.1",
     "regex-parser": "^2.2.11",
     "sqlite3": "^5.0.2",
