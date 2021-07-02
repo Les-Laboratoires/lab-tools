@@ -41,6 +41,8 @@ module.exports = new app.Command({
         }
       }
 
+      message.triggerCoolDown()
+
       await busy.query.delete().where("channel_id", channel.id)
 
       await channel.setName(name.replace("⛔", ""))
@@ -51,6 +53,8 @@ module.exports = new app.Command({
           .setDescription(`⛔ This help room is now **free**.`)
       )
     } else {
+      message.triggerCoolDown()
+
       await busy.query.insert({
         user_id: user.id,
         channel_id: channel.id,

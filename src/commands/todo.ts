@@ -3,7 +3,7 @@ import * as app from "../app"
 import todoTable, { ToDo } from "../tables/todo"
 
 function todoId(todo: ToDo) {
-  return `\`[${app.forceTextSize(todo.id, 3, true).replace(/\s/g, "·")}]\``
+  return `\`[${app.forceTextSize(todo.id, 5, true).replace(/\s/g, "·")}]\``
 }
 
 function todoItem(todo: ToDo) {
@@ -23,11 +23,9 @@ async function showTodoList(message: app.Message, user: app.User) {
     pages: app.Paginator.divider(todoList.map(todoItem), 10).map(
       (page, i, pages) =>
         new app.MessageEmbed()
-          .setTitle(`Todo list of ${user.tag}`)
+          .setTitle(`Todo list of ${user.tag} (${todoList.length} items)`)
           .setDescription(page.join("\n"))
-          .setFooter(
-            `Page ${i + 1} sur ${pages.length} | ${todoList.length} items`
-          )
+          .setFooter(`Page ${i + 1} / ${pages.length}`)
     ),
   })
 }
@@ -35,21 +33,40 @@ async function showTodoList(message: app.Message, user: app.User) {
 async function insertTodo(message: app.CommandMessage) {
   if (message.rest.startsWith("-")) message.rest = message.rest.slice(1).trim()
 
-  const todo = await todoTable.query
-    .insert({
+  const count = await todoTable.query
+    .where("user_id", message.author.id)
+    .count({ count: "*" })
+    .first()
+    .then((data) => {
+      return data ? Number(data.count ?? 0) : 0
+    })
+
+  if (count > 999)
+    return message.channel.send(
+      `${message.client.emojis.resolve(
+        app.Emotes.DENY
+      )} You have too many todo tasks, please remove some first.`
+    )
+
+  try {
+    const todoData: Omit<ToDo, "id"> = {
       user_id: message.author.id,
       content: message.rest,
-    })
-    .returning("*")
-    .first()
+    }
 
-  if (todo) {
+    await todoTable.query.insert(todoData)
+
+    const todo = await todoTable.query.where(todoData).first()
+
+    if (!todo) throw new Error()
+
     return message.channel.send(
       `${message.client.emojis.resolve(app.Emotes.CHECK)} Saved with ${todoId(
         todo
       )} as identifier.`
     )
-  } else {
+  } catch (error) {
+    console.error(error)
     return message.channel.send(
       `${message.client.emojis.resolve(app.Emotes.DENY)} An error has occurred.`
     )
@@ -60,7 +77,7 @@ module.exports = new app.Command({
   name: "todo",
   aliases: ["td"],
   channelType: "all",
-  description: "Add task or list todo tasks",
+  description: "Manage todo tasks",
   async run(message) {
     return message.rest.length === 0
       ? showTodoList(message, message.author)
@@ -214,11 +231,11 @@ module.exports = new app.Command({
           filter: (reaction, user) => user.id === message.author.id,
           pages: app.Paginator.divider(todoList, 10).map((page, i, pages) =>
             new app.MessageEmbed()
-              .setTitle(`Results of "${message.args.search}" search`)
-              .setDescription(page.join("\n"))
-              .setFooter(
-                `Page ${i + 1} sur ${pages.length} | ${todoList.length} items`
+              .setTitle(
+                `Result of "${message.args.search}" search (${todoList.length} items)`
               )
+              .setDescription(page.join("\n"))
+              .setFooter(`Page ${i + 1} / ${pages.length}`)
           ),
         })
       },
