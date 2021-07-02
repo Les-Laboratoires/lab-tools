@@ -12,7 +12,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
       !config ||
       !config.presentation_channel_id ||
       !config.staff_role_id ||
-      !config.member_default_role
+      !config.member_default_role_id
     )
       return
 
@@ -30,14 +30,14 @@ const listener: app.Listener<"messageReactionAdd"> = {
         !redactor ||
         redactor.user.bot ||
         !reactor.roles.cache.has(config.staff_role_id) ||
-        redactor.roles.cache.has(config.member_default_role)
+        redactor.roles.cache.has(config.member_default_role_id)
       )
         return
 
       if (reaction.emoji.id === app.Emotes.APPROVED) {
         if (reaction.message.author === user) {
           return reaction.users.remove(user)
-        } else if (!redactor.roles.cache.has(config.member_default_role)) {
+        } else if (!redactor.roles.cache.has(config.member_default_role_id)) {
           const disapproved = reaction.message.reactions.cache.get(
             app.Emotes.DISAPPROVED
           )
@@ -47,7 +47,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
           return app.approveMember(redactor, reaction.message.content)
         }
       } else if (reaction.emoji.id === app.Emotes.DISAPPROVED) {
-        if (!redactor.roles.cache.has(config.member_default_role)) {
+        if (!redactor.roles.cache.has(config.member_default_role_id)) {
           await app.sendLog(
             reaction.message.guild,
             `${user} disapproves **${reaction.message.author.tag}**.`,

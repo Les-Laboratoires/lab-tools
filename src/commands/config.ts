@@ -1,12 +1,25 @@
 import * as app from "../app"
 
-import guilds from "../tables/guilds"
+import guilds, { GuildConfig } from "../tables/guilds"
 
 module.exports = new app.Command({
   name: "config",
   description: "Display guild configs",
+  guildOwnerOnly: true,
   channelType: "guild",
   async run(message) {
+    let config: Partial<GuildConfig> | undefined = await app.getConfig(
+      message.guild
+    )
+
+    if (!config) {
+      config = {
+        id: message.guild.id,
+      }
+
+      await guilds.query.insert(config)
+    }
+
     return message.channel.send(
       new app.MessageEmbed()
         .setAuthor(
@@ -17,7 +30,7 @@ module.exports = new app.Command({
           app.code.stringify({
             lang: "json",
             content: JSON.stringify(
-              await guilds.query.select().where("id", message.guild.id).first(),
+              await app.getConfig(message.guild),
               null,
               2
             ),
@@ -44,18 +57,33 @@ module.exports = new app.Command({
         },
       ],
       async run(message) {
-        if (!app.isGuildMessage(message)) return
-
         await guilds.query
-          .update({
+          .insert({
+            id: message.guild.id,
             [message.args.name]: message.args.value,
           })
-          .where("id", message.guild.id)
+          .onConflict("id")
+          .merge()
 
         return message.channel.send(
           `${message.client.emojis.resolve(
             app.Emotes.CHECK
           )} Successfully updated \`${message.args.name}\` value. `
+        )
+      },
+    }),
+    new app.Command({
+      name: "reset",
+      channelType: "guild",
+      description: "Reset guild config",
+      guildOwnerOnly: true,
+      async run(message) {
+        await guilds.query.delete().where("id", message.guild.id)
+
+        return message.channel.send(
+          `${message.client.emojis.resolve(
+            app.Emotes.CHECK
+          )} Successfully reset guild config.`
         )
       },
     }),

@@ -7,9 +7,9 @@ export interface GuildConfig {
   presentation_channel_id: string | null
   member_welcome_message: string | null
   bot_welcome_message: string | null
-  member_default_role: string | null
-  bot_default_role: string | null
-  validation_role: string | null
+  member_default_role_id: string | null
+  bot_default_role_id: string | null
+  validation_role_id: string | null
   log_channel_id: string | null
   member_leave_message: string | null
   bot_leave_message: string | null
@@ -22,18 +22,18 @@ const table = new app.Table<GuildConfig>({
   setup: (table) => {
     table.string("id").unique().notNullable()
     table.string("prefix")
+    table.string("member_default_role_id")
+    table.string("bot_default_role_id")
+    table.string("validation_role_id")
+    table.string("staff_role_id")
+    table.string("log_channel_id")
+    table.string("meme_channel_id")
     table.string("general_channel_id")
     table.string("presentation_channel_id")
     table.string("member_welcome_message", 2048)
-    table.string("bot_welcome_message", 2048)
-    table.string("member_default_role")
-    table.string("bot_default_role")
-    table.string("validation_role")
-    table.string("log_channel_id")
     table.string("member_leave_message", 2048)
+    table.string("bot_welcome_message", 2048)
     table.string("bot_leave_message", 2048)
-    table.string("meme_channel_id")
-    table.string("staff_role_id")
   },
 })
 
