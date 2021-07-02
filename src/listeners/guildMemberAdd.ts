@@ -23,8 +23,8 @@ const listener: app.Listener<"guildMemberAdd"> = {
     if (!config) return
 
     if (member.user.bot) {
-      if (config.bot_default_role)
-        await member.roles.add(config.bot_default_role)
+      if (config.bot_default_role_id)
+        await member.roles.add(config.bot_default_role_id)
 
       if (config.general_channel_id && config.bot_welcome_message) {
         const general = member.client.channels.cache.get(
@@ -49,7 +49,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
         }
       }
     } else {
-      if (!config.validation_role || !config.presentation_channel_id) {
+      if (!config.validation_role_id || !config.presentation_channel_id) {
         await app.approveMember(member, undefined, config)
       }
     }

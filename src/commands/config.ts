@@ -71,6 +71,42 @@ module.exports = new app.Command({
           )} Successfully updated \`${message.args.name}\` value. `
         )
       },
+      subs: [
+        new app.Command({
+          name: "big",
+          aliases: ["text"],
+          channelType: "guild",
+          guildOwnerOnly: true,
+          description: "Set guild config",
+          rest: {
+            name: "value",
+            required: true,
+            description: "The value of edited property",
+          },
+          positional: [
+            {
+              name: "name",
+              required: true,
+              description: "The name of edited property",
+            },
+          ],
+          async run(message) {
+            await guilds.query
+              .insert({
+                id: message.guild.id,
+                [message.args.name]: message.rest.trim(),
+              })
+              .onConflict("id")
+              .merge()
+
+            return message.channel.send(
+              `${message.client.emojis.resolve(
+                app.Emotes.CHECK
+              )} Successfully updated \`${message.args.name}\` value. `
+            )
+          },
+        }),
+      ],
     }),
     new app.Command({
       name: "reset",

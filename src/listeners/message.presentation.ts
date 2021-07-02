@@ -10,18 +10,18 @@ const listener: app.Listener<"message"> = {
 
     const config = await guilds.query.where("id", message.guild.id).first()
 
-    if (!config || !config.member_default_role || !config.validation_role)
+    if (!config || !config.member_default_role_id || !config.validation_role_id)
       return
 
     if (message.channel.id === config.presentation_channel_id) {
       if (
-        message.member.roles.cache.has(config.member_default_role) ||
-        message.member.roles.cache.has(config.validation_role) ||
+        message.member.roles.cache.has(config.member_default_role_id) ||
+        message.member.roles.cache.has(config.validation_role_id) ||
         message.author.bot
       )
         return
 
-      await message.member.roles.add(config.validation_role)
+      await message.member.roles.add(config.validation_role_id)
       await message.react(app.Emotes.APPROVED)
       await message.react(app.Emotes.DISAPPROVED)
       return

@@ -6,20 +6,7 @@ import guilds, { GuildConfig } from "../tables/guilds"
 import autoRole from "../tables/autoRole"
 
 /*
-[
-  {
-    "author": {
-      "name": "{displayName} vient de se présenter !",
-      "icon_url": "{guild_icon}"
-    },
-    "description": "{presentation}",
-    "thumbnail": "{user_avatar}"
-  },
-  {
-    "title": "Bienvenue sur Les Laboratoires JS !",
-    "description": "Gêrer tes rôles : <#622848426484432952>\nL'entraide : <#622382324880900096> <#622382349426098200> (etc...)\nNotre réseau : <#620661794410856451> <#713850539368251533>\nUtiliser des commandes : <#620663106250604546> <#620663121622859776> (etc...)\nQuestions rapides : <#622382556192571416>\nApprendre le JS : <#622381685820096512>\nTips JS : <#627239007440338954>\n\nNous te souhaitons un excellent séjour parmi nous ! <:pepeYay:557124850326437888>"
-  }
-]
+[{"author": {"name": "{displayName} vient de se présenter !","icon_url": "{guild_icon}"},"description": "{presentation}","thumbnail": "{user_avatar}"},{"title": "Bienvenue sur Les Laboratoires JS !","description": "Gêrer tes rôles : <#622848426484432952>\nL'entraide : <#622382324880900096> <#622382349426098200> (etc...)\nNotre réseau : <#620661794410856451> <#713850539368251533>\nUtiliser des commandes : <#620663106250604546> <#620663121622859776> (etc...)\nQuestions rapides : <#622382556192571416>\nApprendre le JS : <#622381685820096512>\nTips JS : <#627239007440338954>\n\nNous te souhaitons un excellent séjour parmi nous ! <:pepeYay:557124850326437888>"}]
 */
 
 export async function prefix(guild?: Discord.Guild): Promise<string> {
@@ -45,12 +32,12 @@ export async function approveMember(
 
   if (!config) return
 
-  if (config.member_default_role) {
-    await member.roles.add(config.member_default_role)
+  if (config.member_default_role_id) {
+    await member.roles.add(config.member_default_role_id)
   }
 
-  if (config.validation_role) {
-    await member.roles.remove(config.validation_role)
+  if (config.validation_role_id) {
+    await member.roles.remove(config.validation_role_id)
   }
 
   const autoRoles = await autoRole.query.where("guild_id", member.guild.id)
