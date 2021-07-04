@@ -2,19 +2,6 @@ import * as app from "../app"
 
 import guilds from "../tables/guilds"
 
-/*
-{
-  "author": {
-    "name": "{username} est notre nouveau cobaye!",
-    "icon_url": "{guild_icon}"
-  },
-  "description": "Merci de **copyright son prefix** dans <#633294676761247745>\nSi le prefix existe déjà, merci de le changer ou le bot sera kick.\n\n***Let's test !*** <:yay:557124850326437888>",
-  "thumbnail": {
-    "url": "https://cdn.discordapp.com/emojis/772181235526533150.png"
-  }
-}
- */
-
 const listener: app.Listener<"guildMemberAdd"> = {
   event: "guildMemberAdd",
   async run(member) {
