@@ -13,11 +13,11 @@ const listener: app.Listener<"guildMemberRemove"> = {
     try {
       const user = await member.client.users.fetch(member.id)
 
-      await app.sendLog(guild, `**${user.tag}** user was removed.`, config)
+      await app.sendLog(guild, `**${user.tag}** left the guild.`, config)
     } catch (error) {
       await app.sendLog(
         guild,
-        `**${member.user?.tag ?? member.displayName}** left the guild.`,
+        `**${member.user?.tag ?? member.displayName}** user was removed.`,
         config
       )
     }
