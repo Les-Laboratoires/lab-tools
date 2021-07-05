@@ -43,8 +43,9 @@ async function insertTodo(message: app.CommandMessage) {
 
   if (count > 999)
     return message.channel.send(
-      `${message.client.emojis.resolve(
-        app.Emotes.DENY
+      `${app.emote(
+        message,
+        "DENY"
       )} You have too many todo tasks, please remove some first.`
     )
 
@@ -68,7 +69,7 @@ async function insertTodo(message: app.CommandMessage) {
   } catch (error) {
     console.error(error)
     return message.channel.send(
-      `${message.client.emojis.resolve(app.Emotes.DENY)} An error has occurred.`
+      `${app.emote(message, "DENY")} An error has occurred.`
     )
   }
 }
@@ -82,8 +83,9 @@ module.exports = new app.Command({
     return message.rest.length === 0
       ? showTodoList(message, message.author)
       : message.channel.send(
-          `${message.client.emojis.resolve(
-            app.Emotes.DENY
+          `${app.emote(
+            message,
+            "DENY"
           )} Bad command usage. Show command detail with \`${
             message.usedPrefix
           }todo -h\``
@@ -150,9 +152,7 @@ module.exports = new app.Command({
 
         if (!todo)
           return message.channel.send(
-            `${message.client.emojis.resolve(
-              app.Emotes.DENY
-            )} Unknown todo task id.`
+            `${app.emote(message, "DENY")} Unknown todo task id.`
           )
 
         return message.channel.send(
@@ -183,16 +183,12 @@ module.exports = new app.Command({
 
         if (!todo)
           return message.channel.send(
-            `${message.client.emojis.resolve(
-              app.Emotes.DENY
-            )} Unknown todo task id.`
+            `${app.emote(message, "DENY")} Unknown todo task id.`
           )
 
         if (todo.user_id !== message.author.id)
           return message.channel.send(
-            `${message.client.emojis.resolve(
-              app.Emotes.DENY
-            )} This is not your own task.`
+            `${app.emote(message, "DENY")} This is not your own task.`
           )
 
         await todoTable.query.delete().where("id", message.args.id)

@@ -35,9 +35,7 @@ module.exports = new app.Command({
 
           if (!currentCron)
             return message.channel.send(
-              `${message.client.emojis.resolve(
-                app.Emotes.DENY
-              )} Unknown cron task.`
+              `${app.emote(message, "DENY")} Unknown cron task.`
             )
 
           if (
@@ -45,9 +43,7 @@ module.exports = new app.Command({
             message.author.id !== process.env.OWNER
           )
             return message.channel.send(
-              `${message.client.emojis.resolve(
-                app.Emotes.DENY
-              )} This is not your own cron task.`
+              `${app.emote(message, "DENY")} This is not your own cron task.`
             )
 
           let job = app.cache.get<cron.CronJob>(slug)
@@ -64,9 +60,7 @@ module.exports = new app.Command({
 
           if (job.running)
             return message.channel.send(
-              `${message.client.emojis.resolve(
-                app.Emotes.DENY
-              )} This cron is already running.`
+              `${app.emote(message, "DENY")} This cron is already running.`
             )
 
           job.start()
@@ -102,9 +96,7 @@ module.exports = new app.Command({
 
           if (!currentCron)
             return message.channel.send(
-              `${message.client.emojis.resolve(
-                app.Emotes.DENY
-              )} Unknown cron task.`
+              `${app.emote(message, "DENY")} Unknown cron task.`
             )
 
           if (
@@ -112,18 +104,14 @@ module.exports = new app.Command({
             message.author.id !== process.env.OWNER
           )
             return message.channel.send(
-              `${message.client.emojis.resolve(
-                app.Emotes.DENY
-              )} This is not your own cron task.`
+              `${app.emote(message, "DENY")} This is not your own cron task.`
             )
 
           const job = app.cache.get<cron.CronJob>(slug)
 
           if (!job)
             return message.channel.send(
-              `${message.client.emojis.resolve(
-                app.Emotes.DENY
-              )} This cron is already stopped.`
+              `${app.emote(message, "DENY")} This cron is already stopped.`
             )
 
           job.stop()
@@ -159,9 +147,7 @@ module.exports = new app.Command({
 
           if (!currentCron)
             return message.channel.send(
-              `${message.client.emojis.resolve(
-                app.Emotes.DENY
-              )} Unknown cron task.`
+              `${app.emote(message, "DENY")} Unknown cron task.`
             )
 
           if (
@@ -169,9 +155,7 @@ module.exports = new app.Command({
             message.author.id !== process.env.OWNER
           )
             return message.channel.send(
-              `${message.client.emojis.resolve(
-                app.Emotes.DENY
-              )} This is not your own cron task.`
+              `${app.emote(message, "DENY")} This is not your own cron task.`
             )
 
           const job = app.cache.get<cron.CronJob>(slug)
@@ -228,15 +212,13 @@ module.exports = new app.Command({
           channel = await message.client.channels.fetch(message.args.channel)
         } catch (error) {
           return message.channel.send(
-            `${message.client.emojis.resolve(app.Emotes.DENY)} Unknown channel.`
+            `${app.emote(message, "DENY")} Unknown channel.`
           )
         }
 
         if (!channel.isText())
           return message.channel.send(
-            `${message.client.emojis.resolve(
-              app.Emotes.DENY
-            )} Bad channel type. (${channel.type})`
+            `${app.emote(message, "DENY")} Bad channel type. (${channel.type})`
           )
 
         const oldJob = app.cache.get<cron.CronJob>(slug)
@@ -256,8 +238,9 @@ module.exports = new app.Command({
           app.cache.set(slug, job)
         } catch (error) {
           return message.channel.send(
-            `${message.client.emojis.resolve(
-              app.Emotes.DENY
+            `${app.emote(
+              message,
+              "DENY"
             )} Bad period pattern.\n> Check the following website to generate a valid cron period pattern. \n> http://www.cronmaker.com`
           )
         }

@@ -6,6 +6,18 @@ import guilds, { GuildConfig } from "../tables/guilds"
 import autoRole from "../tables/autoRole"
 import users from "../tables/users"
 
+export enum Emotes {
+  APPROVED = "827275120128294932",
+  DISAPPROVED = "827275869135437824",
+  CHECK = "827275120128294932",
+  MINUS = "827275974390579250",
+  DENY = "827275869135437824",
+  PLUS = "827275935262048296",
+  RIGHT = "827275790886502450",
+  LEFT = "827277221235523634",
+  WAIT = "813551205283790889",
+}
+
 export async function prefix(guild?: Discord.Guild): Promise<string> {
   let prefix = process.env.BOT_PREFIX as string
   if (guild) {
@@ -128,4 +140,11 @@ export function embedReplacers(subject: app.GuildMember) {
     displayName: subject.displayName,
     user_avatar: subject.user.displayAvatarURL({ dynamic: true }),
   }
+}
+
+export function emote(
+  { client }: { client: app.Client },
+  name: keyof typeof app.Emotes
+) {
+  return client.emojis.resolve(Emotes[name])
 }

@@ -36,7 +36,7 @@ module.exports = new app.Command({
       client.destroy()
     } else {
       await message.channel.send(
-        `${message.client.emojis.resolve(app.Emotes.DENY)} Permission error`
+        `${app.emote(message, "DENY")} Permission error`
       )
     }
     await message.delete().catch()

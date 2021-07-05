@@ -1,4 +1,5 @@
 import * as app from "../app"
+
 import users from "../tables/users"
 
 const listener: app.Listener<"guildMemberRemove"> = {

@@ -26,9 +26,7 @@ module.exports = new app.Command({
       )
     } else {
       await message.channel.send(
-        `${message.client.emojis.resolve(
-          app.Emotes.DENY
-        )} Bad usage, please use code block tags`
+        `${app.emote(message, "DENY")} Bad usage, please use code block tags`
       )
     }
   },

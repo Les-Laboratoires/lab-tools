@@ -25,9 +25,7 @@ module.exports = new app.Command({
     }
 
     if (!bot) {
-      return message.channel.send(
-        `${message.client.emojis.resolve(app.Emotes.DENY)} Unknown user`
-      )
+      return message.channel.send(`${app.emote(message, "DENY")} Unknown user`)
     }
 
     const url = new URL("/oauth2/authorize", "https://discord.com/")

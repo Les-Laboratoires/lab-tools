@@ -111,9 +111,7 @@ module.exports = new app.Command({
       async run(message) {
         if (message.args.name === "id")
           return message.send(
-            `${message.client.emojis.resolve(
-              app.Emotes.DENY
-            )} You can't edit the guild id!`
+            `${app.emote(message, "DENY")} You can't edit the guild id!`
           )
 
         await guilds.query

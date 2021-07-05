@@ -1,11 +1,14 @@
 import * as app from "../app"
 
+import users from "../tables/users"
 import guilds from "../tables/guilds"
 import autoRole from "../tables/autoRole"
 
 const listener: app.Listener<"guildMemberAdd"> = {
   event: "guildMemberAdd",
   async run(member) {
+    await users.query.insert({ id: member.id }).onConflict("id").ignore()
+
     const config = await guilds.query.where("id", member.guild.id).first()
 
     if (!config) return
