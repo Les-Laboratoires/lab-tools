@@ -15,6 +15,7 @@ export interface GuildConfig {
   bot_leave_message: string | null
   meme_channel_id: string | null
   staff_role_id: string | null
+  help_room_pattern: string | null
 }
 
 const table = new app.Table<GuildConfig>({
@@ -34,6 +35,7 @@ const table = new app.Table<GuildConfig>({
     table.string("member_leave_message", 2048)
     table.string("bot_welcome_message", 2048)
     table.string("bot_leave_message", 2048)
+    table.string("help_room_pattern")
   },
 })
 

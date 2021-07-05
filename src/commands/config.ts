@@ -40,27 +40,86 @@ module.exports = new app.Command({
   },
   subs: [
     new app.Command({
+      name: "overwrite",
+      aliases: ["ow", "new"],
+      channelType: "guild",
+      description: "Overwrite guild config",
+      guildOwnerOnly: true,
+      rest: {
+        name: "config",
+        description: "New guild config",
+        required: true,
+        all: true,
+      },
+      async run(message) {
+        const config = JSON.parse(message.args.config)
+
+        await guilds.query.delete().where("id", message.guild.id)
+        await guilds.query.insert({ ...config, id: message.guild.id })
+
+        return message.channel.send(
+          `${message.client.emojis.resolve(
+            app.Emotes.CHECK
+          )} Successfully updated \`${message.args.name}\` value. `
+        )
+      },
+    }),
+    new app.Command({
+      name: "merge",
+      aliases: ["ow", "new"],
+      channelType: "guild",
+      description: "Overwrite guild config",
+      guildOwnerOnly: true,
+      rest: {
+        name: "config",
+        description: "New guild config",
+        required: true,
+        all: true,
+      },
+      async run(message) {
+        const config = JSON.parse(message.args.config)
+
+        await guilds.query
+          .insert({ ...config, id: message.guild.id })
+          .onConflict("id")
+          .merge()
+
+        return message.channel.send(
+          `${message.client.emojis.resolve(
+            app.Emotes.CHECK
+          )} Successfully updated \`${message.args.name}\` value. `
+        )
+      },
+    }),
+    new app.Command({
       name: "set",
       channelType: "guild",
       guildOwnerOnly: true,
       description: "Set guild config",
+      rest: {
+        name: "value",
+        required: true,
+        description: "The value of edited property",
+      },
       positional: [
         {
           name: "name",
           required: true,
           description: "The name of edited property",
         },
-        {
-          name: "value",
-          required: true,
-          description: "The value of edited property",
-        },
       ],
       async run(message) {
+        if (message.args.name === "id")
+          return message.send(
+            `${message.client.emojis.resolve(
+              app.Emotes.DENY
+            )} You can't edit the guild id!`
+          )
+
         await guilds.query
           .insert({
             id: message.guild.id,
-            [message.args.name]: message.args.value,
+            [message.args.name]: message.rest.trim(),
           })
           .onConflict("id")
           .merge()
@@ -71,42 +130,6 @@ module.exports = new app.Command({
           )} Successfully updated \`${message.args.name}\` value. `
         )
       },
-      subs: [
-        new app.Command({
-          name: "big",
-          aliases: ["text"],
-          channelType: "guild",
-          guildOwnerOnly: true,
-          description: "Set guild config",
-          rest: {
-            name: "value",
-            required: true,
-            description: "The value of edited property",
-          },
-          positional: [
-            {
-              name: "name",
-              required: true,
-              description: "The name of edited property",
-            },
-          ],
-          async run(message) {
-            await guilds.query
-              .insert({
-                id: message.guild.id,
-                [message.args.name]: message.rest.trim(),
-              })
-              .onConflict("id")
-              .merge()
-
-            return message.channel.send(
-              `${message.client.emojis.resolve(
-                app.Emotes.CHECK
-              )} Successfully updated \`${message.args.name}\` value. `
-            )
-          },
-        }),
-      ],
     }),
     new app.Command({
       name: "reset",

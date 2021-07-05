@@ -8,9 +8,17 @@ module.exports = new app.Command({
   description: "Toggle a busy-mark on a help-room",
   coolDown: 5000,
   middlewares: [
-    (message) =>
-      message.channel.name.includes("help-room") ||
-      "You must be in a help room.",
+    async (message) => {
+      const config = await app.getConfig(message.guild)
+
+      if (!config?.help_room_pattern)
+        return "You don't have setup the **help_room_pattern**!"
+
+      return (
+        message.channel.name.includes(config.help_room_pattern) ||
+        "You must be in a help room."
+      )
+    },
   ],
   positional: [
     {
