@@ -28,27 +28,15 @@ const listener: app.Listener<"guildMemberAdd"> = {
         )
 
         if (general?.isText()) {
-          const guildIcon = member.guild.iconURL({ dynamic: true })
-
-          let message = config.bot_welcome_message
-            .replace(/{username}/g, member.user.username)
-            .replace(/{user_tag}/g, member.user.tag)
-
-          if (guildIcon) message = message.replace(/{guild_icon}/g, guildIcon)
-
-          let embed
-          try {
-            embed = new app.MessageEmbed(JSON.parse(message))
-          } catch (error) {}
-
-          await general.send(embed ? embed : message)
+          await app.embedTemplate(
+            general,
+            config.bot_welcome_message,
+            app.embedReplacers(member)
+          )
         }
       }
-    } else {
-      if (!config.validation_role_id || !config.presentation_channel_id) {
-        await app.approveMember(member, undefined, config)
-      }
-    }
+    } else if (!config.validation_role_id || !config.presentation_channel_id)
+      await app.approveMember(member, undefined, config)
 
     return app.sendLog(
       member.guild,
