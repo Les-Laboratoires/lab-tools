@@ -36,7 +36,9 @@ export async function approveMember(
     await member.roles.remove(config.validation_role_id).catch()
   }
 
-  const autoRoles = await autoRole.query.where("guild_id", member.guild.id)
+  const autoRoles = await autoRole.query
+    .where("guild_id", member.guild.id)
+    .and.where("bot", false)
 
   for (const roleData of autoRoles) {
     await member.roles.add(roleData.role_id).catch()

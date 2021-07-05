@@ -1,6 +1,7 @@
 import * as app from "../app"
 
 import guilds from "../tables/guilds"
+import autoRole from "../tables/autoRole"
 
 const listener: app.Listener<"guildMemberAdd"> = {
   event: "guildMemberAdd",
@@ -10,6 +11,14 @@ const listener: app.Listener<"guildMemberAdd"> = {
     if (!config) return
 
     if (member.user.bot) {
+      const autoRoles = await autoRole.query
+        .where("guild_id", member.guild.id)
+        .and.where("bot", true)
+
+      for (const roleData of autoRoles) {
+        await member.roles.add(roleData.role_id).catch()
+      }
+
       if (config.bot_default_role_id)
         await member.roles.add(config.bot_default_role_id)
 
