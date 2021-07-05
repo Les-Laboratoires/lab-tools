@@ -1,15 +1,15 @@
 import * as app from "../app"
 
-const table = new app.Table<{
+export interface LabUser {
   id: string
-  locale: string
   presentation: string
-}>({
+}
+
+const table = new app.Table<LabUser>({
   name: "users",
   priority: 1,
   setup: (table) => {
     table.string("id").unique().notNullable()
-    table.string("locale").notNullable()
     table.string("presentation", 2048)
   },
 })

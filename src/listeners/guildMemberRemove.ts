@@ -1,12 +1,14 @@
 import * as app from "../app"
-import guilds from "../tables/guilds"
+import users from "../tables/users"
 
 const listener: app.Listener<"guildMemberRemove"> = {
   event: "guildMemberRemove",
   async run(member) {
+    await users.query.delete().where("id", member.id)
+
     const { guild } = member
 
-    const config = await guilds.query.where("id", guild.id).first()
+    const config = await app.getConfig(guild)
 
     if (!config) return
 

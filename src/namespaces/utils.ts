@@ -4,6 +4,7 @@ import * as app from "../app"
 
 import guilds, { GuildConfig } from "../tables/guilds"
 import autoRole from "../tables/autoRole"
+import users from "../tables/users"
 
 export async function prefix(guild?: Discord.Guild): Promise<string> {
   let prefix = process.env.BOT_PREFIX as string
@@ -24,6 +25,14 @@ export async function approveMember(
   presentation = "*Pas de présentation*",
   config?: GuildConfig
 ) {
+  await users.query
+    .insert({
+      id: member.id,
+      presentation,
+    })
+    .onConflict("id")
+    .merge()
+
   config ??= await getConfig(member.guild)
 
   if (!config) return
