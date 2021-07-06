@@ -71,7 +71,7 @@ export async function approveMember(
     )
 
     if (general) {
-      await app.embedTemplate(general, config.member_welcome_message, {
+      await embedTemplate(general, config.member_welcome_message, {
         ...embedReplacers(member),
         presentation,
       })
