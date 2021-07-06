@@ -41,7 +41,7 @@ module.exports = new app.Command({
             url: message.args.url,
             title: message.args.title,
           })
-          .onConflict(["id", "url"])
+          .onConflict("id")
           .merge()
 
         const labs = await lab.query.select()
