@@ -17,6 +17,7 @@ module.exports = new app.Command({
       aliases: ["update", "set"],
       description: "Add a lab",
       channelType: "guild",
+      botOwnerOnly: true,
       rest: {
         name: "title",
         description: "The displayed text",
