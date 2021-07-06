@@ -35,11 +35,14 @@ module.exports = new app.Command({
         },
       ],
       async run(message) {
-        await lab.query.insert({
-          id: message.args.id,
-          url: message.args.url,
-          title: message.args.title,
-        })
+        await lab.query
+          .insert({
+            id: message.args.id,
+            url: message.args.url,
+            title: message.args.title,
+          })
+          .onConflict(["id", "url"])
+          .merge()
 
         const labs = await lab.query.select()
 
