@@ -80,8 +80,8 @@ export async function approveMember(
         }
       )
 
-      if (error) {
-        return sendLog(member.guild, `**JSON Error**: ${error.message}`)
+      if (error?.message.includes("Invalid Form Body")) {
+        return sendLog(member.guild, `**Body Error**: ${error.message}`)
       }
     }
   }
