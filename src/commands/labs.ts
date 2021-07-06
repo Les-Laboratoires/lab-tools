@@ -38,6 +38,7 @@ module.exports = new app.Command({
         await lab.query.insert({
           id: message.args.id,
           url: message.args.url,
+          title: message.args.title,
         })
 
         const labs = await lab.query.select()
