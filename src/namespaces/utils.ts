@@ -132,12 +132,12 @@ export async function embedTemplate(
 
 export function embedReplacers(subject: app.GuildMember) {
   return {
-    username: subject.user.username,
-    user_tag: subject.user.tag,
+    username: subject.user.username.replace(/"/g, '\\"'),
+    user_tag: subject.user.tag.replace(/"/g, '\\"'),
     guild_icon:
       subject.guild.iconURL({ dynamic: true }) ??
       "https://discord.com/assets/f9bb9c4af2b9c32a2c5ee0014661546d.png",
-    displayName: subject.displayName,
+    displayName: subject.displayName.replace(/"/g, '\\"'),
     user_avatar: subject.user.displayAvatarURL({ dynamic: true }),
   }
 }
