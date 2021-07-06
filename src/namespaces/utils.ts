@@ -113,13 +113,14 @@ export async function embedTemplate(
 
   let embeds
   try {
-    const data: app.MessageEmbedOptions = JSON.parse(template)
+    const data: app.MessageEmbedOptions | app.MessageEmbedOptions[] =
+      JSON.parse(template)
 
     embeds = (Array.isArray(data) ? data : [data]).map((json) => {
       const embed = new app.MessageEmbed(json)
 
-      if (data.thumbnail?.url) embed.setThumbnail(data.thumbnail.url)
-      if (data.image?.url) embed.setImage(data.image.url)
+      if (json.thumbnail?.url) embed.setThumbnail(json.thumbnail.url)
+      if (json.image?.url) embed.setImage(json.image.url)
 
       return embed
     })
