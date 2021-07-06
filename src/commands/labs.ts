@@ -54,13 +54,22 @@ module.exports = new app.Command({
             )
 
             if (channel?.isText()) {
-              await channel.bulkDelete(10)
+              const messages = await channel.messages.fetch()
+
+              for (const m of messages.array()) await m.delete()
 
               for (const page of pages) {
                 await channel.send(
                   page.map((lab) => `${lab.title} ${lab.url}`).join("\n")
                 )
               }
+
+              await message.send(
+                `${app.emote(
+                  message,
+                  "CHECK"
+                )} Updated **${guild}** affiliations`
+              )
             }
           }
         }
@@ -68,7 +77,10 @@ module.exports = new app.Command({
         message.triggerCoolDown()
 
         return message.send(
-          `${app.emote(message, "CHECK")} Successfully updated affiliations`
+          `${app.emote(
+            message,
+            "CHECK"
+          )} Successfully updated all affiliations.`
         )
       },
     }),
