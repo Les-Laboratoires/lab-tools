@@ -57,7 +57,7 @@ module.exports = new app.Command({
 
               for (const page of pages) {
                 await channel.send(
-                  page.map((lab) => `${lab.url} ${lab.title}`).join("\n")
+                  page.map((lab) => `${lab.title} ${lab.url}`).join("\n")
                 )
               }
             }

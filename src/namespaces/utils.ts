@@ -71,18 +71,10 @@ export async function approveMember(
     )
 
     if (general) {
-      const error = await embedTemplate(
-        general,
-        config.member_welcome_message,
-        {
-          ...embedReplacers(member),
-          presentation,
-        }
-      )
-
-      if (error?.message.includes("Invalid Form Body")) {
-        return sendLog(member.guild, `**Body Error**: ${error.message}`)
-      }
+      await embedTemplate(general, config.member_welcome_message, {
+        ...embedReplacers(member),
+        presentation,
+      })
     }
   }
 }
@@ -113,7 +105,7 @@ export async function embedTemplate(
   channel: app.Channel,
   template: string,
   replacers: { [k: string]: string }
-): Promise<Error | undefined> {
+) {
   if (!channel.isText()) return
 
   for (const k in replacers)
@@ -135,8 +127,20 @@ export async function embedTemplate(
 
     for (const embed of embeds) await channel.send(embed)
   } catch (error) {
-    await channel.send(template)
-    return error
+    if (error.message.includes("Invalid Form Body")) {
+      return channel.send(
+        app.code.stringify({
+          lang: "js",
+          content: error.message,
+        }) +
+          " " +
+          app.code.stringify({
+            lang: "json",
+            content: template,
+          })
+      )
+    }
+    return channel.send(template)
   }
 }
 
