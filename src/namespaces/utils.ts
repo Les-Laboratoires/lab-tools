@@ -71,10 +71,18 @@ export async function approveMember(
     )
 
     if (general) {
-      await embedTemplate(general, config.member_welcome_message, {
-        ...embedReplacers(member),
-        presentation,
-      })
+      const error = await embedTemplate(
+        general,
+        config.member_welcome_message,
+        {
+          ...embedReplacers(member),
+          presentation,
+        }
+      )
+
+      if (error) {
+        return sendLog(member.guild, `**JSON Error**: ${error.message}`)
+      }
     }
   }
 }
@@ -105,7 +113,7 @@ export async function embedTemplate(
   channel: app.Channel,
   template: string,
   replacers: { [k: string]: string }
-) {
+): Promise<Error | undefined> {
   if (!channel.isText()) return
 
   for (const k in replacers)
@@ -116,18 +124,19 @@ export async function embedTemplate(
     const data: app.MessageEmbedOptions | app.MessageEmbedOptions[] =
       JSON.parse(template)
 
-    embeds = (Array.isArray(data) ? data : [data]).map((json) => {
-      const embed = new app.MessageEmbed(json)
+    embeds = (Array.isArray(data) ? data : [data]).map((options) => {
+      const embed = new app.MessageEmbed(options)
 
-      if (json.thumbnail?.url) embed.setThumbnail(json.thumbnail.url)
-      if (json.image?.url) embed.setImage(json.image.url)
+      if (options.thumbnail?.url) embed.setThumbnail(options.thumbnail.url)
+      if (options.image?.url) embed.setImage(options.image.url)
 
       return embed
     })
 
     for (const embed of embeds) await channel.send(embed)
   } catch (error) {
-    return channel.send(template)
+    await channel.send(template)
+    return error
   }
 }
 
