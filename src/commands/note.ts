@@ -76,4 +76,10 @@ module.exports = new app.Command({
 
     return message.send(await noteEmbed(message.author))
   },
+  // subs: [
+  //   new app.Command({
+  //     name: "list",
+  //
+  //   })
+  // ]
 })

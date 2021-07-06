@@ -58,15 +58,13 @@ module.exports = new app.Command({
         await guilds.query.insert({ ...config, id: message.guild.id })
 
         return message.channel.send(
-          `${message.client.emojis.resolve(
-            app.Emotes.CHECK
-          )} Successfully updated \`${message.args.name}\` value. `
+          `${app.emote(message, "CHECK")} Successfully overwritten config. `
         )
       },
     }),
     new app.Command({
       name: "merge",
-      aliases: ["ow", "new"],
+      aliases: ["mix"],
       channelType: "guild",
       description: "Overwrite guild config",
       guildOwnerOnly: true,
@@ -85,9 +83,7 @@ module.exports = new app.Command({
           .merge()
 
         return message.channel.send(
-          `${message.client.emojis.resolve(
-            app.Emotes.CHECK
-          )} Successfully updated \`${message.args.name}\` value. `
+          `${app.emote(message, "CHECK")} Successfully merged values. `
         )
       },
     }),
@@ -123,9 +119,9 @@ module.exports = new app.Command({
           .merge()
 
         return message.channel.send(
-          `${message.client.emojis.resolve(
-            app.Emotes.CHECK
-          )} Successfully updated \`${message.args.name}\` value. `
+          `${app.emote(message, "CHECK")} Successfully updated \`${
+            message.args.name
+          }\` value. `
         )
       },
     }),
@@ -138,9 +134,30 @@ module.exports = new app.Command({
         await guilds.query.delete().where("id", message.guild.id)
 
         return message.channel.send(
-          `${message.client.emojis.resolve(
-            app.Emotes.CHECK
-          )} Successfully reset guild config.`
+          `${app.emote(message, "CHECK")} Successfully reset guild config.`
+        )
+      },
+    }),
+    new app.Command({
+      name: "add",
+      botOwnerOnly: true,
+      channelType: "all",
+      description: "Add entry to deployed config table",
+      positional: [
+        {
+          name: "name",
+          description: "The name of new property",
+          required: true,
+          checkValue: /^\w+$/,
+        },
+      ],
+      async run(message) {
+        await app.db.schema.alterTable("guilds", (table) => {
+          table.string(message.args.name)
+        })
+
+        return message.channel.send(
+          `${app.emote(message, "CHECK")} Successfully added guild config.`
         )
       },
     }),

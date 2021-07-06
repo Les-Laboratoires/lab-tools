@@ -4,6 +4,7 @@ export interface GuildConfig {
   id: string
   prefix: string | null
   general_channel_id: string | null
+  affiliation_channel_id: string | null
   presentation_channel_id: string | null
   member_welcome_message: string | null
   bot_welcome_message: string | null
@@ -30,6 +31,7 @@ const table = new app.Table<GuildConfig>({
     table.string("log_channel_id")
     table.string("meme_channel_id")
     table.string("general_channel_id")
+    table.string("affiliation_channel_id")
     table.string("presentation_channel_id")
     table.string("member_welcome_message", 2048)
     table.string("member_leave_message", 2048)

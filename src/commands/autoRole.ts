@@ -44,9 +44,7 @@ module.exports = new app.Command({
         )
 
         return message.send(
-          `${message.client.emojis.resolve(
-            app.Emotes.CHECK
-          )} Auto-roles are successfully pushed.`
+          `${app.emote(message, "CHECK")} Auto-roles are successfully pushed.`
         )
       },
     }),
@@ -79,9 +77,7 @@ module.exports = new app.Command({
         })
 
         return message.send(
-          `${message.client.emojis.resolve(
-            app.Emotes.CHECK
-          )} Auto-roles is successfully pushed.`
+          `${app.emote(message, "CHECK")} Auto-roles is successfully pushed.`
         )
       },
     }),

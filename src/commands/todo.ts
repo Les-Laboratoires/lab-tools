@@ -62,9 +62,7 @@ async function insertTodo(message: app.CommandMessage) {
     if (!todo) throw new Error()
 
     return message.channel.send(
-      `${message.client.emojis.resolve(app.Emotes.CHECK)} Saved with ${todoId(
-        todo
-      )} as identifier.`
+      `${app.emote(message, "CHECK")} Saved with ${todoId(todo)} as identifier.`
     )
   } catch (error) {
     console.error(error)
@@ -124,9 +122,7 @@ module.exports = new app.Command({
         await todoTable.query.delete().where("user_id", message.author.id)
 
         return message.channel.send(
-          `${message.client.emojis.resolve(
-            app.Emotes.CHECK
-          )} Successfully deleted todo list`
+          `${app.emote(message, "CHECK")} Successfully deleted todo list`
         )
       },
     }),
@@ -194,9 +190,7 @@ module.exports = new app.Command({
         await todoTable.query.delete().where("id", message.args.id)
 
         return message.channel.send(
-          `${message.client.emojis.resolve(
-            app.Emotes.CHECK
-          )} Successfully deleted todo task`
+          `${app.emote(message, "CHECK")} Successfully deleted todo task`
         )
       },
     }),

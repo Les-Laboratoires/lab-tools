@@ -66,9 +66,7 @@ module.exports = new app.Command({
           job.start()
 
           return message.channel.send(
-            `${message.client.emojis.resolve(
-              app.Emotes.CHECK
-            )} Successfully started.`
+            `${app.emote(message, "CHECK")} Successfully started.`
           )
         }
       },
@@ -117,9 +115,7 @@ module.exports = new app.Command({
           job.stop()
 
           return message.channel.send(
-            `${message.client.emojis.resolve(
-              app.Emotes.CHECK
-            )} Successfully stopped.`
+            `${app.emote(message, "CHECK")} Successfully stopped.`
           )
         }
       },
@@ -167,9 +163,7 @@ module.exports = new app.Command({
           await cronTable.query.delete().where("name", message.args.name)
 
           return message.channel.send(
-            `${message.client.emojis.resolve(
-              app.Emotes.CHECK
-            )} Successfully removed.`
+            `${app.emote(message, "CHECK")} Successfully removed.`
           )
         }
       },
@@ -257,9 +251,7 @@ module.exports = new app.Command({
           .merge()
 
         return message.channel.send(
-          `${message.client.emojis.resolve(
-            app.Emotes.CHECK
-          )} Successfully saved and started.`
+          `${app.emote(message, "CHECK")} Successfully saved and started.`
         )
       },
     }),
@@ -296,12 +288,8 @@ module.exports = new app.Command({
                     )
                     return `${
                       job?.running
-                        ? `${message.client.emojis.resolve(
-                            app.Emotes.WAIT
-                          )} Running`
-                        : `${message.client.emojis.resolve(
-                            app.Emotes.MINUS
-                          )} Stopped`
+                        ? `${app.emote(message, "WAIT")} Running`
+                        : `${app.emote(message, "MINUS")} Stopped`
                     } | \`${app.forceTextSize(
                       cron.name,
                       10,

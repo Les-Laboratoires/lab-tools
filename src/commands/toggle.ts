@@ -60,9 +60,7 @@ module.exports = new app.Command({
         new app.MessageEmbed()
           .setColor("BLURPLE")
           .setDescription(
-            `${message.client.emojis.resolve(
-              app.Emotes.CHECK
-            )} This help room is now **free**.`
+            `${app.emote(message, "CHECK")} This help room is now **free**.`
           )
       )
     } else {
