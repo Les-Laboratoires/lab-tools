@@ -3,7 +3,10 @@ import * as app from "../app"
 export interface GuildConfig {
   id: string
   prefix: string | null
+  reward_emoji_id: string | null
+  reward_channel_id: string | null
   general_channel_id: string | null
+  project_channel_id: string | null
   affiliation_channel_id: string | null
   presentation_channel_id: string | null
   member_welcome_message: string | null
@@ -24,12 +27,15 @@ const table = new app.Table<GuildConfig>({
   setup: (table) => {
     table.string("id").unique().notNullable()
     table.string("prefix")
+    table.string("reward_emoji_id")
     table.string("member_default_role_id")
     table.string("bot_default_role_id")
     table.string("validation_role_id")
     table.string("staff_role_id")
     table.string("log_channel_id")
     table.string("meme_channel_id")
+    table.string("reward_channel_id")
+    table.string("project_channel_id")
     table.string("general_channel_id")
     table.string("affiliation_channel_id")
     table.string("presentation_channel_id")
