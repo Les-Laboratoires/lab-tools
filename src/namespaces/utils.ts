@@ -49,21 +49,17 @@ export async function approveMember(
 
   if (!config) return
 
-  if (config.member_default_role_id) {
+  if (config.member_default_role_id)
     await member.roles.add(config.member_default_role_id).catch()
-  }
 
-  if (config.validation_role_id) {
+  if (config.validation_role_id)
     await member.roles.remove(config.validation_role_id).catch()
-  }
 
   const autoRoles = await autoRole.query
     .where("guild_id", member.guild.id)
-    .and.where("bot", false)
+    .and.where("bot", 0)
 
-  for (const roleData of autoRoles) {
-    await member.roles.add(roleData.role_id).catch()
-  }
+  await member.roles.add(autoRoles.map((ar) => ar.role_id))
 
   if (config.general_channel_id && config.member_welcome_message) {
     const general = await member.client.channels.cache.get(
