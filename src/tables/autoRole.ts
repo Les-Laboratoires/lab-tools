@@ -12,7 +12,7 @@ import * as app from "../app"
 export interface AutoRole {
   guild_id: string
   role_id: string
-  bot: boolean
+  bot: 0 | 1
 }
 
 const table = new app.Table<AutoRole>({
@@ -25,7 +25,7 @@ const table = new app.Table<AutoRole>({
       .onDelete("CASCADE")
       .notNullable()
     table.string("role_id").notNullable()
-    table.boolean("bot").notNullable().defaultTo(false)
+    table.boolean("bot").notNullable().defaultTo(0)
   },
 })
 

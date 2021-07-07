@@ -131,7 +131,7 @@ module.exports = new app.Command({
 
         const autoRoles = await autoRole.query
           .where("guild_id", message.guild.id)
-          .and.where("bot", target.user.bot)
+          .and.where("bot", Number(target.user.bot))
 
         for (const autoRole of autoRoles)
           await target.roles.add(autoRole.role_id).catch()
