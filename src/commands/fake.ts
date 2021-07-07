@@ -4,7 +4,7 @@ module.exports = new app.Command({
   name: "fake",
   coolDown: 10000,
   channelType: "all",
-  userPermissions: ["MANAGE_WEBHOOKS"],
+  botPermissions: ["MANAGE_WEBHOOKS"],
   description: "Fake an user message",
   positional: [
     {
