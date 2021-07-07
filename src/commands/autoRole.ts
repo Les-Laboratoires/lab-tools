@@ -106,7 +106,7 @@ module.exports = new app.Command({
             .addField(
               "Bot auto roles",
               autoRoles
-                .filter((ar) => ar.bot)
+                .filter((ar) => !!ar.bot)
                 .map((ar) => `<@&${ar.role_id}>`)
                 .join(" ") || "No role setup here."
             )
