@@ -133,8 +133,7 @@ module.exports = new app.Command({
           .where("guild_id", message.guild.id)
           .and.where("bot", Number(target.user.bot))
 
-        for (const autoRole of autoRoles)
-          await target.roles.add(autoRole.role_id).catch()
+        await target.roles.add(autoRoles.map((ar) => ar.role_id))
 
         return message.send(
           `${app.emote(
