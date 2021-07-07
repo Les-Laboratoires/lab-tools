@@ -62,11 +62,10 @@ module.exports = new app.Command({
 
               for (const m of messages.array()) await m.delete()
 
-              for (const page of pages) {
+              for (const page of pages)
                 await channel.send(
                   page.map((lab) => `${lab.title} ${lab.url}`).join("\n")
                 )
-              }
 
               await message.send(
                 `${app.emote(

@@ -77,13 +77,13 @@ module.exports = new app.Command({
         })
 
         return message.send(
-          `${app.emote(message, "CHECK")} Auto-roles is successfully pushed.`
+          `${app.emote(message, "CHECK")} Auto-role is successfully pushed.`
         )
       },
     }),
     new app.Command({
       name: "list",
-      aliases: "ls",
+      aliases: ["ls"],
       description: "List auto roles",
       channelType: "guild",
       async run(message) {
@@ -110,6 +110,38 @@ module.exports = new app.Command({
                 .map((ar) => `<@&${ar.role_id}>`)
                 .join(" ") || "No role setup here."
             )
+        )
+      },
+    }),
+    new app.Command({
+      name: "apply",
+      description: "Apply auto-roles to member",
+      middlewares: [app.staffOnly()],
+      channelType: "guild",
+      positional: [
+        {
+          name: "target",
+          description: "Target member",
+          required: true,
+          castValue: "member",
+        },
+      ],
+      async run(message) {
+        const target: app.GuildMember = message.args.member
+
+        const autoRoles = await autoRole.query
+          .where("guild_id", message.guild.id)
+          .and.where("bot", target.user.bot)
+
+        for (const autoRole of autoRoles) {
+          await target.roles.add(autoRole.role_id).catch()
+        }
+
+        return message.send(
+          `${app.emote(
+            message,
+            "CHECK"
+          )} Auto-roles are successfully applied to **${target.user.tag}**.`
         )
       },
     }),
