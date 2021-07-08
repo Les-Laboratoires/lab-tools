@@ -91,7 +91,7 @@ module.exports = new app.Command({
       name: "set",
       channelType: "guild",
       guildOwnerOnly: true,
-      description: "Set guild config",
+      description: "Set guild config property",
       rest: {
         name: "value",
         required: true,
@@ -122,6 +122,49 @@ module.exports = new app.Command({
           `${app.emote(message, "CHECK")} Successfully updated \`${
             message.args.name
           }\` value. `
+        )
+      },
+    }),
+    new app.Command({
+      name: "get",
+      channelType: "guild",
+      guildOwnerOnly: true,
+      description: "Get guild config value",
+      positional: [
+        {
+          name: "name",
+          required: true,
+          description: "The name of edited property",
+        },
+      ],
+      async run(message) {
+        const config = await app.getConfig(message.guild)
+
+        if (!config)
+          return message.send(
+            new app.MessageEmbed()
+              .setColor("BLURPLE")
+              .setTitle(`${message.guild.name} - ${message.args.name}`)
+              .setDescription(app.code.stringify({ content: "null" }))
+          )
+
+        const value = config[message.args.name as keyof GuildConfig] ?? "null"
+
+        let json: object | null = null
+        try {
+          json = JSON.parse(value)
+        } catch (error) {}
+
+        return message.channel.send(
+          new app.MessageEmbed()
+            .setColor("BLURPLE")
+            .setTitle(`${message.guild.name} - ${message.args.name}`)
+            .setDescription(
+              app.code.stringify({
+                content: json !== null ? JSON.stringify(json, null, 2) : value,
+                lang: json !== null ? "json" : undefined,
+              })
+            )
         )
       },
     }),
