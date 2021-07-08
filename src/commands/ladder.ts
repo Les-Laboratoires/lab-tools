@@ -23,11 +23,13 @@ module.exports = new app.Command({
         return new app.MessageEmbed().setTitle(`Leaderboard`).setDescription(
           page
             .map((line) => {
-              return `\`[${app
-                .forceTextSize(line.rank, 5, true)
-                .replace(/\s/g, "·")}]\` ${graphicalNote(
-                line.score
-              )}  **${line.score.toFixed(2)}**  <@${line.user_id}>`
+              return `\`[ ${app.forceTextSize(
+                line.rank,
+                3,
+                true
+              )} ]\` ${graphicalNote(line.score)}  **${line.score.toFixed(
+                2
+              )}**  <@${line.user_id}>`
             })
             .join("\n")
         )

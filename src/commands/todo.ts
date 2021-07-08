@@ -3,7 +3,7 @@ import * as app from "../app"
 import todoTable, { ToDo } from "../tables/todo"
 
 function todoId(todo: ToDo) {
-  return `\`[${app.forceTextSize(todo.id, 5, true).replace(/\s/g, "·")}]\``
+  return `\`[ ${app.forceTextSize(todo.id, 3, true)} ]\``
 }
 
 function todoItem(todo: ToDo) {

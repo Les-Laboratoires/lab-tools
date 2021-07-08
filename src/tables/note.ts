@@ -34,6 +34,7 @@ export async function getLadder(): Promise<
     from note
     group by \`to\`
     order by score desc
+    limit 999
   `)
 }
 
