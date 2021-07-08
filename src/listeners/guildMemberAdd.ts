@@ -2,7 +2,6 @@ import * as app from "../app"
 
 import users from "../tables/users"
 import guilds from "../tables/guilds"
-import autoRole from "../tables/autoRole"
 
 const listener: app.Listener<"guildMemberAdd"> = {
   event: "guildMemberAdd",
@@ -14,15 +13,10 @@ const listener: app.Listener<"guildMemberAdd"> = {
     if (!config) return
 
     if (member.user.bot) {
-      const autoRoles = await autoRole.query
-        .where("guild_id", member.guild.id)
-        .and.where("bot", true)
-
-      for (const roleData of autoRoles)
-        await member.roles.add(roleData.role_id).catch()
+      await app.applyAutoRoles(member)
 
       if (config.bot_default_role_id)
-        await member.roles.add(config.bot_default_role_id)
+        await member.roles.add(config.bot_default_role_id).catch(console.error)
 
       if (config.general_channel_id && config.bot_welcome_message) {
         const general = member.client.channels.cache.get(

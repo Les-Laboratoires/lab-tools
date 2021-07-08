@@ -129,11 +129,7 @@ module.exports = new app.Command({
       async run(message) {
         const target: app.GuildMember = message.args.target
 
-        const autoRoles = await autoRole.query
-          .where("guild_id", message.guild.id)
-          .and.where("bot", Number(target.user.bot))
-
-        await target.roles.add(autoRoles.map((ar) => ar.role_id))
+        await app.applyAutoRoles(target)
 
         return message.send(
           `${app.emote(
