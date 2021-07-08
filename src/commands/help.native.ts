@@ -31,6 +31,12 @@ module.exports = new app.Command({
       }
     } else {
       new app.Paginator({
+        customEmojis: {
+          start: app.Emotes.LEFT,
+          previous: app.Emotes.MINUS,
+          next: app.Emotes.PLUS,
+          end: app.Emotes.RIGHT,
+        },
         pages: app.Paginator.divider(
           (
             await Promise.all(

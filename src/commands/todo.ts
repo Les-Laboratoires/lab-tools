@@ -17,6 +17,12 @@ async function showTodoList(message: app.Message, user: app.User) {
   const todoList = await todoTable.query.where("user_id", user.id)
 
   new app.Paginator({
+    customEmojis: {
+      start: app.Emotes.LEFT,
+      previous: app.Emotes.MINUS,
+      next: app.Emotes.PLUS,
+      end: app.Emotes.RIGHT,
+    },
     placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
     channel: message.channel,
     filter: (reaction, user) => user.id === message.author.id,
@@ -216,6 +222,12 @@ module.exports = new app.Command({
           .map(todoItem)
 
         new app.Paginator({
+          customEmojis: {
+            start: app.Emotes.LEFT,
+            previous: app.Emotes.MINUS,
+            next: app.Emotes.PLUS,
+            end: app.Emotes.RIGHT,
+          },
           channel: message.channel,
           placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
           filter: (reaction, user) => user.id === message.author.id,

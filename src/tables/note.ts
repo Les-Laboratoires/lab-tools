@@ -14,6 +14,29 @@ export async function userNote({ id }: { id: string }) {
     .then((result) => result[0])
 }
 
+export function graphicalNote(note?: number) {
+  const full = "▰"
+  const empty = "▱"
+  const round = Math.round(note ?? 0)
+  return full.repeat(round) + empty.repeat(5 - round)
+}
+
+export async function getLadder(): Promise<
+  { user_id: string; score: number; rank: number }[]
+> {
+  return app.db.raw(`
+    select 
+        avg(value) as score,
+        \`to\` as user_id,
+        rank() over (
+            order by avg(value) desc
+        ) as rank
+    from note
+    group by \`to\`
+    order by score desc
+  `)
+}
+
 const table = new app.Table<Note>({
   name: "note",
   setup: (table) => {

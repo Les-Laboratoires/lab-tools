@@ -1,20 +1,16 @@
 import * as app from "../app"
 
-import note, { userNote } from "../tables/note"
+import note, { userNote, graphicalNote } from "../tables/note"
 
 async function noteEmbed(target: app.User) {
   const { count, avg } = await userNote(target)
-  const full = "▰"
-  const empty = "▱"
-  const round = Math.round(avg ?? 0)
-  const bar = full.repeat(round) + empty.repeat(5 - round)
 
   return new app.MessageEmbed()
     .setAuthor(
       `Note of ${target.tag}`,
       target.displayAvatarURL({ dynamic: true })
     )
-    .setDescription(`${bar} **${avg?.toFixed(2) ?? 0}** / 5`)
+    .setDescription(`${graphicalNote(avg)} **${avg?.toFixed(2) ?? 0}** / 5`)
     .setFooter(`Total: ${count ?? 0} notes`)
 }
 
