@@ -31,13 +31,7 @@ module.exports = new app.Command({
       }
     } else {
       new app.Paginator({
-        customEmojis: {
-          start: app.Emotes.LEFT,
-          previous: app.Emotes.MINUS,
-          next: app.Emotes.PLUS,
-          end: app.Emotes.RIGHT,
-        },
-        pages: app.Paginator.divider(
+        pages: await app.Paginator.divider(
           (
             await Promise.all(
               app.commands.map(async (cmd) => {
@@ -47,14 +41,18 @@ module.exports = new app.Command({
               })
             )
           ).filter((line) => line.length > 0),
-          10
-        ).map((page) => {
-          return new app.MessageEmbed()
-            .setColor("BLURPLE")
-            .setAuthor("Command list", message.client.user?.displayAvatarURL())
-            .setDescription(page.join("\n"))
-            .setFooter(`${message.usedPrefix}help <command>`)
-        }),
+          10,
+          (page) => {
+            return new app.MessageEmbed()
+              .setColor("BLURPLE")
+              .setAuthor(
+                "Command list",
+                message.client.user?.displayAvatarURL()
+              )
+              .setDescription(page.join("\n"))
+              .setFooter(`${message.usedPrefix}help <command>`)
+          }
+        ),
         filter: (reaction, user) => user.id === message.author.id,
         channel: message.channel,
       })

@@ -62,7 +62,7 @@ function watch(cb) {
   })
 
   spawn.stderr.on("data", (data) => {
-    app.error(chalk.red(`${data}`.trim()))
+    console.error(chalk.red(`${data}`.trim()))
   })
 
   spawn.on("close", () => cb())

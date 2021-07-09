@@ -9,7 +9,10 @@ export function staffOnly(): command.Middleware<"guild"> {
     const config = await utils.getConfig(message.guild)
 
     if (!config?.staff_role_id)
-      logger.warn("Staff role is not configured!", "system")
+      logger.warn(
+        `Staff role is not configured in ${message.guild.name}`,
+        "system"
+      )
 
     return (
       (config?.staff_role_id &&
