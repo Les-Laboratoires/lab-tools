@@ -16,7 +16,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
       await app.applyAutoRoles(member)
 
       if (config.bot_default_role_id)
-        await member.roles.add(config.bot_default_role_id).catch(console.error)
+        await member.roles.add(config.bot_default_role_id).catch(app.error)
 
       if (config.general_channel_id && config.bot_welcome_message) {
         const general = member.client.channels.cache.get(

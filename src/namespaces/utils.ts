@@ -50,10 +50,10 @@ export async function approveMember(
   if (!config) return
 
   if (config.member_default_role_id)
-    await member.roles.add(config.member_default_role_id).catch(console.error)
+    await member.roles.add(config.member_default_role_id).catch(app.error)
 
   if (config.validation_role_id)
-    await member.roles.remove(config.validation_role_id).catch(console.error)
+    await member.roles.remove(config.validation_role_id).catch(app.error)
 
   await applyAutoRoles(member)
 
@@ -89,8 +89,23 @@ export async function sendLog(
 
 export async function getConfig(
   guild: app.Guild
+): Promise<GuildConfig | undefined>
+export async function getConfig(
+  guild: app.Guild,
+  force: true
+): Promise<GuildConfig>
+export async function getConfig(
+  guild: app.Guild,
+  force?: true
 ): Promise<GuildConfig | undefined> {
-  return guilds.query.where("id", guild.id).first()
+  const config = await guilds.query.where("id", guild.id).first()
+
+  if (force && !config) {
+    await guilds.query.insert({ id: guild.id })
+    return (await guilds.query.where("id", guild.id).first()) as GuildConfig
+  }
+
+  return config
 }
 
 export async function embedTemplate(
@@ -160,5 +175,5 @@ export async function applyAutoRoles(member: app.GuildMember) {
     .where("guild_id", member.guild.id)
     .and.where("bot", Number(member.user.bot))
 
-  await member.roles.add(autoRoles.map((ar) => ar.role_id)).catch(console.error)
+  await member.roles.add(autoRoles.map((ar) => ar.role_id)).catch(app.error)
 }

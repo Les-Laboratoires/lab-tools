@@ -8,11 +8,11 @@ module.exports = new app.Command({
   description: "Toggle a busy-mark on a help-room",
   coolDown: 5000,
   middlewares: [
+    app.hasConfigKey("help_room_pattern"),
     async (message) => {
       const config = await app.getConfig(message.guild)
 
-      if (!config?.help_room_pattern)
-        return "You don't have setup the **help_room_pattern**!"
+      if (!config?.help_room_pattern) return ""
 
       return (
         message.channel.name.includes(config.help_room_pattern) ||
@@ -29,6 +29,8 @@ module.exports = new app.Command({
     },
   ],
   async run(message) {
+    message.delete().catch()
+
     const user: app.User = message.args.user
 
     const { channel } = message
@@ -56,7 +58,8 @@ module.exports = new app.Command({
 
       await channel.setName(name.replace("⛔", ""))
 
-      return channel.send(
+      return message.sendTimeout(
+        10000,
         new app.MessageEmbed()
           .setColor("BLURPLE")
           .setDescription(
@@ -73,16 +76,17 @@ module.exports = new app.Command({
 
       await channel.setName(name + "⛔")
 
-      return channel.send(
+      return message.sendTimeout(
+        10000,
         new app.MessageEmbed()
           .setColor("BLURPLE")
           .setDescription(
-            `⛔ This help room is now **busy**${
+            `${app.emote(message, "CHECK")} This help room is now **occupied**${
               user ? ` by ${user.username}` : ""
             }.`
           )
           .setFooter(
-            `Please use the ${message.usedPrefix}toggle command to free the channel when your fix is done.`
+            `${user.tag} should use the ${message.usedPrefix}toggle command to free the help room once its problem has been resolved.`
           )
       )
     }
