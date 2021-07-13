@@ -37,8 +37,8 @@ export async function getLadder(
             order by avg(value) desc
         ) as rank
     from note
-    where note_count >= ${minNoteCount}
     group by \`to\`
+    having note_count >= ${minNoteCount}
     order by score desc
     limit ${itemCountByPage} 
     offset ${page * itemCountByPage}
