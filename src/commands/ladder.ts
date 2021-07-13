@@ -8,8 +8,6 @@ module.exports = new app.Command({
   description: "The leaderboard",
   channelType: "all",
   async run(message) {
-    const ladder = await getLadder()
-
     new app.Paginator({
       channel: message.channel,
       placeHolder: "No ladder available.",
@@ -19,7 +17,9 @@ module.exports = new app.Command({
         next: app.Emotes.PLUS,
         end: app.Emotes.RIGHT,
       },
-      pages: app.Paginator.divider(ladder, 15).map((page) => {
+      pages: async (pageIndex) => {
+        const page = await getLadder(pageIndex, 15, 5)
+
         return new app.MessageEmbed().setTitle(`Leaderboard`).setDescription(
           page
             .map((line) => {
@@ -33,7 +33,7 @@ module.exports = new app.Command({
             })
             .join("\n")
         )
-      }),
+      },
     })
   },
 })

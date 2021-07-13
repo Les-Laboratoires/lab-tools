@@ -21,20 +21,27 @@ export function graphicalNote(note?: number) {
   return full.repeat(round) + empty.repeat(5 - round)
 }
 
-export async function getLadder(): Promise<
-  { user_id: string; score: number; rank: number }[]
+export async function getLadder(
+  page: number,
+  itemCountByPage: number,
+  minNoteCount: number
+): Promise<
+  { user_id: string; score: number; rank: number; note_count: number }[]
 > {
   return app.db.raw(`
     select 
         avg(value) as score,
+        count(\`from\`) as note_count
         \`to\` as user_id,
         rank() over (
             order by avg(value) desc
         ) as rank
     from note
+    where note_count >= ${minNoteCount}
     group by \`to\`
     order by score desc
-    limit 999
+    limit ${itemCountByPage} 
+    offset ${page * itemCountByPage}
   `)
 }
 
