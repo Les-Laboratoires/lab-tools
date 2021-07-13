@@ -26,7 +26,12 @@ export async function getLadder(
   itemCountByPage: number,
   minNoteCount: number
 ): Promise<
-  { user_id: string; score: number; rank: number; note_count: number }[]
+  {
+    user_id: string
+    score: number
+    rank: number
+    note_count: number
+  }[]
 > {
   return app.db.raw(`
     select 
@@ -37,12 +42,30 @@ export async function getLadder(
             order by avg(value) desc
         ) as rank
     from note
-    group by \`to\`
+    group by user_id
     having note_count >= ${minNoteCount}
     order by score desc
     limit ${itemCountByPage} 
     offset ${page * itemCountByPage}
   `)
+}
+
+export async function getAvailableUsersTotal(
+  minNoteCount: number
+): Promise<number> {
+  return app.db
+    .raw(
+      `
+      select 
+          count(\`from\`) as note_count,
+          \`to\` as user_id,
+          count(*) as total
+      from note
+      group by user_id
+      having note_count >= ${minNoteCount}
+    `
+    )
+    .then((rows) => rows[0]?.total ?? 0)
 }
 
 const table = new app.Table<Note>({

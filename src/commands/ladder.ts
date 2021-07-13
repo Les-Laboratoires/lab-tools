@@ -1,6 +1,10 @@
 import * as app from "../app"
 
-import { getLadder, graphicalNote } from "../tables/note"
+import {
+  getLadder,
+  graphicalNote,
+  getAvailableUsersTotal,
+} from "../tables/note"
 
 module.exports = new app.Command({
   name: "ladder",
@@ -8,9 +12,14 @@ module.exports = new app.Command({
   description: "The leaderboard",
   channelType: "all",
   async run(message) {
+    const itemCountByPage = 15
+    const minNoteCount = 5
+    const total = await getAvailableUsersTotal(minNoteCount)
+
     new app.Paginator({
       channel: message.channel,
       placeHolder: "No ladder available.",
+      pageCount: Math.ceil(total / itemCountByPage),
       customEmojis: {
         start: app.Emotes.LEFT,
         previous: app.Emotes.MINUS,
@@ -18,7 +27,7 @@ module.exports = new app.Command({
         end: app.Emotes.RIGHT,
       },
       pages: async (pageIndex) => {
-        const page = await getLadder(pageIndex, 15, 5)
+        const page = await getLadder(pageIndex, itemCountByPage, minNoteCount)
 
         return new app.MessageEmbed().setTitle(`Leaderboard`).setDescription(
           page
