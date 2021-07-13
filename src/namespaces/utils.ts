@@ -65,7 +65,7 @@ export async function approveMember(
     if (general) {
       await embedTemplate(general, config.member_welcome_message, {
         ...embedReplacers(member),
-        presentation,
+        presentation: presentation.replace(/\n/g, "\\n"),
       })
     }
   }
