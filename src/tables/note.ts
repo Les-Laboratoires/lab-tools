@@ -31,7 +31,7 @@ export async function getLadder(
   return app.db.raw(`
     select 
         avg(value) as score,
-        count(\`from\`) as note_count
+        count(\`from\`) as note_count,
         \`to\` as user_id,
         rank() over (
             order by avg(value) desc
