@@ -7,7 +7,7 @@ import API from "discord-api-types/v8"
 import * as core from "./core"
 import * as logger from "./logger"
 import * as _command from "./command"
-import { CommandMessageType } from "./command"
+import { NormalMessageType } from "./command"
 
 export let usable = false
 export let refreshInterval: any = null
@@ -85,7 +85,7 @@ export async function postSlashCommand(
 }
 
 function subCommandsToSlashCommandOptions<
-  Type extends keyof CommandMessageType = keyof CommandMessageType
+  Type extends keyof NormalMessageType = keyof NormalMessageType
 >(
   cmd: _command.Command<Type>,
   depth: number = 0,

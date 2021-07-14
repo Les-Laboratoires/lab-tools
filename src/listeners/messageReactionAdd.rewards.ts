@@ -5,7 +5,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
   async run(reaction, user) {
     if (user.id === reaction.client.user?.id) return
 
-    if (!app.isCommandMessage(reaction.message)) return
+    if (!app.isNormalMessage(reaction.message)) return
     if (!app.isGuildMessage(reaction.message)) return
 
     const config = await app.getConfig(reaction.message.guild)

@@ -4,7 +4,16 @@ import yargsParser from "yargs-parser"
 const listener: app.Listener<"message"> = {
   event: "message",
   async run(message) {
-    if (!app.isCommandMessage(message)) return
+    if (!app.isNormalMessage(message)) return
+
+    const prefix = await app.prefix(message.guild ?? undefined)
+
+    if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
+      return message.channel.send(
+        new app.MessageEmbed()
+          .setColor("BLURPLE")
+          .setDescription(`My prefix is \`${prefix}\``)
+      )
 
     message.usedAsDefault = false
 
@@ -15,7 +24,7 @@ const listener: app.Listener<"message"> = {
     message.sendTimeout = async function (timeout, sent) {
       const m = await this.channel.send(sent)
       setTimeout(
-        function (this: app.CommandMessage) {
+        function (this: app.NormalMessage) {
           if (!this.deleted) this.delete().catch()
         }.bind(this),
         timeout
@@ -35,8 +44,6 @@ const listener: app.Listener<"message"> = {
       app.emitMessage(message.guild, message)
       app.emitMessage(message.member, message)
     }
-
-    const prefix = await app.prefix(message.guild ?? undefined)
 
     let dynamicContent = message.content
 
@@ -104,7 +111,7 @@ const listener: app.Listener<"message"> = {
 
     const baseContent = dynamicContent
 
-    // parse CommandMessage arguments
+    // parse NormalMessage arguments
     const parsedArgs = yargsParser(dynamicContent)
     const restPositional = parsedArgs._.slice() ?? []
 

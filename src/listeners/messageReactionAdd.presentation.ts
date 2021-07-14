@@ -3,7 +3,7 @@ import * as app from "../app"
 const listener: app.Listener<"messageReactionAdd"> = {
   event: "messageReactionAdd",
   async run(reaction, user) {
-    if (!app.isCommandMessage(reaction.message)) return
+    if (!app.isNormalMessage(reaction.message)) return
     if (!app.isGuildMessage(reaction.message)) return
 
     const config = await app.getConfig(reaction.message.guild)

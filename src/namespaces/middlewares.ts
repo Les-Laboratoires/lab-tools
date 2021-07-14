@@ -5,7 +5,7 @@ import * as utils from "../namespaces/utils"
 import { GuildConfig } from "../tables/guilds"
 
 export function staffOnly(): command.Middleware<"guild"> {
-  return async (message) => {
+  return async (message, data) => {
     const config = await utils.getConfig(message.guild)
 
     if (!config?.staff_role_id)
@@ -14,25 +14,33 @@ export function staffOnly(): command.Middleware<"guild"> {
         "system"
       )
 
-    return (
-      (config?.staff_role_id &&
-        message.member.roles.cache.has(config.staff_role_id)) ||
-      message.guild.ownerID === message.author.id ||
-      message.member.permissions.has("ADMINISTRATOR") ||
-      "You must be a member of staff."
-    )
+    return {
+      result:
+        (config?.staff_role_id &&
+          message.member.roles.cache.has(config.staff_role_id)) ||
+        message.guild.ownerID === message.author.id ||
+        message.member.permissions.has("ADMINISTRATOR") ||
+        "You must be a member of staff.",
+      data,
+    }
   }
 }
 
 export function hasConfigKey(
   key: keyof GuildConfig
 ): command.Middleware<"guild"> {
-  return async (message) => {
+  return async (message, data) => {
     const config = await utils.getConfig(message.guild)
 
     if (!config?.[key])
-      return `You need to setup the **${key}** property !\nUse the \`${message.usedPrefix}config set ${key} <value>\` comand`
+      return {
+        result: `You need to setup the **${key}** property !\nUse the \`${message.usedPrefix}config set ${key} <value>\` comand`,
+        data,
+      }
 
-    return true
+    return {
+      result: true,
+      data,
+    }
   }
 }

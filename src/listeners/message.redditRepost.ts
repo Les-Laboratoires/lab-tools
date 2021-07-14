@@ -6,7 +6,7 @@ import URL from "url"
 const listener: app.Listener<"message"> = {
   event: "message",
   async run(message) {
-    if (!app.isCommandMessage(message)) return
+    if (!app.isNormalMessage(message)) return
     if (!app.isGuildMessage(message)) return
 
     if (message.webhookID) {

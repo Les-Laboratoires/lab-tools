@@ -36,7 +36,7 @@ async function showTodoList(message: app.Message, user: app.User) {
   })
 }
 
-async function insertTodo(message: app.CommandMessage) {
+async function insertTodo(message: app.NormalMessage) {
   if (message.rest.startsWith("-")) message.rest = message.rest.slice(1).trim()
 
   const count = await todoTable.query

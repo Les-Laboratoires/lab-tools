@@ -14,13 +14,13 @@ export interface Argument {
   missingErrorMessage?: string | discord.MessageEmbed
 }
 
-export interface Rest<Message extends command.CommandMessage> extends Argument {
+export interface Rest<Message extends command.NormalMessage> extends Argument {
   required?: core.Scrap<boolean, [message?: Message]>
   default?: core.Scrap<string, [message?: Message]>
   all?: boolean
 }
 
-export interface Option<Message extends command.CommandMessage>
+export interface Option<Message extends command.NormalMessage>
   extends Argument {
   aliases?: string[]
   default?: core.Scrap<string, [message?: Message]>
@@ -33,10 +33,14 @@ export interface Option<Message extends command.CommandMessage>
     | "regex"
     | "array"
     | "user"
+    | "user+"
     | "member"
+    | "member+"
     | "channel"
+    | "channel+"
     | "message"
     | "role"
+    | "role+"
     | "emote"
     | "invite"
     | ((value: string, message: Message) => any)
@@ -54,12 +58,12 @@ export interface Option<Message extends command.CommandMessage>
   typeDescription?: core.Scrap<string, [value: string, message?: Message]>
 }
 
-export type Positional<Message extends command.CommandMessage> = Omit<
+export type Positional<Message extends command.NormalMessage> = Omit<
   Option<Message>,
   "aliases"
 >
 
-export interface Flag<Message extends command.CommandMessage>
+export interface Flag<Message extends command.NormalMessage>
   extends Pick<
     Option<Message>,
     "name" | "aliases" | "description" | "castingErrorMessage"
@@ -67,7 +71,7 @@ export interface Flag<Message extends command.CommandMessage>
   flag: string
 }
 
-export function resolveGivenArgument<Message extends command.CommandMessage>(
+export function resolveGivenArgument<Message extends command.NormalMessage>(
   parsedArgs: yargsParser.Arguments,
   arg: Option<Message> | Flag<Message>
 ): { given: boolean; usedName: string; value: any } {
@@ -95,7 +99,7 @@ export function resolveGivenArgument<Message extends command.CommandMessage>(
   return { given, usedName, value }
 }
 
-export async function checkValue<Message extends command.CommandMessage>(
+export async function checkValue<Message extends command.NormalMessage>(
   subject: Pick<Option<Message>, "checkValue" | "name">,
   subjectType: "positional" | "argument",
   value: string,
@@ -169,7 +173,7 @@ export async function checkValue<Message extends command.CommandMessage>(
   return true
 }
 
-export async function checkCastedValue<Message extends command.CommandMessage>(
+export async function checkCastedValue<Message extends command.NormalMessage>(
   subject: Pick<
     Option<Message>,
     "checkCastedValue" | "name" | "checkingErrorMessage"
@@ -222,7 +226,7 @@ export async function checkCastedValue<Message extends command.CommandMessage>(
   return true
 }
 
-export async function castValue<Message extends command.CommandMessage>(
+export async function castValue<Message extends command.NormalMessage>(
   subject: Pick<Option<Message>, "castValue" | "name" | "castingErrorMessage">,
   subjectType: "positional" | "argument",
   baseValue: string | undefined,
@@ -268,6 +272,7 @@ export async function castValue<Message extends command.CommandMessage>(
         else setValue(baseValue.split(/[,;|]/))
         break
       case "channel":
+      case "channel+":
         if (baseValue) {
           const match = /^(?:<#(\d+)>|(\d+))$/.exec(baseValue)
           if (match) {
@@ -275,10 +280,24 @@ export async function castValue<Message extends command.CommandMessage>(
             const channel = message.client.channels.cache.get(id)
             if (channel) setValue(channel)
             else throw new Error("Unknown channel!")
+          } else if (subject.castValue === "channel+") {
+            const search = (channel: discord.Channel) => {
+              return (
+                "name" in channel && // @ts-ignore
+                channel.name.toLowerCase().includes(baseValue.toLowerCase())
+              )
+            }
+            let channel: discord.Channel | undefined
+            if (command.isGuildMessage(message))
+              channel = message.guild.channels.cache.find(search)
+            channel ??= message.client.channels.cache.find(search)
+            if (channel) setValue(channel)
+            else throw new Error("Channel not found!")
           } else throw new Error("Invalid channel value!")
         } else throw empty
         break
       case "member":
+      case "member+":
         if (baseValue) {
           if (command.isGuildMessage(message)) {
             const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
@@ -287,6 +306,19 @@ export async function castValue<Message extends command.CommandMessage>(
               const member = message.guild.members.cache.get(id)
               if (member) setValue(member)
               else throw new Error("Unknown member!")
+            } else if (subject.castValue === "member+") {
+              const member = message.guild.members.cache.find((member) => {
+                return (
+                  member.displayName
+                    .toLowerCase()
+                    .includes(baseValue.toLowerCase()) ||
+                  member.user.username
+                    .toLowerCase()
+                    .includes(baseValue.toLowerCase())
+                )
+              })
+              if (member) setValue(member)
+              else throw new Error("Member not found!")
             } else throw new Error("Invalid member value!")
           } else
             throw new Error(
@@ -312,6 +344,7 @@ export async function castValue<Message extends command.CommandMessage>(
         } else throw empty
         break
       case "user":
+      case "user+":
         if (baseValue) {
           const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
           if (match) {
@@ -319,10 +352,19 @@ export async function castValue<Message extends command.CommandMessage>(
             const user = await message.client.users.fetch(id, false)
             if (user) setValue(user)
             else throw new Error("Unknown user!")
+          } else if (subject.castValue === "user+") {
+            const user = message.client.users.cache.find((user) => {
+              return user.username
+                .toLowerCase()
+                .includes(baseValue.toLowerCase())
+            })
+            if (user) setValue(user)
+            else throw new Error("User not found!")
           } else throw new Error("Invalid user value!")
         } else throw empty
         break
       case "role":
+      case "role+":
         if (baseValue) {
           if (command.isGuildMessage(message)) {
             const match = /^(?:<@&?(\d+)>|(\d+))$/.exec(baseValue)
@@ -331,6 +373,12 @@ export async function castValue<Message extends command.CommandMessage>(
               const role = message.guild.roles.cache.get(id)
               if (role) setValue(role)
               else throw new Error("Unknown role!")
+            } else if (subject.castValue === "role+") {
+              const role = message.guild.roles.cache.find((role) => {
+                return role.name.toLowerCase().includes(baseValue.toLowerCase())
+              })
+              if (role) setValue(role)
+              else throw new Error("Role not found!")
             } else throw new Error("Invalid role value!")
           } else
             throw new Error(
@@ -416,7 +464,7 @@ export async function castValue<Message extends command.CommandMessage>(
   }
 }
 
-export function getTypeDescriptionOf<Message extends command.CommandMessage>(
+export function getTypeDescriptionOf<Message extends command.NormalMessage>(
   arg: Option<Message>
 ) {
   if (arg.typeDescription) return arg.typeDescription
@@ -428,7 +476,7 @@ export function getTypeDescriptionOf<Message extends command.CommandMessage>(
   return "any"
 }
 
-export function isFlag<Message extends command.CommandMessage>(
+export function isFlag<Message extends command.NormalMessage>(
   arg: Option<Message>
 ): arg is Flag<Message> {
   return arg.hasOwnProperty("flag")

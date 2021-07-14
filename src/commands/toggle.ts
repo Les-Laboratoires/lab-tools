@@ -9,15 +9,17 @@ module.exports = new app.Command({
   coolDown: 5000,
   middlewares: [
     app.hasConfigKey("help_room_pattern"),
-    async (message) => {
+    async (message, data) => {
       const config = await app.getConfig(message.guild)
 
-      if (!config?.help_room_pattern) return ""
+      if (!config?.help_room_pattern) return { result: "", data }
 
-      return (
-        message.channel.name.includes(config.help_room_pattern) ||
-        "You must be in a help room."
-      )
+      return {
+        result:
+          message.channel.name.includes(config.help_room_pattern) ||
+          "You must be in a help room.",
+        data,
+      }
     },
   ],
   positional: [
@@ -44,7 +46,7 @@ module.exports = new app.Command({
 
       if (busyItem) {
         if (busyItem.user_id !== message.author.id) {
-          const error = await app.staffOnly()(message)
+          const { result: error } = await app.staffOnly()(message, null)
           if (error !== true)
             return channel.send(
               new app.MessageEmbed().setColor("RED").setDescription(error)
