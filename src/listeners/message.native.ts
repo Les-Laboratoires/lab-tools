@@ -111,7 +111,7 @@ const listener: app.Listener<"message"> = {
 
     const baseContent = dynamicContent
 
-    // parse NormalMessage arguments
+    // parse CommandMessage arguments
     const parsedArgs = yargsParser(dynamicContent)
     const restPositional = parsedArgs._.slice() ?? []
 
