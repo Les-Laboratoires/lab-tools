@@ -6,6 +6,25 @@ export interface Note {
   value: 0 | 1 | 2 | 3 | 4 | 5
 }
 
+const table = new app.Table<Note>({
+  name: "note",
+  setup: (table) => {
+    table
+      .string("to")
+      .references("id")
+      .inTable("users")
+      .onDelete("CASCADE")
+      .notNullable()
+    table
+      .string("from")
+      .references("id")
+      .inTable("users")
+      .onDelete("CASCADE")
+      .notNullable()
+    table.integer("value", 1).notNullable()
+  },
+})
+
 export async function userNote({ id }: { id: string }) {
   return await table.query
     .where("to", id)
@@ -68,21 +87,4 @@ export async function getAvailableUsersTotal(
     .then((rows) => rows[0]?.total ?? 0)
 }
 
-export default new app.Table<Note>({
-  name: "note",
-  setup: (table) => {
-    table
-      .string("to")
-      .references("id")
-      .inTable("users")
-      .onDelete("CASCADE")
-      .notNullable()
-    table
-      .string("from")
-      .references("id")
-      .inTable("users")
-      .onDelete("CASCADE")
-      .notNullable()
-    table.integer("value", 1).notNullable()
-  },
-})
+export default table
