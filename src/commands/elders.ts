@@ -1,6 +1,6 @@
 import * as app from "../app"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "elders",
   aliases: ["elder", "old"],
   description: "The elders command",

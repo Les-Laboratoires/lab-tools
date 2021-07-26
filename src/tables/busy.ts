@@ -5,12 +5,10 @@ export interface Busy {
   user_id: string
 }
 
-const table = new app.Table<Busy>({
+export default new app.Table<Busy>({
   name: "busy",
   setup: (table) => {
     table.string("channel_id").notNullable()
     table.string("user_id").notNullable()
   },
 })
-
-export default table

@@ -6,7 +6,7 @@ export interface ToDo {
   content: string
 }
 
-const table = new app.Table<ToDo>({
+export default new app.Table<ToDo>({
   name: "todo",
   setup: (table) => {
     table.increments("id").primary().unsigned()
@@ -20,5 +20,3 @@ const table = new app.Table<ToDo>({
     table.string("content", 2048).notNullable()
   },
 })
-
-export default table

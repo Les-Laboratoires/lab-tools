@@ -2,7 +2,7 @@ import * as app from "../app"
 
 import guilds, { GuildConfig } from "../tables/guilds"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "config",
   description: "Display guild configs",
   guildOwnerOnly: true,

@@ -14,7 +14,7 @@ async function noteEmbed(target: app.User) {
     .setFooter(`Total: ${count ?? 0} notes`)
 }
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "note",
   description: "Note management",
   channelType: "all",

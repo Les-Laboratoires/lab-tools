@@ -6,7 +6,7 @@ import {
   getAvailableUsersTotal,
 } from "../tables/note"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "ladder",
   aliases: ["top", "lb", "leaderboard"],
   description: "The leaderboard",

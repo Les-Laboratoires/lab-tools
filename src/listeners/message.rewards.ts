@@ -16,4 +16,4 @@ const listener: app.Listener<"message"> = {
   },
 }
 
-module.exports = listener
+export default listener

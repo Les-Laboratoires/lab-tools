@@ -68,7 +68,7 @@ export async function getAvailableUsersTotal(
     .then((rows) => rows[0]?.total ?? 0)
 }
 
-const table = new app.Table<Note>({
+export default new app.Table<Note>({
   name: "note",
   setup: (table) => {
     table
@@ -86,5 +86,3 @@ const table = new app.Table<Note>({
     table.integer("value", 1).notNullable()
   },
 })
-
-export default table

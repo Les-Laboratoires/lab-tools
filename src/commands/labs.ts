@@ -2,10 +2,9 @@ import * as app from "../app"
 
 import lab from "../tables/lab"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "labs",
   aliases: ["lab", "affiliations", "affiliation"],
-  coolDown: 10000,
   description: "The labs command",
   channelType: "guild",
   async run(message) {
@@ -17,6 +16,7 @@ module.exports = new app.Command({
       aliases: ["update", "set"],
       description: "Add a lab",
       channelType: "guild",
+      coolDown: 10000,
       botOwnerOnly: true,
       rest: {
         name: "title",

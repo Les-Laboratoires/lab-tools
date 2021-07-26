@@ -6,7 +6,7 @@ export interface Lab {
   title: string
 }
 
-const table = new app.Table<Lab>({
+export default new app.Table<Lab>({
   name: "labs",
   setup: (table) => {
     table.string("id").unique().primary().notNullable()
@@ -14,5 +14,3 @@ const table = new app.Table<Lab>({
     table.string("title").notNullable()
   },
 })
-
-export default table

@@ -3,7 +3,7 @@ import cron from "cron"
 
 import cronTable from "../tables/cron"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "cron",
   description: "Manage cron jobs",
   channelType: "all",

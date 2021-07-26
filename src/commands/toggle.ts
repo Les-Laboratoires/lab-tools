@@ -2,7 +2,7 @@ import * as app from "../app"
 
 import busy from "../tables/busy"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "toggle",
   channelType: "guild",
   description: "Toggle a busy-mark on a help-room",

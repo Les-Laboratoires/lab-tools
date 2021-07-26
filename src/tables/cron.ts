@@ -1,6 +1,6 @@
 import * as app from "../app"
 
-const table = new app.Table<{
+export default new app.Table<{
   user_id: string
   channel_id: string
   period: string
@@ -22,5 +22,3 @@ const table = new app.Table<{
     table.string("name").notNullable()
   },
 })
-
-export default table

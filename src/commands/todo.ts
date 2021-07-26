@@ -78,7 +78,7 @@ async function insertTodo(message: app.NormalMessage) {
   }
 }
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "todo",
   aliases: ["td"],
   channelType: "all",

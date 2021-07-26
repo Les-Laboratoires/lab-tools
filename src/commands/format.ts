@@ -2,7 +2,7 @@ import * as app from "../app"
 
 import * as prettify from "ghom-prettify"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "format",
   description: "Format the given code",
   aliases: ["beautify", "prettier"],

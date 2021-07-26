@@ -23,7 +23,7 @@ export interface GuildConfig {
   elders_role_pattern: string | null
 }
 
-const table = new app.Table<GuildConfig>({
+export default new app.Table<GuildConfig>({
   name: "guilds",
   setup: (table) => {
     table.string("id").unique().notNullable()
@@ -48,5 +48,3 @@ const table = new app.Table<GuildConfig>({
     table.string("elders_role_pattern")
   },
 })
-
-export default table

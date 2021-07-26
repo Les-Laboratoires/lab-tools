@@ -5,7 +5,7 @@ export interface LabUser {
   presentation: string
 }
 
-const table = new app.Table<LabUser>({
+export default new app.Table<LabUser>({
   name: "users",
   priority: 1,
   setup: (table) => {
@@ -13,5 +13,3 @@ const table = new app.Table<LabUser>({
     table.string("presentation", 2048)
   },
 })
-
-export default table

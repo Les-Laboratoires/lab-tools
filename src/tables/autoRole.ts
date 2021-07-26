@@ -15,7 +15,7 @@ export interface AutoRole {
   bot: 0 | 1
 }
 
-const table = new app.Table<AutoRole>({
+export default new app.Table<AutoRole>({
   name: "autoRole",
   setup: (table) => {
     table
@@ -28,5 +28,3 @@ const table = new app.Table<AutoRole>({
     table.boolean("bot").notNullable().defaultTo(0)
   },
 })
-
-export default table

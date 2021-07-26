@@ -1,7 +1,7 @@
 import { URL } from "url"
 import * as app from "../app"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "invite",
   description: "Generate an invitation link",
   aliases: ["invitation", "bot", "cobaye"],

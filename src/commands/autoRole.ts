@@ -1,7 +1,7 @@
 import * as app from "../app"
 import autoRole from "../tables/autoRole"
 
-module.exports = new app.Command({
+export default new app.Command({
   name: "autoRole",
   aliases: ["ar", "autorole"],
   description: "Manage the auto roles",
