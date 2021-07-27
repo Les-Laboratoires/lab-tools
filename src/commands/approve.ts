@@ -1,7 +1,7 @@
 import * as app from "../app"
 
 export default new app.Command({
-  name: "apply",
+  name: "approve",
   description: "Approve a member",
   middlewares: [app.staffOnly()],
   channelType: "guild",
