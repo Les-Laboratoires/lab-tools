@@ -7,21 +7,7 @@ export default new app.Command({
   channelType: "guild",
   description: "Toggle a busy-mark on a help-room",
   coolDown: 5000,
-  middlewares: [
-    app.hasConfigKey("help_room_pattern"),
-    async (message, data) => {
-      const config = await app.getConfig(message.guild)
-
-      if (!config?.help_room_pattern) return { result: "", data }
-
-      return {
-        result:
-          message.channel.name.includes(config.help_room_pattern) ||
-          "You must be in a help room.",
-        data,
-      }
-    },
-  ],
+  middlewares: [app.isInHelpRoom()],
   positional: [
     {
       name: "user",
@@ -93,4 +79,61 @@ export default new app.Command({
       )
     }
   },
+  subs: [
+    new app.Command({
+      name: "check",
+      description: "Check who occupies room",
+      aliases: ["who", "show"],
+      coolDown: 10000,
+      channelType: "guild",
+      middlewares: [app.isInHelpRoom()],
+      async run(message) {
+        message.delete().catch()
+
+        const { channel } = message
+        const { name } = channel
+
+        if (name.endsWith("⛔")) {
+          message.triggerCoolDown()
+
+          const busyItem = await busy.query
+            .select()
+            .where("channel_id", channel.id)
+            .first()
+
+          if (busyItem) {
+            const user = await message.client.users.fetch(busyItem.user_id)
+
+            return message.sendTimeout(
+              10000,
+              new app.MessageEmbed()
+                .setColor("BLURPLE")
+                .setAuthor(
+                  `This help room is currently occupied by ${user.username}`,
+                  user.displayAvatarURL({ dynamic: true })
+                )
+                .setFooter(
+                  `${user.tag} should use the ${message.usedPrefix}toggle command to free the help room once its problem has been resolved.`
+                )
+            )
+          } else {
+            await channel.setName(name.replace("⛔", ""))
+
+            return message.sendTimeout(
+              10000,
+              new app.MessageEmbed()
+                .setColor("BLURPLE")
+                .setTitle("This help room is free")
+            )
+          }
+        } else
+          return message.sendTimeout(
+            10000,
+            new app.MessageEmbed()
+              .setColor("BLURPLE")
+              .setTitle("This help room is free")
+          )
+      },
+    }),
+  ],
 })

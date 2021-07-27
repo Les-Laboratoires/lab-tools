@@ -44,3 +44,20 @@ export function hasConfigKey(
     }
   }
 }
+
+export function isInHelpRoom(): command.Middleware<"guild"> {
+  return async (message, data) => {
+    const config = await utils.getConfig(message.guild)
+
+    const check = await hasConfigKey("help_room_pattern")(message, data)
+
+    if (check.result !== true) return check
+
+    return {
+      result:
+        message.channel.name.includes(config?.help_room_pattern as string) ||
+        "You must be in a help room.",
+      data: check.data,
+    }
+  }
+}
