@@ -1,4 +1,4 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
 import fetch from "node-fetch"
 import URL from "url"
@@ -9,7 +9,7 @@ const listener: app.Listener<"message"> = {
     if (!app.isNormalMessage(message)) return
     if (!app.isGuildMessage(message)) return
 
-    if (message.webhookID) {
+    if (message.webhookId) {
       const config = await app.getConfig(message.guild)
 
       if (!config || !config.meme_channel_id) return

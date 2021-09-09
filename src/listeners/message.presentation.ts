@@ -1,6 +1,6 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
-import guilds from "../tables/guilds"
+import guilds from "../tables/guilds.js"
 
 const listener: app.Listener<"message"> = {
   event: "message",

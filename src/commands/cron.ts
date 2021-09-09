@@ -1,7 +1,7 @@
-import * as app from "../app"
+import * as app from "../app.js"
 import cron from "cron"
 
-import cronTable from "../tables/cron"
+import cronTable from "../tables/cron.js"
 
 export default new app.Command({
   name: "cron",
@@ -52,9 +52,19 @@ export default new app.Command({
             const channel = await message.client.channels.fetch(
               currentCron.channel_id
             )
+
+            if (!channel) {
+              // todo: remove todo task?
+
+              return message.send(
+                `${app.emote(message, "DENY")} Unknown channel.`
+              )
+            }
+
             job = cron.job(currentCron.period, () => {
               if (channel.isText()) channel.send(currentCron.content)
             })
+
             app.cache.set(slug, job)
           }
 
@@ -201,13 +211,19 @@ export default new app.Command({
       async run(message) {
         const slug = app.slug("job", message.args.name)
 
-        let channel: app.Channel
+        let channel: app.Channel | null
         try {
           channel = await message.client.channels.fetch(message.args.channel)
         } catch (error) {
           return message.channel.send(
             `${app.emote(message, "DENY")} Unknown channel.`
           )
+        }
+
+        if (!channel) {
+          // todo: remove todo task?
+
+          return message.send(`${app.emote(message, "DENY")} Unknown channel.`)
         }
 
         if (!channel.isText())
@@ -224,7 +240,7 @@ export default new app.Command({
 
         try {
           const job = cron.job(message.args.period, () => {
-            if (channel.isText()) channel.send(message.args.content)
+            if (channel?.isText()) channel.send(message.args.content)
           })
 
           job.start()

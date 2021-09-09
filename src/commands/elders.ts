@@ -1,4 +1,4 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
 export default new app.Command({
   name: "elders",
@@ -18,7 +18,7 @@ export default new app.Command({
     const logs: string[] = []
 
     await Promise.all(
-      roles.array().map(async (role, i) => {
+      Array.from(roles.values()).map(async (role, i) => {
         for (const [, member] of members) {
           if (member.user.bot) continue
 

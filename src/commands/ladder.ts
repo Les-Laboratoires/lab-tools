@@ -1,10 +1,10 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
 import {
   getLadder,
   graphicalNote,
   getAvailableUsersTotal,
-} from "../tables/note"
+} from "../tables/note.js"
 
 export default new app.Command({
   name: "ladder",

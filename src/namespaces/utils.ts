@@ -1,10 +1,10 @@
 import Discord from "discord.js"
 
-import * as app from "../app"
+import * as app from "../app.js"
 
-import guilds, { GuildConfig } from "../tables/guilds"
-import autoRole from "../tables/autoRole"
-import users from "../tables/users"
+import guilds, { GuildConfig } from "../tables/guilds.js"
+import autoRole from "../tables/autoRole.js"
+import users from "../tables/users.js"
 
 export enum Emotes {
   APPROVED = "865281743333228604",
@@ -83,7 +83,10 @@ export async function sendLog(
   if (config.log_channel_id) {
     const logs = guild.channels.cache.get(config.log_channel_id)
 
-    if (logs?.isText()) return logs.send(toSend)
+    if (logs?.isText())
+      return typeof toSend === "string"
+        ? logs.send(toSend)
+        : logs.send({ embeds: [toSend] })
   }
 }
 
@@ -132,7 +135,7 @@ export async function embedTemplate(
       return embed
     })
 
-    for (const embed of embeds) await channel.send(embed)
+    for (const embed of embeds) await channel.send({ embeds: [embed] })
   } catch (error) {
     if (error.message.includes("Invalid Form Body")) {
       return channel.send(

@@ -1,6 +1,6 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
-import note, { userNote, graphicalNote } from "../tables/note"
+import note, { userNote, graphicalNote } from "../tables/note.js"
 
 async function noteEmbed(target: app.User) {
   const { count, avg } = await userNote(target)
@@ -67,10 +67,10 @@ export default new app.Command({
         )
       }
 
-      return message.send(await noteEmbed(message.args.user))
+      return message.send({ embeds: [await noteEmbed(message.args.user)] })
     }
 
-    return message.send(await noteEmbed(message.author))
+    return message.send({ embeds: [await noteEmbed(message.author)] })
   },
   // subs: [
   //   new app.Command({

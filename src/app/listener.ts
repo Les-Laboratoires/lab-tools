@@ -2,10 +2,9 @@ import discord from "discord.js"
 import path from "path"
 import chalk from "chalk"
 import apiTypes from "discord-api-types/v8"
-import * as discordButtons from "discord-buttons"
 
-import * as logger from "./logger"
-import * as handler from "./handler"
+import * as logger from "./logger.js"
+import * as handler from "./handler.js"
 
 export const listenerHandler = new handler.Handler(
   process.env.BOT_LISTENERS_PATH ??
@@ -13,12 +12,12 @@ export const listenerHandler = new handler.Handler(
 )
 
 listenerHandler.on("load", async (filepath, client) => {
-  const file = await import(filepath)
+  const file = await import("file://" + filepath)
   const listener = file.default as Listener<any>
   client[listener.once ? "once" : "on"](listener.event, async (...args) => {
     try {
       await listener.run.bind(client)(...args)
-    } catch (error) {
+    } catch (error: any) {
       logger.error(error, "handler")
     }
   })
@@ -32,7 +31,7 @@ listenerHandler.on("load", async (filepath, client) => {
 
 export interface MoreClientEvents {
   raw: [packet: apiTypes.GatewayDispatchPayload]
-  clickButton: [button: discordButtons.MessageComponent]
+  clickButton: [button: discord.MessageComponent]
 }
 
 export type AllClientEvents = discord.ClientEvents & MoreClientEvents

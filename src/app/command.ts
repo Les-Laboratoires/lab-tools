@@ -5,17 +5,17 @@ import tims from "tims"
 import path from "path"
 import yargsParser from "yargs-parser"
 
-import * as core from "./core"
-import * as logger from "./logger"
-import * as handler from "./handler"
-import * as argument from "./argument"
+import * as core from "./core.js"
+import * as logger from "./logger.js"
+import * as handler from "./handler.js"
+import * as argument from "./argument.js"
 
 export const commandHandler = new handler.Handler(
   process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
 )
 
 commandHandler.on("load", async (filepath) => {
-  const file = await import(filepath)
+  const file = await import("file://" + filepath)
   return commands.add(file.default)
 })
 
@@ -41,10 +41,7 @@ export const commands = new (class CommandCollection extends discord.Collection<
   }
 })()
 
-export type SentItem =
-  | discord.APIMessageContentResolvable
-  | (discord.MessageOptions & { split?: false })
-  | discord.MessageAdditions
+export type SentItem = string | discord.MessagePayload | discord.MessageOptions
 
 export type NormalMessage = discord.Message & {
   args: { [name: string]: any } & any[]
@@ -326,7 +323,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
     if (core.scrap(cmd.options.guildOwnerOnly, message))
       if (
-        message.guild.owner !== message.member &&
+        message.guild.ownerId !== message.member.id &&
         process.env.BOT_OWNER !== message.member.id
       )
         return new discord.MessageEmbed()
@@ -343,12 +340,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
       )
 
       for (const permission of botPermissions)
-        if (
-          !message.guild.me?.hasPermission(permission, {
-            checkAdmin: true,
-            checkOwner: true,
-          })
-        )
+        if (!message.guild.me?.permissions.has(permission, true))
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor("Oops!", message.client.user.displayAvatarURL())
@@ -364,12 +356,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
       )
 
       for (const permission of userPermissions)
-        if (
-          !message.member.hasPermission(permission, {
-            checkAdmin: true,
-            checkOwner: true,
-          })
-        )
+        if (!message.member.permissions.has(permission, true))
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor("Oops!", message.client.user.displayAvatarURL())
@@ -497,8 +484,8 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
       for (const positional of positionalList) {
         const index = positionalList.indexOf(positional)
-        let value = context.parsedArgs._[index]
-        const given = value !== undefined
+        let value: any = context.parsedArgs._[index]
+        const given = value !== undefined && value !== null
 
         const set = (v: any) => {
           message.args[positional.name] = v
@@ -572,7 +559,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
         if (value !== null && positional.checkCastedValue) {
           const checked = await argument.checkCastedValue(
             positional,
-            "argument",
+            "positional",
             value,
             message
           )
@@ -600,13 +587,13 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
         if (value === true) value = undefined
 
-        if ((await core.scrap(option.required, message)) && !given) {
+        if (!given && (await core.scrap(option.required, message))) {
           if (option.missingErrorMessage) {
             if (typeof option.missingErrorMessage === "string") {
               return new discord.MessageEmbed()
                 .setColor("RED")
                 .setAuthor(
-                  `Missing argument "${option.name}"`,
+                  `Missing option "${option.name}"`,
                   message.client.user.displayAvatarURL()
                 )
                 .setDescription(option.missingErrorMessage)
@@ -618,7 +605,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
           return new discord.MessageEmbed()
             .setColor("RED")
             .setAuthor(
-              `Missing argument "${option.name}"`,
+              `Missing option "${option.name}"`,
               message.client.user.displayAvatarURL()
             )
             .setDescription(
@@ -674,7 +661,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
 
     if (cmd.options.flags) {
       for (const flag of cmd.options.flags) {
-        let { given, value } = argument.resolveGivenArgument(
+        let { given, nameIsGiven, value } = argument.resolveGivenArgument(
           context.parsedArgs,
           flag
         )
@@ -684,7 +671,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
           value = v
         }
 
-        if (!given) set(false)
+        if (!nameIsGiven) set(false)
         else if (typeof value === "boolean") set(value)
         else if (/^(?:true|1|on|yes|oui)$/.test(value)) set(true)
         else if (/^(?:false|0|off|no|non)$/.test(value)) set(false)
@@ -935,7 +922,7 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
       `This command can only be sent in ${cmd.options.channelType} channel.`
     )
 
-  await message.channel.send(embed)
+  await message.channel.send({ embeds: [embed] })
 }
 
 export function commandToListItem<Type extends keyof CommandMessageType>(
@@ -948,13 +935,13 @@ export function commandToListItem<Type extends keyof CommandMessageType>(
 }
 
 export function isNormalMessage(
-  message: discord.Message
+  message: discord.Message | discord.PartialMessage
 ): message is NormalMessage {
   return (
     !message.system &&
     !!message.channel &&
     !!message.author &&
-    !message.webhookID
+    !message.webhookId
   )
 }
 

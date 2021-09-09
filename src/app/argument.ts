@@ -1,10 +1,9 @@
 import discord from "discord.js"
 import yargsParser from "yargs-parser"
 import regexParser from "regex-parser"
-import emojiRegex from "emoji-regex/es2015/RGI_Emoji"
 
-import * as core from "./core"
-import * as command from "./command"
+import * as core from "./core.js"
+import * as command from "./command.js"
 
 export interface Argument {
   name: string
@@ -74,15 +73,23 @@ export interface Flag<Message extends command.NormalMessage>
 export function resolveGivenArgument<Message extends command.NormalMessage>(
   parsedArgs: yargsParser.Arguments,
   arg: Option<Message> | Flag<Message>
-): { given: boolean; usedName: string; value: any } {
+): {
+  given: boolean
+  nameIsGiven: boolean
+  usedName: string
+  value: any
+} {
   let usedName = arg.name
-  let given = parsedArgs.hasOwnProperty(arg.name)
+  let nameIsGiven = parsedArgs.hasOwnProperty(arg.name)
+  let given =
+    parsedArgs[arg.name] !== undefined && parsedArgs[arg.name] !== null
   let value = parsedArgs[arg.name]
 
   if (!given && arg.aliases) {
     for (const alias of arg.aliases) {
       if (parsedArgs.hasOwnProperty(alias)) {
         usedName = alias
+        nameIsGiven = true
         given = true
         value = parsedArgs[alias]
         break
@@ -96,7 +103,7 @@ export function resolveGivenArgument<Message extends command.NormalMessage>(
     usedName = arg.flag
   }
 
-  return { given, usedName, value }
+  return { given, usedName, value, nameIsGiven }
 }
 
 export async function checkValue<Message extends command.NormalMessage>(
@@ -179,14 +186,16 @@ export async function checkCastedValue<Message extends command.NormalMessage>(
     "checkCastedValue" | "name" | "checkingErrorMessage"
   >,
   subjectType: "positional" | "argument",
-  value: string,
+  castedValue: any,
   message: Message
 ): Promise<discord.MessageEmbed | true> {
   if (!subject.checkCastedValue) return true
 
+  console.log("castedValue:", castedValue)
+
   const checkResult: string | boolean = await core.scrap(
     subject.checkCastedValue,
-    value,
+    castedValue,
     message
   )
 
@@ -337,7 +346,12 @@ export async function castValue<Message extends command.NormalMessage>(
             const channel = message.client.channels.cache.get(channelID)
             if (channel) {
               if (channel.isText()) {
-                setValue(await channel.messages.fetch(messageID, false))
+                setValue(
+                  await channel.messages.fetch(messageID, {
+                    force: false,
+                    cache: false,
+                  })
+                )
               } else throw new Error("Invalid channel type!")
             } else throw new Error("Unknown channel!")
           } else throw new Error("Invalid message link!")
@@ -349,7 +363,10 @@ export async function castValue<Message extends command.NormalMessage>(
           const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
           if (match) {
             const id = match[1] ?? match[2]
-            const user = await message.client.users.fetch(id, false)
+            const user = await message.client.users.fetch(id, {
+              force: false,
+              cache: false,
+            })
             if (user) setValue(user)
             else throw new Error("Unknown user!")
           } else if (subject.castValue === "user+") {
@@ -395,7 +412,7 @@ export async function castValue<Message extends command.NormalMessage>(
             if (emote) setValue(emote)
             else throw new Error("Unknown emote!")
           } else {
-            const emojiMatch = emojiRegex().exec(baseValue)
+            const emojiMatch = core.emojiRegex.exec(baseValue)
             if (emojiMatch) setValue(emojiMatch[0])
             else throw new Error("Invalid emote value!")
           }
@@ -404,7 +421,7 @@ export async function castValue<Message extends command.NormalMessage>(
       case "invite":
         if (baseValue) {
           if (command.isGuildMessage(message)) {
-            const invites = await message.guild.fetchInvites()
+            const invites = await message.guild.invites.fetch()
             const invite = invites.find(
               (invite) => invite.code === baseValue || invite.url === baseValue
             )
@@ -426,7 +443,7 @@ export async function castValue<Message extends command.NormalMessage>(
   try {
     await cast()
     return true
-  } catch (error) {
+  } catch (error: any) {
     const errorCode = core.code.stringify({
       content: `${error.name}: ${error.message}`,
       lang: "js",

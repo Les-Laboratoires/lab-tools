@@ -1,4 +1,4 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
 export interface LabUser {
   id: string

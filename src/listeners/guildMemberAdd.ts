@@ -1,7 +1,7 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
-import users from "../tables/users"
-import guilds from "../tables/guilds"
+import users from "../tables/users.js"
+import guilds from "../tables/guilds.js"
 
 const listener: app.Listener<"guildMemberAdd"> = {
   event: "guildMemberAdd",

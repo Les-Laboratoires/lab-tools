@@ -1,5 +1,5 @@
-import * as app from "../app"
-import autoRole from "../tables/autoRole"
+import * as app from "../app.js"
+import autoRole from "../tables/autoRole.js"
 
 export default new app.Command({
   name: "autoRole",
@@ -92,25 +92,27 @@ export default new app.Command({
           message.guild.id
         )
 
-        return message.send(
-          new app.MessageEmbed()
-            .setColor("BLURPLE")
-            .setTitle("Auto-role list")
-            .addField(
-              "Member auto roles",
-              autoRoles
-                .filter((ar) => !ar.bot)
-                .map((ar) => `<@&${ar.role_id}>`)
-                .join(" ") || "No role setup here."
-            )
-            .addField(
-              "Bot auto roles",
-              autoRoles
-                .filter((ar) => !!ar.bot)
-                .map((ar) => `<@&${ar.role_id}>`)
-                .join(" ") || "No role setup here."
-            )
-        )
+        return message.send({
+          embeds: [
+            new app.MessageEmbed()
+              .setColor("BLURPLE")
+              .setTitle("Auto-role list")
+              .addField(
+                "Member auto roles",
+                autoRoles
+                  .filter((ar) => !ar.bot)
+                  .map((ar) => `<@&${ar.role_id}>`)
+                  .join(" ") || "No role setup here."
+              )
+              .addField(
+                "Bot auto roles",
+                autoRoles
+                  .filter((ar) => !!ar.bot)
+                  .map((ar) => `<@&${ar.role_id}>`)
+                  .join(" ") || "No role setup here."
+              ),
+          ],
+        })
       },
     }),
     new app.Command({

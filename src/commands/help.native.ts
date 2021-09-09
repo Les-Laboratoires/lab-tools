@@ -1,4 +1,4 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
 export default new app.Command({
   name: "help",
@@ -20,14 +20,16 @@ export default new app.Command({
       if (cmd) {
         return app.sendCommandDetails(message, cmd)
       } else {
-        await message.channel.send(
-          new app.MessageEmbed()
-            .setColor("RED")
-            .setAuthor(
-              `Unknown command "${message.args.command}"`,
-              message.client.user?.displayAvatarURL()
-            )
-        )
+        await message.channel.send({
+          embeds: [
+            new app.MessageEmbed()
+              .setColor("RED")
+              .setAuthor(
+                `Unknown command "${message.args.command}"`,
+                message.client.user?.displayAvatarURL()
+              ),
+          ],
+        })
       }
     } else {
       new app.Paginator({

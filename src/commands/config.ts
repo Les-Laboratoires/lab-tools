@@ -1,6 +1,6 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
-import guilds, { GuildConfig } from "../tables/guilds"
+import guilds, { GuildConfig } from "../tables/guilds.js"
 
 export default new app.Command({
   name: "config",
@@ -20,23 +20,25 @@ export default new app.Command({
       await guilds.query.insert(config)
     }
 
-    return message.channel.send(
-      new app.MessageEmbed()
-        .setAuthor(
-          `${message.guild.name} | Configs`,
-          message.guild.iconURL({ dynamic: true }) ?? undefined
-        )
-        .setDescription(
-          app.code.stringify({
-            lang: "json",
-            content: JSON.stringify(
-              await app.getConfig(message.guild),
-              null,
-              2
-            ),
-          })
-        )
-    )
+    return message.channel.send({
+      embeds: [
+        new app.MessageEmbed()
+          .setAuthor(
+            `${message.guild.name} | Configs`,
+            message.guild.iconURL({ dynamic: true }) ?? undefined
+          )
+          .setDescription(
+            app.code.stringify({
+              lang: "json",
+              content: JSON.stringify(
+                await app.getConfig(message.guild),
+                null,
+                2
+              ),
+            })
+          ),
+      ],
+    })
   },
   subs: [
     new app.Command({
@@ -141,12 +143,14 @@ export default new app.Command({
         const config = await app.getConfig(message.guild)
 
         if (!config)
-          return message.send(
-            new app.MessageEmbed()
-              .setColor("BLURPLE")
-              .setTitle(`${message.guild.name} - ${message.args.name}`)
-              .setDescription(app.code.stringify({ content: "null" }))
-          )
+          return message.send({
+            embeds: [
+              new app.MessageEmbed()
+                .setColor("BLURPLE")
+                .setTitle(`${message.guild.name} - ${message.args.name}`)
+                .setDescription(app.code.stringify({ content: "null" })),
+            ],
+          })
 
         const value = config[message.args.name as keyof GuildConfig] ?? "null"
 
@@ -155,17 +159,20 @@ export default new app.Command({
           json = JSON.parse(value)
         } catch (error) {}
 
-        return message.channel.send(
-          new app.MessageEmbed()
-            .setColor("BLURPLE")
-            .setTitle(`${message.guild.name} - ${message.args.name}`)
-            .setDescription(
-              app.code.stringify({
-                content: json !== null ? JSON.stringify(json, null, 2) : value,
-                lang: json !== null ? "json" : undefined,
-              })
-            )
-        )
+        return message.channel.send({
+          embeds: [
+            new app.MessageEmbed()
+              .setColor("BLURPLE")
+              .setTitle(`${message.guild.name} - ${message.args.name}`)
+              .setDescription(
+                app.code.stringify({
+                  content:
+                    json !== null ? JSON.stringify(json, null, 2) : value,
+                  lang: json !== null ? "json" : undefined,
+                })
+              ),
+          ],
+        })
       },
     }),
     new app.Command({

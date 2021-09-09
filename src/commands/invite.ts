@@ -1,5 +1,5 @@
 import { URL } from "url"
-import * as app from "../app"
+import * as app from "../app.js"
 
 export default new app.Command({
   name: "invite",
@@ -21,7 +21,10 @@ export default new app.Command({
     if (message.mentions.members && message.mentions.members.size > 0) {
       bot = (message.mentions.members.first() as app.GuildMember).user
     } else if (/^\d+$/.test(message.rest)) {
-      bot = await message.client.users.fetch(message.rest, false, true)
+      bot = await message.client.users.fetch(message.rest, {
+        force: true,
+        cache: false,
+      })
     }
 
     if (!bot) {
@@ -40,33 +43,35 @@ export default new app.Command({
       url.searchParams.append("permissions", "2146958847")
     }
 
-    await message.channel.send(
-      new app.MessageEmbed()
-        .setAuthor(
-          `Invitez ${bot.username} ${here ? "ici" : ""}`,
-          message.guild?.iconURL({ dynamic: true }) ?? undefined,
-          url.toString()
-        )
-        .setDescription(
-          app.code.stringify({
-            content: JSON.stringify(
-              Object.fromEntries(url.searchParams.entries()),
-              (key, val) => {
-                if (
-                  /^\d+$/.test(val) &&
-                  val.length < 12 &&
-                  !val.startsWith("0")
-                )
-                  return Number(val)
-                return val
-              },
-              2
-            ),
-            lang: "json",
-          })
-        )
-        .setThumbnail(bot.displayAvatarURL({ dynamic: true }))
-        .setURL(url.toString())
-    )
+    await message.channel.send({
+      embeds: [
+        new app.MessageEmbed()
+          .setAuthor(
+            `Invitez ${bot.username} ${here ? "ici" : ""}`,
+            message.guild?.iconURL({ dynamic: true }) ?? undefined,
+            url.toString()
+          )
+          .setDescription(
+            app.code.stringify({
+              content: JSON.stringify(
+                Object.fromEntries(url.searchParams.entries()),
+                (key, val) => {
+                  if (
+                    /^\d+$/.test(val) &&
+                    val.length < 12 &&
+                    !val.startsWith("0")
+                  )
+                    return Number(val)
+                  return val
+                },
+                2
+              ),
+              lang: "json",
+            })
+          )
+          .setThumbnail(bot.displayAvatarURL({ dynamic: true }))
+          .setURL(url.toString()),
+      ],
+    })
   },
 })

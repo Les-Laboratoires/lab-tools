@@ -1,8 +1,8 @@
-import * as command from "../app/command"
-import * as logger from "../app/logger"
-import * as utils from "../namespaces/utils"
+import * as command from "../app/command.js"
+import * as logger from "../app/logger.js"
+import * as utils from "../namespaces/utils.js"
 
-import { GuildConfig } from "../tables/guilds"
+import { GuildConfig } from "../tables/guilds.js"
 
 export function staffOnly(): command.Middleware<"guild"> {
   return async (message, data) => {
@@ -18,7 +18,7 @@ export function staffOnly(): command.Middleware<"guild"> {
       result:
         (config?.staff_role_id &&
           message.member.roles.cache.has(config.staff_role_id)) ||
-        message.guild.ownerID === message.author.id ||
+        message.guild.ownerId === message.author.id ||
         message.member.permissions.has("ADMINISTRATOR") ||
         "You must be a member of staff.",
       data,

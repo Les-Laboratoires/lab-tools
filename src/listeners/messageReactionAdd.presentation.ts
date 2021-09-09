@@ -1,4 +1,4 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
 const listener: app.Listener<"messageReactionAdd"> = {
   event: "messageReactionAdd",
@@ -6,7 +6,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
     if (!app.isNormalMessage(reaction.message)) return
     if (!app.isGuildMessage(reaction.message)) return
 
-    const config = await app.getConfig(reaction.message.guild)
+    const config = await app.getConfig(reaction.message.guild as app.Guild)
 
     if (
       !config ||

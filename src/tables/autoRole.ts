@@ -1,4 +1,4 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
 /*
 832615381377089546

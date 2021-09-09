@@ -1,6 +1,6 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
-import lab from "../tables/lab"
+import lab from "../tables/lab.js"
 
 export default new app.Command({
   name: "labs",
@@ -49,7 +49,7 @@ export default new app.Command({
 
         const pages = app.Paginator.divider(labs, 6)
 
-        for (const guild of message.client.guilds.cache.array()) {
+        for (const guild of message.client.guilds.cache.values()) {
           const config = await app.getConfig(guild)
 
           if (config?.affiliation_channel_id) {
@@ -60,7 +60,7 @@ export default new app.Command({
             if (channel?.isText()) {
               const messages = await channel.messages.fetch()
 
-              for (const m of messages.array()) await m.delete()
+              for (const m of messages.values()) await m.delete()
 
               for (const page of pages)
                 await channel.send(

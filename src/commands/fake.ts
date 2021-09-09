@@ -1,4 +1,4 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
 export default new app.Command({
   name: "fake",
@@ -21,7 +21,7 @@ export default new app.Command({
 
     message.triggerCoolDown()
 
-    const member = message.guild.member(user)
+    const member = await message.guild.members.fetch(user.id)
 
     const webhook = await message.channel.createWebhook(
       member?.displayName ?? user.username,
@@ -31,7 +31,7 @@ export default new app.Command({
     )
 
     if (webhook.token) {
-      const client = new app.WebhookClient(webhook.id, webhook.token)
+      const client = new app.WebhookClient(webhook)
       await client.send(message.rest)
       client.destroy()
     } else {

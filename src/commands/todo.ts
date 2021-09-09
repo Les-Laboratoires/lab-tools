@@ -1,6 +1,6 @@
-import * as app from "../app"
+import * as app from "../app.js"
 
-import todoTable, { ToDo } from "../tables/todo"
+import todoTable, { ToDo } from "../tables/todo.js"
 
 function todoId(todo: ToDo) {
   return `\`[ ${app.forceTextSize(todo.id, 3, true)} ]\``
@@ -157,11 +157,13 @@ export default new app.Command({
             `${app.emote(message, "DENY")} Unknown todo task id.`
           )
 
-        return message.channel.send(
-          new app.MessageEmbed()
-            .setTitle(`Todo task of ${message.author.tag}`)
-            .setDescription(`${todoId(todo)} ${todo.content}`)
-        )
+        return message.channel.send({
+          embeds: [
+            new app.MessageEmbed()
+              .setTitle(`Todo task of ${message.author.tag}`)
+              .setDescription(`${todoId(todo)} ${todo.content}`),
+          ],
+        })
       },
     }),
     new app.Command({
