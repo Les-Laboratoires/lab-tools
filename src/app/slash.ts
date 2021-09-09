@@ -97,7 +97,7 @@ function subCommandsToSlashCommandOptions<
       const option: API.APIApplicationCommandOption = {
         name: sub.options.name,
         description: sub.options.description,
-        type: API.ApplicationCommandOptionType.SUB_COMMAND_GROUP,
+        type: API.ApplicationCommandOptionType.SubcommandGroup,
       }
 
       option.options = subCommandsToSlashCommandOptions(
@@ -110,7 +110,7 @@ function subCommandsToSlashCommandOptions<
     }
     return output
   } else {
-    if (parent) parent.type = API.ApplicationCommandOptionType.SUB_COMMAND
+    if (parent) parent.type = API.ApplicationCommandOptionType.Subcommand
     return undefined
   }
 }
@@ -168,14 +168,14 @@ export async function reloadSLashCommands(client: core.FullClient) {
         slashCommand.options?.push({
           name: flag.name,
           description: flag.description,
-          type: API.ApplicationCommandOptionType.BOOLEAN,
+          type: API.ApplicationCommandOptionType.Boolean,
         })
 
     for (const option of [
       ...(command.options.options ?? []),
       ...(command.options.positional ?? []),
     ]) {
-      let type = API.ApplicationCommandOptionType.STRING
+      let type = API.ApplicationCommandOptionType.String
 
       if (typeof option.castValue === "string") {
         const temp = option.castValue.toUpperCase()

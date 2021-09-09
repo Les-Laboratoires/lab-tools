@@ -136,7 +136,7 @@ export async function embedTemplate(
     })
 
     for (const embed of embeds) await channel.send({ embeds: [embed] })
-  } catch (error) {
+  } catch (error: any) {
     if (error.message.includes("Invalid Form Body")) {
       return channel.send(
         app.code.stringify({

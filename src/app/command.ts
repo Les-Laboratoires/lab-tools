@@ -23,9 +23,9 @@ export let defaultCommand: Command<any> | null = null
 
 export const commands = new (class CommandCollection extends discord.Collection<
   string,
-  Command<keyof CommandMessageType>
+  Command<keyof NormalMessageType>
 > {
-  public resolve(key: string): Command<keyof CommandMessageType> | undefined {
+  public resolve(key: string): Command<keyof NormalMessageType> | undefined {
     for (const [name, command] of this) {
       if (
         key === name ||
@@ -35,7 +35,7 @@ export const commands = new (class CommandCollection extends discord.Collection<
     }
   }
 
-  public add(command: Command<keyof CommandMessageType>) {
+  public add(command: Command<keyof NormalMessageType>) {
     validateCommand(command)
     this.set(command.options.name, command)
   }
@@ -80,18 +80,18 @@ export interface MiddlewareResult {
   data: any
 }
 
-export type Middleware<Type extends keyof CommandMessageType> = (
-  message: CommandMessageType[Type],
+export type Middleware<Type extends keyof NormalMessageType> = (
+  message: NormalMessageType[Type],
   data: any
 ) => Promise<MiddlewareResult> | MiddlewareResult
 
-export interface CommandMessageType {
+export interface NormalMessageType {
   guild: GuildMessage
   dm: DirectMessage
   all: NormalMessage
 }
 
-export interface CommandOptions<Type extends keyof CommandMessageType> {
+export interface CommandOptions<Type extends keyof NormalMessageType> {
   channelType?: Type
 
   name: string
@@ -102,7 +102,7 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
   /**
    * Description displayed in command detail
    */
-  longDescription?: core.Scrap<string, [message: CommandMessageType[Type]]>
+  longDescription?: core.Scrap<string, [message: NormalMessageType[Type]]>
   /**
    * Use this command if prefix is given but without command matching
    */
@@ -115,19 +115,19 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
   /**
    * Cool down of command (in ms)
    */
-  coolDown?: core.Scrap<number, [message: CommandMessageType[Type]]>
-  examples?: core.Scrap<string[], [message: CommandMessageType[Type]]>
+  coolDown?: core.Scrap<number, [message: NormalMessageType[Type]]>
+  examples?: core.Scrap<string[], [message: NormalMessageType[Type]]>
 
   // Restriction flags and permissions
-  guildOwnerOnly?: core.Scrap<boolean, [message: CommandMessageType[Type]]>
-  botOwnerOnly?: core.Scrap<boolean, [message: CommandMessageType[Type]]>
+  guildOwnerOnly?: core.Scrap<boolean, [message: NormalMessageType[Type]]>
+  botOwnerOnly?: core.Scrap<boolean, [message: NormalMessageType[Type]]>
   userPermissions?: core.Scrap<
     discord.PermissionString[],
-    [message: CommandMessageType[Type]]
+    [message: NormalMessageType[Type]]
   >
   botPermissions?: core.Scrap<
     discord.PermissionString[],
-    [message: CommandMessageType[Type]]
+    [message: NormalMessageType[Type]]
   >
 
   roles?: core.Scrap<
@@ -137,7 +137,7 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
       | [discord.RoleResolvable]
       | [discord.RoleResolvable[]]
     )[],
-    [message: CommandMessageType[Type]]
+    [message: NormalMessageType[Type]]
   >
 
   /**
@@ -148,20 +148,20 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
   /**
    * The rest of message after excludes all other arguments.
    */
-  rest?: argument.Rest<CommandMessageType[Type]>
+  rest?: argument.Rest<NormalMessageType[Type]>
   /**
    * Yargs positional argument (e.g. `[arg] <arg>`)
    */
-  positional?: argument.Positional<CommandMessageType[Type]>[]
+  positional?: argument.Positional<NormalMessageType[Type]>[]
   /**
    * Yargs option arguments (e.g. `--myArgument=value`)
    */
-  options?: argument.Option<CommandMessageType[Type]>[]
+  options?: argument.Option<NormalMessageType[Type]>[]
   /**
    * Yargs flag arguments (e.g. `--myFlag -f`)
    */
-  flags?: argument.Flag<CommandMessageType[Type]>[]
-  run: (this: Command<Type>, message: CommandMessageType[Type]) => unknown
+  flags?: argument.Flag<NormalMessageType[Type]>[]
+  run: (this: Command<Type>, message: NormalMessageType[Type]) => unknown
   /**
    * Sub-commands
    */
@@ -174,18 +174,18 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
    * This property is automatically setup on bot running.
    * @deprecated
    */
-  parent?: Command<keyof CommandMessageType>
+  parent?: Command<keyof NormalMessageType>
 }
 
-export class Command<Type extends keyof CommandMessageType = "all"> {
+export class Command<Type extends keyof NormalMessageType = "all"> {
   constructor(public options: CommandOptions<Type>) {}
 }
 
 export function validateCommand<
-  Type extends keyof CommandMessageType = keyof CommandMessageType
+  Type extends keyof NormalMessageType = keyof NormalMessageType
 >(
   command: Command<Type>,
-  parent?: Command<keyof CommandMessageType>
+  parent?: Command<keyof NormalMessageType>
 ): void | never {
   command.options.parent = parent
 
@@ -202,7 +202,7 @@ export function validateCommand<
     else defaultCommand = command
   }
 
-  const help: argument.Flag<CommandMessageType[Type]> = {
+  const help: argument.Flag<NormalMessageType[Type]> = {
     name: "help",
     flag: "h",
     description: "Get help from the command",
@@ -239,7 +239,7 @@ export function validateCommand<
       validateCommand(sub as any, command as Command<any>)
 }
 
-export function commandBreadcrumb<Type extends keyof CommandMessageType>(
+export function commandBreadcrumb<Type extends keyof NormalMessageType>(
   command: Command<Type>,
   separator = " "
 ): string {
@@ -249,7 +249,7 @@ export function commandBreadcrumb<Type extends keyof CommandMessageType>(
     .join(separator)
 }
 
-export function commandParents<Type extends keyof CommandMessageType>(
+export function commandParents<Type extends keyof NormalMessageType>(
   command: Command<Type>
 ): Command<any>[] {
   return command.options.parent
@@ -257,8 +257,8 @@ export function commandParents<Type extends keyof CommandMessageType>(
     : [command]
 }
 
-export async function prepareCommand<Type extends keyof CommandMessageType>(
-  message: CommandMessageType[Type],
+export async function prepareCommand<Type extends keyof NormalMessageType>(
+  message: NormalMessageType[Type],
   cmd: Command<Type>,
   context?: {
     restPositional: string[]
@@ -755,8 +755,8 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
   return true
 }
 
-export async function sendCommandDetails<Type extends keyof CommandMessageType>(
-  message: CommandMessageType[Type],
+export async function sendCommandDetails<Type extends keyof NormalMessageType>(
+  message: NormalMessageType[Type],
   cmd: Command<Type>
 ): Promise<void> {
   let pattern = `${message.usedPrefix}${
@@ -925,8 +925,8 @@ export async function sendCommandDetails<Type extends keyof CommandMessageType>(
   await message.channel.send({ embeds: [embed] })
 }
 
-export function commandToListItem<Type extends keyof CommandMessageType>(
-  message: CommandMessageType[Type],
+export function commandToListItem<Type extends keyof NormalMessageType>(
+  message: NormalMessageType[Type],
   cmd: Command<Type>
 ): string {
   return `**${message.usedPrefix}${commandBreadcrumb(cmd, " ")}** - ${
