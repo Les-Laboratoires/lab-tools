@@ -1,4 +1,5 @@
 import figlet from "figlet"
+import path from "path"
 import boxen from "boxen"
 import chalk from "chalk"
 
