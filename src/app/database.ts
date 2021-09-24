@@ -59,13 +59,9 @@ export class Table<Type> {
   async make(): Promise<this> {
     try {
       await db.schema.createTable(this.options.name, this.options.setup)
-      logger.log(
-        `created table ${chalk.blueBright(this.options.name)}`
-      )
+      logger.log(`created table ${chalk.blueBright(this.options.name)}`)
     } catch (error) {
-      logger.log(
-        `loaded table ${chalk.blueBright(this.options.name)}`
-      )
+      logger.log(`loaded table ${chalk.blueBright(this.options.name)}`)
     }
     return this
   }

@@ -1,5 +1,5 @@
 import * as app from "../app.js"
-import apiTypes from "discord-api-types/v8"
+import apiTypes from "discord-api-types/v9.js"
 
 const listener: app.Listener<"raw"> = {
   event: "raw",
