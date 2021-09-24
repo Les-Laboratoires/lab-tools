@@ -2,7 +2,10 @@ import * as app from "../app.js"
 
 const listener: app.Listener<"messageReactionAdd"> = {
   event: "messageReactionAdd",
-  async run(reaction, user) {
+  async run(_reaction, _user) {
+    const reaction = await _reaction.fetch()
+    const user = await _user.fetch()
+
     if (user.id === reaction.client.user?.id) return
 
     if (!app.isNormalMessage(reaction.message)) return
