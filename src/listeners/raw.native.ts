@@ -25,12 +25,15 @@ const listener: app.Listener<"raw"> = {
 
       const user = await this.users.fetch(data.user_id)
 
-      if (reaction && user) reaction.users.cache.set(data.user_id, user)
-      else
-        app.error(
-          `MessageReaction and User objects are undefined`,
+      if (!reaction || !user)
+        return app.error(
+          `${reaction ? "" : "MessageReaction"}${
+            !reaction && !user ? " and " : ""
+          }${user ? "" : "User"} object is undefined.`,
           "raw.native"
         )
+
+      reaction.users.cache.set(user.id, user)
 
       this.emit(
         {
