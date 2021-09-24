@@ -1,3 +1,4 @@
+import fetch from "axios"
 import gulp from "gulp"
 import esbuild from "gulp-esbuild"
 import filter from "gulp-filter"
@@ -32,6 +33,36 @@ function _cleanDist() {
 
 function _cleanTemp() {
   return del(["temp"], { force: true })
+}
+
+function _checkGulpfile(cb) {
+  fetch(
+    "https://raw.githubusercontent.com/CamilleAbella/bot.ts/master/Gulpfile.js"
+  )
+    .then((res) => res.data)
+    .then(async (remote) => {
+      const local = await fs.promises.readFile(
+        path.join(process.cwd(), "Gulpfile.js"),
+        "utf8"
+      )
+
+      if (remote !== local) {
+        await fs.promises.writeFile(
+          path.join(process.cwd(), "Gulpfile.js"),
+          remote,
+          "utf8"
+        )
+
+        log(
+          `${chalk.red("Gulpfile updated!")} Please re-run the ${chalk.cyan(
+            "update"
+          )} command.`
+        )
+
+        process.exit(0)
+      } else cb()
+    })
+    .catch(cb)
 }
 
 function _downloadTemp(cb) {
@@ -79,8 +110,8 @@ function _copyTemp() {
         "temp/src/index.ts",
         "temp/.gitattributes",
         "temp/.gitignore",
-        "temp/Gulpfile.js",
         "temp/tsconfig.json",
+        "!temp/Gulpfile.js",
         "!temp/src/app/database.ts",
       ],
       { base: "temp" }
@@ -154,6 +185,7 @@ function _removeDuplicates() {
 export const build = gulp.series(_cleanDist, _build)
 export const watch = gulp.series(_cleanDist, _build, _watch)
 export const update = gulp.series(
+  _checkGulpfile,
   _cleanTemp,
   _downloadTemp,
   _copyTemp,

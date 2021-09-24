@@ -2,8 +2,8 @@ import * as app from "../app.js"
 
 import guilds from "../tables/guilds.js"
 
-const listener: app.Listener<"message"> = {
-  event: "message",
+const listener: app.Listener<"messageCreate"> = {
+  event: "messageCreate",
   async run(message) {
     if (!app.isNormalMessage(message)) return
     if (!app.isGuildMessage(message)) return
