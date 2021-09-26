@@ -7,6 +7,7 @@ export interface LabUser {
 
 export default new app.Table<LabUser>({
   name: "users",
+  description: "Represent an user",
   priority: 1,
   setup: (table) => {
     table.string("id").unique().notNullable()

@@ -17,6 +17,7 @@ export interface AutoRole {
 
 export default new app.Table<AutoRole>({
   name: "autoRole",
+  description: "Represent auto-roles",
   setup: (table) => {
     table
       .string("guild_id")

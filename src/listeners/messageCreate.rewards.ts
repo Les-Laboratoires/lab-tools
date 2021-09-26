@@ -2,6 +2,7 @@ import * as app from "../app.js"
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
+  description: "Handle reward able projects",
   async run(message) {
     if (!app.isNormalMessage(message)) return
     if (!app.isGuildMessage(message)) return

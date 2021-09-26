@@ -25,6 +25,7 @@ export interface GuildConfig {
 
 export default new app.Table<GuildConfig>({
   name: "guilds",
+  description: "Represent a guild config",
   setup: (table) => {
     table.string("id").unique().notNullable()
     table.string("prefix")

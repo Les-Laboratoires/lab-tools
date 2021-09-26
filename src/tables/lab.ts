@@ -8,6 +8,7 @@ export interface Lab {
 
 export default new app.Table<Lab>({
   name: "labs",
+  description: "Represent a lab guild",
   setup: (table) => {
     table.string("id").unique().primary().notNullable()
     table.string("url").notNullable()

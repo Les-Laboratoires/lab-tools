@@ -45,6 +45,7 @@ export const db = knex({
 
 export interface TableOptions {
   name: string
+  description: string
   priority?: number
   setup: (table: Knex.CreateTableBuilder) => void
 }
@@ -60,11 +61,15 @@ export class Table<Type> {
     try {
       await db.schema.createTable(this.options.name, this.options.setup)
       logger.log(
-        `created table ${chalk.blueBright(this.options.name)}`
+        `created table ${chalk.blueBright(this.options.name)} ${chalk.grey(
+          this.options.description
+        )}`
       )
     } catch (error) {
       logger.log(
-        `loaded table ${chalk.blueBright(this.options.name)}`
+        `loaded table ${chalk.blueBright(this.options.name)} ${chalk.grey(
+          this.options.description
+        )}`
       )
     }
     return this

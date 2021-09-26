@@ -5,6 +5,7 @@ import guilds from "../tables/guilds.js"
 
 const listener: app.Listener<"guildMemberAdd"> = {
   event: "guildMemberAdd",
+  description: "Prepares to welcome a new member",
   async run(member) {
     await users.query.insert({ id: member.id }).onConflict("id").ignore()
 

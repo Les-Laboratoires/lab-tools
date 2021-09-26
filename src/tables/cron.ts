@@ -8,6 +8,7 @@ export default new app.Table<{
   content: string
 }>({
   name: "cron",
+  description: "Represent saved cron",
   setup: (table) => {
     table
       .string("user_id")

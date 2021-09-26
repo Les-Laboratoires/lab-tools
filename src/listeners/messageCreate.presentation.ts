@@ -4,6 +4,7 @@ import guilds from "../tables/guilds.js"
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
+  description: "Handle member presentation",
   async run(message) {
     if (!app.isNormalMessage(message)) return
     if (!app.isGuildMessage(message)) return

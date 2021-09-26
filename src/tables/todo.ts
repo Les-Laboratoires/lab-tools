@@ -8,6 +8,7 @@ export interface ToDo {
 
 export default new app.Table<ToDo>({
   name: "todo",
+  description: "Represent a user todo list",
   setup: (table) => {
     table.increments("id").primary().unsigned()
     table

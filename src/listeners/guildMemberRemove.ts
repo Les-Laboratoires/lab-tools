@@ -4,6 +4,7 @@ import users from "../tables/users.js"
 
 const listener: app.Listener<"guildMemberRemove"> = {
   event: "guildMemberRemove",
+  description: "Delete member from db",
   async run(member) {
     await users.query.delete().where("id", member.id)
 

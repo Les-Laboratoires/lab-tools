@@ -4,6 +4,7 @@ import guilds from "../tables/guilds.js"
 
 const listener: app.Listener<"guildDelete"> = {
   event: "guildDelete",
+  description: "Remove guild from db",
   async run(guild) {
     await guilds.query.delete().where("id", guild.id)
   },

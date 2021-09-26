@@ -8,6 +8,7 @@ export interface Note {
 
 const table = new app.Table<Note>({
   name: "note",
+  description: "Represent a user note",
   setup: (table) => {
     table
       .string("to")
