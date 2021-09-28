@@ -34,11 +34,17 @@ const listener: app.Listener<"guildMemberAdd"> = {
     } else if (!config.validation_role_id || !config.presentation_channel_id)
       await app.approveMember(member, undefined, config)
 
-    const { channel: dm } = await member.send(
-      "Welcome to the **Les Laboratoires** network.\nOne of these servers may be of interest to you!"
-    )
+    if (
+      member.client.guilds.cache.filter((guild) =>
+        guild.members.cache.has(member.id)
+      ).size <= 1
+    ) {
+      const { channel: dm } = await member.send(
+        "Welcome to the **Les Laboratoires** network.\nOne of these servers may be of interest to you!"
+      )
 
-    await app.sendLabList(dm)
+      await app.sendLabList(dm)
+    }
 
     return app.sendLog(
       member.guild,
