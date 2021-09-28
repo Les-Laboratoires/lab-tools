@@ -45,46 +45,9 @@ export default new app.Command({
           .onConflict("id")
           .merge()
 
-        const labs = await lab.query.select()
-
-        const pages = app.Paginator.divider(labs, 6)
-
-        for (const guild of message.client.guilds.cache.values()) {
-          const config = await app.getConfig(guild)
-
-          if (config?.affiliation_channel_id) {
-            const channel = guild.channels.cache.get(
-              config.affiliation_channel_id
-            )
-
-            if (channel?.isText()) {
-              const messages = await channel.messages.fetch()
-
-              for (const m of messages.values()) await m.delete()
-
-              for (const page of pages)
-                await channel.send(
-                  page.map((lab) => `${lab.title} ${lab.url}`).join("\n")
-                )
-
-              await message.send(
-                `${app.emote(
-                  message,
-                  "CHECK"
-                )} Updated **${guild}** affiliations`
-              )
-            }
-          }
-        }
+        await app.updateLabsInAffiliationChannels(message)
 
         message.triggerCoolDown()
-
-        return message.send(
-          `${app.emote(
-            message,
-            "CHECK"
-          )} Successfully updated all affiliations.`
-        )
       },
     }),
   ],
