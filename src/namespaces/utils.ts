@@ -45,7 +45,7 @@ export async function approveMember(
     .onConflict("id")
     .merge()
 
-  config ??= await getConfig(member.guild)
+  config ||= await getConfig(member.guild)
 
   if (!config) return
 
