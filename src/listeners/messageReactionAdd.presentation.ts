@@ -9,6 +9,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
 
     const config = await app.getConfig(reaction.message.guild as app.Guild)
 
+    // if config is not ready for presentation system
     if (
       !config ||
       !config.presentation_channel_id ||
@@ -19,42 +20,38 @@ const listener: app.Listener<"messageReactionAdd"> = {
       return
 
     if (reaction.message.channel.id === config.presentation_channel_id) {
-      const reactor = await reaction.message.guild.members.fetch(
-        user as app.User
-      )
+      // get reactor and redactor members
+      const reactor = await reaction.message.guild.members.fetch(user.id)
       const redactor = await reaction.message.guild.members.fetch(
-        reaction.message.author
+        reaction.message.author.id
       )
 
       if (
-        user.bot ||
+        // someone is a ghost
         !reactor ||
         !redactor ||
+        // someone is a bot
+        reactor.user.bot ||
         redactor.user.bot ||
+        // reactor is not staff member
         !reactor.roles.cache.has(config.staff_role_id) ||
+        // redactor is already validated
         redactor.roles.cache.has(config.member_default_role_id)
       )
         return
 
       if (reaction.emoji.id === app.Emotes.APPROVED) {
-        if (reaction.message.author === user) {
-          return await reaction.users.remove(user)
-        } else if (
-          !redactor.roles.cache.has(config.member_default_role_id) &&
-          redactor.roles.cache.has(config.validation_role_id)
-        ) {
-          const disapproved = reaction.message.reactions.cache.get(
-            app.Emotes.DISAPPROVED
-          )
+        const disapproved = reaction.message.reactions.cache.get(
+          app.Emotes.DISAPPROVED
+        )
 
-          if (disapproved) await disapproved.remove()
+        if (disapproved) await disapproved.remove()
 
-          return await app.approveMember(
-            redactor,
-            reaction.message.content,
-            config
-          )
-        }
+        return await app.approveMember(
+          redactor,
+          reaction.message.content,
+          config
+        )
       } else if (reaction.emoji.id === app.Emotes.DISAPPROVED) {
         if (!redactor.roles.cache.has(config.member_default_role_id)) {
           await app.sendLog(

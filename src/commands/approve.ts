@@ -13,12 +13,16 @@ export default new app.Command({
     {
       name: "target",
       description: "Target member",
-      required: true,
       castValue: "member",
     },
   ],
   async run(message) {
-    const target: app.GuildMember = message.args.target
+    const target: app.GuildMember | null = message.args.target
+
+    if (!target)
+      return new Error(
+        "'!approve' command is not implemented without arguments"
+      )
 
     await app.approveMember(target, message.args.presentation || undefined)
 

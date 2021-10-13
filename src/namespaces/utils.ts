@@ -45,15 +45,15 @@ export async function approveMember(
     .onConflict("id")
     .merge()
 
-  config ||= await getConfig(member.guild)
+  if (!config) config = await getConfig(member.guild, true)
 
-  if (!config) return
-
-  if (config.member_default_role_id)
-    await member.roles.add(config.member_default_role_id).catch(app.error)
+  await member.fetch(true)
 
   if (config.validation_role_id)
     await member.roles.remove(config.validation_role_id).catch(app.error)
+
+  if (config.member_default_role_id)
+    await member.roles.add(config.member_default_role_id).catch(app.error)
 
   await applyAutoRoles(member)
 
@@ -63,7 +63,7 @@ export async function approveMember(
     )
 
     if (general) {
-      await embedTemplate(general, config.member_welcome_message, {
+      await sendTemplatedEmbed(general, config.member_welcome_message, {
         ...embedReplacers(member),
         presentation: presentation.replace(/\n/g, "\\n").replace(/"/g, '\\"'),
       })
@@ -111,7 +111,7 @@ export async function getConfig(
   return config
 }
 
-export async function embedTemplate(
+export async function sendTemplatedEmbed(
   channel: app.Channel,
   template: string,
   replacers: { [k: string]: string }

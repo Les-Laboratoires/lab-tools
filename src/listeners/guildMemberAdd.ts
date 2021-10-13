@@ -25,7 +25,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
         )
 
         if (general)
-          await app.embedTemplate(
+          await app.sendTemplatedEmbed(
             general,
             config.bot_welcome_message,
             app.embedReplacers(member)
