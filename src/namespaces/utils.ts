@@ -50,10 +50,10 @@ export async function approveMember(
   await member.fetch(true)
 
   if (config.validation_role_id)
-    await member.roles.remove(config.validation_role_id).catch(app.error)
+    await member.roles.remove([config.validation_role_id]).catch(app.error)
 
   if (config.member_default_role_id)
-    await member.roles.add(config.member_default_role_id).catch(app.error)
+    await member.roles.add([config.member_default_role_id]).catch(app.error)
 
   await applyAutoRoles(member)
 
