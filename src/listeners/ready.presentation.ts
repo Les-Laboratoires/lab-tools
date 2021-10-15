@@ -15,13 +15,13 @@ const listener: app.Listener<"ready"> = {
 
         if (!channel)
           return app.error(
-            `${guild.name} presentation_channel_id not found`,
+            `${guild.name} presentation channel not found`,
             "ready.presentation"
           )
 
         if (!channel.isText())
           return app.error(
-            `${guild.name} presentation_channel_id is not a TextBasedChannel`,
+            `${guild.name} presentation channel is not a TextBasedChannel`,
             "ready.presentation"
           )
 
