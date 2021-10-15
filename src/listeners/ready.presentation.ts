@@ -2,7 +2,7 @@ import * as app from "../app.js"
 
 const listener: app.Listener<"ready"> = {
   event: "ready",
-  description: "A ready listener",
+  description: "Fetch guilds presentations",
   once: true,
   async run() {
     for (const guild of this.guilds.cache.values()) {
