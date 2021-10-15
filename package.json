@@ -28,7 +28,6 @@
   "homepage": "https://github.com/CamilleAbella/bot.ts#readme",
   "dependencies": {
     "@types/node-fetch": "^3.0.2",
-    "axios": "^0.21.4",
     "boxen": "^6.2.1",
     "chalk": "^4.1.2",
     "cron": "^1.8.2",
