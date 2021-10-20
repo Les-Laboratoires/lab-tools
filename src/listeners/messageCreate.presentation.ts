@@ -1,7 +1,5 @@
 import * as app from "../app.js"
 
-import guilds from "../tables/guilds.js"
-
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
   description: "Handle member presentation",
@@ -9,12 +7,14 @@ const listener: app.Listener<"messageCreate"> = {
     if (!app.isNormalMessage(message)) return
     if (!app.isGuildMessage(message)) return
 
-    const config = await guilds.query.where("id", message.guild.id).first()
+    const config = await app.getConfig(message.guild)
 
     if (!config || !config.member_default_role_id || !config.validation_role_id)
       return
 
     if (message.channel.id === config.presentation_channel_id) {
+      await message.member.fetch(true)
+
       if (
         message.member.roles.cache.has(config.member_default_role_id) ||
         message.member.roles.cache.has(config.validation_role_id) ||
