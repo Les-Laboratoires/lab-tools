@@ -49,13 +49,17 @@ export async function approveMember(
 
   await member.fetch(true)
 
-  if (config.validation_role_id)
-    await member.roles.remove([config.validation_role_id]).catch(app.error)
+  const roles: string[] = await getAutoRoles(member)
 
-  if (config.member_default_role_id)
-    await member.roles.add([config.member_default_role_id]).catch(app.error)
+  if (config.member_default_role_id) {
+    console.table({
+      member_default_role_id: config.member_default_role_id,
+      guild: member.guild.name,
+    })
+    roles.push(config.member_default_role_id)
+  }
 
-  await applyAutoRoles(member)
+  await member.roles.set(roles)
 
   if (config.general_channel_id && config.member_welcome_message) {
     const general = await member.client.channels.cache.get(
@@ -173,10 +177,15 @@ export function emote(
   return client.emojis.resolve(Emotes[name])
 }
 
-export async function applyAutoRoles(member: app.GuildMember) {
-  const autoRoles = await autoRole.query
-    .where("guild_id", member.guild.id)
-    .and.where("bot", Number(member.user.bot))
+export async function getAutoRoles(member: app.GuildMember): Promise<string[]> {
+  return (
+    await autoRole.query
+      .where("guild_id", member.guild.id)
+      .and.where("bot", Number(member.user.bot))
+  ).map((ar) => ar.role_id)
+}
 
-  await member.roles.add(autoRoles.map((ar) => ar.role_id)).catch(app.error)
+export async function applyAutoRoles(member: app.GuildMember) {
+  const autoRoles = await getAutoRoles(member)
+  await member.roles.add(autoRoles)
 }
