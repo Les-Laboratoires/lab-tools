@@ -49,15 +49,9 @@ export async function approveMember(
 
   await member.fetch(true)
 
-  const roles: string[] = await getAutoRoles(member)
+  const roles = await getAutoRoles(member)
 
-  if (config.member_default_role_id) {
-    console.table({
-      member_default_role_id: config.member_default_role_id,
-      guild: member.guild.name,
-    })
-    roles.push(config.member_default_role_id)
-  }
+  if (config.member_default_role_id) roles.push(config.member_default_role_id)
 
   await member.roles.set(roles)
 

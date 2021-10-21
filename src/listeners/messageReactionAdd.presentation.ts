@@ -21,10 +21,14 @@ const listener: app.Listener<"messageReactionAdd"> = {
 
     if (reaction.message.channel.id === config.presentation_channel_id) {
       // get reactor and redactor members
-      const reactor = await reaction.message.guild.members.fetch(user.id)
-      const redactor = await reaction.message.guild.members.fetch(
-        reaction.message.author.id
-      )
+      const reactor = await reaction.message.guild.members.fetch({
+        user: user.id,
+        force: true,
+      })
+      const redactor = await reaction.message.guild.members.fetch({
+        user: reaction.message.author.id,
+        force: true,
+      })
 
       if (
         // someone is a ghost
