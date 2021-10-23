@@ -9,37 +9,48 @@ export default new app.Command({
   async run(message) {
     const config = await app.getConfig(message.guild, true)
 
-    const roles = message.guild.roles.cache.filter((role) =>
-      role.name.includes(config.elders_role_pattern as string)
+    const roles = Array.from(
+      message.guild.roles.cache
+        .filter((role) =>
+          role.name.includes(config.elders_role_pattern as string)
+        )
+        .sort((a, b) => a.comparePositionTo(b))
+        .values()
     )
 
-    const members = await message.guild.members.fetch()
+    const members = await message.guild.members.fetch({ force: true })
 
     const logs: string[] = []
 
-    await Promise.all(
-      Array.from(roles.values()).map(async (role, i) => {
-        for (const [, member] of members) {
-          if (member.user.bot) continue
+    for (const [, member] of members) {
+      if (member.user.bot) continue
 
-          if (
-            Date.now() - (member.joinedTimestamp as number) <
-            1000 * 60 * 60 * 24 * 365 * (i + 1)
-          )
-            continue
+      const memberRoles: string[] = member.roles.cache
+        .filter(
+          (role) => !role.name.includes(config.elders_role_pattern as string)
+        )
+        .map((role) => role.id)
 
-          if (member.roles.cache.has(role.id)) continue
+      for (let i = 0; i < roles.length; i++) {
+        const role = roles[i]
 
-          await member.roles.add(role).catch(app.error)
+        if (
+          Date.now() - (member.joinedTimestamp as number) <
+          1000 * 60 * 60 * 24 * 365 * (i + 1)
+        )
+          continue
 
-          logs.push(
-            `**${member.user.tag}** has been present for over **${
-              i + 1
-            }** years!`
-          )
-        }
-      })
-    )
+        if (member.roles.cache.has(role.id)) continue
+
+        memberRoles.push(role.id)
+
+        logs.push(`**${member.user.tag}** is **${i + 1}** years old!`)
+      }
+
+      if (memberRoles.length > 0) await member.roles.set(memberRoles)
+    }
+
+    message.guild.members.cache.clear()
 
     new app.Paginator({
       customEmojis: {
@@ -49,7 +60,12 @@ export default new app.Command({
         end: app.Emotes.RIGHT,
       },
       channel: message.channel,
-      pages: app.Paginator.divider(logs, 15).map((page) => page.join("\n")),
+      pages: app.Paginator.divider(logs, 10).map((page, index, pages) =>
+        new app.MessageEmbed()
+          .setDescription(page.join("\n"))
+          .setTitle(`Added ${logs.length} elders`)
+          .setFooter(`Page: ${index + 1} sur ${pages.length}`)
+      ),
     })
   },
 })
