@@ -9,11 +9,11 @@ export default new app.Command({
   async run(message) {
     const config = await app.getConfig(message.guild, true)
 
+    const pattern = config.elders_role_pattern as string
+
     const roles = Array.from(
       message.guild.roles.cache
-        .filter((role) =>
-          role.name.includes(config.elders_role_pattern as string)
-        )
+        .filter((role) => role.name.includes(pattern))
         .sort((a, b) => a.comparePositionTo(b))
         .values()
     )
@@ -26,9 +26,7 @@ export default new app.Command({
       if (member.user.bot) continue
 
       const memberRoles: string[] = member.roles.cache
-        .filter(
-          (role) => !role.name.includes(config.elders_role_pattern as string)
-        )
+        .filter((role) => !role.name.includes(pattern))
         .map((role) => role.id)
 
       for (let i = 0; i < roles.length; i++) {
