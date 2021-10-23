@@ -60,20 +60,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
             config
           )
 
-          await app.sendLog(
-            reaction.message.guild,
-            new app.MessageEmbed()
-              .setTitle("Presentation")
-              .setAuthor(
-                redactor.user.tag,
-                redactor.user.displayAvatarURL({ dynamic: true })
-              )
-              .setDescription(reaction.message.content),
-            config
-          )
-
-          await redactor.kick()
-          return reaction.message.delete()
+          await app.disapproveMember(redactor, reaction.message, config)
         }
       }
     }

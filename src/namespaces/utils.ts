@@ -95,6 +95,7 @@ export async function disapproveMember(
   }
 
   await member.kick()
+  await presentation.delete().catch()
 }
 
 export async function sendLog(
