@@ -1,13 +1,11 @@
 import * as app from "../app.js"
 
-import users from "../tables/users.js"
+import users, { LabUser } from "../tables/users.js"
 
 const listener: app.Listener<"guildMemberRemove"> = {
   event: "guildMemberRemove",
   description: "Delete member from db",
   async run(member) {
-    await users.query.delete().where("id", member.id)
-
     const { guild } = member
 
     const config = await app.getConfig(guild)
@@ -32,30 +30,20 @@ const listener: app.Listener<"guildMemberRemove"> = {
       )
 
       if (presentations?.isText()) {
-        const messages = await presentations.messages.fetch()
+        const { presentation } = (await users.query
+          .where("id", member.id)
+          .first()) as LabUser
 
-        let hasPresentation = false
-
-        for (const [, message] of messages) {
-          if (message.author.id === member.id) {
-            hasPresentation = true
-
-            app
-              .sendLog(
-                member.guild,
-                `**Description**: ${app.code.stringify({
-                  content: message.content,
-                })}`,
-                config
-              )
-              .catch()
-
-            message.delete().catch()
-            break
-          }
+        if (presentation) {
+          const presentationMessage = await presentations.messages.fetch(
+            presentation
+          )
+          await presentationMessage.delete().catch()
         }
       }
     }
+
+    await users.query.delete().where("id", member.id)
   },
 }
 

@@ -51,11 +51,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
 
         if (disapproved) await disapproved.remove()
 
-        return await app.approveMember(
-          redactor,
-          reaction.message.content,
-          config
-        )
+        return app.approveMember(redactor, reaction.message, config)
       } else if (reaction.emoji.id === app.Emotes.DISAPPROVED) {
         if (!redactor.roles.cache.has(config.member_default_role_id)) {
           await app.sendLog(
@@ -64,8 +60,20 @@ const listener: app.Listener<"messageReactionAdd"> = {
             config
           )
 
+          await app.sendLog(
+            reaction.message.guild,
+            new app.MessageEmbed()
+              .setTitle("Presentation")
+              .setAuthor(
+                redactor.user.tag,
+                redactor.user.displayAvatarURL({ dynamic: true })
+              )
+              .setDescription(reaction.message.content),
+            config
+          )
+
           await redactor.kick()
-          return await reaction.message.delete()
+          return reaction.message.delete()
         }
       }
     }

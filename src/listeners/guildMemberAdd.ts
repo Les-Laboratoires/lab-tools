@@ -9,7 +9,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
   async run(member) {
     await users.query.insert({ id: member.id }).onConflict("id").ignore()
 
-    const config = await guilds.query.where("id", member.guild.id).first()
+    const config = await app.getConfig(member.guild)
 
     if (!config) return
 

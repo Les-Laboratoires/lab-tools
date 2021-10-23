@@ -34,13 +34,13 @@ export async function prefix(guild?: Discord.Guild): Promise<string> {
 
 export async function approveMember(
   member: app.GuildMember,
-  presentation = "*Pas de présentation*",
+  presentation?: app.Message,
   config?: GuildConfig
 ) {
   await users.query
     .insert({
       id: member.id,
-      presentation,
+      presentation: presentation?.id,
     })
     .onConflict("id")
     .merge()
@@ -63,10 +63,38 @@ export async function approveMember(
     if (general) {
       await sendTemplatedEmbed(general, config.member_welcome_message, {
         ...embedReplacers(member),
-        presentation: presentation.replace(/\n/g, "\\n").replace(/"/g, '\\"'),
+        presentation: (
+          presentation?.content ?? "*This member does not have a presentation.*"
+        )
+          .replace(/\n/g, "\\n")
+          .replace(/"/g, '\\"'),
       })
     }
   }
+}
+
+export async function disapproveMember(
+  member: app.GuildMember,
+  presentation: app.Message,
+  config?: GuildConfig
+) {
+  await users.query.delete().where({ id: member.id })
+
+  if (!config) config = await getConfig(member.guild, true)
+
+  if (config.log_channel_id && config.member_welcome_message) {
+    const logChannel = member.client.channels.cache.get(config.log_channel_id)
+
+    if (logChannel?.isText())
+      await sendTemplatedEmbed(logChannel, config.member_welcome_message, {
+        ...embedReplacers(member),
+        presentation: presentation.content
+          .replace(/\n/g, "\\n")
+          .replace(/"/g, '\\"'),
+      })
+  }
+
+  await member.kick()
 }
 
 export async function sendLog(

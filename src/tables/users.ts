@@ -2,7 +2,7 @@ import * as app from "../app.js"
 
 export interface LabUser {
   id: string
-  presentation: string
+  presentation: string | null
 }
 
 export default new app.Table<LabUser>({
