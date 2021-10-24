@@ -66,4 +66,31 @@ export default new app.Command({
       ),
     })
   },
+  subs: [
+    new app.Command({
+      name: "reset",
+      description: "Reset elders",
+      channelType: "guild",
+      middlewares: [app.staffOnly(), app.hasConfigKey("elders_role_pattern")],
+      async run(message) {
+        const config = await app.getConfig(message.guild, true)
+
+        const pattern = config.elders_role_pattern as string
+
+        const roles = Array.from(
+          message.guild.roles.cache
+            .filter((role) => role.name.includes(pattern))
+            .sort((a, b) => a.comparePositionTo(b))
+            .values()
+        )
+
+        for (const role of roles)
+          for (const [, member] of role.members) await member.roles.remove(role)
+
+        return message.send(
+          `${app.emote(message, "CHECK")} Successfully reset elders.`
+        )
+      },
+    }),
+  ],
 })
