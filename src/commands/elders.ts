@@ -30,7 +30,9 @@ export default new app.Command({
         .values()
     )
 
-    const members = await message.guild.members.fetch({ force: true })
+    const members = Array.from(
+      (await message.guild.members.fetch({ force: true })).values()
+    )
 
     await waiting.edit(
       `${app.emote(message, "WAIT")} Looking for new elders...`
@@ -38,7 +40,7 @@ export default new app.Command({
 
     const logs: string[] = []
 
-    for (const [, member] of members) {
+    for (const member of members) {
       if (member.user.bot) continue
 
       const memberRoles: string[] = member.roles.cache
@@ -51,7 +53,8 @@ export default new app.Command({
         const role = roles[i]
 
         // member is too recent
-        if (app.dayjs().diff(member.joinedAt, "years", true) >= i + 1) break
+        if (app.dayjs(member.joinedAt).diff(undefined, "years", true) >= i + 1)
+          break
 
         // member already has role
         if (member.roles.cache.has(role.id)) continue
@@ -64,6 +67,19 @@ export default new app.Command({
         }
 
         changed = true
+      }
+
+      const index = members.indexOf(member)
+
+      if (index % 20 === 0) {
+        await waiting.edit(
+          `${app.emote(
+            message,
+            "WAIT"
+          )} Looking for new elders... (\`${Math.round(
+            (index * 100) / members.length
+          )}\` %)`
+        )
       }
 
       if (changed) await member.roles.set(memberRoles)
@@ -106,7 +122,7 @@ export default new app.Command({
         const pattern = config.elders_role_pattern as string
 
         const roles = Array.from(
-          message.guild.roles.cache
+          (await message.guild.roles.fetch())
             .filter((role) => role.name.includes(pattern))
             .sort((a, b) => a.comparePositionTo(b))
             .values()
