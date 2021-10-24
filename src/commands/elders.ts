@@ -70,10 +70,12 @@ export default new app.Command({
 
     message.guild.members.cache.clear()
 
+    if (logs.length === 0)
+      return waiting.edit(`${app.emote(message, "DENY")} Not new elders found.`)
+
     await waiting.delete().catch()
 
     new app.Paginator({
-      placeHolder: "New elders not found.",
       channel: message.channel,
       pages: app.Paginator.divider(logs, 10).map((page, index, pages) =>
         new app.MessageEmbed()
