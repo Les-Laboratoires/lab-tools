@@ -16,7 +16,7 @@ export default new app.Command({
     used = true
 
     const waiting = await message.send(
-      `${app.emote(message, "WAIT")} Looking for new elders...`
+      `${app.emote(message, "WAIT")} Fetching members...`
     )
 
     const config = await app.getConfig(message.guild, true)
@@ -31,6 +31,10 @@ export default new app.Command({
     )
 
     const members = await message.guild.members.fetch({ force: true })
+
+    await waiting.edit(
+      `${app.emote(message, "WAIT")} Looking for new elders...`
+    )
 
     const logs: string[] = []
 
@@ -69,6 +73,7 @@ export default new app.Command({
     await waiting.delete().catch()
 
     new app.Paginator({
+      placeHolder: "New elders not found.",
       customEmojis: {
         start: app.Emotes.LEFT,
         previous: app.Emotes.MINUS,
