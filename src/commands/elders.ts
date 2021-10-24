@@ -1,12 +1,20 @@
 import * as app from "../app.js"
 
+let used = false
+
 export default new app.Command({
   name: "elders",
   aliases: ["elder", "old"],
   description: "The elders command",
   channelType: "guild",
-  middlewares: [app.staffOnly(), app.hasConfigKey("elders_role_pattern")],
+  middlewares: [
+    app.staffOnly(),
+    app.hasConfigKey("elders_role_pattern"),
+    app.isAlreadyUsed(used),
+  ],
   async run(message) {
+    used = true
+
     const waiting = await message.send(
       `${app.emote(message, "WAIT")} Looking for new elders...`
     )
@@ -71,6 +79,8 @@ export default new app.Command({
           .setFooter(`Page: ${index + 1} sur ${pages.length}`)
       ),
     })
+
+    used = false
   },
   subs: [
     new app.Command({
@@ -79,6 +89,8 @@ export default new app.Command({
       channelType: "guild",
       middlewares: [app.staffOnly(), app.hasConfigKey("elders_role_pattern")],
       async run(message) {
+        used = true
+
         const waiting = await message.send(
           `${app.emote(message, "WAIT")} Removing elders...`
         )
@@ -96,6 +108,8 @@ export default new app.Command({
 
         for (const role of roles)
           for (const [, member] of role.members) await member.roles.remove(role)
+
+        used = false
 
         return waiting.edit(
           `${app.emote(message, "CHECK")} Successfully reset elders.`
