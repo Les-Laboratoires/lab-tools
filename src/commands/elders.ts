@@ -126,10 +126,34 @@ export default new app.Command({
             .filter((role) => role.name.includes(pattern))
             .sort((a, b) => a.comparePositionTo(b))
             .values()
+        ).map((role) => role.id)
+
+        const members = Array.from(
+          (await message.guild.members.fetch({ force: true })).values()
         )
 
-        for (const role of roles)
-          for (const [, member] of role.members) await member.roles.remove(role)
+        for (const member of members) {
+          if (member.roles.cache.hasAny(...roles)) {
+            await member.roles.set(
+              member.roles.cache
+                .filter((role) => roles.includes(role.id))
+                .map((role) => role.id)
+            )
+
+            const index = members.indexOf(member)
+
+            if (index % 20 === 0) {
+              await waiting.edit(
+                `${app.emote(
+                  message,
+                  "WAIT"
+                )} Resetting elders... (\`${Math.round(
+                  (index * 100) / members.length
+                )}\` %)`
+              )
+            }
+          }
+        }
 
         used = false
 
