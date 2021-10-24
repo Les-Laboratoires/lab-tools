@@ -24,7 +24,7 @@ export default new app.Command({
     const pattern = config.elders_role_pattern as string
 
     const roles = Array.from(
-      message.guild.roles.cache
+      (await message.guild.roles.fetch())
         .filter((role) => role.name.includes(pattern))
         .sort((a, b) => a.comparePositionTo(b))
         .values()
