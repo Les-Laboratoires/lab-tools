@@ -10,7 +10,7 @@ export default new app.Command({
   middlewares: [
     app.staffOnly(),
     app.hasConfigKey("elders_role_pattern"),
-    app.isAlreadyUsed(used),
+    app.isAlreadyUsed(() => used),
   ],
   async run(message) {
     used = true
@@ -87,8 +87,11 @@ export default new app.Command({
 
     message.guild.members.cache.clear()
 
-    if (logs.length === 0)
+    if (logs.length === 0) {
+      used = false
+
       return waiting.edit(`${app.emote(message, "DENY")} Not new elders found.`)
+    }
 
     await waiting.delete().catch()
 
@@ -109,7 +112,11 @@ export default new app.Command({
       name: "reset",
       description: "Reset elders",
       channelType: "guild",
-      middlewares: [app.staffOnly(), app.hasConfigKey("elders_role_pattern")],
+      middlewares: [
+        app.staffOnly(),
+        app.hasConfigKey("elders_role_pattern"),
+        app.isAlreadyUsed(() => used),
+      ],
       async run(message) {
         used = true
 
