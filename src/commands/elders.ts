@@ -7,6 +7,10 @@ export default new app.Command({
   channelType: "guild",
   middlewares: [app.staffOnly(), app.hasConfigKey("elders_role_pattern")],
   async run(message) {
+    const waiting = await message.send(
+      `${app.emote(message, "WAIT")} Looking for new elders...`
+    )
+
     const config = await app.getConfig(message.guild, true)
 
     const pattern = config.elders_role_pattern as string
@@ -50,6 +54,8 @@ export default new app.Command({
 
     message.guild.members.cache.clear()
 
+    await waiting.delete().catch()
+
     new app.Paginator({
       customEmojis: {
         start: app.Emotes.LEFT,
@@ -73,6 +79,10 @@ export default new app.Command({
       channelType: "guild",
       middlewares: [app.staffOnly(), app.hasConfigKey("elders_role_pattern")],
       async run(message) {
+        const waiting = await message.send(
+          `${app.emote(message, "WAIT")} Removing elders...`
+        )
+
         const config = await app.getConfig(message.guild, true)
 
         const pattern = config.elders_role_pattern as string
@@ -87,7 +97,7 @@ export default new app.Command({
         for (const role of roles)
           for (const [, member] of role.members) await member.roles.remove(role)
 
-        return message.send(
+        return waiting.edit(
           `${app.emote(message, "CHECK")} Successfully reset elders.`
         )
       },
