@@ -41,6 +41,8 @@ export default new app.Command({
         .filter((role) => !role.name.includes(pattern))
         .map((role) => role.id)
 
+      let changed = false
+
       for (let i = 0; i < roles.length; i++) {
         const role = roles[i]
 
@@ -55,9 +57,11 @@ export default new app.Command({
         memberRoles.push(role.id)
 
         logs.push(`**${member.user.tag}** is **${i + 1}** years old!`)
+
+        changed = true
       }
 
-      if (memberRoles.length > 0) await member.roles.set(memberRoles)
+      if (changed) await member.roles.set(memberRoles)
     }
 
     message.guild.members.cache.clear()
