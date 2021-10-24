@@ -50,17 +50,18 @@ export default new app.Command({
       for (let i = 0; i < roles.length; i++) {
         const role = roles[i]
 
-        if (
-          Date.now() - (member.joinedTimestamp as number) <
-          1000 * 60 * 60 * 24 * 365 * (i + 1)
-        )
-          continue
+        // member is too recent
+        if (app.dayjs().diff(member.joinedAt, "years") < i + 1) break
 
+        // member already has role
         if (member.roles.cache.has(role.id)) continue
 
-        memberRoles.push(role.id)
+        // add role
+        {
+          memberRoles.push(role.id)
 
-        logs.push(`**${member.user.tag}** is **${i + 1}** years old!`)
+          logs.push(`**${member.user.tag}** is **${i + 1}** years old!`)
+        }
 
         changed = true
       }
