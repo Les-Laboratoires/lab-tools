@@ -51,7 +51,7 @@ export default new app.Command({
         const role = roles[i]
 
         // member is too recent
-        if (app.dayjs().diff(member.joinedAt, "years") < i + 1) break
+        if (app.dayjs().diff(member.joinedAt, "years", true) >= i + 1) break
 
         // member already has role
         if (member.roles.cache.has(role.id)) continue
