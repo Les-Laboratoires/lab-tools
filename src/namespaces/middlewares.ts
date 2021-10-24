@@ -67,7 +67,7 @@ export function isAlreadyUsed(
 ): command.Middleware<"all" | "guild" | "dm"> {
   return async (message, data) => {
     return {
-      result: !inUse || "Command is already in use.",
+      result: !inUse() || "Command is already in use.",
       data,
     }
   }
