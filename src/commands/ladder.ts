@@ -20,12 +20,6 @@ export default new app.Command({
       channel: message.channel,
       placeHolder: "No ladder available.",
       pageCount: Math.ceil(total / itemCountByPage),
-      customEmojis: {
-        start: app.Emotes.LEFT,
-        previous: app.Emotes.MINUS,
-        next: app.Emotes.PLUS,
-        end: app.Emotes.RIGHT,
-      },
       pages: async (pageIndex) => {
         const page = await getLadder(pageIndex, itemCountByPage, minNoteCount)
 

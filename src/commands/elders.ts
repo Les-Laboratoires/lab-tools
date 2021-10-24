@@ -74,12 +74,6 @@ export default new app.Command({
 
     new app.Paginator({
       placeHolder: "New elders not found.",
-      customEmojis: {
-        start: app.Emotes.LEFT,
-        previous: app.Emotes.MINUS,
-        next: app.Emotes.PLUS,
-        end: app.Emotes.RIGHT,
-      },
       channel: message.channel,
       pages: app.Paginator.divider(logs, 10).map((page, index, pages) =>
         new app.MessageEmbed()

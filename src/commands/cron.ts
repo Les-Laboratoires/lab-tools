@@ -286,12 +286,6 @@ export default new app.Command({
       ],
       async run(message) {
         new app.Paginator({
-          customEmojis: {
-            start: app.Emotes.LEFT,
-            previous: app.Emotes.MINUS,
-            next: app.Emotes.PLUS,
-            end: app.Emotes.RIGHT,
-          },
           pages: app.Paginator.divider(
             message.args.own
               ? await cronTable.query
