@@ -82,7 +82,7 @@ export default new app.Command({
         )
       }
 
-      if (changed) await member.roles.set(memberRoles)
+      if (changed) await member.roles.set(memberRoles).catch()
     }
 
     message.guild.members.cache.clear()
@@ -141,11 +141,13 @@ export default new app.Command({
 
         for (const member of members) {
           if (member.roles.cache.hasAny(...roles)) {
-            await member.roles.set(
-              member.roles.cache
-                .filter((role) => roles.includes(role.id))
-                .map((role) => role.id)
-            )
+            await member.roles
+              .set(
+                member.roles.cache
+                  .filter((role) => !roles.includes(role.id))
+                  .map((role) => role.id)
+              )
+              .catch()
 
             const index = members.indexOf(member)
 
