@@ -43,8 +43,6 @@ export default new app.Command({
     for (const member of members) {
       if (member.user.bot) continue
 
-      await member.fetch()
-
       const memberRoles: string[] = member.roles.cache
         .filter((role) => !role.name.includes(pattern))
         .map((role) => role.id)
