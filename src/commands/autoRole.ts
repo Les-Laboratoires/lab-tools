@@ -125,7 +125,7 @@ export default new app.Command({
           name: "target",
           description: "Target member",
           required: true,
-          castValue: "member",
+          castValue: "member+",
         },
       ],
       async run(message) {
