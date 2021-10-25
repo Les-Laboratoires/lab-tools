@@ -43,6 +43,8 @@ export default new app.Command({
     for (const member of members) {
       if (member.user.bot) continue
 
+      await member.fetch()
+
       const memberRoles: string[] = member.roles.cache
         .filter((role) => !role.name.includes(pattern))
         .map((role) => role.id)
@@ -53,8 +55,7 @@ export default new app.Command({
         const role = roles[i]
 
         // member is too recent
-        if (app.dayjs(member.joinedAt).diff(undefined, "years", true) >= i + 1)
-          break
+        if (app.dayjs().diff(member.joinedAt, "years", true) < i + 1) break
 
         // member already has role
         if (member.roles.cache.has(role.id)) continue
