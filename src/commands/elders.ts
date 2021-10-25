@@ -68,16 +68,18 @@ export default new app.Command({
         changed = true
       }
 
-      const index = members.indexOf(member)
+      if (changed) {
+        await member.roles.set(memberRoles).catch()
 
-      await app.sendProgress(
-        waiting,
-        index,
-        members.length,
-        "Looking for new elders... (`$%` %)"
-      )
+        const index = members.indexOf(member)
 
-      if (changed) await member.roles.set(memberRoles).catch()
+        await app.sendProgress(
+          waiting,
+          index,
+          members.length,
+          "Looking for new elders... (`$%` %)"
+        )
+      }
     }
 
     message.guild.members.cache.clear()
