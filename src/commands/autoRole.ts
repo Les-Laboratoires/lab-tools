@@ -140,6 +140,49 @@ export default new app.Command({
           )} Auto-roles are successfully applied to **${target.user.tag}**.`
         )
       },
+      subs: [
+        new app.Command({
+          name: "all",
+          description: "Apply auto-roles to all guild members",
+          aliases: ["*"],
+          channelType: "guild",
+          async run(message) {
+            const waiting = await message.send(
+              `${app.emote(message, "WAIT")} Fetching members...`
+            )
+
+            const members = Array.from(
+              (await message.guild.members.fetch({ force: true })).values()
+            )
+
+            await waiting.edit(
+              `${app.emote(message, "WAIT")} Applying auto-roles to members...`
+            )
+
+            for (const member of members) {
+              await app.applyAutoRoles(member)
+
+              const index = members.indexOf(member)
+
+              await app.sendProgress(
+                waiting,
+                index,
+                members.length,
+                "Applying auto-roles to members... (`$%` %)"
+              )
+            }
+
+            return message.send(
+              `${app.emote(
+                message,
+                "CHECK"
+              )} Auto-roles are successfully applied to **${
+                members.length
+              }** members.`
+            )
+          },
+        }),
+      ],
     }),
   ],
 })

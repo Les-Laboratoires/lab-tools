@@ -72,16 +72,12 @@ export default new app.Command({
 
       const index = members.indexOf(member)
 
-      if (index % 20 === 0) {
-        await waiting.edit(
-          `${app.emote(
-            message,
-            "WAIT"
-          )} Looking for new elders... (\`${Math.round(
-            (index * 100) / members.length
-          )}\` %)`
-        )
-      }
+      await app.sendProgress(
+        waiting,
+        index,
+        members.length,
+        "Looking for new elders... (`$%` %)"
+      )
 
       if (changed) await member.roles.set(memberRoles).catch()
     }
@@ -141,7 +137,7 @@ export default new app.Command({
         )
 
         for (const member of members) {
-          if (member.roles.cache.hasAny(...roles)) {
+          if (member.user.bot && member.roles.cache.hasAny(...roles)) {
             await member.roles
               .set(
                 member.roles.cache
@@ -152,16 +148,12 @@ export default new app.Command({
 
             const index = members.indexOf(member)
 
-            if (index % 20 === 0) {
-              await waiting.edit(
-                `${app.emote(
-                  message,
-                  "WAIT"
-                )} Resetting elders... (\`${Math.round(
-                  (index * 100) / members.length
-                )}\` %)`
-              )
-            }
+            await app.sendProgress(
+              waiting,
+              index,
+              members.length,
+              "Resetting elders... (`$%` %)"
+            )
           }
         }
 

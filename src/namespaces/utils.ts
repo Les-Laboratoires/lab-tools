@@ -212,3 +212,27 @@ export async function applyAutoRoles(member: app.GuildMember) {
   const autoRoles = await getAutoRoles(member)
   await member.roles.add(autoRoles)
 }
+
+/**
+ * @param message
+ * @param index
+ * @param total
+ * @param pattern - use $% symbol for includes percent number
+ * @param interval
+ */
+export async function sendProgress(
+  message: app.Message,
+  index: number,
+  total: number,
+  pattern: string,
+  interval = 10
+) {
+  if (index % interval === 0) {
+    await message.edit(
+      `${app.emote(message, "WAIT")} ${pattern.replace(
+        "$%",
+        String((index * 100) / total)
+      )}`
+    )
+  }
+}
