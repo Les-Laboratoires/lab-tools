@@ -234,7 +234,7 @@ export async function sendProgress(
     await message.edit(
       `${app.emote(message, "WAIT")} ${pattern.replace(
         "$%",
-        String((index * 100) / total)
+        String(Math.round((index * 100) / total))
       )}`
     )
   }
