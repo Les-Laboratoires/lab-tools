@@ -27,7 +27,7 @@ export default new app.Table<GuildConfig>({
   name: "guilds",
   description: "Represent a guild config",
   migrations: {
-    1: (table) => {
+    2: (table) => {
       table.renameColumn("validation_role_id", "await_validation_role_id")
       table.renameColumn("member_default_role_id", "member_role_id")
       table.renameColumn("bot_default_role_id", "bot_role_id")
