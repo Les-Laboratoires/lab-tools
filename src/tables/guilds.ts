@@ -13,7 +13,7 @@ export interface GuildConfig {
   bot_welcome_message: string | null
   member_default_role_id: string | null
   bot_default_role_id: string | null
-  validation_role_id: string | null
+  await_validation_role_id: string | null
   log_channel_id: string | null
   member_leave_message: string | null
   bot_leave_message: string | null
@@ -26,6 +26,13 @@ export interface GuildConfig {
 export default new app.Table<GuildConfig>({
   name: "guilds",
   description: "Represent a guild config",
+  migrations: {
+    1: (table) => {
+      table.renameColumn("validation_role_id", "await_validation_role_id")
+      table.renameColumn("member_default_role_id", "member_role_id")
+      table.renameColumn("bot_default_role_id", "bot_role_id")
+    },
+  },
   setup: (table) => {
     table.string("id").unique().notNullable()
     table.string("prefix")
