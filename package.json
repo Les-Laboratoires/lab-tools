@@ -42,9 +42,9 @@
     "node-fetch": "^3.0.0",
     "prettier": "^2.4.1",
     "regex-parser": "^2.2.11",
-    "sqlite3": "latest",
     "tims": "^2.0.5",
-    "yargs-parser": "^20.2.9"
+    "yargs-parser": "^20.2.9",
+    "sqlite3": "latest"
   },
   "devDependencies": {
     "@types/boxen": "^3.0.1",
@@ -69,7 +69,7 @@
     "gulp-esbuild": "^0.9.1",
     "gulp-filter": "^7.0.0",
     "gulp-rename": "^2.0.0",
-    "make-bot.ts": "^2.3.0",
+    "make-bot.ts": "^2.3.1",
     "nodemon": "^2.0.14",
     "typescript": "^4.4.4",
     "vinyl-paths": "^4.0.0",
