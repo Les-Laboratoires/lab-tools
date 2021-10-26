@@ -14,8 +14,8 @@ const listener: app.Listener<"messageReactionAdd"> = {
       !config ||
       !config.presentation_channel_id ||
       !config.staff_role_id ||
-      !config.validation_role_id ||
-      !config.member_default_role_id
+      !config.await_validation_role_id ||
+      !config.member_role_id
     )
       return
 
@@ -40,7 +40,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
         // reactor is not staff member
         !reactor.roles.cache.has(config.staff_role_id) ||
         // redactor is already validated
-        redactor.roles.cache.has(config.member_default_role_id)
+        redactor.roles.cache.has(config.member_role_id)
       )
         return
 
@@ -53,7 +53,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
 
         return app.approveMember(redactor, reaction.message, config)
       } else if (reaction.emoji.id === app.Emotes.DISAPPROVED) {
-        if (!redactor.roles.cache.has(config.member_default_role_id)) {
+        if (!redactor.roles.cache.has(config.member_role_id)) {
           await app.sendLog(
             reaction.message.guild,
             `${user} disapproves **${reaction.message.author.tag}**.`,

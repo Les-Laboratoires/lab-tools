@@ -11,8 +11,8 @@ export interface GuildConfig {
   presentation_channel_id: string | null
   member_welcome_message: string | null
   bot_welcome_message: string | null
-  member_default_role_id: string | null
-  bot_default_role_id: string | null
+  member_role_id: string | null
+  bot_role_id: string | null
   await_validation_role_id: string | null
   log_channel_id: string | null
   member_leave_message: string | null

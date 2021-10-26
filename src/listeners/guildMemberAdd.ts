@@ -16,8 +16,8 @@ const listener: app.Listener<"guildMemberAdd"> = {
     if (member.user.bot) {
       await app.applyAutoRoles(member)
 
-      if (config.bot_default_role_id)
-        await member.roles.add(config.bot_default_role_id).catch(app.error)
+      if (config.bot_role_id)
+        await member.roles.add(config.bot_role_id).catch(app.error)
 
       if (config.general_channel_id && config.bot_welcome_message) {
         const general = member.client.channels.cache.get(
@@ -31,7 +31,10 @@ const listener: app.Listener<"guildMemberAdd"> = {
             app.embedReplacers(member)
           )
       }
-    } else if (!config.validation_role_id || !config.presentation_channel_id)
+    } else if (
+      !config.await_validation_role_id ||
+      !config.presentation_channel_id
+    )
       await app.approveMember(member, undefined, config)
 
     if (

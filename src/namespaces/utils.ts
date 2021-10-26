@@ -51,7 +51,7 @@ export async function approveMember(
 
   const roles = await getAutoRoles(member)
 
-  if (config.member_default_role_id) roles.push(config.member_default_role_id)
+  if (config.member_role_id) roles.push(config.member_role_id)
 
   await member.roles.set(roles)
 
