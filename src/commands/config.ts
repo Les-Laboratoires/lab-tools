@@ -42,16 +42,35 @@ export default new app.Command({
                       entity = `<@${value}>`
                     else if (key.includes("emoji_id"))
                       entity = message.client.emojis.cache.get(value)
-                    else if (value.includes("\n")) {
+                    else if (value.split("\n").length > 1) {
+                      let isJSON = false
+
+                      try {
+                        JSON.parse(value)
+                        isJSON = true
+                      } catch (error) {}
+
                       message.channel
                         .send({
                           embeds: [
-                            new app.MessageEmbed()
-                              .setTitle(key)
-                              .setDescription(value),
+                            new app.MessageEmbed().setTitle(key).setDescription(
+                              app.code.stringify({
+                                lang: isJSON ? "json" : undefined,
+                                format: isJSON ? { printWidth: 62 } : undefined,
+                                content: value,
+                              })
+                            ),
                           ],
                         })
-                        .catch()
+                        .catch((error) =>
+                          message.channel.send(
+                            app.code.stringify({
+                              lang: "js",
+                              format: { printWidth: 62 },
+                              content: `${error.name}: ${error.message}`,
+                            })
+                          )
+                        )
 
                       return null
                     } else entity = `"${value}"`
