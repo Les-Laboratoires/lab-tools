@@ -18,7 +18,9 @@ export default new app.Command({
   async run(message) {
     const config = await app.getConfig(message.guild, true)
 
-    return message.channel.send({
+    const specialProps: app.MessageEmbed[] = []
+
+    await message.channel.send({
       embeds: [
         new app.MessageEmbed()
           .setAuthor(
@@ -44,42 +46,35 @@ export default new app.Command({
                       entity = message.client.emojis.cache.get(value)
                     else if (
                       value.split("\n").length > 1 ||
-                      app.isJSON(value)
+                      (app.isJSON(value) &&
+                        !/^\d+$/.test(value) &&
+                        value.length > 50)
                     ) {
                       const isJSON = app.isJSON(value)
 
-                      message.channel
-                        .send({
-                          embeds: [
-                            new app.MessageEmbed().setTitle(key).setDescription(
-                              app.code.stringify({
-                                lang: isJSON ? "json" : undefined,
-                                format: isJSON ? { printWidth: 62 } : undefined,
-                                content: value,
-                              })
-                            ),
-                          ],
-                        })
-                        .catch((error) =>
-                          message.channel.send(
-                            app.code.stringify({
-                              lang: "js",
-                              format: { printWidth: 62 },
-                              content: `${error.name}: ${error.message}`,
-                            })
-                          )
+                      specialProps.push(
+                        new app.MessageEmbed().setTitle(key).setDescription(
+                          app.code.stringify({
+                            lang: isJSON ? "json" : undefined,
+                            format: isJSON ? { printWidth: 62 } : undefined,
+                            content: value,
+                          })
                         )
+                      )
 
                       return null
                     } else entity = `"${value}"`
 
-                    return `${key} = ${entity}`
+                    return `**${key}** = ${entity}`
                   })
                   .filter((line) => line !== null)
                   .join("\n")
           ),
       ],
     })
+
+    if (specialProps.length > 0)
+      return message.channel.send({ embeds: specialProps })
   },
   subs: [
     new app.Command({
