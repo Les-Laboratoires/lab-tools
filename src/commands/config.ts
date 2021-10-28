@@ -42,7 +42,7 @@ export default new app.Command({
                       entity = `<@${value}>`
                     else if (key.includes("emoji_id"))
                       entity = message.client.emojis.cache.get(value)
-                    else value = `"${value}"`
+                    else entity = `"${value}"`
 
                     return `${key} = ${entity}`
                   })
