@@ -183,6 +183,7 @@ export async function sendTemplatedEmbed(
 
 export function embedReplacers(subject: app.GuildMember) {
   return {
+    user: subject.user.toString(),
     username: subject.user.username.replace(/"/g, '\\"'),
     user_tag: subject.user.tag.replace(/"/g, '\\"'),
     guild_icon:
