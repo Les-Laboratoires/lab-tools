@@ -42,13 +42,11 @@ export default new app.Command({
                       entity = `<@${value}>`
                     else if (key.includes("emoji_id"))
                       entity = message.client.emojis.cache.get(value)
-                    else if (value.split("\n").length > 1) {
-                      let isJSON = false
-
-                      try {
-                        JSON.parse(value)
-                        isJSON = true
-                      } catch (error) {}
+                    else if (
+                      value.split("\n").length > 1 ||
+                      app.isJSON(value)
+                    ) {
+                      const isJSON = app.isJSON(value)
 
                       message.channel
                         .send({
