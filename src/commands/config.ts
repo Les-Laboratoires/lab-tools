@@ -42,10 +42,23 @@ export default new app.Command({
                       entity = `<@${value}>`
                     else if (key.includes("emoji_id"))
                       entity = message.client.emojis.cache.get(value)
-                    else entity = `"${value}"`
+                    else if (value.includes("\n")) {
+                      message.channel
+                        .send({
+                          embeds: [
+                            new app.MessageEmbed()
+                              .setTitle(key)
+                              .setDescription(value),
+                          ],
+                        })
+                        .catch()
+
+                      return null
+                    } else entity = `"${value}"`
 
                     return `${key} = ${entity}`
                   })
+                  .filter((line) => line !== null)
                   .join("\n")
           ),
       ],
