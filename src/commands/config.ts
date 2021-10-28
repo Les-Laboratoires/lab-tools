@@ -7,18 +7,16 @@ export default new app.Command({
   description: "Display guild configs",
   guildOwnerOnly: true,
   channelType: "guild",
+  flags: [
+    {
+      name: "raw",
+      description: "Get data as json",
+      flag: "r",
+      aliases: ["json"],
+    },
+  ],
   async run(message) {
-    let config: Partial<GuildConfig> | undefined = await app.getConfig(
-      message.guild
-    )
-
-    if (!config) {
-      config = {
-        id: message.guild.id,
-      }
-
-      await guilds.query.insert(config)
-    }
+    const config = await app.getConfig(message.guild, true)
 
     return message.channel.send({
       embeds: [
@@ -28,14 +26,27 @@ export default new app.Command({
             message.guild.iconURL({ dynamic: true }) ?? undefined
           )
           .setDescription(
-            app.code.stringify({
-              lang: "json",
-              content: JSON.stringify(
-                await app.getConfig(message.guild),
-                null,
-                2
-              ),
-            })
+            message.args.raw
+              ? app.code.stringify({
+                  lang: "json",
+                  content: JSON.stringify(config, null, 2),
+                })
+              : Object.entries(config)
+                  .map(([key, value]) => {
+                    let entity: any
+
+                    if (value === null) entity = "`null`"
+                    else if (key.includes("channel_id")) entity = `<#${value}>`
+                    else if (key.includes("role_id")) entity = `<@&${value}>`
+                    else if (/(user|member)_id/.test(key))
+                      entity = `<@${value}>`
+                    else if (key.includes("emoji_id"))
+                      entity = message.client.emojis.cache.get(value)
+                    else value = `"${value}"`
+
+                    return `${key} = ${entity}`
+                  })
+                  .join("\n")
           ),
       ],
     })
