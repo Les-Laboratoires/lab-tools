@@ -14,14 +14,18 @@ export default new app.Command({
   async run(message) {
     const itemCountByPage = 15
     const minNoteCount = 5
-    const total = await getAvailableUsersTotal(minNoteCount)
 
-    new app.Paginator({
+    new app.DynamicPaginator({
       channel: message.channel,
-      placeHolder: "No ladder available.",
-      pageCount: Math.ceil(total / itemCountByPage),
-      pages: async (pageIndex) => {
+      fetchPageCount: async () => {
+        const total = await getAvailableUsersTotal(minNoteCount)
+        return Math.ceil(total / itemCountByPage)
+      },
+      fetchPage: async (pageIndex) => {
         const page = await getLadder(pageIndex, itemCountByPage, minNoteCount)
+
+        if (page.length === 0)
+          return `${app.emote(message, "DENY")} No ladder available.`
 
         return new app.MessageEmbed().setTitle(`Leaderboard`).setDescription(
           page
