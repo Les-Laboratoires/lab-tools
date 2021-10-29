@@ -16,16 +16,15 @@ function todoItem(todo: ToDo) {
 async function showTodoList(message: app.Message, user: app.User) {
   const todoList = await todoTable.query.where("user_id", user.id)
 
-  new app.Paginator({
+  new app.StaticPaginator({
     placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
     channel: message.channel,
     filter: (reaction, user) => user.id === message.author.id,
-    pages: app.Paginator.divider(todoList.map(todoItem), 10).map(
-      (page, i, pages) =>
-        new app.MessageEmbed()
-          .setTitle(`Todo list of ${user.tag} (${todoList.length} items)`)
-          .setDescription(page.join("\n"))
-          .setFooter(`Page ${i + 1} / ${pages.length}`)
+    pages: app.divider(todoList.map(todoItem), 10).map((page, i, pages) =>
+      new app.MessageEmbed()
+        .setTitle(`Todo list of ${user.tag} (${todoList.length} items)`)
+        .setDescription(page.join("\n"))
+        .setFooter(`Page ${i + 1} / ${pages.length}`)
     ),
   })
 }
@@ -217,11 +216,11 @@ export default new app.Command({
           })
           .map(todoItem)
 
-        new app.Paginator({
+        new app.StaticPaginator({
           channel: message.channel,
           placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
           filter: (reaction, user) => user.id === message.author.id,
-          pages: app.Paginator.divider(todoList, 10).map((page, i, pages) =>
+          pages: app.divider(todoList, 10).map((page, i, pages) =>
             new app.MessageEmbed()
               .setTitle(
                 `Result of "${message.args.search}" search (${todoList.length} items)`

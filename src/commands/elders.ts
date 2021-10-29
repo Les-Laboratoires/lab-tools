@@ -92,9 +92,9 @@ export default new app.Command({
 
     await waiting.delete().catch()
 
-    new app.Paginator({
+    new app.StaticPaginator({
       channel: message.channel,
-      pages: app.Paginator.divider(logs, 10).map((page, index, pages) =>
+      pages: app.divider(logs, 10).map((page, index, pages) =>
         new app.MessageEmbed()
           .setDescription(page.join("\n"))
           .setTitle(`Added ${logs.length} elders`)

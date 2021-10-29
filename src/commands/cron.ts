@@ -285,39 +285,41 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        new app.Paginator({
-          pages: app.Paginator.divider(
-            message.args.own
-              ? await cronTable.query
-                  .select()
-                  .where("user_id", message.author.id)
-              : await cronTable.query.select(),
-            10
-          ).map((page) => {
-            return new app.MessageEmbed()
-              .setTitle("Cron list")
-              .setDescription(
-                page
-                  .map((cron) => {
-                    const job = app.cache.get<cron.CronJob>(
-                      app.slug("job", cron.name)
-                    )
-                    return `${
-                      job?.running
-                        ? `${app.emote(message, "WAIT")} Running`
-                        : `${app.emote(message, "MINUS")} Stopped`
-                    } | \`${app.forceTextSize(
-                      cron.name,
-                      10,
-                      true
-                    )}\` | \`${app.forceTextSize(cron.period, 15)}\` | <#${
-                      cron.channel_id
-                    }>`
-                  })
-                  .join("\n")
-              )
-              .setFooter("🟢 Running | 🔴 Stopped")
-          }),
+        new app.StaticPaginator({
+          pages: app
+            .divider(
+              message.args.own
+                ? await cronTable.query
+                    .select()
+                    .where("user_id", message.author.id)
+                : await cronTable.query.select(),
+              10
+            )
+            .map((page) => {
+              return new app.MessageEmbed()
+                .setTitle("Cron list")
+                .setDescription(
+                  page
+                    .map((cron) => {
+                      const job = app.cache.get<cron.CronJob>(
+                        app.slug("job", cron.name)
+                      )
+                      return `${
+                        job?.running
+                          ? `${app.emote(message, "WAIT")} Running`
+                          : `${app.emote(message, "MINUS")} Stopped`
+                      } | \`${app.forceTextSize(
+                        cron.name,
+                        10,
+                        true
+                      )}\` | \`${app.forceTextSize(cron.period, 15)}\` | <#${
+                        cron.channel_id
+                      }>`
+                    })
+                    .join("\n")
+                )
+                .setFooter("🟢 Running | 🔴 Stopped")
+            }),
           channel: message.channel,
           filter: (reaction, user) => {
             return message.author.id === user.id
