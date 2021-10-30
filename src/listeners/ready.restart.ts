@@ -19,7 +19,7 @@ const listener: app.Listener<"ready"> = {
             restartMessage.last_message_id
           )
 
-          await message.edit(restartMessage.content)
+          await message?.edit(restartMessage.content)
         }
       }
     }
