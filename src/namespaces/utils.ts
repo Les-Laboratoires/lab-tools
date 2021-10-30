@@ -3,6 +3,7 @@ import Discord from "discord.js"
 import * as app from "../app.js"
 
 import guilds, { GuildConfig } from "../tables/guilds.js"
+import restart, { Restart } from "../tables/restart.js"
 import autoRole from "../tables/autoRole.js"
 import users from "../tables/users.js"
 
