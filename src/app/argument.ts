@@ -72,7 +72,7 @@ export interface Flag<Message extends command.NormalMessage>
 
 export function resolveGivenArgument<Message extends command.NormalMessage>(
   parsedArgs: yargsParser.Arguments,
-  arg: Option<Message> | Flag<Message>
+  arg: Option<any> | Flag<any>
 ): {
   given: boolean
   nameIsGiven: boolean
@@ -107,7 +107,7 @@ export function resolveGivenArgument<Message extends command.NormalMessage>(
 }
 
 export async function checkValue<Message extends command.NormalMessage>(
-  subject: Pick<Option<Message>, "checkValue" | "name">,
+  subject: Pick<Option<any>, "checkValue" | "name">,
   subjectType: "positional" | "argument",
   value: string,
   message: Message
@@ -116,7 +116,7 @@ export async function checkValue<Message extends command.NormalMessage>(
 
   if (Array.isArray(subject.checkValue)) {
     if (subject.checkValue.includes(value)) {
-      return new discord.MessageEmbed()
+      return new core.SafeMessageEmbed()
         .setColor("RED")
         .setAuthor(
           `Bad ${subjectType} pattern "${subject.name}".`,
@@ -135,7 +135,7 @@ export async function checkValue<Message extends command.NormalMessage>(
   )
 
   if (typeof checkResult === "string") {
-    return new discord.MessageEmbed()
+    return new core.SafeMessageEmbed()
       .setColor("RED")
       .setAuthor(
         `Bad ${subjectType} tested "${subject.name}".`,
@@ -146,7 +146,7 @@ export async function checkValue<Message extends command.NormalMessage>(
 
   if (typeof checkResult === "boolean") {
     if (!checkResult) {
-      return new discord.MessageEmbed()
+      return new core.SafeMessageEmbed()
         .setColor("RED")
         .setAuthor(
           `Bad ${subjectType} tested "${subject.name}".`,
@@ -169,7 +169,7 @@ export async function checkValue<Message extends command.NormalMessage>(
   }
 
   if (!checkResult.test(value)) {
-    return new discord.MessageEmbed()
+    return new core.SafeMessageEmbed()
       .setColor("RED")
       .setAuthor(
         `Bad ${subjectType} pattern "${subject.name}".`,
@@ -182,7 +182,7 @@ export async function checkValue<Message extends command.NormalMessage>(
 
 export async function checkCastedValue<Message extends command.NormalMessage>(
   subject: Pick<
-    Option<Message>,
+    Option<any>,
     "checkCastedValue" | "name" | "checkingErrorMessage"
   >,
   subjectType: "positional" | "argument",
@@ -198,7 +198,7 @@ export async function checkCastedValue<Message extends command.NormalMessage>(
   )
 
   const errorEmbed = (errorMessage: string): discord.MessageEmbed => {
-    const embed = new discord.MessageEmbed()
+    const embed = new core.SafeMessageEmbed()
       .setColor("RED")
       .setAuthor(
         `Bad ${subjectType} tested "${subject.name}".`,
@@ -234,7 +234,7 @@ export async function checkCastedValue<Message extends command.NormalMessage>(
 }
 
 export async function castValue<Message extends command.NormalMessage>(
-  subject: Pick<Option<Message>, "castValue" | "name" | "castingErrorMessage">,
+  subject: Pick<Option<any>, "castValue" | "name" | "castingErrorMessage">,
   subjectType: "positional" | "argument",
   baseValue: string | undefined,
   message: Message,
@@ -458,7 +458,7 @@ export async function castValue<Message extends command.NormalMessage>(
 
     if (subject.castingErrorMessage) {
       if (typeof subject.castingErrorMessage === "string") {
-        return new discord.MessageEmbed()
+        return new core.SafeMessageEmbed()
           .setColor("RED")
           .setAuthor(
             `Bad ${subjectType} type "${subject.name}".`,
@@ -472,7 +472,7 @@ export async function castValue<Message extends command.NormalMessage>(
       }
     }
 
-    return new discord.MessageEmbed()
+    return new core.SafeMessageEmbed()
       .setColor("RED")
       .setAuthor(
         `Bad ${subjectType} type "${subject.name}".`,
@@ -488,9 +488,7 @@ export async function castValue<Message extends command.NormalMessage>(
   }
 }
 
-export function getTypeDescriptionOf<Message extends command.NormalMessage>(
-  arg: Option<Message>
-) {
+export function getTypeDescriptionOf(arg: Option<any>) {
   if (arg.typeDescription) return arg.typeDescription
   if (!arg.castValue) return "string"
   if (typeof arg.castValue === "string") {
