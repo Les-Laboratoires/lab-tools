@@ -7,8 +7,8 @@ export interface Restart {
 }
 
 export default new app.Table<Restart>({
-  name: "deploy",
-  description: "Represent deployment data",
+  name: "restart",
+  description: "Represent restart-message",
   setup: (table) => {
     table.string("content").notNullable()
     table.string("last_channel_id").notNullable()
