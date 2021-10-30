@@ -21,7 +21,7 @@ export default new app.Command({
     await restart.query.insert({
       content: `${app.emote(message, "CHECK")} Deployed.`,
       last_channel_id: message.channel.id,
-      last_message_id: message.id,
+      last_message_id: toEdit.id,
     })
 
     cp.exec(
@@ -30,7 +30,7 @@ export default new app.Command({
       (err, stdout, stderr) => {
         if (err) {
           Promise.all([
-            restart.query.delete().where({ last_message_id: message.id }),
+            restart.query.delete().where({ last_message_id: toEdit.id }),
             toEdit.edit({
               embeds: [
                 new core.SafeMessageEmbed()
