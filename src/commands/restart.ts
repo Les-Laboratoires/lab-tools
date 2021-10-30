@@ -1,5 +1,6 @@
 import * as app from "../app.js"
-import restart from "../tables/restart"
+
+import restart from "../tables/restart.js"
 
 export default new app.Command({
   name: "restart",

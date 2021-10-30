@@ -1,9 +1,9 @@
 import cp from "child_process"
 
 import * as app from "../app.js"
-import * as core from "../app/core"
+import * as core from "../app/core.js"
 
-import restart from "../tables/restart"
+import restart from "../tables/restart.js"
 
 export default new app.Command({
   name: "deploy",
