@@ -25,20 +25,20 @@ const listener: app.Listener<"guildMemberRemove"> = {
     }
 
     if (config.presentation_channel_id) {
-      const presentations = guild.channels.cache.get(
+      const presentationChannel = guild.channels.cache.get(
         config.presentation_channel_id
       )
 
-      if (presentations?.isText()) {
-        const { presentation } = (await users.query
+      if (presentationChannel?.isText()) {
+        const { presentation_id } = (await users.query
           .where("id", member.id)
           .first()) as LabUser
 
-        if (presentation) {
-          const presentationMessage = await presentations.messages.fetch(
-            presentation
+        if (presentation_id) {
+          const presentation = await presentationChannel.messages.fetch(
+            presentation_id
           )
-          await presentationMessage.delete().catch()
+          await presentation.delete().catch()
         }
       }
     }

@@ -17,11 +17,22 @@ export default new app.Command({
     },
   ],
   async run(message) {
+    const config = await app.getConfig(message.guild, true)
     const user: app.User = message.args.user
     const userData = await users.query.where({ id: user.id }).first()
 
-    if (!userData)
-      return message.send(`${app.emote(message, "DENY")} No profile found.`)
+    let presentation: app.Message | null = null
+
+    if (config.presentation_channel_id && userData?.presentation_id) {
+      const presentationChannel = message.guild.channels.cache.get(
+        config.presentation_channel_id
+      )
+
+      if (presentationChannel?.isText())
+        presentation = await presentationChannel.messages.fetch(
+          userData.presentation_id
+        )
+    }
 
     const { count, avg } = await userNote(user)
 
@@ -33,7 +44,7 @@ export default new app.Command({
             `Profile de ${user.tag}`,
             user.displayAvatarURL({ dynamic: true, size: 32 })
           )
-          .setDescription(userData.presentation || "*pas de *")
+          .setDescription(presentation?.content || "*No presentation found*")
           .addField(
             `Note (${count ?? 0} notes)`,
             `${graphicalNote(avg)} **${avg?.toFixed(2) ?? 0}** / 5`

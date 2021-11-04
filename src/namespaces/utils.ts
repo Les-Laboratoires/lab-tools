@@ -41,7 +41,7 @@ export async function approveMember(
   await users.query
     .insert({
       id: member.id,
-      presentation: presentation?.id,
+      presentation_id: presentation?.id,
     })
     .onConflict("id")
     .merge()
@@ -54,7 +54,7 @@ export async function approveMember(
 
   if (config.member_role_id) roles.push(config.member_role_id)
 
-  await member.roles.set(roles)
+  await member.roles.set([...roles, ...member.roles.cache.values()])
 
   if (config.general_channel_id && config.member_welcome_message) {
     const general = await member.client.channels.cache.get(
