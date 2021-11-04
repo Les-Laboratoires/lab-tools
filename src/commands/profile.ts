@@ -24,8 +24,12 @@ export default new app.Command({
     let presentation: app.Message | null = null
 
     if (config.presentation_channel_id && userData?.presentation_id) {
-      const presentationChannel = message.guild.channels.cache.get(
-        config.presentation_channel_id
+      const presentationChannel = await message.guild.channels.fetch(
+        config.presentation_channel_id,
+        {
+          force: true,
+          cache: false,
+        }
       )
 
       if (presentationChannel?.isText())
