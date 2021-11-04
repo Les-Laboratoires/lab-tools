@@ -1,7 +1,7 @@
 import * as app from "../app.js"
 
-import users from "../tables/users"
-import { graphicalNote, userNote } from "../tables/note"
+import users from "../tables/users.js"
+import { graphicalNote, userNote } from "../tables/note.js"
 
 export default new app.Command({
   name: "profile",
