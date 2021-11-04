@@ -87,12 +87,16 @@ export async function disapproveMember(
     const logChannel = member.client.channels.cache.get(config.log_channel_id)
 
     if (logChannel?.isText())
-      await sendTemplatedEmbed(logChannel, config.member_welcome_message, {
-        ...embedReplacers(member),
-        presentation: presentation.content
-          .replace(/\n/g, "\\n")
-          .replace(/"/g, '\\"'),
-      })
+      await sendTemplatedEmbed(
+        logChannel,
+        "**Presentation**:\n{presentation}",
+        {
+          ...embedReplacers(member),
+          presentation: presentation.content
+            .replace(/\n/g, "\\n")
+            .replace(/"/g, '\\"'),
+        }
+      )
   }
 
   await member.kick()

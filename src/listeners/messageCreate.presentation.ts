@@ -22,10 +22,11 @@ const listener: app.Listener<"messageCreate"> = {
       )
         return
 
-      await message.member.roles.add(config.await_validation_role_id)
-      await message.react(app.Emotes.APPROVED)
-      await message.react(app.Emotes.DISAPPROVED)
-      return
+      await Promise.all([
+        message.member.roles.add(config.await_validation_role_id),
+        message.react(app.Emotes.APPROVED),
+        message.react(app.Emotes.DISAPPROVED),
+      ])
     }
   },
 }
