@@ -1,6 +1,7 @@
 import * as app from "../app.js"
 
 import users from "../tables/users.js"
+import { Messages } from "../tables/messages"
 import { graphicalNote, userNote } from "../tables/note.js"
 
 export default new app.Command({
@@ -20,6 +21,13 @@ export default new app.Command({
     const config = await app.getConfig(message.guild, true)
     const user: app.User = message.args.user
     const userData = await users.query.where({ id: user.id }).first()
+    const { output: messageCount } = (
+      await app.db.raw(`
+        select sum(\`count\`) as output
+        from messages
+        where author_id = ${user.id}
+    `)
+    )[0]
 
     let presentation: app.Message | null = null
 
@@ -45,13 +53,22 @@ export default new app.Command({
         new app.SafeMessageEmbed()
           .setColor()
           .setAuthor(
-            `Profile de ${user.tag}`,
+            `Profile of ${user.tag}`,
             user.displayAvatarURL({ dynamic: true, size: 32 })
           )
           .setDescription(presentation?.content || "*No presentation found*")
           .addField(
             `Note (${count ?? 0} notes)`,
-            `${graphicalNote(avg)} **${avg?.toFixed(2) ?? 0}** / 5`
+            `${graphicalNote(avg)} **${avg?.toFixed(2) ?? 0}** / 5`,
+            true
+          )
+          .addField(
+            "Some stats",
+            app.code.stringify({
+              lang: "yml",
+              format: { printWidth: 62 },
+              content: `messages: ${messageCount}`,
+            })
           ),
       ],
     })
