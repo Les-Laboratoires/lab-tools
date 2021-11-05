@@ -67,8 +67,9 @@ export default new app.Command({
             app.code.stringify({
               lang: "yml",
               format: { printWidth: 62 },
-              content: `messages: ${messageCount}`,
-            })
+              content: `messages: ${messageCount} # since 04/11/2021`,
+            }),
+            true
           ),
       ],
     })
