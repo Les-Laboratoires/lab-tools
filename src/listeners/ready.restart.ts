@@ -21,7 +21,8 @@ const listener: app.Listener<"ready"> = {
             format: "ms",
             maxPartCount: 3,
           })
-          .replace(/millièmes? de seconde/, "ms")})`
+          .replace(/millièmes? de seconde/, "ms")
+          .replace(/(\d+)/g, "**$1**")})`
 
         if (!restartMessage.last_message_id) await channel.send(content)
         else {
