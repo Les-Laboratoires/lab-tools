@@ -54,7 +54,10 @@ export async function approveMember(
 
   if (config.member_role_id) roles.push(config.member_role_id)
 
-  await member.roles.set([...roles, ...member.roles.cache.values()])
+  await member.roles.set([
+    ...roles.filter((id) => id !== config?.await_validation_role_id),
+    ...member.roles.cache.values(),
+  ])
 
   if (config.general_channel_id && config.member_welcome_message) {
     const general = await member.client.channels.cache.get(
