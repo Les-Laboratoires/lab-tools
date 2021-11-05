@@ -11,7 +11,11 @@ export default new app.Table<Restart>({
   name: "restart",
   description: "Represent restart-message",
   migrations: {
-    2: (table) => table.integer("created_timestamp").notNullable(),
+    2: (table) =>
+      table
+        .integer("created_timestamp", 15)
+        .notNullable()
+        .defaultTo(Date.now()),
   },
   setup: (table) => {
     table.string("content").notNullable()
