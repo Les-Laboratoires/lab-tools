@@ -13,7 +13,7 @@ export default new app.Command({
     )
 
     await restart.query.insert({
-      content: `${app.emote(message, "CHECK")} Restarted!`,
+      content: `${app.emote(message, "CHECK")} Successfully restarted!`,
       last_channel_id: message.channel.id,
       last_message_id: toEdit.id,
       created_timestamp: Date.now(),

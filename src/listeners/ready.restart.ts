@@ -15,14 +15,13 @@ const listener: app.Listener<"ready"> = {
       const channel = this.channels.cache.get(restartMessage.last_channel_id)
 
       if (channel?.isText()) {
-        const content = `${restartMessage.content} (${time.duration(
-          restartMessage.created_timestamp - Date.now(),
-          {
+        const content = `${restartMessage.content} (${time
+          .duration(restartMessage.created_timestamp - Date.now(), {
             locale: process.env.BOT_LOCALE as Language,
             format: "ms",
             maxPartCount: 3,
-          }
-        )})`
+          })
+          .replace(/millièmes? de seconde/, "ms")})`
 
         if (!restartMessage.last_message_id) await channel.send(content)
         else {
