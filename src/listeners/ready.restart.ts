@@ -20,7 +20,7 @@ const listener: app.Listener<"ready"> = {
             maxPartCount: 3,
           })
           .replace(
-            /(?:millièmes? de seconde|thousands? of (?:a )?second)/,
+            /(?:millièmes? de seconde|thousandths? of (?:a )?second)/,
             "ms"
           )
           .replace(/(\d+)/g, "**$1**")})`
