@@ -1,5 +1,4 @@
 import * as time from "tims"
-import { Language } from "tims/dist/languages"
 
 import * as app from "../app.js"
 
@@ -17,11 +16,13 @@ const listener: app.Listener<"ready"> = {
       if (channel?.isText()) {
         const content = `${restartMessage.content} (${time
           .duration(restartMessage.created_timestamp - Date.now(), {
-            locale: process.env.BOT_LOCALE as Language,
             format: "ms",
             maxPartCount: 3,
           })
-          .replace(/millièmes? de seconde/, "ms")
+          .replace(
+            /(?:millièmes? de seconde|thousands? of (?:a )?second)/,
+            "ms"
+          )
           .replace(/(\d+)/g, "**$1**")})`
 
         if (!restartMessage.last_message_id) await channel.send(content)
