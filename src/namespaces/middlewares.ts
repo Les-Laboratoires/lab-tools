@@ -5,7 +5,7 @@ import * as utils from "../namespaces/utils.js"
 import { GuildConfig } from "../tables/guilds.js"
 
 export function staffOnly(): command.Middleware<"guild"> {
-  return async (message, data) => {
+  return async function staffOnly(message, data) {
     const config = await utils.getConfig(message.guild)
 
     if (!config?.staff_role_id)
@@ -29,7 +29,7 @@ export function staffOnly(): command.Middleware<"guild"> {
 export function hasConfigKey(
   key: keyof GuildConfig
 ): command.Middleware<"guild"> {
-  return async (message, data) => {
+  return async function hasConfigKey(message, data) {
     const config = await utils.getConfig(message.guild)
 
     if (!config?.[key])
@@ -46,7 +46,7 @@ export function hasConfigKey(
 }
 
 export function isInHelpRoom(): command.Middleware<"guild"> {
-  return async (message, data) => {
+  return async function isInHelpRoom(message, data) {
     const config = await utils.getConfig(message.guild)
 
     const check = await hasConfigKey("help_room_pattern")(message, data)
@@ -65,7 +65,7 @@ export function isInHelpRoom(): command.Middleware<"guild"> {
 export function isAlreadyUsed(
   inUse: () => boolean
 ): command.Middleware<"all" | "guild" | "dm"> {
-  return async (message, data) => {
+  return async function isAlreadyUsed(message, data) {
     return {
       result: !inUse() || "Command is already in use.",
       data,
