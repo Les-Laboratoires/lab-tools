@@ -62,10 +62,10 @@ export function isInHelpRoom(): command.Middleware<"guild"> {
   }
 }
 
-export function isAlreadyUsed(
+export function isNotInUse(
   inUse: () => boolean
 ): command.Middleware<"all" | "guild" | "dm"> {
-  return async function isAlreadyUsed(message, data) {
+  return async function isNotInUse(message, data) {
     return {
       result: !inUse() || "Command is already in use.",
       data,

@@ -10,7 +10,7 @@ export default new app.Command({
   middlewares: [
     app.staffOnly(),
     app.hasConfigKey("elders_role_pattern"),
-    app.isAlreadyUsed(() => used),
+    app.isNotInUse(() => used),
   ],
   async run(message) {
     used = true
@@ -112,7 +112,7 @@ export default new app.Command({
       middlewares: [
         app.staffOnly(),
         app.hasConfigKey("elders_role_pattern"),
-        app.isAlreadyUsed(() => used),
+        app.isNotInUse(() => used),
       ],
       async run(message) {
         used = true
