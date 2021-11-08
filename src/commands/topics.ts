@@ -76,7 +76,7 @@ export default new app.Command({
           `${app.emote(
             message,
             "CHECK"
-          )} Successfully saved new help-room topic.`
+          )} Successfully applied topics to help rooms.`
         )
       },
     }),
