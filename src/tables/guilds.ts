@@ -20,6 +20,7 @@ export interface GuildConfig {
   meme_channel_id: string | null
   staff_role_id: string | null
   help_room_pattern: string | null
+  help_room_topic: string | null
   elders_role_pattern: string | null
 }
 
@@ -31,6 +32,9 @@ export default new app.Table<GuildConfig>({
       table.renameColumn("validation_role_id", "await_validation_role_id")
       table.renameColumn("member_default_role_id", "member_role_id")
       table.renameColumn("bot_default_role_id", "bot_role_id")
+    },
+    3: (table) => {
+      table.string("help_room_topic", 1024)
     },
   },
   setup: (table) => {
