@@ -1,5 +1,7 @@
 import * as app from "../app.js"
 
+import guilds from "../tables/guilds.js"
+
 export default new app.Command({
   name: "topics",
   description: "The topics command",
@@ -35,6 +37,8 @@ export default new app.Command({
         const config = await app.getConfig(message.guild, true)
 
         config.help_room_topic = message.args.topic || null
+
+        await guilds.query.update(config).where({ id: message.guild.id })
 
         return message.send(
           `${app.emote(
