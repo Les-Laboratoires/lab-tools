@@ -1,6 +1,6 @@
 import * as app from "../app.js"
 
-import rero from "../tables/rero.js"
+import rero, { getReactionRoleMessageOptions } from "../tables/rero.js"
 
 export default new app.Command({
   name: "reactionRole",
@@ -26,36 +26,9 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        const reactionRoles = await rero.query.where({
-          guild_id: message.guild.id,
-        })
-
-        if (reactionRoles.length === 0)
-          return message.send(
-            `${app.emote(message, "DENY")} There is no reaction-role.`
-          )
-
-        const row = new app.MessageActionRow().addComponents(
-          new app.MessageSelectMenu()
-            .setCustomId("reaction-role-select")
-            .setPlaceholder("Select a role")
-            .addOptions(
-              await Promise.all(
-                reactionRoles.map(async (reactionRole) => {
-                  const role = await message.guild.roles.fetch(
-                    reactionRole.role_id
-                  )
-
-                  return {
-                    label: role?.name as string,
-                    value: role?.id as string,
-                  }
-                })
-              )
-            )
+        await message.args.channel.send(
+          await getReactionRoleMessageOptions(message.guild)
         )
-
-        await message.send({ content: "Select your roles!", components: [row] })
 
         return message.send(
           `${app.emote(
