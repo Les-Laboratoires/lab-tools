@@ -1,7 +1,6 @@
 import * as app from "../app.js"
 
 import users from "../tables/users.js"
-import { Messages } from "../tables/messages"
 import { graphicalNote, userNote } from "../tables/note.js"
 
 export default new app.Command({
@@ -18,9 +17,10 @@ export default new app.Command({
     },
   ],
   async run(message) {
-    const config = await app.getConfig(message.guild, true)
     const user: app.User = message.args.user
+
     const userData = await users.query.where({ id: user.id }).first()
+
     const { output: messageCount } = (
       await app.db.raw(`
         select sum(\`count\`) as output
@@ -31,8 +31,15 @@ export default new app.Command({
 
     let presentation: app.Message | null = null
 
+    const guild =
+      message.client.guilds.cache.get(
+        userData?.presentation_guild_id || message.guild.id
+      ) || message.guild
+
+    const config = await app.getConfig(guild, true)
+
     if (config.presentation_channel_id && userData?.presentation_id) {
-      const presentationChannel = await message.guild.channels.fetch(
+      const presentationChannel = await guild.channels.fetch(
         config.presentation_channel_id,
         {
           force: true,
@@ -57,6 +64,7 @@ export default new app.Command({
             user.displayAvatarURL({ dynamic: true, size: 32 })
           )
           .setDescription(presentation?.content || "*No presentation found*")
+          .setFooter(presentation ? `Presentation from ${guild?.name}` : "c:")
           .addField(
             `Note (${count ?? 0} notes)`,
             `${graphicalNote(avg)} **${avg?.toFixed(2) ?? 0}** / 5`,
@@ -67,7 +75,7 @@ export default new app.Command({
             app.code.stringify({
               lang: "yml",
               format: { printWidth: 62 },
-              content: `messages: ${messageCount} # since 04/11/2021`,
+              content: `messages: ${messageCount}`,
             }),
             true
           ),

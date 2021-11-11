@@ -7,6 +7,7 @@ import restart from "../tables/restart.js"
 const listener: app.Listener<"ready"> = {
   event: "ready",
   description: "Send restart messages",
+  once: true,
   async run() {
     const restartMessages = await restart.query.select()
 

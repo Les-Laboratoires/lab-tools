@@ -42,6 +42,7 @@ export async function approveMember(
     .insert({
       id: member.id,
       presentation_id: presentation?.id,
+      presentation_guild_id: presentation?.guild?.id,
     })
     .onConflict("id")
     .merge()
