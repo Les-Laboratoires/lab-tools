@@ -23,12 +23,12 @@ export default new app.Command({
 
     const pattern = config.elders_role_pattern as string
 
-    const roles = Array.from(
-      (await message.guild.roles.fetch())
-        .filter((role) => role.name.includes(pattern))
-        .sort((a, b) => a.comparePositionTo(b))
-        .values()
+    const elderRoles = (
+      await message.guild.roles.fetch(undefined, { force: true })
     )
+      .filter((role) => role.name.includes(pattern))
+      .sort((a, b) => a.comparePositionTo(b))
+      .map((role) => role.id)
 
     const members = Array.from(
       (await message.guild.members.fetch({ force: true })).values()
@@ -43,24 +43,26 @@ export default new app.Command({
     for (const member of members) {
       if (member.user.bot) continue
 
+      await member.fetch()
+
       const memberRoles: string[] = member.roles.cache
-        .filter((role) => !role.name.includes(pattern))
+        .filter((role) => !elderRoles.includes(role.id))
         .map((role) => role.id)
 
       let changed = false
 
-      for (let i = 0; i < roles.length; i++) {
-        const role = roles[i]
+      for (let i = 0; i < elderRoles.length; i++) {
+        const roleId = elderRoles[i]
 
         // member is too recent
         if (app.dayjs().diff(member.joinedAt, "years", true) < i + 1) break
 
         // member already has role
-        if (member.roles.cache.has(role.id)) continue
+        if (member.roles.cache.has(roleId)) continue
 
         // add role
         {
-          memberRoles.push(role.id)
+          memberRoles.push(roleId)
 
           logs.push(`**${member.user.tag}** is **${i + 1}** years old!`)
         }
@@ -69,7 +71,11 @@ export default new app.Command({
       }
 
       if (changed) {
-        await member.roles.set(memberRoles).catch()
+        await member.roles
+          .set(memberRoles)
+          .catch((err) =>
+            logs.push(`**${member.user.tag}** error: \`${err.message}\``)
+          )
 
         const index = members.indexOf(member)
 
@@ -125,12 +131,10 @@ export default new app.Command({
 
         const pattern = config.elders_role_pattern as string
 
-        const roles = Array.from(
-          (await message.guild.roles.fetch())
-            .filter((role) => role.name.includes(pattern))
-            .sort((a, b) => a.comparePositionTo(b))
-            .values()
-        ).map((role) => role.id)
+        const roles = (await message.guild.roles.fetch())
+          .filter((role) => role.name.includes(pattern))
+          .sort((a, b) => a.comparePositionTo(b))
+          .map((role) => role.id)
 
         const members = Array.from(
           (await message.guild.members.fetch({ force: true })).values()
