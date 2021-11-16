@@ -45,16 +45,18 @@ export default new app.Command({
         .filter((role) => !elderRoles.includes(role.id))
         .map((role) => role.id)
 
-      let changed = false
-      let maxYear = 0
+      let changed = false,
+        maxYear = 0
 
       for (const elderRoleId of elderRoles) {
-        const index = elderRoles.indexOf(elderRoleId)
-        const years = index + 1
+        const index = elderRoles.indexOf(elderRoleId),
+          years = index + 1
 
         if (
-          app.dayjs().diff(member.joinedAt, "years", true) >= years &&
-          !member.roles.cache.has(elderRoleId)
+          app
+            .dayjs()
+            .diff(member.joinedAt || member.joinedTimestamp, "years", true) >=
+          years
         ) {
           memberRoles.push(elderRoleId)
           maxYear = Math.max(maxYear, years)
@@ -98,7 +100,11 @@ export default new app.Command({
       pages: app.divider(logs, 10).map((page, index, pages) =>
         new app.MessageEmbed()
           .setDescription(page.join("\n"))
-          .setTitle(`Added ${logs.length} elders`)
+          .setTitle(
+            `Added ${
+              logs.filter((log) => !log.includes("error:")).length
+            } elders`
+          )
           .setFooter(`Page: ${index + 1} sur ${pages.length}`)
       ),
     })
