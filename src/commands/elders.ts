@@ -24,13 +24,13 @@ export default new app.Command({
     const pattern = config.elders_role_pattern as string
 
     const elderRoles = (
-      await message.guild.roles.fetch(undefined, { force: true })
+      await message.guild.roles.fetch(undefined, { force: true, cache: true })
     )
       .filter((role) => role.name.includes(pattern))
       .sort((a, b) => a.comparePositionTo(b))
       .map((role) => role.id)
 
-    const members = (await message.guild.members.fetch({ force: true }))
+    const members = (await message.guild.members.fetch())
       .filter((member) => !member.user.bot)
       .map((member) => member)
 
@@ -41,8 +41,6 @@ export default new app.Command({
     const logs: string[] = []
 
     for (const member of members) {
-      if (member.user.bot) continue
-
       const memberRoles: string[] = member.roles.cache
         .filter((role) => !elderRoles.includes(role.id))
         .map((role) => role.id)
