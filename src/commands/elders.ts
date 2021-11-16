@@ -30,9 +30,9 @@ export default new app.Command({
       .sort((a, b) => a.comparePositionTo(b))
       .map((role) => role.id)
 
-    const members = Array.from(
-      (await message.guild.members.fetch({ force: true })).values()
-    )
+    const members = (await message.guild.members.fetch({ force: true }))
+      .filter((member) => !member.user.bot)
+      .map((member) => member)
 
     await waiting.edit(
       `${app.emote(message, "WAIT")} Looking for new elders...`
@@ -43,36 +43,33 @@ export default new app.Command({
     for (const member of members) {
       if (member.user.bot) continue
 
-      await member.fetch()
-
       const memberRoles: string[] = member.roles.cache
         .filter((role) => !elderRoles.includes(role.id))
         .map((role) => role.id)
 
       let changed = false
+      let maxYear = 0
 
-      for (let i = 0; i < elderRoles.length; i++) {
-        const roleId = elderRoles[i]
+      for (const elderRoleId of elderRoles) {
+        const index = elderRoles.indexOf(elderRoleId)
+        const years = index + 1
 
-        // member is too recent
-        if (app.dayjs().diff(member.joinedAt, "years", true) < i + 1) break
-
-        // member already has role
-        if (member.roles.cache.has(roleId)) continue
-
-        // add role
-        {
-          memberRoles.push(roleId)
-
-          logs.push(`**${member.user.tag}** is **${i + 1}** years old!`)
+        if (
+          app.dayjs().diff(member.joinedAt, "years", true) >= years &&
+          !member.roles.cache.has(elderRoleId)
+        ) {
+          memberRoles.push(elderRoleId)
+          maxYear = Math.max(maxYear, years)
+          changed = true
         }
-
-        changed = true
       }
 
       if (changed) {
         await member.roles
           .set(memberRoles)
+          .then(() => {
+            logs.push(`**${member.user.tag}** is **${maxYear}** years old!`)
+          })
           .catch((err) =>
             logs.push(`**${member.user.tag}** error: \`${err.message}\``)
           )
