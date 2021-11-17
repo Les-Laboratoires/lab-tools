@@ -9,8 +9,8 @@ export default new app.Command({
   positional: [
     {
       name: "target",
-      description: "The faked user id",
-      castValue: "user",
+      description: "The faked user",
+      castValue: "user+",
       required: true,
     },
   ],
