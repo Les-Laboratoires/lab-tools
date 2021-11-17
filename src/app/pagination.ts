@@ -2,25 +2,25 @@ import discord from "discord.js"
 
 import * as logger from "./logger.js"
 
+export type PaginatorKey = "previous" | "next" | "start" | "end"
+
 /** As Snowflakes or icons */
-export interface PaginatorEmojis {
-  previous: string
-  next: string
-  start: string
-  end: string
-}
+export type PaginatorEmojis = Record<PaginatorKey, string>
+export type PaginatorLabels = Record<PaginatorKey, string>
 
 export type Page = discord.MessageEmbed | string
 
 export interface PaginatorOptions {
   useReactions?: boolean
   useButtonLabels?: boolean
+  buttonStyle?: discord.MessageButtonStyleResolvable
   channel: discord.TextBasedChannels
   filter?: (
     reaction: discord.MessageReaction | discord.PartialMessageReaction,
     user: discord.User | discord.PartialUser
   ) => boolean
   idleTime?: number
+  customLabels?: Partial<PaginatorLabels>
   customEmojis?: Partial<PaginatorEmojis>
   placeHolder?: Page
 }
@@ -38,12 +38,7 @@ export abstract class Paginator {
   static defaults: Partial<PaginatorOptions> = {}
   static instances: Paginator[] = []
   static defaultPlaceHolder = "Oops, no data found"
-  static buttonNames: (keyof PaginatorEmojis)[] = [
-    "start",
-    "previous",
-    "next",
-    "end",
-  ]
+  static keys: PaginatorKey[] = ["start", "previous", "next", "end"]
   static defaultEmojis: PaginatorEmojis = {
     previous: "◀️",
     next: "▶️",
@@ -81,7 +76,7 @@ export abstract class Paginator {
           (options.useReactions ?? Paginator.defaults.useReactions) &&
           pageCount > 1
         )
-          for (const key of Paginator.buttonNames)
+          for (const key of Paginator.keys)
             await message.react(this.emojis[key])
       })
       .catch((error) =>
@@ -99,17 +94,30 @@ export abstract class Paginator {
       ? undefined
       : [
           new discord.MessageActionRow().addComponents(
-            Paginator.buttonNames.map((buttonName) => {
+            Paginator.keys.map((key) => {
               const button = new discord.MessageButton()
-                .setCustomId("pagination-" + buttonName)
-                .setStyle("SECONDARY")
+                .setCustomId("pagination-" + key)
+                .setStyle(
+                  this.options.buttonStyle ??
+                    Paginator.defaults.buttonStyle ??
+                    "SECONDARY"
+                )
 
               if (
                 this.options.useButtonLabels ??
                 Paginator.defaults.useButtonLabels
               )
-                button.setLabel(buttonName)
-              else button.setEmoji(this.emojis[buttonName])
+                button.setLabel(
+                  this.options.customLabels?.[key] ??
+                    Paginator.defaults.customLabels?.[key] ??
+                    key
+                )
+              else button.setEmoji(this.emojis[key])
+
+              button.setDisabled(
+                (key === "start" && this._pageIndex === 0) ||
+                  (key === "end" && this._pageIndex === pageCount - 1)
+              )
 
               return button
             })
@@ -127,10 +135,7 @@ export abstract class Paginator {
   protected abstract getPageCount(): Promise<number> | number
 
   public async handleInteraction(interaction: discord.ButtonInteraction) {
-    const key = interaction.customId.replace(
-      "pagination-",
-      ""
-    ) as keyof PaginatorEmojis
+    const key = interaction.customId.replace("pagination-", "") as PaginatorKey
 
     await this.updatePageIndex(key)
 
@@ -154,9 +159,9 @@ export abstract class Paginator {
     const { emoji } = reaction
     const emojiID = emoji.id || emoji.name
 
-    let currentKey: keyof PaginatorEmojis | null = null
+    let currentKey: PaginatorKey | null = null
 
-    for (const key of Paginator.buttonNames)
+    for (const key of Paginator.keys)
       if (this.emojis[key] === emojiID) currentKey = key
 
     const updated = await this.updatePageIndex(currentKey)
@@ -174,9 +179,7 @@ export abstract class Paginator {
     }
   }
 
-  private async updatePageIndex(
-    key: keyof PaginatorEmojis | null
-  ): Promise<boolean> {
+  private async updatePageIndex(key: PaginatorKey | null): Promise<boolean> {
     const pageCount = await this.getPageCount()
 
     if (key) {
