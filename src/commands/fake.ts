@@ -21,14 +21,17 @@ export default new app.Command({
 
     message.triggerCoolDown()
 
-    const member = await message.guild.members.fetch(user.id)
+    let name = user.username
 
-    const webhook = await message.channel.createWebhook(
-      member?.displayName ?? user.username,
-      {
-        avatar: user.displayAvatarURL({ dynamic: true }),
-      }
-    )
+    try {
+      const member = await message.guild.members.fetch(user.id)
+
+      name = member.displayName
+    } catch (error) {}
+
+    const webhook = await message.channel.createWebhook(name, {
+      avatar: user.displayAvatarURL({ dynamic: true }),
+    })
 
     if (webhook.token) {
       const client = new app.WebhookClient(webhook)
