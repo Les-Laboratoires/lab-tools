@@ -30,6 +30,8 @@ export default new app.Command({
       .sort((a, b) => a.comparePositionTo(b))
       .map((role) => role.id)
 
+    message.guild.members.cache.clear()
+
     const members = (await message.guild.members.fetch())
       .filter((member) => !member.user.bot)
       .map((member) => member)
