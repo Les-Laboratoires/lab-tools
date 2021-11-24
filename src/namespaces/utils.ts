@@ -3,10 +3,8 @@ import Discord from "discord.js"
 import * as app from "../app.js"
 
 import guilds, { GuildConfig } from "../tables/guilds.js"
-import restart, { Restart } from "../tables/restart.js"
 import autoRole from "../tables/autoRole.js"
 import users from "../tables/users.js"
-import { APIMessage } from "discord-api-types/v8"
 
 export enum Emotes {
   APPROVED = "865281743333228604",
