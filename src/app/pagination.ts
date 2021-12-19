@@ -77,9 +77,7 @@ export abstract class Paginator {
           for (const key of Paginator.keys)
             await message.react(this.emojis[key])
       })
-      .catch((error) =>
-        logger.error(error, "pagination:Paginator:constructor", true)
-      )
+      .catch((error) => logger.error(error, __filename, true))
 
     Paginator.instances.push(this)
   }
@@ -143,9 +141,7 @@ export abstract class Paginator {
 
     await interaction
       .update(await this.formatPage(await this.getCurrentPage()))
-      .catch((error) =>
-        logger.error(error, "pagination:Paginator:handleInteraction", true)
-      )
+      .catch((error) => logger.error(error, __filename, true))
   }
 
   public async handleReaction(
@@ -173,9 +169,7 @@ export abstract class Paginator {
         await this.options.channel.messages.cache
           .get(this._messageID)
           ?.edit(await this.formatPage(await this.getCurrentPage()))
-          .catch((error) =>
-            logger.error(error, "pagination:Paginator:handleReaction", true)
-          )
+          .catch((error) => logger.error(error, __filename, true))
     }
   }
 
@@ -239,9 +233,9 @@ export abstract class Paginator {
         await message.reactions?.removeAll().catch()
       else await message.delete()
 
-    Paginator.instances = Paginator.instances.filter((paginator) => {
-      return paginator._messageID !== this._messageID
-    })
+    Paginator.instances = Paginator.instances.filter(
+      (paginator) => paginator._messageID !== this._messageID
+    )
   }
 
   public static getByMessage(
@@ -249,9 +243,9 @@ export abstract class Paginator {
       | discord.PartialMessage
       | discord.ButtonInteraction<discord.CacheType>["message"]
   ): Paginator | undefined {
-    return this.instances.find((paginator) => {
-      return paginator._messageID === message.id
-    })
+    return this.instances.find(
+      (paginator) => paginator._messageID === message.id
+    )
   }
 }
 

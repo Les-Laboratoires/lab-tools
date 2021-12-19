@@ -9,7 +9,7 @@ for (const key of ["BOT_TOKEN", "BOT_PREFIX", "BOT_OWNER"]) {
   }
 }
 
-const client = new discord.Client({
+export const client = new discord.Client({
   intents: process.env.BOT_INTENTS
     ? process.env.BOT_INTENTS.split(/[;|.,\s+]+/).map(
         (intent) => discord.Intents.FLAGS[intent as discord.IntentsString]
@@ -17,23 +17,21 @@ const client = new discord.Client({
     : [],
 })
 
-;(async () => {
-  const app = await import("./app.js")
+const app = await import("./app.js")
 
-  try {
-    await app.tableHandler.load(client as FullClient)
-    await app.commandHandler.load(client as FullClient)
-    await app.listenerHandler.load(client as FullClient)
+try {
+  await app.tableHandler.load(client as FullClient)
+  await app.commandHandler.load(client as FullClient)
+  await app.listenerHandler.load(client as FullClient)
 
-    await client.login(process.env.BOT_TOKEN)
+  await client.login(process.env.BOT_TOKEN)
 
-    if (!app.isFullClient(client)) {
-      app.error("The Discord client is not full.", "index")
-      client.destroy()
-      process.exit(1)
-    }
-  } catch (error: any) {
-    app.error(error, "index", true)
+  if (!app.isFullClient(client)) {
+    app.error("The Discord client is not full.", __filename)
+    client.destroy()
     process.exit(1)
   }
-})()
+} catch (error: any) {
+  app.error(error, __filename, true)
+  process.exit(1)
+}

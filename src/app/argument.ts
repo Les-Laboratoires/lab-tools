@@ -32,14 +32,10 @@ export interface Option<Message extends command.NormalMessage>
     | "regex"
     | "array"
     | "user"
-    | "user+"
     | "member"
-    | "member+"
     | "channel"
-    | "channel+"
     | "message"
     | "role"
-    | "role+"
     | "emote"
     | "invite"
     | ((value: string, message: Message) => any)
@@ -279,7 +275,6 @@ export async function castValue<Message extends command.NormalMessage>(
         else setValue(baseValue.split(/[,;|]/))
         break
       case "channel":
-      case "channel+":
         if (baseValue) {
           const match = /^(?:<#(\d+)>|(\d+))$/.exec(baseValue)
           if (match) {
@@ -287,7 +282,7 @@ export async function castValue<Message extends command.NormalMessage>(
             const channel = message.client.channels.cache.get(id)
             if (channel) setValue(channel)
             else throw new Error("Unknown channel!")
-          } else if (subject.castValue === "channel+") {
+          } else {
             const search = (channel: discord.Channel) => {
               return (
                 "name" in channel && // @ts-ignore
@@ -300,11 +295,10 @@ export async function castValue<Message extends command.NormalMessage>(
             channel ??= message.client.channels.cache.find(search)
             if (channel) setValue(channel)
             else throw new Error("Channel not found!")
-          } else throw new Error("Invalid channel value!")
+          }
         } else throw empty
         break
       case "member":
-      case "member+":
         if (baseValue) {
           if (command.isGuildMessage(message)) {
             const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
@@ -317,7 +311,7 @@ export async function castValue<Message extends command.NormalMessage>(
               })
               if (member) setValue(member)
               else throw new Error("Unknown member!")
-            } else if (subject.castValue === "member+") {
+            } else {
               const members = await message.guild.members.fetch()
               const member = members.find((member) => {
                 return (
@@ -331,7 +325,7 @@ export async function castValue<Message extends command.NormalMessage>(
               })
               if (member) setValue(member)
               else throw new Error("Member not found!")
-            } else throw new Error("Invalid member value!")
+            }
           } else
             throw new Error(
               'The "GuildMember" casting is only available in a guild!'
@@ -361,7 +355,6 @@ export async function castValue<Message extends command.NormalMessage>(
         } else throw empty
         break
       case "user":
-      case "user+":
         if (baseValue) {
           const match = /^(?:<@!?(\d+)>|(\d+))$/.exec(baseValue)
           if (match) {
@@ -372,7 +365,7 @@ export async function castValue<Message extends command.NormalMessage>(
             })
             if (user) setValue(user)
             else throw new Error("Unknown user!")
-          } else if (subject.castValue === "user+") {
+          } else {
             const user = message.client.users.cache.find((user) => {
               return user.username
                 .toLowerCase()
@@ -380,11 +373,10 @@ export async function castValue<Message extends command.NormalMessage>(
             })
             if (user) setValue(user)
             else throw new Error("User not found!")
-          } else throw new Error("Invalid user value!")
+          }
         } else throw empty
         break
       case "role":
-      case "role+":
         if (baseValue) {
           if (command.isGuildMessage(message)) {
             const match = /^(?:<@&?(\d+)>|(\d+))$/.exec(baseValue)
@@ -393,7 +385,7 @@ export async function castValue<Message extends command.NormalMessage>(
               const role = await message.guild.roles.fetch(id)
               if (role) setValue(role)
               else throw new Error("Unknown role!")
-            } else if (subject.castValue === "role+") {
+            } else {
               const roles = await message.guild.roles.fetch(undefined, {
                 cache: false,
                 force: false,
@@ -403,7 +395,7 @@ export async function castValue<Message extends command.NormalMessage>(
               })
               if (role) setValue(role)
               else throw new Error("Role not found!")
-            } else throw new Error("Invalid role value!")
+            }
           } else
             throw new Error(
               'The "GuildRole" casting is only available in a guild!'

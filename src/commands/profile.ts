@@ -12,7 +12,7 @@ export default new app.Command({
     {
       name: "user",
       description: "Targeted user",
-      castValue: "user+",
+      castValue: "user",
       default: (message) => message?.author.id as string,
     },
   ],

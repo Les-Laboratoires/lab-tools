@@ -64,7 +64,7 @@ async function insertTodo(message: app.NormalMessage) {
       `${app.emote(message, "CHECK")} Saved with ${todoId(todo)} as identifier.`
     )
   } catch (error: any) {
-    app.error(error)
+    app.error(error, __filename)
     return message.channel.send(
       `${app.emote(message, "DENY")} An error has occurred.`
     )

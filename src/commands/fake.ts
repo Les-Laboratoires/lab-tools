@@ -10,7 +10,7 @@ export default new app.Command({
     {
       name: "target",
       description: "The faked user",
-      castValue: "user+",
+      castValue: "user",
       required: true,
     },
   ],
