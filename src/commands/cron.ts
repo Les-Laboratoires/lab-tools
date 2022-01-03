@@ -244,7 +244,7 @@ export default new app.Command({
 
         await cronTable.query
           .insert({
-            channel_id: message.args.channelId,
+            channel_id: message.args.channel.id,
             user_id: message.author.id,
             content: message.args.content,
             period: message.args.period,
