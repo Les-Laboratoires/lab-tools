@@ -194,8 +194,9 @@ export default new app.Command({
       options: [
         {
           name: "channel",
-          description: "The channel id of task",
-          required: true,
+          castValue: "channel",
+          description: "The channel of task",
+          default: (message) => message?.channelId ?? "",
         },
         {
           name: "period",
@@ -210,21 +211,7 @@ export default new app.Command({
       ],
       async run(message) {
         const slug = app.slug("job", message.args.name)
-
-        let channel: app.Channel | null
-        try {
-          channel = await message.client.channels.fetch(message.args.channel)
-        } catch (error) {
-          return message.channel.send(
-            `${app.emote(message, "DENY")} Unknown channel.`
-          )
-        }
-
-        if (!channel) {
-          // todo: remove todo task?
-
-          return message.send(`${app.emote(message, "DENY")} Unknown channel.`)
-        }
+        const channel: app.AnyChannel = message.args.channel
 
         if (!channel.isText())
           return message.channel.send(

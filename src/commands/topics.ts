@@ -1,6 +1,7 @@
 import * as app from "../app.js"
 
 import guilds from "../tables/guilds.js"
+import { NewsChannel, TextChannel } from "discord.js"
 
 export default new app.Command({
   name: "topics",
@@ -63,12 +64,17 @@ export default new app.Command({
 
         await Promise.all(
           message.guild.channels.cache
-            .filter((channel): channel is app.BaseGuildTextChannel => {
-              return (
-                channel.isText() &&
-                channel.name.includes(config.help_room_pattern as string)
-              )
-            })
+            .filter(
+              (
+                channel
+              ): channel is app.GuildBasedChannel &
+                (TextChannel | NewsChannel) => {
+                return (
+                  channel.isText() &&
+                  channel.name.includes(config.help_room_pattern as string)
+                )
+              }
+            )
             .map((channel) => channel.setTopic(config.help_room_topic))
         )
 

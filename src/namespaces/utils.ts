@@ -149,7 +149,7 @@ export async function getConfig(
 }
 
 export async function sendTemplatedEmbed(
-  channel: app.Channel,
+  channel: app.AnyChannel,
   template: string,
   replacers: { [k: string]: string }
 ) {
