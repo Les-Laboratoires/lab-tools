@@ -108,6 +108,14 @@ export default new app.Command({
           default: (message) => message?.author.id ?? "no default",
         },
       ],
+      options: [
+        {
+          name: "perPage",
+          description: "Count of task per page",
+          castValue: "number",
+          typeDescription
+        }
+      ],
       async run(message) {
         return showTodoList(message, message.args.target)
       },
