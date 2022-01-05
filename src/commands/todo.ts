@@ -52,48 +52,6 @@ async function showTodoList(message: app.NormalMessage, user: app.User) {
   })
 }
 
-async function insertTodo(message: app.NormalMessage) {
-  if (message.rest.startsWith("-")) message.rest = message.rest.slice(1).trim()
-
-  const count = await todoTable.query
-    .where("user_id", message.author.id)
-    .count({ count: "*" })
-    .first()
-    .then((data) => {
-      return data ? Number(data.count ?? 0) : 0
-    })
-
-  if (count > 999)
-    return message.channel.send(
-      `${app.emote(
-        message,
-        "DENY"
-      )} You have too many todo tasks, please remove some first.`
-    )
-
-  try {
-    const todoData: Omit<ToDo, "id"> = {
-      user_id: message.author.id,
-      content: message.rest,
-    }
-
-    await todoTable.query.insert(todoData)
-
-    const todo = await todoTable.query.where(todoData).first()
-
-    if (!todo) throw new Error()
-
-    return message.channel.send(
-      `${app.emote(message, "CHECK")} Saved with ${todoId(todo)} as identifier.`
-    )
-  } catch (error: any) {
-    app.error(error, __filename)
-    return message.channel.send(
-      `${app.emote(message, "DENY")} An error has occurred.`
-    )
-  }
-}
-
 const perPageOption: app.Option<app.NormalMessage> = {
   name: "perPage",
   description: "Count of task per page",
@@ -126,7 +84,53 @@ export default new app.Command({
       description: "Add new todo task",
       aliases: ["new", "+=", "++", "+"],
       channelType: "all",
-      run: insertTodo,
+      rest: {
+        name: "content",
+        description: "Task content",
+        required: true,
+        all: true,
+      },
+      async run(message) {
+        const content: string = message.args.content.startsWith("-")
+          ? message.args.content.slice(1).trim()
+          : message.args.content
+
+        const count = await app.countOf(
+          todoTable.query.where("user_id", message.author.id)
+        )
+
+        if (count > 999)
+          return message.channel.send(
+            `${app.emote(
+              message,
+              "DENY"
+            )} You have too many todo tasks, please remove some first.`
+          )
+
+        try {
+          const todoData: Omit<ToDo, "id"> = {
+            user_id: message.author.id,
+            content,
+          }
+
+          await todoTable.query.insert(todoData)
+
+          const todo = await todoTable.query.where(todoData).first()
+
+          if (!todo) throw new Error()
+
+          return message.channel.send(
+            `${app.emote(message, "CHECK")} Saved with ${todoId(
+              todo
+            )} as identifier.`
+          )
+        } catch (error: any) {
+          app.error(error, __filename)
+          return message.channel.send(
+            `${app.emote(message, "DENY")} An error has occurred.`
+          )
+        }
+      },
     }),
     new app.Command({
       name: "list",
