@@ -10,7 +10,7 @@ export default new app.Table<{
   name: "cron",
   description: "Represent saved cron",
   migrations: {
-    1: table => table.unique( ["name"])
+    1: (table) => table.unique(["name"]),
   },
   setup: (table) => {
     table
