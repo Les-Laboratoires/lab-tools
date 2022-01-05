@@ -1,7 +1,37 @@
 import * as app from "../app.js"
 import cron from "cron"
 
-import cronTable from "../tables/cron.js"
+import cronTable, { CronData } from "../tables/cron.js"
+
+async function getOwnCronByName(
+  message: app.NormalMessage
+): Promise<CronData | null> {
+  const currentCron = await cronTable.query
+    .select()
+    .where("name", message.args.name)
+    .first()
+
+  if (!currentCron) {
+    await message.channel.send(
+      `${app.emote(message, "DENY")} Unknown cron task.`
+    )
+
+    return null
+  }
+
+  if (
+    currentCron.user_id !== message.author.id &&
+    message.author.id !== process.env.OWNER
+  ) {
+    await message.channel.send(
+      `${app.emote(message, "DENY")} This is not your own cron task.`
+    )
+
+    return null
+  }
+
+  return currentCron
+}
 
 export default new app.Command({
   name: "cron",
@@ -28,23 +58,9 @@ export default new app.Command({
         if (message.args.name) {
           const slug = app.slug("job", message.args.name)
 
-          const currentCron = await cronTable.query
-            .select()
-            .where("name", message.args.name)
-            .first()
+          const currentCron = await getOwnCronByName(message)
 
-          if (!currentCron)
-            return message.channel.send(
-              `${app.emote(message, "DENY")} Unknown cron task.`
-            )
-
-          if (
-            currentCron.user_id !== message.author.id &&
-            message.author.id !== process.env.OWNER
-          )
-            return message.channel.send(
-              `${app.emote(message, "DENY")} This is not your own cron task.`
-            )
+          if (!currentCron) return
 
           let job = app.cache.get<cron.CronJob>(slug)
 
@@ -97,23 +113,9 @@ export default new app.Command({
         if (message.args.name) {
           const slug = app.slug("job", message.args.name)
 
-          const currentCron = await cronTable.query
-            .select()
-            .where("name", message.args.name)
-            .first()
+          const currentCron = getOwnCronByName(message)
 
-          if (!currentCron)
-            return message.channel.send(
-              `${app.emote(message, "DENY")} Unknown cron task.`
-            )
-
-          if (
-            currentCron.user_id !== message.author.id &&
-            message.author.id !== process.env.OWNER
-          )
-            return message.channel.send(
-              `${app.emote(message, "DENY")} This is not your own cron task.`
-            )
+          if (!currentCron) return
 
           const job = app.cache.get<cron.CronJob>(slug)
 
@@ -146,23 +148,7 @@ export default new app.Command({
         if (message.args.name) {
           const slug = app.slug("job", message.args.name)
 
-          const currentCron = await cronTable.query
-            .select()
-            .where("name", message.args.name)
-            .first()
-
-          if (!currentCron)
-            return message.channel.send(
-              `${app.emote(message, "DENY")} Unknown cron task.`
-            )
-
-          if (
-            currentCron.user_id !== message.author.id &&
-            message.author.id !== process.env.OWNER
-          )
-            return message.channel.send(
-              `${app.emote(message, "DENY")} This is not your own cron task.`
-            )
+          if (!(await getOwnCronByName(message))) return
 
           const job = app.cache.get<cron.CronJob>(slug)
 
@@ -305,7 +291,6 @@ export default new app.Command({
                     })
                     .join("\n")
                 )
-                .setFooter("🟢 Running | 🔴 Stopped")
             }),
           channel: message.channel,
           filter: (reaction, user) => {

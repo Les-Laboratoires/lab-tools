@@ -1,12 +1,14 @@
 import * as app from "../app.js"
 
-export default new app.Table<{
+export interface CronData {
   user_id: string
   channel_id: string
   period: string
   name: string
   content: string
-}>({
+}
+
+export default new app.Table<CronData>({
   name: "cron",
   description: "Represent saved cron",
   migrations: {
