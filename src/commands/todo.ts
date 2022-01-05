@@ -13,19 +13,42 @@ function todoItem(todo: ToDo) {
     .slice(0, 40)}`
 }
 
-async function showTodoList(message: app.Message, user: app.User) {
-  const todoList = await todoTable.query.where("user_id", user.id)
+async function showTodoList(message: app.NormalMessage, user: app.User) {
+  const perPage: number = message.args.perPage ?? 10
 
-  new app.StaticPaginator({
-    placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
+  new app.DynamicPaginator({
     channel: message.channel,
     filter: (reaction, user) => user.id === message.author.id,
-    pages: app.divider(todoList.map(todoItem), 10).map((page, i, pages) =>
-      new app.MessageEmbed()
-        .setTitle(`Todo list of ${user.tag} (${todoList.length} items)`)
-        .setDescription(page.join("\n"))
-        .setFooter(`Page ${i + 1} / ${pages.length}`)
-    ),
+    placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
+    async fetchPage(index): Promise<app.Page> {
+      const itemCount = await app.countOf(
+        todoTable.query.where("user_id", user.id)
+      )
+      const pageCount = Math.ceil(itemCount / perPage)
+      const pageTasks = await todoTable.query
+        .where("user_id", user.id)
+        .offset(index * perPage)
+        .limit(perPage)
+
+      if (perPage === 1) {
+        const [todo] = pageTasks
+
+        return new app.SafeMessageEmbed()
+          .setTitle(`Todo task of ${message.author.tag}`)
+          .setDescription(`${todoId(todo)} ${todo.content}`)
+          .setFooter({ text: `Item ${index + 1} / ${itemCount}` })
+      }
+
+      return new app.MessageEmbed()
+        .setTitle(`Todo list of ${user.tag} (${itemCount} items)`)
+        .setDescription(pageTasks.map(todoItem).join("\n"))
+        .setFooter({ text: `Page ${index + 1} / ${pageCount}` })
+    },
+    async fetchPageCount(): Promise<number> {
+      return Math.ceil(
+        (await app.countOf(todoTable.query.where("user_id", user.id))) / perPage
+      )
+    },
   })
 }
 
@@ -71,11 +94,20 @@ async function insertTodo(message: app.NormalMessage) {
   }
 }
 
+const perPageOption: app.Option<app.NormalMessage> = {
+  name: "perPage",
+  description: "Count of task per page",
+  castValue: "number",
+  default: () => "10",
+  aliases: ["per", "by", "count", "nbr", "div"],
+}
+
 export default new app.Command({
   name: "todo",
   aliases: ["td"],
   channelType: "all",
   description: "Manage todo tasks",
+  options: [perPageOption],
   async run(message) {
     return message.rest.length === 0
       ? showTodoList(message, message.author)
@@ -104,18 +136,12 @@ export default new app.Command({
       positional: [
         {
           name: "target",
+          castValue: "user",
           description: "The target member",
           default: (message) => message?.author.id ?? "no default",
         },
       ],
-      options: [
-        {
-          name: "perPage",
-          description: "Count of task per page",
-          castValue: "number",
-          typeDescription
-        }
-      ],
+      options: [perPageOption],
       async run(message) {
         return showTodoList(message, message.args.target)
       },
@@ -234,7 +260,7 @@ export default new app.Command({
                 `Result of "${message.args.search}" search (${todoList.length} items)`
               )
               .setDescription(page.join("\n"))
-              .setFooter(`Page ${i + 1} / ${pages.length}`)
+              .setFooter({ text: `Page ${i + 1} / ${pages.length}` })
           ),
         })
       },

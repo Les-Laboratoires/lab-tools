@@ -259,3 +259,9 @@ export function isJSON(value: string) {
     return false
   }
 }
+
+export function countOf(builder: any): Promise<number> {
+  return builder.count({ total: "*" }).then((rows: any) => {
+    return rows[0].total as number
+  })
+}
