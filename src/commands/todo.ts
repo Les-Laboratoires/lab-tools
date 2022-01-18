@@ -70,13 +70,13 @@ export default new app.Command({
     return message.rest.length === 0
       ? showTodoList(message, message.author)
       : message.channel.send(
-        `${app.emote(
-          message,
-          "DENY"
-        )} Bad command usage. Show command detail with \`${
-          message.usedPrefix
-        }todo -h\``
-      )
+          `${app.emote(
+            message,
+            "DENY"
+          )} Bad command usage. Show command detail with \`${
+            message.usedPrefix
+          }todo -h\``
+        )
   },
   subs: [
     new app.Command({
