@@ -70,13 +70,13 @@ export default new app.Command({
     return message.rest.length === 0
       ? showTodoList(message, message.author)
       : message.channel.send(
-          `${app.emote(
-            message,
-            "DENY"
-          )} Bad command usage. Show command detail with \`${
-            message.usedPrefix
-          }todo -h\``
-        )
+        `${app.emote(
+          message,
+          "DENY"
+        )} Bad command usage. Show command detail with \`${
+          message.usedPrefix
+        }todo -h\``
+      )
   },
   subs: [
     new app.Command({
@@ -117,7 +117,7 @@ export default new app.Command({
 
           const todo = await todoTable.query.where(todoData).first()
 
-          if (!todo) throw new Error()
+          if (!todo) throw new Error("Internal error in src/commands/todo.ts")
 
           return message.channel.send(
             `${app.emote(message, "CHECK")} Saved with ${todoId(
