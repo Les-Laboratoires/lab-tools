@@ -6,30 +6,25 @@ export default new app.Command({
   description: "Generate an invitation link",
   aliases: ["invitation", "bot", "cobaye"],
   channelType: "all",
+  positional: [
+    {
+      name: "bot",
+      castValue: "user",
+      checkCastedValue: (user: app.User) => user.bot,
+      description: "Bot to invite",
+      checkingErrorMessage: "User must be a bot.",
+    },
+  ],
   flags: [
     {
       name: "here",
       flag: "H",
-      description: "Generate link to current guild",
+      description: "Generate link for the current guild",
     },
   ],
   async run(message) {
-    const here = message.args.here
-
-    let bot: app.User | false = false
-
-    if (message.mentions.members && message.mentions.members.size > 0) {
-      bot = (message.mentions.members.first() as app.GuildMember).user
-    } else if (/^\d+$/.test(message.rest)) {
-      bot = await message.client.users.fetch(message.rest, {
-        force: true,
-        cache: false,
-      })
-    }
-
-    if (!bot) {
-      return message.channel.send(`${app.emote(message, "DENY")} Unknown user`)
-    }
+    const here: boolean = message.args.here
+    const bot: app.User = message.args.bot
 
     const url = new URL("/oauth2/authorize", "https://discord.com/")
 
@@ -45,12 +40,12 @@ export default new app.Command({
 
     await message.channel.send({
       embeds: [
-        new app.MessageEmbed()
-          .setAuthor(
-            `Invitez ${bot.username} ${here ? "ici" : ""}`,
-            message.guild?.iconURL({ dynamic: true }) ?? undefined,
-            url.toString()
-          )
+        new app.SafeMessageEmbed()
+          .setAuthor({
+            name: `Invitez ${bot.username} ${here ? "ici" : ""}`,
+            iconURL: message.guild?.iconURL({ dynamic: true }) ?? undefined,
+            url: url.toString(),
+          })
           .setDescription(
             app.code.stringify({
               content: JSON.stringify(
