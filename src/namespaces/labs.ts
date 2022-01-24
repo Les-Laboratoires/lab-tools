@@ -37,7 +37,7 @@ export async function updateLabsInAffiliationChannels(
   )
 }
 
-export async function sendLabList(channel: app.TextBasedChannels) {
+export async function sendLabList(channel: app.TextBasedChannel) {
   const labs = await lab.query.select()
 
   const pages = app.divider(labs, 6)

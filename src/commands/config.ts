@@ -192,7 +192,7 @@ export default new app.Command({
 
         let json: object | null = null
         try {
-          json = JSON.parse(value)
+          if (!/^\d+$/.test(value)) json = JSON.parse(value)
         } catch (error) {}
 
         return message.channel.send({

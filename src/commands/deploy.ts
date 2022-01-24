@@ -18,6 +18,19 @@ export default new app.Command({
       `${app.emote(message, "WAIT")} Deploying...`
     )
 
+    async function run(command: string) {
+      return new Promise(async (resolve, reject) => {
+        await toEdit.edit(
+          `${app.emote(message, "WAIT")} Deploying...\n\`>_ ${command}\``
+        )
+
+        cp.exec(command, { cwd: process.cwd() }, (err, stdout, stderr) => {
+          if (err) return reject()
+          resolve(void 0)
+        })
+      })
+    }
+
     await restart.query.insert({
       content: `${app.emote(message, "CHECK")} Successfully deployed.`,
       last_channel_id: message.channel.id,
@@ -25,33 +38,31 @@ export default new app.Command({
       created_timestamp: Date.now(),
     })
 
-    cp.exec(
-      "git pull && npm i && yarn build && pm2 restart tool",
-      { cwd: process.cwd() },
-      (err, stdout, stderr) => {
-        if (err) {
-          Promise.all([
-            restart.query.delete().where({ last_message_id: toEdit.id }),
-            toEdit.edit({
-              embeds: [
-                new core.SafeMessageEmbed()
-                  .setTitle("\\❌ An error has occurred.")
-                  .setColor("RED")
-                  .setDescription(
-                    app.code.stringify({
-                      content: (err.stack ?? err.message)
-                        .split("")
-                        .reverse()
-                        .slice(0, 2000)
-                        .reverse()
-                        .join(""),
-                    })
-                  ),
-              ],
-            }),
-          ]).catch()
-        }
-      }
-    )
+    try {
+      await run("git pull")
+      await run("npm i")
+      await run("yarn build")
+      await run("pm2 restart tool")
+    } catch (error: any) {
+      await restart.query.delete().where({ last_message_id: toEdit.id })
+
+      return toEdit.edit({
+        embeds: [
+          new core.SafeMessageEmbed()
+            .setTitle("\\❌ An error has occurred.")
+            .setColor("RED")
+            .setDescription(
+              app.code.stringify({
+                content: (error.stack ?? error.message)
+                  .split("")
+                  .reverse()
+                  .slice(0, 2000)
+                  .reverse()
+                  .join(""),
+              })
+            ),
+        ],
+      })
+    }
   },
 })

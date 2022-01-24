@@ -2,6 +2,10 @@ import * as app from "../app.js"
 
 import todoTable, { ToDo } from "../tables/todo.js"
 
+import { filename } from "dirname-filename-esm"
+
+const __filename = filename(import.meta)
+
 function todoId(todo: ToDo) {
   return `\`[ ${app.forceTextSize(todo.id, 3, true)} ]\``
 }
@@ -13,62 +17,51 @@ function todoItem(todo: ToDo) {
     .slice(0, 40)}`
 }
 
-async function showTodoList(message: app.Message, user: app.User) {
-  const todoList = await todoTable.query.where("user_id", user.id)
+async function showTodoList(message: app.NormalMessage, user: app.User) {
+  const perPage: number = message.args.perPage ?? 10
 
-  new app.StaticPaginator({
-    placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
+  new app.DynamicPaginator({
     channel: message.channel,
     filter: (reaction, user) => user.id === message.author.id,
-    pages: app.divider(todoList.map(todoItem), 10).map((page, i, pages) =>
-      new app.MessageEmbed()
-        .setTitle(`Todo list of ${user.tag} (${todoList.length} items)`)
-        .setDescription(page.join("\n"))
-        .setFooter(`Page ${i + 1} / ${pages.length}`)
-    ),
+    placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
+    async fetchPage(index): Promise<app.Page> {
+      const itemCount = await app.countOf(
+        todoTable.query.where("user_id", user.id)
+      )
+      const pageCount = Math.ceil(itemCount / perPage)
+      const pageTasks = await todoTable.query
+        .where("user_id", user.id)
+        .offset(index * perPage)
+        .limit(perPage)
+
+      if (perPage === 1) {
+        const [todo] = pageTasks
+
+        return new app.SafeMessageEmbed()
+          .setTitle(`Todo task of ${message.author.tag}`)
+          .setDescription(`${todoId(todo)} ${todo.content}`)
+          .setFooter({ text: `Item ${index + 1} / ${itemCount}` })
+      }
+
+      return new app.MessageEmbed()
+        .setTitle(`Todo list of ${user.tag} (${itemCount} items)`)
+        .setDescription(pageTasks.map(todoItem).join("\n"))
+        .setFooter({ text: `Page ${index + 1} / ${pageCount}` })
+    },
+    async fetchPageCount(): Promise<number> {
+      return Math.ceil(
+        (await app.countOf(todoTable.query.where("user_id", user.id))) / perPage
+      )
+    },
   })
 }
 
-async function insertTodo(message: app.NormalMessage) {
-  if (message.rest.startsWith("-")) message.rest = message.rest.slice(1).trim()
-
-  const count = await todoTable.query
-    .where("user_id", message.author.id)
-    .count({ count: "*" })
-    .first()
-    .then((data) => {
-      return data ? Number(data.count ?? 0) : 0
-    })
-
-  if (count > 999)
-    return message.channel.send(
-      `${app.emote(
-        message,
-        "DENY"
-      )} You have too many todo tasks, please remove some first.`
-    )
-
-  try {
-    const todoData: Omit<ToDo, "id"> = {
-      user_id: message.author.id,
-      content: message.rest,
-    }
-
-    await todoTable.query.insert(todoData)
-
-    const todo = await todoTable.query.where(todoData).first()
-
-    if (!todo) throw new Error()
-
-    return message.channel.send(
-      `${app.emote(message, "CHECK")} Saved with ${todoId(todo)} as identifier.`
-    )
-  } catch (error: any) {
-    app.error(error, __filename)
-    return message.channel.send(
-      `${app.emote(message, "DENY")} An error has occurred.`
-    )
-  }
+const perPageOption: app.Option<app.NormalMessage> = {
+  name: "perPage",
+  description: "Count of task per page",
+  castValue: "number",
+  default: () => "10",
+  aliases: ["per", "by", "count", "nbr", "div", "*"],
 }
 
 export default new app.Command({
@@ -76,6 +69,7 @@ export default new app.Command({
   aliases: ["td"],
   channelType: "all",
   description: "Manage todo tasks",
+  options: [perPageOption],
   async run(message) {
     return message.rest.length === 0
       ? showTodoList(message, message.author)
@@ -94,7 +88,53 @@ export default new app.Command({
       description: "Add new todo task",
       aliases: ["new", "+=", "++", "+"],
       channelType: "all",
-      run: insertTodo,
+      rest: {
+        name: "content",
+        description: "Task content",
+        required: true,
+        all: true,
+      },
+      async run(message) {
+        const content: string = message.args.content.startsWith("-")
+          ? message.args.content.slice(1).trim()
+          : message.args.content
+
+        const count = await app.countOf(
+          todoTable.query.where("user_id", message.author.id)
+        )
+
+        if (count > 999)
+          return message.channel.send(
+            `${app.emote(
+              message,
+              "DENY"
+            )} You have too many todo tasks, please remove some first.`
+          )
+
+        try {
+          const todoData: Omit<ToDo, "id"> = {
+            user_id: message.author.id,
+            content,
+          }
+
+          await todoTable.query.insert(todoData)
+
+          const todo = await todoTable.query.where(todoData).first()
+
+          if (!todo) throw new Error("Internal error in src/commands/todo.ts")
+
+          return message.channel.send(
+            `${app.emote(message, "CHECK")} Saved with ${todoId(
+              todo
+            )} as identifier.`
+          )
+        } catch (error: any) {
+          app.error(error, __filename)
+          return message.channel.send(
+            `${app.emote(message, "DENY")} An error has occurred.`
+          )
+        }
+      },
     }),
     new app.Command({
       name: "list",
@@ -104,10 +144,12 @@ export default new app.Command({
       positional: [
         {
           name: "target",
+          castValue: "user",
           description: "The target member",
           default: (message) => message?.author.id ?? "no default",
         },
       ],
+      options: [perPageOption],
       async run(message) {
         return showTodoList(message, message.args.target)
       },
@@ -226,7 +268,7 @@ export default new app.Command({
                 `Result of "${message.args.search}" search (${todoList.length} items)`
               )
               .setDescription(page.join("\n"))
-              .setFooter(`Page ${i + 1} / ${pages.length}`)
+              .setFooter({ text: `Page ${i + 1} / ${pages.length}` })
           ),
         })
       },

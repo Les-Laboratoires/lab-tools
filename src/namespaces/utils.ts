@@ -149,7 +149,7 @@ export async function getConfig(
 }
 
 export async function sendTemplatedEmbed(
-  channel: app.Channel,
+  channel: app.AnyChannel,
   template: string,
   replacers: { [k: string]: string }
 ) {
@@ -258,4 +258,10 @@ export function isJSON(value: string) {
   } catch (error) {
     return false
   }
+}
+
+export function countOf(builder: any): Promise<number> {
+  return builder.count({ total: "*" }).then((rows: any) => {
+    return rows[0].total as number
+  })
 }
