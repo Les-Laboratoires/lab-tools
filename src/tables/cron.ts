@@ -6,6 +6,7 @@ export interface CronData {
   period: string
   name: string
   content: string
+  started: boolean
 }
 
 export default new app.Table<CronData>({
@@ -13,6 +14,7 @@ export default new app.Table<CronData>({
   description: "Represent saved cron",
   migrations: {
     1: (table) => table.unique(["name"]),
+    2: (table) => table.boolean("started").defaultTo(false),
   },
   setup: (table) => {
     table

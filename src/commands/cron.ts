@@ -1,4 +1,5 @@
 import * as app from "../app.js"
+
 import cron from "cron"
 
 import cronTable, { CronData } from "../tables/cron.js"
@@ -65,7 +66,7 @@ export default new app.Command({
           let job = app.cache.get<cron.CronJob>(slug)
 
           if (!job) {
-            const channel = await message.client.channels.fetch(
+            const channel = message.client.channels.cache.get(
               currentCron.channel_id
             )
 
@@ -77,11 +78,7 @@ export default new app.Command({
               )
             }
 
-            job = cron.job(currentCron.period, () => {
-              if (channel.isText()) channel.send(currentCron.content)
-            })
-
-            app.cache.set(slug, job)
+            return app.startCron(message.client, currentCron, message.guild)
           }
 
           if (job.running)

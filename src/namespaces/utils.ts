@@ -2,9 +2,11 @@ import Discord from "discord.js"
 
 import * as app from "../app.js"
 
+import cronTable, { CronData } from "../tables/cron.js"
 import guilds, { GuildConfig } from "../tables/guilds.js"
 import autoRole from "../tables/autoRole.js"
 import users from "../tables/users.js"
+import cron from "cron"
 
 export enum Emotes {
   APPROVED = "865281743333228604",
@@ -264,4 +266,29 @@ export function countOf(builder: any): Promise<number> {
   return builder.count({ total: "*" }).then((rows: any) => {
     return rows[0].total as number
   })
+}
+
+export async function startCron(
+  client: app.Client<true>,
+  task: CronData,
+  guild: app.Guild | undefined
+) {
+  if (!guild) return cronTable.query.del().where(task)
+
+  const slug = app.slug("job", task.name)
+
+  const channel = client.channels.cache.get(task.channel_id)
+
+  if (!channel?.isText()) {
+    const author = await client.users.fetch(task.user_id)
+    return author.send(
+      `⚠️ Your "${task.name}" cron task in the "${guild.name}" guild has invalid channel_id.`
+    )
+  }
+
+  const job = cron.job(task.period, () => {
+    if (channel.isText()) channel.send(task.content)
+  })
+
+  app.cache.set(slug, job)
 }
