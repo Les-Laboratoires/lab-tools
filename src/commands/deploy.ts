@@ -39,6 +39,7 @@ export default new app.Command({
     })
 
     try {
+      await run("git reset --hard")
       await run("git pull")
       await run("npm i")
       await run("yarn build")
@@ -53,7 +54,7 @@ export default new app.Command({
             .setColor("RED")
             .setDescription(
               app.code.stringify({
-                content: (error.stack ?? error.message)
+                content: (error?.stack ?? error.message)
                   .split("")
                   .reverse()
                   .slice(0, 2000)
