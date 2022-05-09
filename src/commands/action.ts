@@ -61,14 +61,18 @@ const allActions = {
     )
 
     // git push
-    // await new Promise((res, rej) =>
-    //   cp.exec(
-    //     "git add * && git commit -m 'update todo list' && git push origin master && git pull origin master && git push origin master",
-    //     {
-    //       cwd: path.join(home, "bot.ts-docs"),
-    //     }
-    //   )
-    // )
+    await new Promise<void>((res, rej) =>
+      cp.exec(
+        "git add * && git commit -m 'update todo list' && git push origin master && git pull origin master && git push origin master",
+        {
+          cwd: path.join(home, "bot.ts-docs"),
+        },
+        (err) => {
+          if (!err) res()
+          else rej(err)
+        }
+      )
+    )
   },
 }
 
