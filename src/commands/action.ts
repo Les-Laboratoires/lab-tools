@@ -3,20 +3,19 @@ import cp from "child_process"
 import fs from "fs/promises"
 import path from "path"
 
-import todo, { ToDo } from "../tables/todo"
+import todo from "../tables/todo.js"
 
 const home = path.join(process.cwd(), "..")
 
 const allActions = {
   bts: async () => {
     // get to-do tasks
-    //@ts-ignore
-    const todoList: ToDo[] = await todo.query.whereLike("content", "%bot.ts%")
+    const todoList = await todo.query.whereLike("content", "%bot.ts:%")
 
     // git pull
     await new Promise<void>((res, rej) =>
       cp.exec(
-        "git reset --hard; git pull origin master",
+        "git reset --hard && git pull origin master",
         {
           cwd: path.join(home, "bot.ts-docs"),
         },
@@ -29,7 +28,7 @@ const allActions = {
 
     // load file
     let file = await fs.readFile(
-      path.join(home, "bot.ts-docs", "in-comming-features.md"),
+      path.join(home, "bot.ts-docs", "in-coming-features.md"),
       "utf-8"
     )
 
@@ -45,29 +44,31 @@ const allActions = {
       }
     }
 
-    for (const task of tasks) {
-      if (!task.startsWith("* [x] "))
+    for (let i = 0; i < tasks.length; i++) {
+      const task = tasks[i]
+
+      if (!task.startsWith("* [x] ") && task.includes("["))
         if (!todoList.some((t) => task.includes(t.content))) {
-          tasks[tasks.indexOf(task)] = task.replace("[ ]", "[x]")
+          tasks[i] = task.replace("[ ]", "[x]")
         }
     }
 
     // write file
     await fs.writeFile(
-      path.join(home, "bot.ts-docs", "in-comming-features.md"),
-      base + tasks.join("\n"),
+      path.join(home, "bot.ts-docs", "in-coming-features.md"),
+      base.trim() + tasks.join("\n").trim().replace(/\n\n/g, "\n"),
       "utf-8"
     )
 
     // git push
-    await new Promise((res, rej) =>
-      cp.exec(
-        "git add *; git commit -m 'update todo list'; git push origin master; git pull origin master; git push origin master",
-        {
-          cwd: path.join(home, "bot.ts-docs"),
-        }
-      )
-    )
+    // await new Promise((res, rej) =>
+    //   cp.exec(
+    //     "git add * && git commit -m 'update todo list' && git push origin master && git pull origin master && git push origin master",
+    //     {
+    //       cwd: path.join(home, "bot.ts-docs"),
+    //     }
+    //   )
+    // )
   },
 }
 
@@ -90,6 +91,13 @@ export default new app.Command({
 
     for (const action of actions)
       if (action in allActions) await allActions[action]?.()
+
+    return message.send(
+      `${app.emote(
+        message,
+        "CHECK"
+      )} Actions successfully done:\n${actions.join(", ")}`
+    )
   },
   subs: [
     new app.Command({
