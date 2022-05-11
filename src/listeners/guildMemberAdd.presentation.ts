@@ -1,6 +1,11 @@
 import * as app from "../app.js"
 
 import users from "../tables/users.js"
+import chalk from "chalk"
+
+import { filename } from "dirname-filename-esm"
+
+const __filename = filename(import.meta)
 
 const listener: app.Listener<"guildMemberAdd"> = {
   event: "guildMemberAdd",
@@ -73,11 +78,20 @@ const listener: app.Listener<"guildMemberAdd"> = {
         guild.members.cache.has(member.id)
       ).size <= 1
     ) {
-      const { channel: dm } = await member.send(
-        "Welcome to the **Les Laboratoires** network.\nOne of these servers may be of interest to you!"
-      )
+      try {
+        const message = await member.send(
+          "Welcome to the **Les Laboratoires** network.\nOne of these servers may be of interest to you!"
+        )
 
-      await app.sendLabList(dm)
+        await app.sendLabList(message.channel)
+      } catch (error) {
+        app.error(
+          `cannot send messages from ${chalk.blueBright(
+            member.guild.name
+          )} to ${chalk.blueBright(member.user.tag)}`,
+          __filename
+        )
+      }
     }
 
     return app.sendLog(

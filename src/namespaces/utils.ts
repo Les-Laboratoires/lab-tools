@@ -8,6 +8,11 @@ import autoRole from "../tables/autoRole.js"
 import users from "../tables/users.js"
 import cron from "cron"
 
+import { filename } from "dirname-filename-esm"
+import chalk from "chalk"
+
+const __filename = filename(import.meta)
+
 export enum Emotes {
   APPROVED = "865281743333228604",
   DISAPPROVED = "865281743560638464",
@@ -56,12 +61,21 @@ export async function approveMember(
 
   if (config.member_role_id) roles.push(config.member_role_id)
 
-  await member.roles.set([
-    ...roles,
-    ...member.roles.cache
-      .filter((role) => role.id !== config?.await_validation_role_id)
-      .values(),
-  ])
+  try {
+    await member.roles.set([
+      ...roles,
+      ...member.roles.cache
+        .filter((role) => role.id !== config?.await_validation_role_id)
+        .values(),
+    ])
+  } catch (error) {
+    app.error(
+      `missing permission in ${chalk.blueBright(
+        member.guild.name
+      )} for ${chalk.blueBright(member.user.tag)}`,
+      __filename
+    )
+  }
 
   if (config.general_channel_id && config.member_welcome_message) {
     const general = await member.client.channels.cache.get(
