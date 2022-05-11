@@ -4,6 +4,10 @@ import * as app from "../app.js"
 
 import restart from "../tables/restart.js"
 
+import { filename } from "dirname-filename-esm"
+
+const __filename = filename(import.meta)
+
 const listener: app.Listener<"ready"> = {
   event: "ready",
   description: "Send restart messages",
@@ -32,7 +36,11 @@ const listener: app.Listener<"ready"> = {
             restartMessage.last_message_id
           )
 
-          await message?.edit(content)
+          try {
+            await message.edit(content)
+          } catch (error: any) {
+            app.error(error, __filename)
+          }
         }
       }
     }
