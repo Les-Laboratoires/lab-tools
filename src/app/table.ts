@@ -36,7 +36,7 @@ tableHandler.once("finish", async (pathList) => {
   )
 })
 
-export interface TableOptions<Type> {
+export interface TableOptions {
   name: string
   description: string
   priority?: number
@@ -49,10 +49,10 @@ export interface TableOptions<Type> {
   native?: boolean
 }
 
-export class Table<Type> {
+export class Table<Type extends {}> {
   filepath?: string
 
-  constructor(public readonly options: TableOptions<Type>) {}
+  constructor(public readonly options: TableOptions) {}
 
   get query() {
     return database.db<Type>(this.options.name)
