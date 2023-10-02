@@ -21,7 +21,7 @@ export default new app.Command({
 
     const config = await app.getConfig(message.guild, true)
 
-    const pattern = config.elders_role_pattern as string
+    const pattern = config.elders_role_pattern!
 
     const elderRoles = (
       await message.guild.roles.fetch(undefined, { force: true, cache: true })

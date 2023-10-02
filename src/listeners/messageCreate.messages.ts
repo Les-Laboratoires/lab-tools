@@ -1,6 +1,7 @@
 import * as app from "../app.js"
 
 import messages from "../tables/messages.js"
+import active from "../tables/active.js"
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
@@ -19,6 +20,15 @@ const listener: app.Listener<"messageCreate"> = {
         .where(where)
 
     await messages.query.insert(where)
+
+    // active
+
+    if (message.guildId) {
+      await active.query.insert({
+        author_id: message.author.id,
+        guild_id: message.guildId,
+      })
+    }
   },
 }
 

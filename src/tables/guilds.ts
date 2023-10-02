@@ -13,6 +13,7 @@ export interface GuildConfig {
   bot_welcome_message: string | null
   member_role_id: string | null
   bot_role_id: string | null
+  active_role_id: string | null
   await_validation_role_id: string | null
   log_channel_id: string | null
   member_leave_message: string | null
@@ -35,6 +36,9 @@ export default new app.Table<GuildConfig>({
     },
     3: (table) => {
       table.string("help_room_topic", 1024)
+    },
+    4: (table) => {
+      table.string("active_role_id")
     },
   },
   setup: (table) => {
