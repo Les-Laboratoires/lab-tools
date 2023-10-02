@@ -15,11 +15,10 @@ const listener: app.Listener<"messageCreate"> = {
     const existingMessages = await messages.query.select().where(where).first()
 
     if (existingMessages)
-      return messages.query
+      await messages.query
         .update({ count: existingMessages.count + 1 })
         .where(where)
-
-    await messages.query.insert(where)
+    else await messages.query.insert(where)
 
     // active
 
