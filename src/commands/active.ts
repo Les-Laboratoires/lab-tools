@@ -29,7 +29,7 @@ export default new app.Command({
     message.guild.members.cache.clear()
 
     await waiting.edit(
-      `${app.emote(message, "WAIT")} Looking for active members from ${
+      `${app.emote(message, "WAIT")} Verification of 0/${
         members.length
       } members...`
     )
@@ -49,6 +49,14 @@ export default new app.Command({
       } else if (member.roles.cache.has(config.active_role_id!)) {
         await member.roles.remove(config.active_role_id!)
       }
+
+      await app.sendProgress(
+        waiting,
+        members.indexOf(member),
+        members.length,
+        `Verification of $#/$$ members...`,
+        10
+      )
     }
 
     used = false

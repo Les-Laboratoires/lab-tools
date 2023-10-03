@@ -169,7 +169,7 @@ export async function applyAutoRoles(member: app.GuildMember) {
  * @param message
  * @param index
  * @param total
- * @param pattern - use $% symbol for includes percent number
+ * @param pattern - use $% for percentage, $# for index, $$ for total
  * @param interval
  */
 export async function sendProgress(
@@ -181,10 +181,10 @@ export async function sendProgress(
 ) {
   if (index % interval === 0) {
     await message.edit(
-      `${app.emote(message, "WAIT")} ${pattern.replace(
-        "$%",
-        String(Math.round((index * 100) / total))
-      )}`
+      `${app.emote(message, "WAIT")} ${pattern
+        .replace("$%", String(Math.round((index * 100) / total)))
+        .replace("$#", String(index))
+        .replace("$$", String(total))}`
     )
   }
 }
