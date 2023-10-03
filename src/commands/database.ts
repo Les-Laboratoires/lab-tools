@@ -63,7 +63,9 @@ export default new app.Command({
               value: columns
                 .map(
                   ({ name, type, dflt_value }) =>
-                    `\`${name}${dflt_value ? `?` : ""}\` [${type}]`
+                    `[\`${type.slice(0, 3)}\`] \`${name}${
+                      dflt_value ? `?` : ""
+                    }\``
                 )
                 .join("\n"),
               inline: true,
