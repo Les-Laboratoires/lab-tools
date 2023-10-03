@@ -25,9 +25,7 @@ export default new app.Command({
     async function run(command?: string) {
       return new Promise(async (resolve, reject) => {
         await logs.edit(
-          `${app.emote(message, "WAIT")} Deploying...${commands.join("")}${
-            command ? `\n\`>_ ${command}\`` : ""
-          }`
+          `${commands.join("")}${command ? `\n\`>_ ${command}\`` : ""}`
         )
 
         if (command) {
