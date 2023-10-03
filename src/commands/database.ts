@@ -58,12 +58,14 @@ export default new app.Command({
             const columns: { name: string; type: string; dflt_value: any }[] =
               await app.db.raw(`PRAGMA table_info(${name})`)
 
+            const rowCount = (await app.db(name).count("* as total").first())!
+
             return {
-              name,
+              name: `${name} x${rowCount.total}`,
               value: columns
                 .map(
                   ({ name, type, dflt_value }) =>
-                    `[\`${type.slice(0, 3)}\`] \`${name}${
+                    `[\`${type.slice(0, 5)}\`] \`${name}${
                       dflt_value ? `?` : ""
                     }\``
                 )
@@ -78,8 +80,16 @@ export default new app.Command({
             new app.SafeMessageEmbed()
               .setColor()
               .setTitle("Database plan")
-              .setDescription("...infos...")
-              .addFields(...fields),
+              .setDescription(
+                `${fields.length} tables, ${fields.reduce((acc, current) => {
+                  return acc + current.value.split("\n").length
+                }, 0)} columns, `
+              )
+              .addFields(
+                ...fields.sort((a, b) => {
+                  return a.value.split("\n").length - b.value.split("\n").length
+                })
+              ),
           ],
         })
       },
