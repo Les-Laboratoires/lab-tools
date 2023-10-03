@@ -15,7 +15,7 @@ const listener: app.Listener<"ready"> = {
   async run(client) {
     const restartMessages = await restart.query.select()
 
-    app.log("Restart messages: "+ restartMessages.length)
+    app.log("Restart messages: " + restartMessages.length)
 
     for (const restartMessage of restartMessages) {
       const channel = client.channels.cache.get(restartMessage.last_channel_id)
