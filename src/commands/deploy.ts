@@ -25,7 +25,9 @@ export default new app.Command({
     async function run(command?: string) {
       return new Promise(async (resolve, reject) => {
         await logs.edit(
-          `${commands.join("")}${command ? `\n\`>_ ${command}\`` : ""}`
+          `${commands.join("")}${
+            command ? `\n${app.emote(message, "WAIT")} \`>_ ${command}\`` : ""
+          }`
         )
 
         if (command) {
@@ -34,7 +36,11 @@ export default new app.Command({
           cp.exec(command, { cwd: process.cwd() }, (err, stdout, stderr) => {
             if (err) return reject()
 
-            commands.push(`\n\`>_ ${command}\` (${Date.now() - timer}ms)`)
+            commands.push(
+              `\n${app.emote(message, "CHECK")} \`>_ ${command}\` (${
+                Date.now() - timer
+              }ms)`
+            )
             resolve(void 0)
           })
         } else resolve(void 0)
