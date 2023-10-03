@@ -18,32 +18,29 @@ export default new app.Command({
       `${app.emote(message, "WAIT")} Deploying...`
     )
 
-    const logs = await message.send(`\`>_\``)
-
     const commands: string[] = []
 
-    async function run(command?: string) {
+    async function run(command: string) {
       return new Promise(async (resolve, reject) => {
-        await logs.edit(
-          `${commands.join("")}${
-            command ? `\n${app.emote(message, "WAIT")} \`>_ ${command}\`` : ""
+        await waiting.edit(
+          `${app.emote(message, "WAIT")} Deploying...${commands.join("")}${
+            `\n${app.emote(message, "WAIT")} \`>_ ${command}\``
           }`
         )
 
-        if (command) {
-          let timer = Date.now()
+        let timer = Date.now()
 
-          cp.exec(command, { cwd: process.cwd() }, (err, stdout, stderr) => {
-            if (err) return reject()
+        cp.exec(command, { cwd: process.cwd() }, (err, stdout, stderr) => {
+          if (err) return reject()
 
-            commands.push(
-              `\n${app.emote(message, "CHECK")} \`>_ ${command}\` (${
-                Date.now() - timer
-              }ms)`
-            )
-            resolve(void 0)
-          })
-        } else resolve(void 0)
+          commands.push(
+            `\n${app.emote(message, "CHECK")} \`>_ ${command}\` (${
+              Date.now() - timer
+            }ms)`
+          )
+
+          resolve(void 0)
+        })
       })
     }
 
@@ -60,7 +57,6 @@ export default new app.Command({
       await run("npm i")
       await run("yarn build")
       await run("pm2 restart tool")
-      await run()
     } catch (error: any) {
       await restart.query.delete().where({ last_message_id: waiting.id })
 
