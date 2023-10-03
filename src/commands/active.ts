@@ -25,13 +25,19 @@ export default new app.Command({
     )
 
     await waiting.edit(
-      `${app.emote(message, "WAIT")} Looking for active members...`
+      `${app.emote(message, "WAIT")} Looking for active members from ${
+        members.size
+      } members...`
     )
+
+    let activeCount = 0
 
     for (const [, member] of members) {
       const isActive = await app.isActive(member)
 
       if (isActive) {
+        activeCount++
+
         if (!member.roles.cache.has(config.active_role_id!))
           await member.roles.add(config.active_role_id!)
       } else if (member.roles.cache.has(config.active_role_id!)) {
@@ -45,7 +51,7 @@ export default new app.Command({
       `${app.emote(
         message,
         "CHECK"
-      )} Successfully applied active role to active members.`
+      )} Successfully applied active role to **${activeCount}** active members.`
     )
   },
 })

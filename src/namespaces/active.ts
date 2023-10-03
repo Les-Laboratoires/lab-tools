@@ -11,7 +11,6 @@ export async function isActive(
     .where("author_id", member.id)
     .where("guild_id", member.guild.id)
     .where("created_timestamp", ">", Date.now() - period)
-    .count("*")
 
   return rowsInPeriod.length > messageCount
 }
