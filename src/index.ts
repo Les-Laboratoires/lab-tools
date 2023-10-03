@@ -28,10 +28,10 @@ try {
   await app.commandHandler.load(client)
   await app.listenerHandler.load(client)
 
-  if (!client.isReady()) {
-    app.error("The Discord client is not full.", __filename)
-    process.exit(1)
-  }
+  // if (!client.isReady()) {
+  //   app.error("The Discord client is not full.", __filename)
+  //   process.exit(1)
+  // }
 } catch (error: any) {
   app.error(error, __filename, true)
   process.exit(1)
