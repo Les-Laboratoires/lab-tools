@@ -7,7 +7,7 @@ export interface Message {
 }
 
 export default new app.Table<Message>({
-  name: "active",
+  name: "message",
   description: "Save all messages with dates",
   setup: (table) => {
     table
