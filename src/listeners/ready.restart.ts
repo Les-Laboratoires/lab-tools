@@ -12,11 +12,13 @@ const listener: app.Listener<"ready"> = {
   event: "ready",
   description: "Send restart messages",
   once: true,
-  async run() {
+  async run(client) {
     const restartMessages = await restart.query.select()
 
+    app.log("Restart messages: "+ restartMessages.length)
+
     for (const restartMessage of restartMessages) {
-      const channel = this.channels.cache.get(restartMessage.last_channel_id)
+      const channel = client.channels.cache.get(restartMessage.last_channel_id)
 
       if (channel?.isText()) {
         const content = `${restartMessage.content} (${time
@@ -42,6 +44,11 @@ const listener: app.Listener<"ready"> = {
             app.error(error, __filename)
           }
         }
+      } else {
+        app.error(
+          `channel ${restartMessage.last_channel_id} is not a text channel`,
+          __filename
+        )
       }
     }
 
