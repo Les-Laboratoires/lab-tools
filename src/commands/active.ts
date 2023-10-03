@@ -20,20 +20,26 @@ export default new app.Command({
 
     const config = await app.getConfig(message.guild, true)
 
-    const members = (await message.guild.members.fetch()).filter(
-      (member) => !member.user.bot
-    )
+    message.guild.members.cache.clear()
+
+    const members = (await message.guild.members.fetch())
+      .filter((member) => !member.user.bot)
+      .map((member) => member)
+
+    message.guild.members.cache.clear()
 
     await waiting.edit(
       `${app.emote(message, "WAIT")} Looking for active members from ${
-        members.size
+        members.length
       } members...`
     )
 
     let activeCount = 0
 
-    for (const [, member] of members) {
+    for (const member of members) {
       const isActive = await app.isActive(member)
+
+      await member.fetch(true)
 
       if (isActive) {
         activeCount++

@@ -14,21 +14,23 @@ export default new app.Command({
   async run(message) {
     message.triggerCoolDown()
 
-    const toEdit = await message.send(
+    const waiting = await message.send(
       `${app.emote(message, "WAIT")} Deploying...`
     )
+
+    const logs = await message.send(`\`>_\``)
 
     const commands: string[] = []
 
     async function run(command?: string) {
       return new Promise(async (resolve, reject) => {
-        await toEdit.edit(
-          `${app.emote(message, "WAIT")} Deploying...${commands.join(
-            ""
-          )}${command ? `\n\`>_ ${command}\`` : ""}`
+        await logs.edit(
+          `${app.emote(message, "WAIT")} Deploying...${commands.join("")}${
+            command ? `\n\`>_ ${command}\`` : ""
+          }`
         )
 
-        if(command) {
+        if (command) {
           let timer = Date.now()
 
           cp.exec(command, { cwd: process.cwd() }, (err, stdout, stderr) => {
@@ -37,15 +39,14 @@ export default new app.Command({
             commands.push(`\n\`>_ ${command}\` (${Date.now() - timer}ms)`)
             resolve(void 0)
           })
-        }
-        else resolve(void 0)
+        } else resolve(void 0)
       })
     }
 
     await restart.query.insert({
       content: `${app.emote(message, "CHECK")} Successfully deployed.`,
       last_channel_id: message.channel.id,
-      last_message_id: toEdit.id,
+      last_message_id: waiting.id,
       created_timestamp: Date.now(),
     })
 
@@ -57,9 +58,9 @@ export default new app.Command({
       await run("pm2 restart tool")
       await run()
     } catch (error: any) {
-      await restart.query.delete().where({ last_message_id: toEdit.id })
+      await restart.query.delete().where({ last_message_id: waiting.id })
 
-      return toEdit.edit({
+      return waiting.edit({
         embeds: [
           new core.SafeMessageEmbed()
             .setTitle("\\❌ An error has occurred.")

@@ -16,7 +16,7 @@ export default new app.Command({
     used = true
 
     const waiting = await message.send(
-      `${app.emote(message, "WAIT")} Fetching members...`
+      `${app.emote(message, "WAIT")} Fetching elder roles...`
     )
 
     const config = await app.getConfig(message.guild, true)
@@ -24,35 +24,36 @@ export default new app.Command({
     const pattern = config.elders_role_pattern!
 
     const elderRoles = (
-      await message.guild.roles.fetch(undefined, { force: true, cache: true })
+      await message.guild.roles.fetch(undefined, { force: true, cache: false })
     )
       .filter((role) => role.name.includes(pattern))
       .sort((a, b) => a.comparePositionTo(b))
-      .map((role) => role.id)
+      .map((role) => role)
+
+    await waiting.edit(`${app.emote(message, "WAIT")} Fetching members...`)
 
     message.guild.members.cache.clear()
 
-    const members = (await message.guild.members.fetch())
+    const members = (await message.guild.members.fetch({ force: true }))
       .filter((member) => !member.user.bot)
       .map((member) => member)
 
+    message.guild.members.cache.clear()
+
     await waiting.edit(
-      `${app.emote(message, "WAIT")} Looking for new elders...`
+      `${app.emote(message, "WAIT")} Looking for new elders from ${
+        members.length
+      } members...`
     )
 
     const logs: string[] = []
 
     for (const member of members) {
-      const memberRoles: string[] = member.roles.cache
-        .filter((role) => !elderRoles.includes(role.id))
-        .map((role) => role.id)
-
-      let changed = false,
-        maxYear = 0
+      await member.fetch(true)
 
       for (const elderRoleId of elderRoles) {
-        const index = elderRoles.indexOf(elderRoleId),
-          years = index + 1
+        const index = elderRoles.indexOf(elderRoleId)
+        const years = index + 1
 
         if (
           app
@@ -60,30 +61,18 @@ export default new app.Command({
             .diff(member.joinedAt || member.joinedTimestamp, "years", true) >=
           years
         ) {
-          memberRoles.push(elderRoleId)
-          maxYear = Math.max(maxYear, years)
-          changed = true
+          if (!member.roles.cache.has(elderRoleId.id)) {
+            await member.roles.add(elderRoleId.id)
+            logs.push(`**${member.user.tag}** is **${years}** years old!`)
+
+            await app.sendProgress(
+              waiting,
+              members.indexOf(member),
+              members.length,
+              "Looking for new elders... (`$%` %)"
+            )
+          }
         }
-      }
-
-      if (changed) {
-        await member.roles
-          .set(memberRoles)
-          .then(() => {
-            logs.push(`**${member.user.tag}** is **${maxYear}** years old!`)
-          })
-          .catch((err) =>
-            logs.push(`**${member.user.tag}** error: \`${err.message}\``)
-          )
-
-        const index = members.indexOf(member)
-
-        await app.sendProgress(
-          waiting,
-          index,
-          members.length,
-          "Looking for new elders... (`$%` %)"
-        )
       }
     }
 
@@ -107,69 +96,12 @@ export default new app.Command({
               logs.filter((log) => !log.includes("error:")).length
             } elders`
           )
-          .setFooter(`Page: ${index + 1} sur ${pages.length}`)
+          .setFooter({
+            text: `Page: ${index + 1} sur ${pages.length}`,
+          })
       ),
     })
 
     used = false
   },
-  subs: [
-    new app.Command({
-      name: "reset",
-      description: "Reset elders",
-      channelType: "guild",
-      middlewares: [
-        app.staffOnly(),
-        app.hasConfigKey("elders_role_pattern"),
-        app.isNotInUse(() => used),
-      ],
-      async run(message) {
-        used = true
-
-        const waiting = await message.send(
-          `${app.emote(message, "WAIT")} Removing elders...`
-        )
-
-        const config = await app.getConfig(message.guild, true)
-
-        const pattern = config.elders_role_pattern as string
-
-        const roles = (await message.guild.roles.fetch())
-          .filter((role) => role.name.includes(pattern))
-          .sort((a, b) => a.comparePositionTo(b))
-          .map((role) => role.id)
-
-        const members = Array.from(
-          (await message.guild.members.fetch({ force: true })).values()
-        )
-
-        for (const member of members) {
-          if (member.user.bot && member.roles.cache.hasAny(...roles)) {
-            await member.roles
-              .set(
-                member.roles.cache
-                  .filter((role) => !roles.includes(role.id))
-                  .map((role) => role.id)
-              )
-              .catch()
-
-            const index = members.indexOf(member)
-
-            await app.sendProgress(
-              waiting,
-              index,
-              members.length,
-              "Resetting elders... (`$%` %)"
-            )
-          }
-        }
-
-        used = false
-
-        return waiting.edit(
-          `${app.emote(message, "CHECK")} Successfully reset elders.`
-        )
-      },
-    }),
-  ],
 })
