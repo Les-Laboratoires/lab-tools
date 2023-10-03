@@ -11,7 +11,8 @@
     "start": "npm run build && node dist/index",
     "format": "prettier --write src tests",
     "update": "gulp update",
-    "test": "tsc --noEmit && npm run build && node tests/index.test.js"
+    "test": "tsc --noEmit && npm run build && node tests/index.test.js",
+    "deploy": "git reset --hard && git pull && npm run build && pm2 restart bot.ts"
   },
   "prettier": {
     "semi": false,

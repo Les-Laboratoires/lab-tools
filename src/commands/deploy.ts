@@ -18,14 +18,22 @@ export default new app.Command({
       `${app.emote(message, "WAIT")} Deploying...`
     )
 
+    const commands: string[] = []
+
     async function run(command: string) {
       return new Promise(async (resolve, reject) => {
         await toEdit.edit(
-          `${app.emote(message, "WAIT")} Deploying...\n\`>_ ${command}\``
+          `${app.emote(message, "WAIT")} Deploying...${commands.join(
+            ""
+          )}\n\`>_ ${command}\``
         )
+
+        let timer = Date.now()
 
         cp.exec(command, { cwd: process.cwd() }, (err, stdout, stderr) => {
           if (err) return reject()
+
+          commands.push(`\n\`>_ ${command}\` (${Date.now() - timer}ms)`)
           resolve(void 0)
         })
       })
