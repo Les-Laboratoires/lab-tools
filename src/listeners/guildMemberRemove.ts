@@ -1,6 +1,6 @@
 import * as app from "../app.js"
 
-import users, { LabUser } from "../tables/users.js"
+import users, { User } from "../tables/user.js"
 
 const listener: app.Listener<"guildMemberRemove"> = {
   event: "guildMemberRemove",
@@ -8,31 +8,7 @@ const listener: app.Listener<"guildMemberRemove"> = {
   async run(member) {
     const { guild } = member
 
-    const config = await app.getConfig(guild)
-
-    if (config?.presentation_channel_id) {
-      const presentationChannel = guild.channels.cache.get(
-        config.presentation_channel_id
-      )
-
-      if (presentationChannel?.isText()) {
-        const labUser = await users.query.where({ id: member.id }).first()
-
-        if (labUser) {
-          if (labUser.presentation_id) {
-            const presentation = await presentationChannel.messages.fetch(
-              labUser.presentation_id
-            )
-            await presentation.delete().catch()
-          }
-        } else {
-          const messages = await presentationChannel.messages.fetch()
-
-          for (const [, message] of messages)
-            if (message.author.id === member.id) await message.delete()
-        }
-      }
-    }
+    const config = await app.getGuild(guild)
 
     try {
       const user = await member.client.users.fetch(member.id)
@@ -50,7 +26,7 @@ const listener: app.Listener<"guildMemberRemove"> = {
 
       await app.sendLog(
         guild,
-        `**${member.user?.tag ?? member.displayName}** user was removed.`,
+        `**${member.user?.tag ?? member.displayName}** left all the labs.`,
         config
       )
     }

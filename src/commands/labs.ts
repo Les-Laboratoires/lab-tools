@@ -36,9 +36,11 @@ export default new app.Command({
         },
       ],
       async run(message) {
+        const guild = await app.getGuild(message.guild, true)
+
         await lab.query
           .insert({
-            id: message.args.id,
+            guild_id: guild._id,
             url: message.args.url,
             title: message.args.title,
           })

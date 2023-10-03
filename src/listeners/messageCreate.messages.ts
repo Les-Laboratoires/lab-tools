@@ -1,33 +1,20 @@
 import * as app from "../app.js"
 
-import messages from "../tables/messages.js"
-import active from "../tables/active.js"
+import messages from "../tables/message.js"
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
   description: "Record sent messages",
   async run(message) {
-    const where = {
-      author_id: message.author.id,
-      channel_id: message.channelId,
-    }
+    if (!message.guild) return
 
-    const existingMessages = await messages.query.select().where(where).first()
+    const user = await app.getUser(message.author, true)
+    const guild = await app.getGuild(message.guild, true)
 
-    if (existingMessages)
-      await messages.query
-        .update({ count: existingMessages.count + 1 })
-        .where(where)
-    else await messages.query.insert(where)
-
-    // active
-
-    if (message.guildId) {
-      await active.query.insert({
-        author_id: message.author.id,
-        guild_id: message.guildId,
-      })
-    }
+    return messages.query.insert({
+      author_id: user._id,
+      guild_id: guild._id,
+    })
   },
 }
 

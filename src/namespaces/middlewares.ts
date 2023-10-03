@@ -2,11 +2,11 @@ import * as command from "../app/command.js"
 import * as logger from "../app/logger.js"
 import * as utils from "../namespaces/utils.js"
 
-import { GuildConfig } from "../tables/guilds.js"
+import { Guild } from "../tables/guild.js"
 
 export function staffOnly(): command.Middleware<"guild"> {
   return async function staffOnly(message, data) {
-    const config = await utils.getConfig(message.guild)
+    const config = await utils.getGuild(message.guild)
 
     if (!config?.staff_role_id)
       logger.warn(
@@ -26,11 +26,9 @@ export function staffOnly(): command.Middleware<"guild"> {
   }
 }
 
-export function hasConfigKey(
-  key: keyof GuildConfig
-): command.Middleware<"guild"> {
+export function hasConfigKey(key: keyof Guild): command.Middleware<"guild"> {
   return async function hasConfigKey(message, data) {
-    const config = await utils.getConfig(message.guild)
+    const config = await utils.getGuild(message.guild)
 
     if (!config?.[key])
       return {
@@ -41,23 +39,6 @@ export function hasConfigKey(
     return {
       result: true,
       data,
-    }
-  }
-}
-
-export function isInHelpRoom(): command.Middleware<"guild"> {
-  return async function isInHelpRoom(message, data) {
-    const config = await utils.getConfig(message.guild)
-
-    const check = await hasConfigKey("help_room_pattern")(message, data)
-
-    if (check.result !== true) return check
-
-    return {
-      result:
-        message.channel.name.includes(config?.help_room_pattern as string) ||
-        "You must be in a help room.",
-      data: check.data,
     }
   }
 }

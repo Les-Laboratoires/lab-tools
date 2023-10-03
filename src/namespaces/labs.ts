@@ -10,7 +10,7 @@ export async function updateLabsInAffiliationChannels(
   const pages = app.divider(labs, 6)
 
   for (const guild of message.client.guilds.cache.values()) {
-    const config = await app.getConfig(guild)
+    const config = await app.getGuild(guild)
 
     if (config?.affiliation_channel_id) {
       const channel = guild.channels.cache.get(config.affiliation_channel_id)

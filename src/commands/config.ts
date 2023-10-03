@@ -1,6 +1,6 @@
 import * as app from "../app.js"
 
-import guilds, { GuildConfig } from "../tables/guilds.js"
+import guilds, { Guild } from "../tables/guild.js"
 
 export default new app.Command({
   name: "config",
@@ -16,17 +16,17 @@ export default new app.Command({
     },
   ],
   async run(message) {
-    const config = await app.getConfig(message.guild, true)
+    const config = await app.getGuild(message.guild, true)
 
     const specialProps: app.MessageEmbed[] = []
 
     await message.channel.send({
       embeds: [
         new app.MessageEmbed()
-          .setAuthor(
-            `${message.guild.name} | Configs`,
-            message.guild.iconURL({ dynamic: true }) ?? undefined
-          )
+          .setAuthor({
+            name: `${message.guild.name} | Configs`,
+            iconURL: message.guild.iconURL({ dynamic: true }) ?? undefined,
+          })
           .setDescription(
             message.args.raw
               ? app.code.stringify({
@@ -115,6 +115,8 @@ export default new app.Command({
       async run(message) {
         const config = JSON.parse(message.args.config)
 
+        delete config._id
+
         await guilds.query
           .insert({ ...config, id: message.guild.id })
           .onConflict("id")
@@ -143,7 +145,7 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        if (message.args.name === "id")
+        if (message.args.name === "id" || message.args.name === "_id")
           return message.send(
             `${app.emote(message, "DENY")} You can't edit the guild id!`
           )
@@ -176,7 +178,7 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        const config = await app.getConfig(message.guild)
+        const config = await app.getGuild(message.guild)
 
         if (!config)
           return message.send({
@@ -188,11 +190,11 @@ export default new app.Command({
             ],
           })
 
-        const value = config[message.args.name as keyof GuildConfig] ?? "null"
+        const value = config[message.args.name as keyof Guild] ?? "null"
 
         let json: object | null = null
         try {
-          if (!/^\d+$/.test(value)) json = JSON.parse(value)
+          if (!/^\d+$/.test(String(value))) json = JSON.parse(String(value))
         } catch (error) {}
 
         return message.channel.send({
@@ -203,7 +205,9 @@ export default new app.Command({
               .setDescription(
                 app.code.stringify({
                   content:
-                    json !== null ? JSON.stringify(json, null, 2) : value,
+                    json !== null
+                      ? JSON.stringify(json, null, 2)
+                      : String(value),
                   lang: json !== null ? "json" : undefined,
                 })
               ),
@@ -221,29 +225,6 @@ export default new app.Command({
 
         return message.channel.send(
           `${app.emote(message, "CHECK")} Successfully reset guild config.`
-        )
-      },
-    }),
-    new app.Command({
-      name: "add",
-      botOwnerOnly: true,
-      channelType: "all",
-      description: "Add entry to deployed config table",
-      positional: [
-        {
-          name: "name",
-          description: "The name of new property",
-          required: true,
-          checkValue: /^\w+$/,
-        },
-      ],
-      async run(message) {
-        await app.db.schema.alterTable("guilds", (table) => {
-          table.string(message.args.name)
-        })
-
-        return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully added guild config.`
         )
       },
     }),

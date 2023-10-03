@@ -7,7 +7,7 @@ import { filename } from "dirname-filename-esm"
 const __filename = filename(import.meta)
 
 function todoId(todo: ToDo) {
-  return `\`[ ${app.forceTextSize(todo.id, 3, true)} ]\``
+  return `\`[ ${app.forceTextSize(todo._id, 3, true)} ]\``
 }
 
 function todoItem(todo: ToDo) {
@@ -111,9 +111,11 @@ export default new app.Command({
             )} You have too many todo tasks, please remove some first.`
           )
 
+        const author = await app.getUser(message.author, true)
+
         try {
-          const todoData: Omit<ToDo, "id"> = {
-            user_id: message.author.id,
+          const todoData: Omit<ToDo, "_id"> = {
+            user_id: author._id,
             content,
           }
 
@@ -160,7 +162,9 @@ export default new app.Command({
       aliases: ["clean"],
       channelType: "all",
       async run(message) {
-        await todoTable.query.delete().where("user_id", message.author.id)
+        const user = await app.getUser(message.author, true)
+
+        await todoTable.query.delete().where("user_id", user._id)
 
         return message.channel.send(
           `${app.emote(message, "CHECK")} Successfully deleted todo list`
@@ -181,10 +185,12 @@ export default new app.Command({
         },
       ],
       async run(message) {
+        const user = await app.getUser(message.author, true)
+
         const todo = await todoTable.query
           .select()
-          .where("id", message.args.id)
-          .and.where("user_id", message.author.id)
+          .where("_id", message.args.id)
+          .and.where("user_id", user._id)
           .first()
 
         if (!todo)
@@ -217,7 +223,7 @@ export default new app.Command({
       async run(message) {
         const todo = await todoTable.query
           .select()
-          .where("id", message.args.id)
+          .where("_id", message.args.id)
           .first()
 
         if (!todo)
@@ -225,12 +231,14 @@ export default new app.Command({
             `${app.emote(message, "DENY")} Unknown todo task id.`
           )
 
-        if (todo.user_id !== message.author.id)
+        const user = await app.getUser(message.author, true)
+
+        if (todo.user_id !== user._id)
           return message.channel.send(
             `${app.emote(message, "DENY")} This is not your own task.`
           )
 
-        await todoTable.query.delete().where("id", message.args.id)
+        await todoTable.query.delete().where("_id", message.args.id)
 
         return message.channel.send(
           `${app.emote(message, "CHECK")} Successfully deleted todo task`

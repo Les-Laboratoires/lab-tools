@@ -32,11 +32,13 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        await autoRole.query.delete().where("guild_id", message.guild.id)
+        const guild = await app.getGuild(message.guild, true)
+
+        await autoRole.query.delete().where("guild_id", guild._id)
         await autoRole.query.insert(
           message.args.roles.map((roleId: string) => {
             return {
-              guild_id: message.guild.id,
+              guild_id: guild._id,
               role_id: roleId,
               bot: message.args.bot,
             }
@@ -70,8 +72,10 @@ export default new app.Command({
         },
       ],
       async run(message) {
+        const guild = await app.getGuild(message.guild, true)
+
         await autoRole.query.insert({
-          guild_id: message.guild.id,
+          guild_id: guild._id,
           role_id: message.args.role.id,
           bot: message.args.bot,
         })
@@ -87,30 +91,33 @@ export default new app.Command({
       description: "List auto roles",
       channelType: "guild",
       async run(message) {
-        const autoRoles = await autoRole.query.where(
-          "guild_id",
-          message.guild.id
-        )
+        const guild = await app.getGuild(message.guild, true)
+
+        const autoRoles = await autoRole.query.where("guild_id", guild._id)
 
         return message.send({
           embeds: [
             new app.MessageEmbed()
               .setColor("BLURPLE")
               .setTitle("Auto-role list")
-              .addField(
-                "Member auto roles",
-                autoRoles
-                  .filter((ar) => !ar.bot)
-                  .map((ar) => `<@&${ar.role_id}>`)
-                  .join(" ") || "No role setup here."
-              )
-              .addField(
-                "Bot auto roles",
-                autoRoles
-                  .filter((ar) => !!ar.bot)
-                  .map((ar) => `<@&${ar.role_id}>`)
-                  .join(" ") || "No role setup here."
-              ),
+              .addFields([
+                {
+                  name: "Member auto roles",
+                  value:
+                    autoRoles
+                      .filter((ar) => !ar.bot)
+                      .map((ar) => `<@&${ar.role_id}>`)
+                      .join(" ") || "No role setup here.",
+                },
+                {
+                  name: "Bot auto roles",
+                  value:
+                    autoRoles
+                      .filter((ar) => !!ar.bot)
+                      .map((ar) => `<@&${ar.role_id}>`)
+                      .join(" ") || "No role setup here.",
+                },
+              ]),
           ],
         })
       },
@@ -154,6 +161,8 @@ export default new app.Command({
             const members = Array.from(
               (await message.guild.members.fetch({ force: true })).values()
             )
+
+            message.guild.members.cache.clear()
 
             await waiting.edit(
               `${app.emote(message, "WAIT")} Applying auto-roles to members...`

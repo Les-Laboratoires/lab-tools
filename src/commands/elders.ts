@@ -19,7 +19,7 @@ export default new app.Command({
       `${app.emote(message, "WAIT")} Fetching elder roles...`
     )
 
-    const config = await app.getConfig(message.guild, true)
+    const config = await app.getGuild(message.guild, true)
 
     const pattern = config.elders_role_pattern!
 
@@ -64,15 +64,15 @@ export default new app.Command({
           if (!member.roles.cache.has(elderRoleId.id)) {
             await member.roles.add(elderRoleId.id)
             logs.push(`**${member.user.tag}** is **${years}** years old!`)
-
-            await app.sendProgress(
-              waiting,
-              members.indexOf(member),
-              members.length,
-              "Looking for new elders... (`$%` %)"
-            )
           }
         }
+
+        await app.sendProgress(
+          waiting,
+          members.indexOf(member),
+          members.length,
+          "Looking for new elders... (`$%` %)"
+        )
       }
     }
 

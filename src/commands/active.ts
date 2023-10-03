@@ -18,7 +18,7 @@ export default new app.Command({
       `${app.emote(message, "WAIT")} Fetching members...`
     )
 
-    const config = await app.getConfig(message.guild, true)
+    const config = await app.getGuild(message.guild, true)
 
     message.guild.members.cache.clear()
 

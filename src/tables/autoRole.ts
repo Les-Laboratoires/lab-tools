@@ -1,18 +1,9 @@
 import * as app from "../app.js"
 
-/*
-832615381377089546
-832620331969413191
-832613931893260350
-824924421818023956
-824924771065659402
-828648602381451314
-*/
-
 export interface AutoRole {
-  guild_id: string
+  guild_id: number
   role_id: string
-  bot: 0 | 1
+  bot: boolean
 }
 
 export default new app.Table<AutoRole>({
@@ -20,12 +11,12 @@ export default new app.Table<AutoRole>({
   description: "Represent auto-roles",
   setup: (table) => {
     table
-      .string("guild_id")
-      .references("id")
+      .integer("guild_id")
+      .references("_id")
       .inTable("guild")
       .onDelete("CASCADE")
       .notNullable()
     table.string("role_id").notNullable()
-    table.boolean("bot").notNullable().defaultTo(0)
+    table.boolean("bot").notNullable().defaultTo(false)
   },
 })

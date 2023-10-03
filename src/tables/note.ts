@@ -1,8 +1,10 @@
 import * as app from "../app.js"
 
+// import users from "./user"
+
 export interface Note {
-  to: string
-  from: string
+  to: number
+  from: number
   value: 0 | 1 | 2 | 3 | 4 | 5
 }
 
@@ -11,24 +13,26 @@ const table = new app.Table<Note>({
   description: "Represent a user note",
   setup: (table) => {
     table
-      .string("to")
-      .references("id")
-      .inTable("users")
+      .integer("to")
+      .references("_id")
+      .inTable("user")
       .onDelete("CASCADE")
       .notNullable()
     table
-      .string("from")
-      .references("id")
-      .inTable("users")
+      .integer("from")
+      .references("_id")
+      .inTable("user")
       .onDelete("CASCADE")
       .notNullable()
     table.integer("value", 1).notNullable()
   },
 })
 
-export async function userNote({ id }: { id: string }) {
+export async function userNote(user: { id: string }) {
+  const { _id } = await app.getUser(user, true)
+
   return await table.query
-    .where("to", id)
+    .where("to", _id)
     .avg({ avg: "value" })
     .count({ count: "*" })
     .then((result) => result[0])
@@ -53,7 +57,7 @@ export async function getLadder(
     note_count: number
   }[]
 > {
-  return app.db.raw(`
+  const data = await app.db.raw(`
     select 
         avg(value) as score,
         count(\`from\`) as note_count,
@@ -68,6 +72,14 @@ export async function getLadder(
     limit ${itemCountByPage} 
     offset ${page * itemCountByPage}
   `)
+
+  for (const row of data) {
+    const user = await app.getUser(row.user_id, true)
+
+    row.user_id = user.id
+  }
+
+  return data
 }
 
 export async function getAvailableUsersTotal(

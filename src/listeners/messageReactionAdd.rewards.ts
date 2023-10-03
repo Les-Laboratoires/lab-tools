@@ -12,7 +12,7 @@ const listener: app.Listener<"messageReactionAdd"> = {
     if (!app.isNormalMessage(reaction.message)) return
     if (!app.isGuildMessage(reaction.message)) return
 
-    const config = await app.getConfig(reaction.message.guild)
+    const config = await app.getGuild(reaction.message.guild)
 
     if (
       !config ||

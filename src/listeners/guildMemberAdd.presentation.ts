@@ -1,6 +1,5 @@
 import * as app from "../app.js"
 
-import users from "../tables/users.js"
 import chalk from "chalk"
 
 import { filename } from "dirname-filename-esm"
@@ -11,45 +10,11 @@ const listener: app.Listener<"guildMemberAdd"> = {
   event: "guildMemberAdd",
   description: "Prepares to welcome a new member",
   async run(member) {
-    await users.query.insert({ id: member.id }).onConflict("id").ignore()
+    const config = await app.getGuild(member.guild, true)
 
-    const userData = await users.query.where({ id: member.id }).first()
+    await app.applyAutoRoles(member)
 
-    const config = await app.getConfig(member.guild, true)
-
-    if (
-      userData &&
-      userData.presentation_id &&
-      userData.presentation_guild_id
-    ) {
-      if (!member.user.bot) {
-        const guild = this.guilds.cache.get(userData.presentation_guild_id)
-
-        if (guild) {
-          const subConfig = await app.getConfig(guild, true)
-
-          if (
-            subConfig.await_validation_role_id &&
-            subConfig.presentation_channel_id
-          ) {
-            const channel = this.channels.cache.get(
-              subConfig.presentation_channel_id
-            )
-
-            if (channel?.isText()) {
-              const presentation = await channel.messages.fetch(
-                userData.presentation_id
-              )
-
-              if (presentation)
-                await app.approveMember(member, presentation, config)
-            }
-          }
-        }
-      }
-    } else if (member.user.bot) {
-      await app.applyAutoRoles(member)
-
+    if (member.user.bot) {
       if (config.bot_role_id)
         await member.roles
           .add(config.bot_role_id)
@@ -67,11 +32,25 @@ const listener: app.Listener<"guildMemberAdd"> = {
             app.embedReplacers(member)
           )
       }
-    } else if (
-      !config.await_validation_role_id ||
-      !config.presentation_channel_id
-    )
-      await app.approveMember(member, undefined, config)
+    } else {
+      if (config.member_role_id)
+        await member.roles
+          .add(config.member_role_id)
+          .catch((error) => app.error(error, __filename))
+
+      if (config.general_channel_id && config.member_welcome_message) {
+        const general = member.client.channels.cache.get(
+          config.general_channel_id
+        )
+
+        if (general)
+          await app.sendTemplatedEmbed(
+            general,
+            config.member_welcome_message,
+            app.embedReplacers(member)
+          )
+      }
+    }
 
     if (
       member.client.guilds.cache.filter((guild) =>

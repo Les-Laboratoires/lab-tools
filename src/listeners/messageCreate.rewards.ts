@@ -7,7 +7,7 @@ const listener: app.Listener<"messageCreate"> = {
     if (!app.isNormalMessage(message)) return
     if (!app.isGuildMessage(message)) return
 
-    const config = await app.getConfig(message.guild)
+    const config = await app.getGuild(message.guild)
 
     if (config?.project_channel_id && config?.reward_emoji_id) {
       if (config.project_channel_id === message.channel.id) {

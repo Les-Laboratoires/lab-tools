@@ -2,14 +2,11 @@ import Discord from "discord.js"
 
 import * as app from "../app.js"
 
-import cronTable, { CronData } from "../tables/cron.js"
-import guilds, { GuildConfig } from "../tables/guilds.js"
+import users, { User } from "../tables/user.js"
+import guilds, { Guild } from "../tables/guild.js"
 import autoRole from "../tables/autoRole.js"
-import users from "../tables/users.js"
-import cron from "cron"
 
 import { filename } from "dirname-filename-esm"
-import chalk from "chalk"
 
 const __filename = filename(import.meta)
 
@@ -39,97 +36,12 @@ export async function prefix(guild?: Discord.Guild): Promise<string> {
   return prefix
 }
 
-export async function approveMember(
-  member: app.GuildMember,
-  presentation?: app.Message,
-  config?: GuildConfig
-) {
-  await users.query
-    .insert({
-      id: member.id,
-      presentation_id: presentation?.id,
-      presentation_guild_id: presentation?.guild?.id,
-    })
-    .onConflict("id")
-    .merge()
-
-  if (!config) config = await getConfig(member.guild, true)
-
-  await member.fetch(true)
-
-  const roles = await getAutoRoles(member)
-
-  if (config.member_role_id) roles.push(config.member_role_id)
-
-  try {
-    await member.roles.set([
-      ...roles,
-      ...member.roles.cache
-        .filter((role) => role.id !== config?.await_validation_role_id)
-        .values(),
-    ])
-  } catch (error) {
-    app.error(
-      `missing permission in ${chalk.blueBright(
-        member.guild.name
-      )} for ${chalk.blueBright(member.user.tag)}`,
-      __filename
-    )
-  }
-
-  if (config.general_channel_id && config.member_welcome_message) {
-    const general = await member.client.channels.cache.get(
-      config.general_channel_id
-    )
-
-    if (general) {
-      await sendTemplatedEmbed(general, config.member_welcome_message, {
-        ...embedReplacers(member),
-        presentation: (
-          presentation?.content ?? "*This member does not have a presentation.*"
-        )
-          .replace(/\n/g, "\\n")
-          .replace(/"/g, '\\"'),
-      })
-    }
-  }
-}
-
-export async function disapproveMember(
-  member: app.GuildMember,
-  presentation: app.Message,
-  config?: GuildConfig
-) {
-  await users.query.delete().where({ id: member.id })
-
-  if (!config) config = await getConfig(member.guild, true)
-
-  if (config.log_channel_id && config.member_welcome_message) {
-    const logChannel = member.client.channels.cache.get(config.log_channel_id)
-
-    if (logChannel?.isText())
-      await sendTemplatedEmbed(
-        logChannel,
-        "**Presentation**:\n{presentation}",
-        {
-          ...embedReplacers(member),
-          presentation: presentation.content
-            .replace(/\n/g, "\\n")
-            .replace(/"/g, '\\"'),
-        }
-      )
-  }
-
-  await member.kick()
-  await presentation.delete().catch()
-}
-
 export async function sendLog(
   guild: app.Guild,
   toSend: string | app.MessageEmbed,
-  config?: GuildConfig
+  config?: Guild
 ) {
-  config ??= await getConfig(guild)
+  config ??= await getGuild(guild)
 
   if (!config) return
 
@@ -143,22 +55,30 @@ export async function sendLog(
   }
 }
 
-export async function getConfig(
-  guild: app.Guild
-): Promise<GuildConfig | undefined>
-export async function getConfig(
-  guild: app.Guild,
-  force: true
-): Promise<GuildConfig>
-export async function getConfig(
+export async function getUser(user: { id: string }): Promise<User | undefined>
+export async function getUser(user: { id: string }, force: true): Promise<User>
+export async function getUser(user: { id: string }, force?: true) {
+  const userInDb = await users.query.where("id", user.id).first()
+
+  if (force && !userInDb) {
+    await users.query.insert({ id: user.id })
+    return (await users.query.where("id", user.id).first())!
+  }
+
+  return userInDb
+}
+
+export async function getGuild(guild: app.Guild): Promise<Guild | undefined>
+export async function getGuild(guild: app.Guild, force: true): Promise<Guild>
+export async function getGuild(
   guild: app.Guild,
   force?: true
-): Promise<GuildConfig | undefined> {
+): Promise<Guild | undefined> {
   const config = await guilds.query.where("id", guild.id).first()
 
   if (force && !config) {
     await guilds.query.insert({ id: guild.id })
-    return (await guilds.query.where("id", guild.id).first()) as GuildConfig
+    return (await guilds.query.where("id", guild.id).first())!
   }
 
   return config
@@ -228,9 +148,11 @@ export function emote(
 }
 
 export async function getAutoRoles(member: app.GuildMember): Promise<string[]> {
+  const guild = await app.getGuild(member.guild, true)
+
   return (
     await autoRole.query
-      .where("guild_id", member.guild.id)
+      .where("guild_id", guild._id)
       .and.where("bot", Number(member.user.bot))
   ).map((ar) => ar.role_id)
 }
@@ -280,29 +202,4 @@ export function countOf(builder: any): Promise<number> {
   return builder.count({ total: "*" }).then((rows: any) => {
     return rows[0].total as number
   })
-}
-
-export async function startCron(
-  client: app.Client<true>,
-  task: CronData,
-  guild: app.Guild | undefined
-) {
-  if (!guild) return cronTable.query.del().where(task)
-
-  const slug = app.slug("job", task.name)
-
-  const channel = client.channels.cache.get(task.channel_id)
-
-  if (!channel?.isText()) {
-    const author = await client.users.fetch(task.user_id)
-    return author.send(
-      `⚠️ Your "${task.name}" cron task in the "${guild.name}" guild has invalid channel_id.`
-    )
-  }
-
-  const job = cron.job(task.period, () => {
-    if (channel.isText()) channel.send(task.content)
-  })
-
-  app.cache.set(slug, job)
 }
