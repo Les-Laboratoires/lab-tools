@@ -34,6 +34,7 @@ export default new app.Command({
                   content: JSON.stringify(config, null, 2),
                 })
               : Object.entries(config)
+                  .filter(([key]) => !key.startsWith("_"))
                   .map(([key, value]) => {
                     let entity: any
 
