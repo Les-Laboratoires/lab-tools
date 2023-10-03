@@ -23,9 +23,9 @@ export default new app.Command({
     async function run(command: string) {
       return new Promise(async (resolve, reject) => {
         await waiting.edit(
-          `${app.emote(message, "WAIT")} Deploying...${commands.join("")}${
-            `\n${app.emote(message, "WAIT")} \`>_ ${command}\``
-          }`
+          `${app.emote(message, "WAIT")} Deploying...${commands.join(
+            ""
+          )}${`\n${app.emote(message, "WAIT")} \`>_ ${command}\``}`
         )
 
         let timer = Date.now()
