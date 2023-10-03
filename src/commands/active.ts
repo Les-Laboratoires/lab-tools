@@ -29,9 +29,9 @@ export default new app.Command({
     message.guild.members.cache.clear()
 
     await waiting.edit(
-      `${app.emote(message, "WAIT")} Verification of 0/${
+      `${app.emote(message, "WAIT")} Verification of **0**/**${
         members.length
-      } members...`
+      }** members...`
     )
 
     let activeCount = 0
@@ -54,7 +54,7 @@ export default new app.Command({
         waiting,
         members.indexOf(member),
         members.length,
-        `Verification of $#/$$ members...`,
+        `Verification of **$#**/**$$** members...`,
         10
       )
     }
