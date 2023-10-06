@@ -82,7 +82,7 @@ export default new app.Command({
           waiting,
           activeMembers.indexOf(member),
           members.length,
-          `Verification of **$#**/**$$** active members...`,
+          `Verification of **$#**/**$$** members...`,
           10
         )
       }
@@ -97,7 +97,7 @@ export default new app.Command({
           waiting,
           activeMembers.length + inactiveMembers.indexOf(member),
           members.length,
-          `Verification of **$#**/**$$** inactive members...`,
+          `Verification of **$#**/**$$** members...`,
           10
         )
       }

@@ -81,9 +81,12 @@ export default new app.Command({
               .setColor()
               .setTitle("Database plan")
               .setDescription(
-                `${fields.length} tables, ${fields.reduce((acc, current) => {
-                  return acc + current.value.split("\n").length
-                }, 0)} columns, `
+                `**${fields.length}** tables, **${fields.reduce(
+                  (acc, current) => {
+                    return acc + current.value.split("\n").length
+                  },
+                  0
+                )}** columns`
               )
               .addFields(
                 ...fields.sort((a, b) => {
