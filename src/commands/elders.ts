@@ -12,6 +12,13 @@ export default new app.Command({
     app.hasConfigKey("elders_role_pattern"),
     app.isNotInUse(() => used),
   ],
+  flags: [
+    {
+      flag: "f",
+      name: "force",
+      description: "Force the update of all members",
+    },
+  ],
   async run(message) {
     used = true
 
@@ -40,13 +47,13 @@ export default new app.Command({
 
     message.guild.members.cache.clear()
 
+    const logs: string[] = []
+
     await waiting.edit(
       `${app.emote(message, "WAIT")} Looking for new elders from ${
         members.length
       } members...`
     )
-
-    const logs: string[] = []
 
     for (const member of members) {
       await member.fetch(true)
