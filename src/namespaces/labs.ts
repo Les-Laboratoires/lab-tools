@@ -2,6 +2,10 @@ import * as app from "../app.js"
 
 import lab from "../tables/lab.js"
 
+/**
+ * @Todo use forum channels instead...
+ * @param message
+ */
 export async function updateLabsInAffiliationChannels(
   message: app.NormalMessage
 ) {
