@@ -40,7 +40,9 @@ export default new app.Command({
                 const copy = result.slice()
 
                 while (JSON.stringify(copy, null, 2).length > 4049) {
-                  copy.splice(copy.indexOf("..."), 1)
+                  copy.includes("...")
+                    ? copy.splice(copy.indexOf("..."), 1)
+                    : copy.pop()
                   copy.push("...")
                 }
 
