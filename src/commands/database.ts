@@ -35,19 +35,20 @@ export default new app.Command({
               lang: "json",
               format: { printWidth: 62 },
               content: ((result) => {
-                if (!Array.isArray(result)) return JSON.stringify(result)
+                if (!Array.isArray(result))
+                  return JSON.stringify(result).slice(0, 4050)
 
                 const copy = result.slice()
 
-                while (JSON.stringify(copy, null, 2).length > 4049) {
-                  copy.includes("...")
-                    ? copy.splice(copy.indexOf("..."), 1)
-                    : copy.pop()
+                while (JSON.stringify(copy, null, 2).length > 4050) {
+                  if (copy.includes("...")) copy.splice(copy.indexOf("..."), 1)
+
+                  copy.pop()
                   copy.push("...")
                 }
 
                 return JSON.stringify(copy)
-              })(result).slice(0, 4050),
+              })(result),
             })
           )
           .setFooter(`Result of : ${query}`),
