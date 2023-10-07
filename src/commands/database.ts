@@ -34,7 +34,18 @@ export default new app.Command({
             app.code.stringify({
               lang: "json",
               format: { printWidth: 62 },
-              content: JSON.stringify(result).slice(0, 1000),
+              content: ((result) => {
+                if (!Array.isArray(result)) return JSON.stringify(result)
+
+                const copy = result.slice()
+
+                while (JSON.stringify(copy, null, 2).length > 4050) {
+                  copy.splice(copy.indexOf("..."), 1)
+                  copy.push("...")
+                }
+
+                return JSON.stringify(copy)
+              })(result),
             })
           )
           .setFooter(`Result of : ${query}`),
