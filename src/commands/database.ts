@@ -39,13 +39,13 @@ export default new app.Command({
 
                 const copy = result.slice()
 
-                while (JSON.stringify(copy, null, 2).length > 4050) {
+                while (JSON.stringify(copy, null, 2).length > 4049) {
                   copy.splice(copy.indexOf("..."), 1)
                   copy.push("...")
                 }
 
                 return JSON.stringify(copy)
-              })(result),
+              })(result).slice(0, 4050),
             })
           )
           .setFooter(`Result of : ${query}`),
