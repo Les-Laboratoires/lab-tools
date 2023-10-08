@@ -2,7 +2,7 @@ import * as app from "../app.js"
 
 export interface Automation {
   command: string
-  period: "hourly" | "daily" | "weekly" | "monthly" | "yearly"
+  period: number
   guild_id: number
   ron_at: number
 }
@@ -12,7 +12,7 @@ export default new app.Table<Automation>({
   description: "The automation table",
   setup: (table) => {
     table.string("command").notNullable()
-    table.string("period").notNullable()
+    table.integer("period").notNullable()
     table.integer("guild_id").references("_id").inTable("guild").notNullable()
     table.integer("ron_at").notNullable()
   },
