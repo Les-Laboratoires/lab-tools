@@ -1,8 +1,8 @@
 import * as app from "../app.js"
 import yargsParser from "yargs-parser"
 import { filename } from "dirname-filename-esm"
-import automations from "../tables/automation"
-import guilds from "../tables/guild"
+
+import automations from "../tables/automation.js"
 
 const __filename = filename(import.meta)
 
