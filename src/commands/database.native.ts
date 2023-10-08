@@ -34,21 +34,7 @@ export default new app.Command({
             app.code.stringify({
               lang: "json",
               format: { printWidth: 62 },
-              content: ((result) => {
-                if (!Array.isArray(result))
-                  return JSON.stringify(result).slice(0, 4050)
-
-                const copy = result.slice()
-
-                while (JSON.stringify(copy, null, 2).length > 4050) {
-                  if (copy.includes("...")) copy.splice(copy.indexOf("..."), 1)
-
-                  copy.pop()
-                  copy.push("...")
-                }
-
-                return JSON.stringify(copy)
-              })(result),
+              content: JSON.stringify(result).slice(0, 1024),
             })
           )
           .setFooter(`Result of : ${query}`),
@@ -63,14 +49,16 @@ export default new app.Command({
       channelType: "all",
       aliases: ["tables", "schema", "list", "view"],
       async run(message) {
+        const packageJSON = app.fetchPackageJson()
+
         const tables: { name: string }[] = await app.db.raw(
-          "SELECT name FROM sqlite_master WHERE type='table'"
+          app.databasePatterns.tableNames()
         )
 
         const fields = await Promise.all(
           tables.map(async ({ name }): Promise<app.EmbedFieldData> => {
             const columns: { name: string; type: string; dflt_value: any }[] =
-              await app.db.raw(`PRAGMA table_info(${name})`)
+              await app.db.raw(app.databasePatterns.tableInfo(name))
 
             const rowCount = (await app.db(name).count("* as total").first())!
 

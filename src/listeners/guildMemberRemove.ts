@@ -1,6 +1,7 @@
 import * as app from "../app.js"
+import client from "../app/client"
 
-import users, { User } from "../tables/user.js"
+import users from "../tables/user.js"
 
 const listener: app.Listener<"guildMemberRemove"> = {
   event: "guildMemberRemove",
@@ -14,7 +15,7 @@ const listener: app.Listener<"guildMemberRemove"> = {
       const user = await member.client.users.fetch(member.id)
 
       if (
-        this.guilds.cache
+        client.guilds.cache
           .filter((g) => g.id !== guild.id)
           .every((g) => !g.members.cache.has(member.id))
       )

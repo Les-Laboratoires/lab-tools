@@ -1,12 +1,12 @@
 import * as command from "../app/command.js"
 import * as logger from "../app/logger.js"
-import * as utils from "../namespaces/utils.js"
+import * as tools from "../namespaces/tools.js"
 
 import { Guild } from "../tables/guild.js"
 
 export function staffOnly(): command.Middleware<"guild"> {
   return async function staffOnly(message, data) {
-    const config = await utils.getGuild(message.guild)
+    const config = await tools.getGuild(message.guild)
 
     if (!config?.staff_role_id)
       logger.warn(
@@ -28,7 +28,7 @@ export function staffOnly(): command.Middleware<"guild"> {
 
 export function hasConfigKey(key: keyof Guild): command.Middleware<"guild"> {
   return async function hasConfigKey(message, data) {
-    const config = await utils.getGuild(message.guild)
+    const config = await tools.getGuild(message.guild)
 
     if (!config?.[key])
       return {

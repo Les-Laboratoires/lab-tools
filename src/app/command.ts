@@ -7,7 +7,7 @@ import yargsParser from "yargs-parser"
 
 import * as core from "./core.js"
 import * as logger from "./logger.js"
-import * as handler from "./handler.js"
+import * as handler from "@ghom/handler"
 import * as argument from "./argument.js"
 
 import { filename } from "dirname-filename-esm"
@@ -50,6 +50,7 @@ export const commands = new (class CommandCollection extends discord.Collection<
 export type SentItem = string | discord.MessagePayload | discord.MessageOptions
 
 export type NormalMessage = discord.Message & {
+  customData: any
   args: { [name: string]: any } & any[]
   triggerCoolDown: () => void
   send: (this: NormalMessage, item: SentItem) => Promise<discord.Message>
@@ -290,6 +291,8 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
     key: string
   }
 ): Promise<discord.MessageEmbed | boolean> {
+  const botOwnerId = await core.getBotOwnerId(message)
+
   // coolDown
   if (cmd.options.coolDown) {
     const slug = core.slug("coolDown", cmd.options.name, message.channel.id)
@@ -343,7 +346,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
     if (core.scrap(cmd.options.guildOwnerOnly, message))
       if (
         message.guild.ownerId !== message.member.id &&
-        process.env.BOT_OWNER !== message.member.id
+        botOwnerId !== message.member.id
       )
         return new core.SafeMessageEmbed().setColor("RED").setAuthor({
           name: "You must be the guild owner.",
@@ -503,7 +506,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
       })
 
   if (await core.scrap(cmd.options.botOwnerOnly, message))
-    if (process.env.BOT_OWNER !== message.author.id)
+    if (botOwnerId !== message.author.id)
       return new core.SafeMessageEmbed().setColor("RED").setAuthor({
         name: "You must be my owner.",
         iconURL: message.client.user.displayAvatarURL(),

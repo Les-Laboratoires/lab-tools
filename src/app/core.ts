@@ -15,8 +15,28 @@ import * as logger from "./logger.js"
 
 export const startedAt = Date.now()
 
+export function die(message: string): never {
+  throw new Error(message)
+}
+
 export function uptime(): number {
   return Date.now() - startedAt
+}
+
+export async function getBotOwnerId({
+  client,
+}: {
+  client: discord.Client<true>
+}): Promise<string> {
+  const app = await client.application.fetch()
+  const ownerID =
+    app.owner instanceof discord.User
+      ? app.owner.id
+      : app.owner?.members.first()?.id
+
+  if (!ownerID) throw new Error("Bot owner not found.")
+
+  return ownerID
 }
 
 /**
@@ -328,4 +348,16 @@ export class SafeMessageEmbed extends discord.MessageEmbed {
 
     return this
   }
+}
+
+export function getDatabaseDriverName() {
+  const packageJSON = fetchPackageJson()
+
+  if (packageJSON?.dependencies?.["pg"]) {
+    return "pg"
+  } else if (packageJSON?.dependencies?.["mysql2"]) {
+    return "mysql2"
+  } else if (packageJSON?.dependencies?.["sqlite3"]) {
+    return "sqlite3"
+  } else throw new Error("No database driver found in package.json")
 }
