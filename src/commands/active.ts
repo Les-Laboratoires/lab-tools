@@ -47,10 +47,7 @@ export default new app.Command({
       else inactiveMembers.push(member)
     }
 
-    const cacheSize = async () =>
-      (await active.query.where("guild_id", config._id)).length
-
-    if (message.args.force || (await cacheSize()) === 0) {
+    if (message.args.force) {
       await active.query.delete().where("guild_id", config._id)
 
       if(activeMembers.length)
