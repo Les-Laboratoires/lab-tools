@@ -14,7 +14,7 @@ export async function isActive(
     .where("author_id", user._id)
     .where("guild_id", guild._id)
     .where("created_timestamp", ">", Date.now() - period)
-    .select("count(*) as messageCount")
+    .count("* as messageCount")
     .first()
 
   if(!data) return false
