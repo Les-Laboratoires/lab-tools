@@ -53,18 +53,19 @@ export default new app.Command({
     if (message.args.force || (await cacheSize()) === 0) {
       await active.query.delete().where("guild_id", config._id)
 
-      await active.query.insert(
-        await Promise.all(
-          activeMembers.map(async (member) => {
-            const user = await app.getUser(member, true)
-
-            return {
-              user_id: user._id,
-              guild_id: config._id,
-            }
-          })
+      if(activeMembers.length)
+        await active.query.insert(
+          await Promise.all(
+            activeMembers.map(async (member) => {
+              const user = await app.getUser(member, true)
+  
+              return {
+                user_id: user._id,
+                guild_id: config._id,
+              }
+            })
+          )
         )
-      )
 
       await waiting.edit(
         `${app.emote(message, "WAIT")} Verification of **0**/**${
