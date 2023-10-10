@@ -50,7 +50,7 @@ export default new app.Command({
     if (message.args.force) {
       await active.query.delete().where("guild_id", config._id)
 
-      if(activeMembers.length)
+      if(activeMembers.length === 0)
         await active.query.insert(
           await Promise.all(
             activeMembers.map(async (member) => {
@@ -108,9 +108,9 @@ export default new app.Command({
       // use the cache to update only the changed members
 
       await waiting.edit(
-        `${app.emote(message, "WAIT")} Update of ${
+        `${app.emote(message, "WAIT")} Update of **${
           activeMembers.length
-        } active members...`
+        }** active members...`
       )
 
       for (const member of activeMembers) {
@@ -126,9 +126,9 @@ export default new app.Command({
       }
 
       await waiting.edit(
-        `${app.emote(message, "WAIT")} Update of ${
+        `${app.emote(message, "WAIT")} Update of **${
           inactiveMembers.length
-        } inactive members...`
+        }** inactive members...`
       )
 
       for (const member of inactiveMembers) {
