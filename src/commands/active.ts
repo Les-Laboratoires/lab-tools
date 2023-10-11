@@ -20,6 +20,23 @@ export default new app.Command({
       description: "Force the update of all members",
     },
   ],
+  options: [
+    {
+      name: "period",
+      description: "The period to check",
+      castValue: "number",
+      default: String(1000 * 60 * 60 * 24 * 7),
+      checkCastedValue: (value) => value > 0,
+    },
+    {
+      name: "messageCount",
+      aliases: ["count"],
+      description: "The minimum message count",
+      castValue: "number",
+      default: "50",
+      checkCastedValue: (value) => value > 0,
+    },
+  ],
   async run(message) {
     used = true
 
@@ -41,7 +58,11 @@ export default new app.Command({
     const inactiveMembers: app.GuildMember[] = []
 
     for (const member of members) {
-      const isActive = await app.isActive(member)
+      const isActive = await app.isActive(
+        member,
+        message.args.period,
+        message.args.messageCount
+      )
 
       if (isActive) activeMembers.push(member)
       else inactiveMembers.push(member)
@@ -50,12 +71,12 @@ export default new app.Command({
     if (message.args.force) {
       await active.query.delete().where("guild_id", config._id)
 
-      if(activeMembers.length === 0)
+      if (activeMembers.length === 0)
         await active.query.insert(
           await Promise.all(
             activeMembers.map(async (member) => {
               const user = await app.getUser(member, true)
-  
+
               return {
                 user_id: user._id,
                 guild_id: config._id,
@@ -100,12 +121,12 @@ export default new app.Command({
         )
       }
     } else {
+      // use the cache to update only the changed members
+
       const activeMembersCache = await active.query.where(
         "guild_id",
         config._id
       )
-
-      // use the cache to update only the changed members
 
       await waiting.edit(
         `${app.emote(message, "WAIT")} Update of **${

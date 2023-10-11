@@ -2,8 +2,6 @@ import * as app from "../app.js"
 import yargsParser from "yargs-parser"
 import { filename } from "dirname-filename-esm"
 
-import automations from "../tables/automation.js"
-
 const __filename = filename(import.meta)
 
 const listener: app.Listener<"messageCreate"> = {
@@ -11,32 +9,6 @@ const listener: app.Listener<"messageCreate"> = {
   description: "Handle message for commands",
   async run(message) {
     if (!app.isNormalMessage(message)) return
-
-    // run automations if needed
-
-    if (app.isGuildMessage(message)) {
-      const automationList = await automations.query.where(
-        "guild_id",
-        message.guildId
-      )
-
-      for (const automation of automationList) {
-        if (Date.now() - automation.ron_at < automation.period) continue
-
-        const command = app.commands.resolve(
-          automation.command
-        ) as app.Command<"guild">
-
-        if (!command) continue
-
-        await command.options.run.bind(command)(message)
-
-        await automations.query
-          .where("guild_id", message.guildId)
-          .where("command", command.options.name)
-          .update({ ron_at: Date.now() })
-      }
-    }
 
     const prefix = await app.prefix(message.guild ?? undefined)
 

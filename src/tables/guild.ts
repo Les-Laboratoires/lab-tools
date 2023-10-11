@@ -4,8 +4,6 @@ export interface Guild {
   _id: number
   id: string
   prefix: string | null
-  reward_emoji_id: string | null
-  reward_channel_id: string | null
   general_channel_id: string | null
   project_channel_id: string | null
   affiliation_channel_id: string | null
@@ -30,14 +28,12 @@ export default new app.Table<Guild>({
     table.increments("_id", { primaryKey: true }).unsigned()
     table.string("id").unique().notNullable()
     table.string("prefix")
-    table.string("reward_emoji_id")
     table.string("member_role_id")
     table.string("bot_role_id")
     table.string("active_role_id")
     table.string("staff_role_id")
     table.string("log_channel_id")
     table.string("meme_channel_id")
-    table.string("reward_channel_id")
     table.string("project_channel_id")
     table.string("general_channel_id")
     table.string("affiliation_channel_id")
