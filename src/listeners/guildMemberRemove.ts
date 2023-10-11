@@ -1,5 +1,6 @@
 import * as app from "../app.js"
-import client from "../app/client"
+
+import client from "../app/client.js"
 
 import users from "../tables/user.js"
 
