@@ -36,23 +36,20 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        return message.send(
-          "Not up to date yet (will use forum channels instead)"
-        )
-        // const guild = await app.getGuild(message.guild, true)
-        //
-        // await lab.query
-        //   .insert({
-        //     guild_id: guild._id,
-        //     url: message.args.url,
-        //     title: message.args.title,
-        //   })
-        //   .onConflict("id")
-        //   .merge()
-        //
-        // await app.updateLabsInAffiliationChannels(message)
-        //
-        // message.triggerCoolDown()
+        const guild = await app.getGuild(message.guild, true)
+
+        await lab.query
+          .insert({
+            guild_id: guild._id,
+            url: message.args.url,
+            title: message.args.title,
+          })
+          .onConflict("id")
+          .merge()
+
+        //await app.updateLabsInAffiliationChannels(message)
+
+        message.triggerCoolDown()
       },
     }),
   ],
