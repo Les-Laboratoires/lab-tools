@@ -11,7 +11,7 @@ const listener: app.Listener<"messageCreate"> = {
     const user = await app.getUser(message.author, true)
     const guild = await app.getGuild(message.guild, true)
 
-    return messages.query.insert({
+    await messages.query.insert({
       author_id: user._id,
       guild_id: guild._id,
     })

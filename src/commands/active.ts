@@ -1,8 +1,7 @@
 import * as app from "../app.js"
 
-import active from "../tables/active.js"
-
 let used = false
+let interval: NodeJS.Timeout | undefined = undefined
 
 export default new app.Command({
   name: "active",
@@ -18,6 +17,11 @@ export default new app.Command({
       flag: "f",
       name: "force",
       description: "Force the update of all members",
+    },
+    {
+      flag: "a",
+      name: "auto",
+      description: "Automatically update the active list",
     },
   ],
   options: [
@@ -44,133 +48,37 @@ export default new app.Command({
       `${app.emote(message, "WAIT")} Fetching members...`
     )
 
-    const config = await app.getGuild(message.guild, true)
-
-    message.guild.members.cache.clear()
-
-    const members = (await message.guild.members.fetch())
-      .filter((member) => !member.user.bot)
-      .map((member) => member)
-
-    message.guild.members.cache.clear()
-
-    const activeMembers: app.GuildMember[] = []
-    const inactiveMembers: app.GuildMember[] = []
-
-    for (const member of members) {
-      const isActive = await app.isActive(
-        member,
-        message.args.period,
-        message.args.messageCount
-      )
-
-      if (isActive) activeMembers.push(member)
-      else inactiveMembers.push(member)
-    }
-
-    if (message.args.force) {
-      await active.query.delete().where("guild_id", config._id)
-
-      if (activeMembers.length === 0)
-        await active.query.insert(
-          await Promise.all(
-            activeMembers.map(async (member) => {
-              const user = await app.getUser(member, true)
-
-              return {
-                user_id: user._id,
-                guild_id: config._id,
-              }
-            })
-          )
-        )
-
-      await waiting.edit(
-        `${app.emote(message, "WAIT")} Verification of **0**/**${
-          members.length
-        }** members...`
-      )
-
-      for (const member of activeMembers) {
-        await member.fetch(true)
-
-        if (!member.roles.cache.has(config.active_role_id!))
-          await member.roles.add(config.active_role_id!)
-
-        await app.sendProgress(
-          waiting,
-          activeMembers.indexOf(member),
-          members.length,
-          `Verification of **$#**/**$$** members...`,
-          10
-        )
-      }
-
-      for (const member of inactiveMembers) {
-        await member.fetch(true)
-
-        if (member.roles.cache.has(config.active_role_id!))
-          await member.roles.remove(config.active_role_id!)
-
-        await app.sendProgress(
-          waiting,
-          activeMembers.length + inactiveMembers.indexOf(member),
-          members.length,
-          `Verification of **$#**/**$$** members...`,
-          10
-        )
-      }
-    } else {
-      // use the cache to update only the changed members
-
-      const activeMembersCache = await active.query.where(
-        "guild_id",
-        config._id
-      )
-
-      await waiting.edit(
-        `${app.emote(message, "WAIT")} Update of **${
-          activeMembers.length
-        }** active members...`
-      )
-
-      for (const member of activeMembers) {
-        const user = await app.getUser(member, true)
-
-        if (!activeMembersCache.find((am) => am.user_id === user._id)) {
-          await member.roles.add(config.active_role_id!)
-          await active.query.insert({
-            user_id: user._id,
-            guild_id: config._id,
-          })
-        }
-      }
-
-      await waiting.edit(
-        `${app.emote(message, "WAIT")} Update of **${
-          inactiveMembers.length
-        }** inactive members...`
-      )
-
-      for (const member of inactiveMembers) {
-        const user = await app.getUser(member, true)
-
-        if (activeMembersCache.find((am) => am.user_id === user._id)) {
-          await member.roles.remove(config.active_role_id!)
-          await active.query.delete().where({
-            user_id: user._id,
-            guild_id: config._id,
-          })
-        }
-      }
-    }
+    await app.updateActive(message.guild, {
+      force: message.args.force,
+      period: message.args.period,
+      messageCount: message.args.messageCount,
+      onLog: (text) => waiting.edit(text),
+    })
 
     used = false
 
-    return waiting.edit(
-      `${app.emote(message, "CHECK")} Found **${
-        activeMembers.length
-      }** active members.`
-    )
+    if (message.args.auto) {
+      await message.send(
+        `${app.emote(
+          message,
+          "CHECK"
+        )} Automated active list hourly update enabled.`
+      )
+
+      if (interval !== undefined) clearInterval(interval)
+
+      interval = setInterval(async () => {
+        const found = await app.updateActive(message.guild, {
+          force: false,
+          period: message.args.period,
+          messageCount: message.args.messageCount,
+        })
+
+        await app.sendLog(
+          message.guild,
+          `Finished updating the active list, found ${found} active members.`
+        )
+      }, 1000 * 60 * 60)
+    }
   },
 })

@@ -54,10 +54,15 @@ export async function getUser(user: { id: string }, force?: true) {
   return userInDb
 }
 
-export async function getGuild(guild: app.Guild): Promise<Guild | undefined>
-export async function getGuild(guild: app.Guild, force: true): Promise<Guild>
+export async function getGuild(guild: {
+  id: string
+}): Promise<Guild | undefined>
 export async function getGuild(
-  guild: app.Guild,
+  guild: { id: string },
+  force: true
+): Promise<Guild>
+export async function getGuild(
+  guild: { id: string },
   force?: true
 ): Promise<Guild | undefined> {
   const config = await guilds.query.where("id", guild.id).first()
