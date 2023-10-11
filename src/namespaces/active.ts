@@ -11,14 +11,13 @@ export async function isActive(
   const user = await app.getUser(member, true)
   const guild = await app.getGuild(member.guild, true)
 
-  const data: { messageCount: number } | undefined = await messages.query
+  const data = await messages.query
     .where("author_id", user._id)
     .where("guild_id", guild._id)
     .where("created_timestamp", ">", Date.now() - period)
-    .select({ messageCount: "count(*)" })
-    .first()
-
-  if (!data) return false
+    .select(app.db.raw("count(*) as messageCount"))
+    .limit(1)
+    .then((rows) => rows[0] as unknown as { messageCount: number })
 
   return data.messageCount > requiredMessageCount
 }
