@@ -9,7 +9,7 @@ export default new app.Table<Message>({
   name: "message",
   description: "Save all messages with dates",
   migrations: {
-    1: (table) => {
+    2: (table) => {
       table.dropColumn("created_timestamp")
       table.timestamps(true, true)
     },

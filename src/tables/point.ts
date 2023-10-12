@@ -10,7 +10,7 @@ export default new app.Table<Point>({
   name: "point",
   description: "The point table",
   migrations: {
-    1: (table) => {
+    2: (table) => {
       table.dropColumn("created_timestamp")
       table.timestamps(true, true)
     },
