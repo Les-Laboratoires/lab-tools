@@ -32,7 +32,7 @@ export default new app.Command({
       name: "period",
       description: "The period to check",
       castValue: "number",
-      default: String(1000 * 60 * 60 * 24 * 7),
+      default: "1814400000", // 3 weeks
       checkCastedValue: (value) => value > 0,
     },
     {
