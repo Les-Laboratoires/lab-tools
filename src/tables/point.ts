@@ -32,3 +32,58 @@ export default new app.Table<Point>({
     table.integer("created_timestamp", 15).notNullable().defaultTo(Date.now())
   },
 })
+
+export async function getLeaderboard(): Promise<
+  {
+    member_id: string
+    score: number
+    rank: number
+  }[]
+> {
+  return app.db.raw(`
+    WITH Leaderboard AS (
+      SELECT
+        u.id AS member_id,
+        SUM(p.amount) AS score
+      FROM user u
+      LEFT JOIN point p ON u._id = p.to_id
+      GROUP BY u.id
+      ORDER BY score DESC
+    )
+    SELECT
+      member_id,
+      score,
+      RANK() OVER (ORDER BY score DESC) AS rank
+    FROM Leaderboard
+    LIMIT 20;
+  `)
+}
+
+export async function getPersonalRank(memberId: string): Promise<{
+  score: number
+  rank: number
+}> {
+  return app.db.raw(`
+    WITH Leaderboard AS (
+      SELECT
+        u.id AS member_id,
+        SUM(p.amount) AS score
+      FROM user u
+      LEFT JOIN point p ON u._id = p.to_id
+      GROUP BY u.id
+      ORDER BY score DESC
+    ),
+    UserRank AS (
+      SELECT
+        member_id,
+        score,
+        RANK() OVER (ORDER BY score DESC) AS rank
+      FROM Leaderboard
+    )
+    SELECT
+      score,
+      rank
+    FROM UserRank
+    WHERE member_id = ${memberId};
+  `)
+}

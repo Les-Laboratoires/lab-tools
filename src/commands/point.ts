@@ -1,6 +1,6 @@
 import * as app from "../app.js"
 
-import points from "../tables/point.js"
+import points, { getPersonalRank, getLeaderboard } from "../tables/point.js"
 
 export default new app.Command({
   name: "point",
@@ -89,16 +89,7 @@ export default new app.Command({
       channelType: "guild",
       aliases: ["ladder", "lb", "top"],
       async run(message) {
-        const data: { score: number; member_id: string; rank: number }[] =
-          await points.query
-            .select(
-              app.db.raw(
-                "sum(amount) as score, rank() over (order by sum(amount) desc group by user.id) as rank, user.id as member_id"
-              )
-            )
-            .leftJoin("user", "user._id", "point.to_id")
-            .groupBy("user.id")
-            .limit(20)
+        const data = await getLeaderboard()
 
         if (data.length === 0)
           return message.send(
@@ -108,20 +99,8 @@ export default new app.Command({
             )} Aucun point n'a été attribué pour le moment.`
           )
 
-        const user = await app.getUser(message.member, true)
-
         const personalRank = data.some((_) => _.member_id === message.member.id)
-          ? ((await points.query
-              .select(
-                app.db.raw(
-                  "sum(amount) as score, rank() over (order by sum(amount) desc) as rank"
-                )
-              )
-              .where("to_id", user._id)
-              .groupBy("to_id")
-              .first()) as unknown as
-              | { score: number; rank: number }
-              | undefined)
+          ? await getPersonalRank(message.member.id)
           : undefined
 
         const embed = new app.MessageEmbed()
