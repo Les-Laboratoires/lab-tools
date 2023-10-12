@@ -62,11 +62,7 @@ export async function getLeaderboard(): Promise<
 > {
   return app.db.raw(`
     ${leaderboardPattern}
-    SELECT
-      member_id,
-      score,
-      RANK() OVER (ORDER BY score DESC) AS rank
-    FROM Leaderboard
+    ${userRankPattern}
     WHERE score > 0
     LIMIT 20;
   `)
@@ -75,16 +71,11 @@ export async function getLeaderboard(): Promise<
 export async function getPersonalRank(memberId: string): Promise<{
   score: number
   rank: number
+  member_id: string
 }> {
   return app.db.raw(`
     ${leaderboardPattern},
-    UserRank AS (
-      ${userRankPattern}
-    )
-    SELECT
-      score,
-      rank
-    FROM UserRank
+    ${userRankPattern}
     WHERE member_id = '${memberId}';
   `)
 }
