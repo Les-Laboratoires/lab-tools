@@ -97,8 +97,9 @@ export default new app.Command({
               )
             )
             .leftJoin("user", "user._id", "point.to_id")
+            .limit(20)
 
-        if (!data.length)
+        if (data.length === 0)
           return message.send(
             `${app.emote(
               message,
@@ -106,25 +107,50 @@ export default new app.Command({
             )} Aucun point n'a été attribué pour le moment.`
           )
 
+        const user = await app.getUser(message.member, true)
+
+        const personalRank = (await points.query
+          .select(
+            app.db.raw(
+              "sum(amount) as score, rank() over (order by sum(amount) desc) as rank"
+            )
+          )
+          .where("user_id", user._id)
+          .first()) as unknown as { score: number; rank: number } | undefined
+
+        const embed = new app.MessageEmbed()
+          .setTitle("Classement des helpers")
+          .setDescription(
+            data
+              .map(
+                (row, index) =>
+                  `#\`${app.forceTextSize(
+                    String(row.rank),
+                    2
+                  )}\` avec \`${app.forceTextSize(
+                    String(row.score),
+                    data[0].score.toString().length
+                  )}\` pts - <@${row.member_id}>`
+              )
+              .join("\n")
+          )
+
+        if (personalRank)
+          embed.setFields([
+            {
+              name: `Classement de ${message.member.displayName}`,
+              value: `#\`${app.forceTextSize(
+                String(personalRank.rank),
+                2
+              )}\` avec \`${app.forceTextSize(
+                String(personalRank.score),
+                data[0].score.toString().length
+              )}\` pts`,
+            },
+          ])
+
         await message.send({
-          embeds: [
-            new app.MessageEmbed()
-              .setTitle("Classement des helpers")
-              .setDescription(
-                data
-                  .map(
-                    (row, index) =>
-                      `\`${app.forceTextSize(
-                        String(row.rank),
-                        2
-                      )}\`# avec \`${app.forceTextSize(
-                        String(row.score),
-                        data[0].score.toString().length
-                      )}\` pts - <@${row.member_id}>`
-                  )
-                  .join("\n")
-              ),
-          ],
+          embeds: [embed],
         })
       },
     }),
