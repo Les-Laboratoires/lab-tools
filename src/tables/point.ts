@@ -42,7 +42,6 @@ const leaderboardPattern = `
     LEFT JOIN point p ON u._id = p.to_id
     GROUP BY u.id
     ORDER BY score DESC
-    HAVING score > 0
   )
 `
 
@@ -68,6 +67,7 @@ export async function getLeaderboard(): Promise<
       score,
       RANK() OVER (ORDER BY score DESC) AS rank
     FROM Leaderboard
+    WHERE score > 0
     LIMIT 20;
   `)
 }
