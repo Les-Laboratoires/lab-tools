@@ -8,12 +8,6 @@ export interface Message extends app.Timestamps {
 export default new app.Table<Message>({
   name: "message",
   description: "Save all messages with dates",
-  migrations: {
-    2: (table) => {
-      table.dropColumn("created_timestamp")
-      table.timestamps(true, true)
-    },
-  },
   setup: (table) => {
     table
       .integer("author_id")
@@ -27,6 +21,6 @@ export default new app.Table<Message>({
       .inTable("guild")
       .onDelete("CASCADE")
       .notNullable()
-    table.integer("created_timestamp", 15).notNullable().defaultTo(Date.now())
+    table.timestamps(true, true)
   },
 })
