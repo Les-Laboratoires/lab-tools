@@ -7,6 +7,9 @@ export interface Guild {
   general_channel_id: string | null
   project_channel_id: string | null
   affiliation_channel_id: string | null
+  member_tracker_channel_id: string | null
+  message_tracker_channel_id: string | null
+  online_tracker_channel_id: string | null
   member_welcome_message: string | null
   bot_welcome_message: string | null
   member_role_id: string | null
@@ -18,12 +21,25 @@ export interface Guild {
   meme_channel_id: string | null
   staff_role_id: string | null
   elders_role_pattern: string | null
+  member_tracker_pattern: string
+  message_tracker_pattern: string
+  online_tracker_pattern: string
 }
 
 export default new app.Table<Guild>({
   name: "guild",
   description: "Represent a guild config",
   priority: 10,
+  migrations: {
+    1: (table) => {
+      table.string("member_tracker_channel_id")
+      table.string("message_tracker_channel_id")
+      table.string("online_tracker_channel_id")
+      table.string("member_tracker_pattern").defaultTo("📈｜$n membres")
+      table.string("message_tracker_pattern").defaultTo("📨｜$n messages")
+      table.string("online_tracker_pattern").defaultTo("🟢｜$n connectés")
+    },
+  },
   setup: (table) => {
     table.increments("_id", { primaryKey: true }).unsigned()
     table.string("id").unique().notNullable()

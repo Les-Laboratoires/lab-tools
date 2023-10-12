@@ -38,3 +38,11 @@ export const databasePatterns = {
     }
   },
 }
+
+export function shortNumber(number: number): string {
+  if (number < 1000) return number.toString()
+  if (number < 1000000) return `${(number / 1000).toFixed(1)}k`
+  if (number < 1000000000) return `${(number / 1000000).toFixed(1)}M`
+  if (number < 1000000000000) return `${(number / 1000000000).toFixed(1)}G`
+  else return `${(number / 1000000000000).toFixed(1)}T`
+}
