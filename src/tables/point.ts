@@ -39,8 +39,8 @@ const leaderboardPattern = `
       u.id AS member_id,
       SUM(p.amount) AS score
     FROM user u
-    WHERE score > 0
     LEFT JOIN point p ON u._id = p.to_id
+    WHERE score > 0
     GROUP BY u.id
     ORDER BY score DESC
   )
