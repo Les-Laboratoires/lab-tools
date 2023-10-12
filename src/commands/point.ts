@@ -40,13 +40,15 @@ export default new app.Command({
           description: "The member you want to ask points",
           required: true,
           castValue: "member",
+          checkCastedValue: (value, message) => value.id !== message?.member.id,
+          checkingErrorMessage: "You can't ask points to yourself.",
         },
       ],
       async run(message) {
         await message.channel.send({
           embeds: [
             new app.MessageEmbed()
-              .setTitle(`Notez l'aide de ${message.member}`)
+              .setTitle(`Notez l'aide de ${message.member.displayName}`)
               .setDescription(
                 `Vous pouvez attribuer des points à ${
                   message.member
@@ -59,14 +61,14 @@ export default new app.Command({
             new app.MessageActionRow().addComponents(
               new app.MessageButton()
                 .setCustomId(
-                  `point;1;${message.args.member.id}:${message.member.id}`
+                  `point;1;${message.args.member.id};${message.member.id}`
                 )
                 .setLabel("Très bien")
                 .setStyle("PRIMARY")
                 .setEmoji("👍"),
               new app.MessageButton()
                 .setCustomId(
-                  `point;5;${message.args.member.id}:${message.member.id}`
+                  `point;5;${message.args.member.id};${message.member.id}`
                 )
                 .setLabel("Excellent!")
                 .setStyle("PRIMARY")

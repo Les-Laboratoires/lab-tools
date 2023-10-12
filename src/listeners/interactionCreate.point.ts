@@ -13,6 +13,15 @@ const listener: app.Listener<"interactionCreate"> = {
 
     if (from_id !== interaction.user.id) return
 
+    if (from_id === to_id)
+      return await interaction.reply({
+        content: `${app.emote(
+          interaction,
+          "DENY"
+        )} You can't give points to yourself.`,
+        ephemeral: true,
+      })
+
     const fromUser = await app.getUser({ id: from_id }, true)
     const toUser = await app.getUser({ id: to_id }, true)
 
