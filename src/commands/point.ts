@@ -87,7 +87,7 @@ export default new app.Command({
       name: "leaderboard",
       description: "Show the leaderboard of points",
       channelType: "guild",
-      aliases: ["ladder", "l"],
+      aliases: ["ladder", "lb", "top"],
       async run(message) {
         const data: { score: number; member_id: string; rank: number }[] =
           await points.query
@@ -109,14 +109,18 @@ export default new app.Command({
 
         const user = await app.getUser(message.member, true)
 
-        const personalRank = (await points.query
-          .select(
-            app.db.raw(
-              "sum(amount) as score, rank() over (order by sum(amount) desc) as rank"
-            )
-          )
-          .where("to_id", user._id)
-          .first()) as unknown as { score: number; rank: number } | undefined
+        const personalRank = data.some((_) => _.member_id === message.member.id)
+          ? ((await points.query
+              .select(
+                app.db.raw(
+                  "sum(amount) as score, rank() over (order by sum(amount) desc) as rank"
+                )
+              )
+              .where("to_id", user._id)
+              .first()) as unknown as
+              | { score: number; rank: number }
+              | undefined)
+          : undefined
 
         const embed = new app.MessageEmbed()
           .setTitle("Classement des helpers")
