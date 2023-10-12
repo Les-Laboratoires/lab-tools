@@ -1,6 +1,7 @@
 import * as app from "../app.js"
 
 import todoTable, { ToDo } from "../tables/todo.js"
+import { User } from "../tables/user.js"
 
 import { filename } from "dirname-filename-esm"
 
@@ -17,7 +18,7 @@ function todoItem(todo: ToDo) {
     .slice(0, 40)}`
 }
 
-async function showTodoList(message: app.NormalMessage, user: app.User) {
+async function showTodoList(message: app.NormalMessage, user: User) {
   const perPage: number = message.args.perPage ?? 10
 
   new app.DynamicPaginator({
@@ -26,11 +27,11 @@ async function showTodoList(message: app.NormalMessage, user: app.User) {
     placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
     async fetchPage(index): Promise<app.Page> {
       const itemCount = await app.countOf(
-        todoTable.query.where("user_id", user.id)
+        todoTable.query.where("user_id", user._id)
       )
       const pageCount = Math.ceil(itemCount / perPage)
       const pageTasks = await todoTable.query
-        .where("user_id", user.id)
+        .where("user_id", user._id)
         .offset(index * perPage)
         .limit(perPage)
 
@@ -44,13 +45,14 @@ async function showTodoList(message: app.NormalMessage, user: app.User) {
       }
 
       return new app.MessageEmbed()
-        .setTitle(`Todo list of ${user.tag} (${itemCount} items)`)
+        .setTitle(`Todo list of ${message.author.tag} (${itemCount} items)`)
         .setDescription(pageTasks.map(todoItem).join("\n"))
         .setFooter({ text: `Page ${index + 1} / ${pageCount}` })
     },
     async fetchPageCount(): Promise<number> {
       return Math.ceil(
-        (await app.countOf(todoTable.query.where("user_id", user.id))) / perPage
+        (await app.countOf(todoTable.query.where("user_id", user._id))) /
+          perPage
       )
     },
   })
@@ -71,8 +73,10 @@ export default new app.Command({
   description: "Manage todo tasks",
   options: [perPageOption],
   async run(message) {
+    const user = await app.getUser(message.author, true)
+
     return message.rest.length === 0
-      ? showTodoList(message, message.author)
+      ? showTodoList(message, user)
       : message.channel.send(
           `${app.emote(
             message,
@@ -99,8 +103,10 @@ export default new app.Command({
           ? message.args.content.slice(1).trim()
           : message.args.content
 
+        const user = await app.getUser(message.author, true)
+
         const count = await app.countOf(
-          todoTable.query.where("user_id", message.author.id)
+          todoTable.query.where("user_id", user._id)
         )
 
         if (count > 999)
@@ -111,11 +117,9 @@ export default new app.Command({
             )} You have too many todo tasks, please remove some first.`
           )
 
-        const author = await app.getUser(message.author, true)
-
         try {
           const todoData: Omit<ToDo, "_id"> = {
-            user_id: author._id,
+            user_id: user._id,
             content,
           }
 
@@ -153,7 +157,9 @@ export default new app.Command({
       ],
       options: [perPageOption],
       async run(message) {
-        return showTodoList(message, message.args.target)
+        const target = await app.getUser(message.args.target, true)
+
+        return showTodoList(message, target)
       },
     }),
     new app.Command({
@@ -258,7 +264,9 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        const todoList = (await todoTable.query.select())
+        const user = await app.getUser(message.author, true)
+
+        const todoList = (await todoTable.query.where("user_id", user._id))
           .filter((todo) => {
             return todo.content
               .toLowerCase()
