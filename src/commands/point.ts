@@ -96,7 +96,7 @@ export default new app.Command({
                 "sum(amount) as score, rank() over (order by sum(amount) desc) as rank, user.id as member_id"
               )
             )
-            .leftJoin("user", "user._id", "points.to_id")
+            .leftJoin("user", "user._id", "point.to_id")
 
         if (!data.length)
           return message.send(
