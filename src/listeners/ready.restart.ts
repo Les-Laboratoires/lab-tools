@@ -22,10 +22,13 @@ const listener: app.Listener<"ready"> = {
 
       if (channel?.isText()) {
         const content = `${restartMessage.content} (${time
-          .duration(restartMessage.created_timestamp - Date.now(), {
-            format: "ms",
-            maxPartCount: 3,
-          })
+          .duration(
+            new Date(restartMessage.created_at).getTime() - Date.now(),
+            {
+              format: "ms",
+              maxPartCount: 3,
+            }
+          )
           .replace(
             /(?:millièmes? de seconde|thousandths? of (?:a )?second)/,
             "ms"

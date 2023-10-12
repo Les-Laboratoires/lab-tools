@@ -48,7 +48,6 @@ export default new app.Command({
       content: `${app.emote(message, "CHECK")} Successfully deployed.`,
       last_channel_id: message.channel.id,
       last_message_id: waiting.id,
-      created_timestamp: Date.now(),
     })
 
     try {

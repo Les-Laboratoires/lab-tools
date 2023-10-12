@@ -74,10 +74,14 @@ export default new app.Command({
       if (intervals[message.guild.id] !== undefined)
         clearInterval(intervals[message.guild.id])
 
+      const date = new Date()
+
+      date.setTime(date.getTime() - 1000 * 60 * 60)
+
       intervals[message.guild.id] = setInterval(async () => {
         const activityLastHour = await active.query
           .where("guild_id", config._id)
-          .where("created_timestamp", ">", Date.now() - 1000 * 60 * 60)
+          .where("created_at", ">", date.toISOString())
           .select(app.db.raw("count(*) as messageCount"))
           .limit(1)
           .then((rows) => rows[0] as unknown as { messageCount: number })

@@ -1,14 +1,19 @@
 import * as app from "../app.js"
 
-export interface Message {
+export interface Message extends app.Timestamps {
   author_id: number
   guild_id: number
-  created_timestamp: number
 }
 
 export default new app.Table<Message>({
   name: "message",
   description: "Save all messages with dates",
+  migrations: {
+    1: (table) => {
+      table.dropColumn("created_timestamp")
+      table.timestamps(true, true)
+    },
+  },
   setup: (table) => {
     table
       .integer("author_id")
