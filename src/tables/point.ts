@@ -33,6 +33,27 @@ export default new app.Table<Point>({
   },
 })
 
+const leaderboardPattern = `
+  WITH Leaderboard AS (
+    SELECT
+      u.id AS member_id,
+      SUM(p.amount) AS score
+    FROM user u
+    WHERE score > 0
+    LEFT JOIN point p ON u._id = p.to_id
+    GROUP BY u.id
+    ORDER BY score DESC
+  )
+`
+
+const userRankPattern = `
+  SELECT
+    member_id,
+    score,
+    RANK() OVER (ORDER BY score DESC) AS rank
+  FROM Leaderboard
+`
+
 export async function getLeaderboard(): Promise<
   {
     member_id: string
@@ -41,15 +62,7 @@ export async function getLeaderboard(): Promise<
   }[]
 > {
   return app.db.raw(`
-    WITH Leaderboard AS (
-      SELECT
-        u.id AS member_id,
-        SUM(p.amount) AS score
-      FROM user u
-      LEFT JOIN point p ON u._id = p.to_id
-      GROUP BY u.id
-      ORDER BY score DESC
-    )
+    ${leaderboardPattern}
     SELECT
       member_id,
       score,
@@ -64,26 +77,14 @@ export async function getPersonalRank(memberId: string): Promise<{
   rank: number
 }> {
   return app.db.raw(`
-    WITH Leaderboard AS (
-      SELECT
-        u.id AS member_id,
-        SUM(p.amount) AS score
-      FROM user u
-      LEFT JOIN point p ON u._id = p.to_id
-      GROUP BY u.id
-      ORDER BY score DESC
-    ),
+    ${leaderboardPattern},
     UserRank AS (
-      SELECT
-        member_id,
-        score,
-        RANK() OVER (ORDER BY score DESC) AS rank
-      FROM Leaderboard
+      ${userRankPattern}
     )
     SELECT
       score,
       rank
     FROM UserRank
-    WHERE member_id = ${memberId};
+    WHERE member_id = '${memberId}';
   `)
 }
