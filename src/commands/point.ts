@@ -115,7 +115,7 @@ export default new app.Command({
               "sum(amount) as score, rank() over (order by sum(amount) desc) as rank"
             )
           )
-          .where("user_id", user._id)
+          .where("to_id", user._id)
           .first()) as unknown as { score: number; rank: number } | undefined
 
         const embed = new app.MessageEmbed()
