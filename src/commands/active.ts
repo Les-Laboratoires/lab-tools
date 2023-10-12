@@ -1,7 +1,10 @@
 import * as app from "../app.js"
 
+import active from "../tables/active.js"
+
 let used = false
-let interval: NodeJS.Timeout | undefined = undefined
+
+const intervals: Record<string, NodeJS.Timeout> = {}
 
 export default new app.Command({
   name: "active",
@@ -44,6 +47,8 @@ export default new app.Command({
   async run(message) {
     used = true
 
+    const config = await app.getGuild(message.guild, true)
+
     const waiting = await message.send(
       `${app.emote(message, "WAIT")} Fetching members...`
     )
@@ -53,6 +58,7 @@ export default new app.Command({
       period: message.args.period,
       messageCount: message.args.messageCount,
       onLog: (text) => waiting.edit(text),
+      guildConfig: config,
     })
 
     used = false
@@ -65,13 +71,24 @@ export default new app.Command({
         )} Automated active list hourly update enabled.`
       )
 
-      if (interval !== undefined) clearInterval(interval)
+      if (intervals[message.guild.id] !== undefined)
+        clearInterval(intervals[message.guild.id])
 
-      interval = setInterval(async () => {
+      intervals[message.guild.id] = setInterval(async () => {
+        const activityLastHour = await active.query
+          .where("guild_id", config._id)
+          .where("created_timestamp", ">", Date.now() - 1000 * 60 * 60)
+          .select(app.db.raw("count(*) as messageCount"))
+          .limit(1)
+          .then((rows) => rows[0] as unknown as { messageCount: number })
+
+        if (activityLastHour.messageCount === 0) return
+
         const found = await app.updateActive(message.guild, {
           force: false,
           period: message.args.period,
           messageCount: message.args.messageCount,
+          guildConfig: config,
         })
 
         await app.sendLog(

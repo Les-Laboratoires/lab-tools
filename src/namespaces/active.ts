@@ -1,15 +1,17 @@
 import * as app from "../app.js"
 
+import { Guild } from "../tables/guild.js"
 import messages from "../tables/message.js"
 import active from "../tables/active.js"
 
 export async function isActive(
   member: app.GuildMember,
   period = 1000 * 60 * 60 * 24 * 7,
-  requiredMessageCount = 50
+  requiredMessageCount = 50,
+  guild?: Guild
 ): Promise<boolean> {
   const user = await app.getUser(member, true)
-  const guild = await app.getGuild(member.guild, true)
+  guild ??= await app.getGuild(member.guild, true)
 
   const data = await messages.query
     .where("author_id", user._id)
@@ -29,10 +31,9 @@ export async function updateActive(
     period: number
     messageCount: number
     onLog?: (text: string) => unknown | Promise<unknown>
+    guildConfig: Guild
   }
 ): Promise<number> {
-  const config = await app.getGuild(guild, true)
-
   guild.members.cache.clear()
 
   const members = (await guild.members.fetch())
@@ -48,7 +49,8 @@ export async function updateActive(
     const isActive = await app.isActive(
       member,
       options.period,
-      options.messageCount
+      options.messageCount,
+      options.guildConfig
     )
 
     if (isActive) activeMembers.push(member)
@@ -56,7 +58,7 @@ export async function updateActive(
   }
 
   if (options.force) {
-    await active.query.delete().where("guild_id", config._id)
+    await active.query.delete().where("guild_id", options.guildConfig._id)
 
     if (activeMembers.length === 0)
       await active.query.insert(
@@ -66,7 +68,7 @@ export async function updateActive(
 
             return {
               user_id: user._id,
-              guild_id: config._id,
+              guild_id: options.guildConfig._id,
             }
           })
         )
@@ -82,8 +84,8 @@ export async function updateActive(
     for (const member of activeMembers) {
       await member.fetch(true)
 
-      if (!member.roles.cache.has(config.active_role_id!))
-        await member.roles.add(config.active_role_id!)
+      if (!member.roles.cache.has(options.guildConfig.active_role_id!))
+        await member.roles.add(options.guildConfig.active_role_id!)
 
       if (options.onLog)
         await options.onLog(
@@ -99,8 +101,8 @@ export async function updateActive(
     for (const member of inactiveMembers) {
       await member.fetch(true)
 
-      if (member.roles.cache.has(config.active_role_id!))
-        await member.roles.remove(config.active_role_id!)
+      if (member.roles.cache.has(options.guildConfig.active_role_id!))
+        await member.roles.remove(options.guildConfig.active_role_id!)
 
       if (options.onLog)
         await options.onLog(
@@ -112,7 +114,10 @@ export async function updateActive(
   } else {
     // use the cache to update only the changed members
 
-    const activeMembersCache = await active.query.where("guild_id", config._id)
+    const activeMembersCache = await active.query.where(
+      "guild_id",
+      options.guildConfig._id
+    )
 
     if (options.onLog)
       await options.onLog(
@@ -125,10 +130,10 @@ export async function updateActive(
       const user = await app.getUser(member, true)
 
       if (!activeMembersCache.find((am) => am.user_id === user._id)) {
-        await member.roles.add(config.active_role_id!)
+        await member.roles.add(options.guildConfig.active_role_id!)
         await active.query.insert({
           user_id: user._id,
-          guild_id: config._id,
+          guild_id: options.guildConfig._id,
         })
       }
     }
@@ -144,10 +149,10 @@ export async function updateActive(
       const user = await app.getUser(member, true)
 
       if (activeMembersCache.find((am) => am.user_id === user._id)) {
-        await member.roles.remove(config.active_role_id!)
+        await member.roles.remove(options.guildConfig.active_role_id!)
         await active.query.delete().where({
           user_id: user._id,
-          guild_id: config._id,
+          guild_id: options.guildConfig._id,
         })
       }
     }
