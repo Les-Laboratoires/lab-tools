@@ -1,7 +1,6 @@
 import * as app from "../app.js"
 
 import note, { userNote, graphicalNote } from "../tables/note.js"
-import users from "../tables/user.js"
 
 async function noteEmbed(target: app.User) {
   const { count, avg } = await userNote(target)
@@ -47,8 +46,8 @@ export default new app.Command({
         const toUser = await app.getUser(message.args.user, true)
 
         const pack = {
-          from: fromUser._id,
-          to: toUser._id,
+          from_id: fromUser._id,
+          to_id: toUser._id,
         }
 
         if (await note.query.where(pack).first()) {

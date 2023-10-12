@@ -3,14 +3,20 @@ import * as app from "../app.js"
 // import users from "./user"
 
 export interface Note {
-  to: number
-  from: number
+  to_id: number
+  from_id: number
   value: 0 | 1 | 2 | 3 | 4 | 5
 }
 
 const table = new app.Table<Note>({
   name: "note",
   description: "Represent a user note",
+  migrations: {
+    1: (table) => {
+      table.renameColumn("to", "to_id")
+      table.renameColumn("from", "from_id")
+    },
+  },
   setup: (table) => {
     table
       .integer("to")
@@ -32,7 +38,7 @@ export async function userNote(user: { id: string }) {
   const { _id } = await app.getUser(user, true)
 
   return await table.query
-    .where("to", _id)
+    .where("to_id", _id)
     .avg({ avg: "value" })
     .count({ count: "*" })
     .then((result) => result[0])
@@ -60,8 +66,8 @@ export async function getLadder(
   const data = await app.db.raw(`
     select 
         avg(value) as score,
-        count(\`from\`) as note_count,
-        \`to\` as user_id,
+        count(\`from_id\`) as note_count,
+        \`to_id\` as user_id,
         rank() over (
             order by avg(value) desc
         ) as rank
@@ -89,8 +95,8 @@ export async function getAvailableUsersTotal(
     .raw(
       `
       select 
-          count(\`from\`) as note_count,
-          \`to\` as user_id,
+          count(\`from_id\`) as note_count,
+          \`to_id\` as user_id,
           count(*) as total
       from note
       group by user_id
