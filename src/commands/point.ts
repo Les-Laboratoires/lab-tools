@@ -97,6 +97,7 @@ export default new app.Command({
               )
             )
             .leftJoin("user", "user._id", "point.to_id")
+            .groupBy("user.id")
             .limit(20)
 
         if (data.length === 0)
@@ -117,6 +118,7 @@ export default new app.Command({
                 )
               )
               .where("to_id", user._id)
+              .groupBy("to_id")
               .first()) as unknown as
               | { score: number; rank: number }
               | undefined)
