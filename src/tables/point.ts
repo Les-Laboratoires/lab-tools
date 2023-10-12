@@ -40,9 +40,9 @@ const leaderboardPattern = `
       SUM(p.amount) AS score
     FROM user u
     LEFT JOIN point p ON u._id = p.to_id
-    WHERE score > 0
     GROUP BY u.id
     ORDER BY score DESC
+    HAVING score > 0
   )
 `
 
