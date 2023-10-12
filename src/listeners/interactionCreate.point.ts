@@ -9,12 +9,12 @@ const listener: app.Listener<"interactionCreate"> = {
     if (!interaction.isButton()) return
     if (!interaction.customId.startsWith("point")) return
 
-    const [_, amount, from_id] = interaction.customId.split(";")
+    const [_, amount, from_id, to_id] = interaction.customId.split(";")
 
     if (from_id !== interaction.user.id) return
 
-    const fromUser = await app.getUser(interaction.user, true)
-    const toUser = await app.getUser(interaction.message.author, true)
+    const fromUser = await app.getUser({ id: from_id }, true)
+    const toUser = await app.getUser({ id: to_id }, true)
 
     await points.query.insert({
       from_id: fromUser._id,
@@ -32,7 +32,7 @@ const listener: app.Listener<"interactionCreate"> = {
 
     await app.sendLog(
       interaction.guild!,
-      `${interaction.user} give ${amount} points to ${interaction.message.author} in ${interaction.channel}.`
+      `${interaction.user} give **${amount}** points to <@${to_id}> in ${interaction.channel}.`
     )
   },
 }

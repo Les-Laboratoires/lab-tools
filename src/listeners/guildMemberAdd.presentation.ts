@@ -75,9 +75,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
 
     return app.sendLog(
       member.guild,
-      `**${member.user.tag}** is a new **${
-        member.user.bot ? "bot" : "member"
-      }**.`,
+      `${member.user} is a new **${member.user.bot ? "bot" : "member"}**.`,
       config
     )
   },

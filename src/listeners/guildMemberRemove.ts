@@ -22,13 +22,13 @@ const listener: app.Listener<"guildMemberRemove"> = {
       )
         throw new Error()
 
-      await app.sendLog(guild, `**${user.tag}** left the guild.`, config)
+      await app.sendLog(guild, `${user} left the guild.`, config)
     } catch (error) {
       await users.query.delete().where({ id: member.id })
 
       await app.sendLog(
         guild,
-        `**${member.user?.tag ?? member.displayName}** left all the labs.`,
+        `${member.user ?? member} left all the labs.`,
         config
       )
     }

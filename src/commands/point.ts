@@ -18,13 +18,13 @@ export default new app.Command({
     await message.send({
       embeds: [
         new app.MessageEmbed()
-          .setTitle(`Points de ${message.member}`)
+          .setTitle(`Points de ${message.member.displayName}`)
           .setDescription(
             `Vous avez actuellement ${
               data?.total ?? 0
             } points. Vous pouvez en gagner en aidant les autres membres et en utilisant la commande \`${await app.prefix(
               message.guild
-            )}ask @membre\`.`
+            )}point ask @membre\`.`
           ),
       ],
     })
@@ -58,12 +58,16 @@ export default new app.Command({
           components: [
             new app.MessageActionRow().addComponents(
               new app.MessageButton()
-                .setCustomId(`point;1;${message.args.member.id}`)
+                .setCustomId(
+                  `point;1;${message.args.member.id}:${message.member.id}`
+                )
                 .setLabel("Très bien")
                 .setStyle("PRIMARY")
                 .setEmoji("👍"),
               new app.MessageButton()
-                .setCustomId(`point;5;${message.args.member.id}`)
+                .setCustomId(
+                  `point;5;${message.args.member.id}:${message.member.id}`
+                )
                 .setLabel("Excellent!")
                 .setStyle("PRIMARY")
                 .setEmoji(message.client.emojis.resolve("507420549765529610")!)
@@ -73,7 +77,7 @@ export default new app.Command({
 
         await app.sendLog(
           message.guild,
-          `${message.member} ask points to ${message.args.member} in ${message.channel}.`
+          `${message.author} ask points to ${message.args.member} in ${message.channel}.`
         )
       },
     }),

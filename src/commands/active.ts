@@ -93,7 +93,7 @@ export default new app.Command({
 
         await app.sendLog(
           message.guild,
-          `Finished updating the active list, found ${found} active members.`
+          `Finished updating the active list, found **${found}** active members.`
         )
       }, 1000 * 60 * 60)
     }

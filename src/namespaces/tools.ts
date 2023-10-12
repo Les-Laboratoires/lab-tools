@@ -36,8 +36,8 @@ export async function sendLog(
 
     if (logs?.isText())
       return typeof toSend === "string"
-        ? logs.send(toSend)
-        : logs.send({ embeds: [toSend] })
+        ? logs.send({ content: toSend, allowedMentions: { parse: [] } })
+        : logs.send({ embeds: [toSend], allowedMentions: { parse: [] } })
   }
 }
 
