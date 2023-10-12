@@ -99,7 +99,9 @@ export default new app.Command({
             )} Aucun point n'a été attribué pour le moment.`
           )
 
-        const personalRank = data.some((_) => _.member_id === message.member.id)
+        const personalRank = data.every(
+          (_) => _.member_id !== message.member.id
+        )
           ? await getPersonalRank(message.member.id)
           : undefined
 

@@ -64,7 +64,7 @@ export async function getLeaderboard(): Promise<
     ${leaderboardPattern}
     ${userRankPattern}
     WHERE score > 0
-    LIMIT 20;
+    LIMIT 20
   `)
 }
 
@@ -73,9 +73,11 @@ export async function getPersonalRank(memberId: string): Promise<{
   rank: number
   member_id: string
 }> {
-  return app.db.raw(`
-    ${leaderboardPattern},
-    ${userRankPattern}
-    WHERE member_id = '${memberId}';
-  `)
+  return app.db
+    .raw(
+      `${leaderboardPattern}
+      ${userRankPattern}
+      WHERE member_id = '${memberId}'`
+    )
+    .then((result) => result[0])
 }
