@@ -1,6 +1,6 @@
 import * as app from "../app.js"
 
-import active from "../tables/active.js"
+import messages from "../tables/message.js"
 
 let used = false
 
@@ -64,22 +64,17 @@ export default new app.Command({
     used = false
 
     if (message.args.auto) {
-      await message.send(
-        `${app.emote(
-          message,
-          "CHECK"
-        )} Automated active list hourly update enabled.`
-      )
+      const autoUpdatePeriod = 1000 * 60 * 60
 
       if (intervals[message.guild.id] !== undefined)
         clearInterval(intervals[message.guild.id])
 
-      const date = new Date()
-
-      date.setTime(date.getTime() - 1000 * 60 * 60)
-
       intervals[message.guild.id] = setInterval(async () => {
-        const activityLastHour = await active.query
+        const date = new Date()
+
+        date.setTime(date.getTime() - autoUpdatePeriod)
+
+        const activityLastHour = await messages.query
           .where("guild_id", config._id)
           .where("created_at", ">", date.toISOString())
           .select(app.db.raw("count(*) as messageCount"))
@@ -99,7 +94,14 @@ export default new app.Command({
           message.guild,
           `Finished updating the active list, found **${found}** active members.`
         )
-      }, 1000 * 60 * 60)
+      }, autoUpdatePeriod)
+
+      await message.send(
+        `${app.emote(
+          message,
+          "CHECK"
+        )} Automated active list hourly update enabled.`
+      )
     }
   },
 })
