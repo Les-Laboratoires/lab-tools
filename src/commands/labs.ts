@@ -44,7 +44,7 @@ export default new app.Command({
             url: message.args.url,
             title: message.args.title,
           })
-          .onConflict("id")
+          .onConflict("guild_id")
           .merge()
 
         //await app.updateLabsInAffiliationChannels(message)

@@ -9,6 +9,11 @@ export interface Lab {
 export default new app.Table<Lab>({
   name: "labs",
   description: "Represent a lab guild",
+  migrations: {
+    1: (table) => {
+      table.unique(["guild_id"])
+    },
+  },
   setup: (table) => {
     table
       .integer("guild_id")
