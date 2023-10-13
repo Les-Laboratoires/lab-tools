@@ -13,30 +13,37 @@ export default new app.Command({
   subs: [
     new app.Command({
       name: "add",
-      aliases: ["update", "set"],
+      aliases: ["set"],
       description: "Add a lab",
       channelType: "guild",
-      coolDown: 10000,
       botOwnerOnly: true,
-      rest: {
-        name: "title",
-        description: "The displayed text",
-        required: true,
-      },
       positional: [
-        {
-          name: "id",
-          description: "Lab id",
-          required: true,
-        },
         {
           name: "url",
           description: "Lab invite url",
           required: true,
         },
       ],
+      options: [
+        {
+          name: "id",
+          description: "The guild id",
+        },
+      ],
+      rest: {
+        name: "title",
+        description: "The displayed text",
+        required: true,
+      },
       async run(message) {
-        const guild = await app.getGuild(message.guild, true)
+        const guild = message.args.id
+          ? await app.getGuild({ id: message.args.id })
+          : await app.getGuild(message.guild, true)
+
+        if (!guild)
+          return message.send(
+            `${app.emote(message, "DENY")} Incorrect guild id`
+          )
 
         await lab.query
           .insert({
@@ -46,8 +53,17 @@ export default new app.Command({
           })
           .onConflict("guild_id")
           .merge()
-
-        //await app.updateLabsInAffiliationChannels(message)
+      },
+    }),
+    new app.Command({
+      name: "update",
+      aliases: ["refresh"],
+      description: "Update all affiliations",
+      channelType: "guild",
+      botOwnerOnly: true,
+      coolDown: 10000,
+      async run(message) {
+        await app.updateLabsInAffiliationChannels(message)
 
         message.triggerCoolDown()
       },

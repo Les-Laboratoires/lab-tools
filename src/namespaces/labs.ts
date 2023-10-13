@@ -7,7 +7,7 @@ import lab from "../tables/lab.js"
  * @param message
  */
 export async function updateLabsInAffiliationChannels(
-  message: app.NormalMessage
+  message: app.GuildMessage
 ) {
   const labs = await lab.query.select()
 
