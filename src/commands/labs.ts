@@ -70,6 +70,15 @@ export default new app.Command({
       channelType: "guild",
       botOwnerOnly: true,
       coolDown: 10000,
+      positional: [
+        {
+          name: "packSize",
+          description: "How many labs to send per message",
+          castValue: "number",
+          checkCastedValue: (value) => value > 0 && value <= 12,
+          default: "10",
+        },
+      ],
       async run(message) {
         await app.updateLabsInAffiliationChannels(message)
 
@@ -81,8 +90,17 @@ export default new app.Command({
       aliases: ["all"],
       description: "List all labs",
       channelType: "guild",
+      positional: [
+        {
+          name: "packSize",
+          description: "How many labs to send per message",
+          castValue: "number",
+          checkCastedValue: (value) => value > 0 && value <= 12,
+          default: "10",
+        },
+      ],
       async run(message) {
-        await app.sendLabList(message.channel)
+        await app.sendLabList(message.channel, message.args.packSize)
       },
     }),
   ],

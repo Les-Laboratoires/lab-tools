@@ -11,7 +11,7 @@ export async function updateLabsInAffiliationChannels(
 ) {
   const labs = await lab.query.select()
 
-  const pages = app.divider(labs, 6)
+  const pages = app.divider(labs, message.args.packSize)
 
   for (const guild of message.client.guilds.cache.values()) {
     const config = await app.getGuild(guild)
@@ -41,10 +41,13 @@ export async function updateLabsInAffiliationChannels(
   )
 }
 
-export async function sendLabList(channel: app.TextBasedChannel) {
+export async function sendLabList(
+  channel: app.TextBasedChannel,
+  packSize: number
+) {
   const labs = await lab.query.select()
 
-  const pages = app.divider(labs, 6)
+  const pages = app.divider(labs, packSize)
 
   if (channel.isText()) {
     for (const page of pages)
