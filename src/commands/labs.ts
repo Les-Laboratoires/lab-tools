@@ -53,6 +53,14 @@ export default new app.Command({
           })
           .onConflict("guild_id")
           .merge()
+
+        return message.send(
+          `${app.emote(message, "CHECK")} Successfully added **${
+            message.args.id
+              ? message.client.guilds.cache.get(message.args.id)?.name
+              : message.guild.name
+          }**`
+        )
       },
     }),
     new app.Command({
