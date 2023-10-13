@@ -76,5 +76,14 @@ export default new app.Command({
         message.triggerCoolDown()
       },
     }),
+    new app.Command({
+      name: "list",
+      aliases: ["all"],
+      description: "List all labs",
+      channelType: "guild",
+      async run(message) {
+        await app.sendLabList(message.channel)
+      },
+    }),
   ],
 })
