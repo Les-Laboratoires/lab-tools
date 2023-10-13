@@ -62,7 +62,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
           "Welcome to the **Les Laboratoires** network.\nOne of these servers may be of interest to you!"
         )
 
-        await app.sendLabList(message.channel)
+        await app.sendLabList(message.channel, 10)
       } catch (error) {
         app.error(
           `cannot send messages from ${chalk.blueBright(
