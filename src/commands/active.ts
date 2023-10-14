@@ -70,14 +70,14 @@ export default new app.Command({
         clearInterval(intervals[message.guild.id])
 
       intervals[message.guild.id] = setInterval(async () => {
-        const date = new Date()
-
-        date.setTime(Date.now() - autoUpdatePeriod)
-
         const activityLastHour = await messages.query
           .select(app.orm.database.raw("count(*) as messageCount"))
           .where("guild_id", config._id)
-          .where("created_at", ">", date.toISOString())
+          .where(
+            app.orm.database.raw(
+              `datetime(created_at, 'localtime') > datetime('now', 'localtime') - ${autoUpdatePeriod}`
+            )
+          )
           .limit(1)
           .then((rows) => rows[0] as unknown as { messageCount: number })
 

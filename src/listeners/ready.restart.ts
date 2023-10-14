@@ -2,7 +2,7 @@ import * as time from "tims"
 
 import * as app from "../app.js"
 
-import restart from "../tables/restart.js"
+import restart, { Restart } from "../tables/restart.js"
 
 import { filename } from "dirname-filename-esm"
 
@@ -13,7 +13,9 @@ const listener: app.Listener<"ready"> = {
   description: "Send restart messages",
   once: true,
   async run(client) {
-    const restartMessages = await restart.query.select()
+    const restartMessages: Restart[] = await restart.query.select(
+      app.orm.database.raw("*, datetime(created_at, 'localtime') as created_at")
+    )
 
     app.log("Restart messages: " + restartMessages.length)
 
