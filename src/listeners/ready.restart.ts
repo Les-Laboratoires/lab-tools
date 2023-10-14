@@ -18,7 +18,10 @@ const listener: app.Listener<"ready"> = {
     app.log("Restart messages: " + restartMessages.length)
 
     for (const restartMessage of restartMessages) {
-      const channel = client.channels.cache.get(restartMessage.last_channel_id)
+      const channel = await client.channels.fetch(
+        restartMessage.last_channel_id,
+        { force: true }
+      )
 
       if (channel?.isText()) {
         const content = `${restartMessage.content} (${time
