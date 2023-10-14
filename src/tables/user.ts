@@ -7,7 +7,6 @@ export interface User {
 
 export default new app.Table<User>({
   name: "user",
-  description: "The user table",
   priority: 10,
   setup: (table) => {
     table.increments("_id", { primaryKey: true })

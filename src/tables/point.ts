@@ -8,7 +8,6 @@ export interface Point extends app.Timestamps {
 
 export default new app.Table<Point>({
   name: "point",
-  description: "The point table",
   setup: (table) => {
     table
       .integer("to_id")
@@ -54,7 +53,7 @@ export async function getLeaderboard(): Promise<
     rank: number
   }[]
 > {
-  return app.db.raw(`
+  return app.orm.database.raw(`
     ${leaderboardPattern}
     ${userRankPattern}
     WHERE score > 0
@@ -67,7 +66,7 @@ export async function getPersonalRank(memberId: string): Promise<{
   rank: number
   member_id: string
 }> {
-  return app.db
+  return app.orm.database
     .raw(
       `${leaderboardPattern}
       ${userRankPattern}

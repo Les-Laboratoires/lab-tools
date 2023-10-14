@@ -10,7 +10,6 @@ export interface Note {
 
 const table = new app.Table<Note>({
   name: "note",
-  description: "Represent a user note",
   migrations: {
     1: (table) => {
       table.renameColumn("to", "to_id")
@@ -63,7 +62,7 @@ export async function getLadder(
     note_count: number
   }[]
 > {
-  const data = await app.db.raw(`
+  const data = await app.orm.database.raw(`
     select 
         avg(value) as score,
         count(\`from_id\`) as note_count,
@@ -91,7 +90,7 @@ export async function getLadder(
 export async function getAvailableUsersTotal(
   minNoteCount: number
 ): Promise<number> {
-  return app.db
+  return app.orm.database
     .raw(
       `
       select 

@@ -8,7 +8,6 @@ export interface AutoRole {
 
 export default new app.Table<AutoRole>({
   name: "autoRole",
-  description: "Represent auto-roles",
   setup: (table) => {
     table
       .integer("guild_id")

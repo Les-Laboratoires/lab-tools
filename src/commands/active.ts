@@ -77,7 +77,7 @@ export default new app.Command({
         const activityLastHour = await messages.query
           .where("guild_id", config._id)
           .where("created_at", ">", date.toISOString())
-          .select(app.db.raw("count(*) as messageCount"))
+          .select(app.orm.database.raw("count(*) as messageCount"))
           .limit(1)
           .then((rows) => rows[0] as unknown as { messageCount: number })
 

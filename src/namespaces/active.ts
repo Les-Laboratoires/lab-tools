@@ -21,7 +21,7 @@ export async function isActive(
     .where("author_id", user._id)
     .where("guild_id", guild._id)
     .where("created_at", ">", date.toISOString())
-    .select(app.db.raw("count(*) as messageCount"))
+    .select(app.orm.database.raw("count(*) as messageCount"))
     .limit(1)
     .then((rows) => rows[0] as unknown as { messageCount: number })
 

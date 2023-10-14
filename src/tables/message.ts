@@ -7,7 +7,6 @@ export interface Message extends app.Timestamps {
 
 export default new app.Table<Message>({
   name: "message",
-  description: "Save all messages with dates",
   setup: (table) => {
     table
       .integer("author_id")

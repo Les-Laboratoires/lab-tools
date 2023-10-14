@@ -8,7 +8,6 @@ export interface Restart extends app.Timestamps {
 
 export default new app.Table<Restart>({
   name: "restart",
-  description: "Represent restart-message",
   setup: (table) => {
     table.string("content").notNullable()
     table.string("last_channel_id").notNullable()

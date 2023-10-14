@@ -28,7 +28,6 @@ export interface Guild {
 
 export default new app.Table<Guild>({
   name: "guild",
-  description: "Represent a guild config",
   priority: 10,
   migrations: {
     1: (table) => {
