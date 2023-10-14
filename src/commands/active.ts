@@ -72,16 +72,20 @@ export default new app.Command({
       intervals[message.guild.id] = setInterval(async () => {
         const date = new Date()
 
-        date.setTime(date.getTime() - autoUpdatePeriod)
+        date.setTime(Date.now() - autoUpdatePeriod)
 
         const activityLastHour = await messages.query
+          .select(app.orm.database.raw("count(*) as messageCount"))
           .where("guild_id", config._id)
           .where("created_at", ">", date.toISOString())
-          .select(app.orm.database.raw("count(*) as messageCount"))
           .limit(1)
           .then((rows) => rows[0] as unknown as { messageCount: number })
 
-        if (activityLastHour.messageCount === 0) return
+        if (activityLastHour.messageCount === 0)
+          return await app.sendLog(
+            message.guild,
+            `Ignored automated active list hourly update, no activity in the last hour.`
+          )
 
         const found = await app.updateActive(message.guild, {
           force: false,
