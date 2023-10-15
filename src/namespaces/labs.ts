@@ -56,3 +56,8 @@ export async function sendLabList(
       )
   }
 }
+
+export async function isIgnored(id: string): Promise<boolean> {
+  const guild = await app.getGuild({ id }, true)
+  return (await lab.query.where("guild_id", guild._id).first())?.ignored ?? true
+}

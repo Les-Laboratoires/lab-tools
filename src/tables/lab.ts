@@ -4,6 +4,7 @@ export interface Lab {
   guild_id: number
   url: string
   title: string
+  ignored: boolean
 }
 
 export default new app.Table<Lab>({
@@ -11,6 +12,9 @@ export default new app.Table<Lab>({
   migrations: {
     1: (table) => {
       table.unique(["guild_id"])
+    },
+    2: (table) => {
+      table.boolean("ignored").defaultTo(false)
     },
   },
   setup: (table) => {
