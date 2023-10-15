@@ -1,7 +1,6 @@
 import cp from "child_process"
 
 import * as app from "../app.js"
-import * as core from "../app/core.js"
 
 import restart from "../tables/restart.js"
 
@@ -61,7 +60,7 @@ export default new app.Command({
 
       return waiting.edit({
         embeds: [
-          new core.SafeMessageEmbed()
+          new app.MessageEmbed()
             .setTitle("\\❌ An error has occurred.")
             .setColor("RED")
             .setDescription(

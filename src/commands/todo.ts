@@ -38,7 +38,7 @@ async function showTodoList(message: app.NormalMessage, user: User) {
       if (perPage === 1) {
         const [todo] = pageTasks
 
-        return new app.SafeMessageEmbed()
+        return new app.MessageEmbed()
           .setTitle(`Todo task of ${message.author.tag}`)
           .setDescription(`${todoId(todo)} ${todo.content}`)
           .setFooter({ text: `Item ${index + 1} / ${itemCount}` })

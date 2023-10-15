@@ -40,7 +40,7 @@ export default new app.Command({
 
     await message.channel.send({
       embeds: [
-        new app.SafeMessageEmbed()
+        new app.MessageEmbed()
           .setAuthor({
             name: `Invitez ${bot.username} ${here ? "ici" : ""}`,
             iconURL: message.guild?.iconURL({ dynamic: true }) ?? undefined,
