@@ -18,7 +18,7 @@ export async function isActive(
     .where("guild_id", guild._id)
     .where(
       app.orm.database.raw(
-        `datetime(created_at, 'localtime') > datetime('now', 'localtime') - ${period}`
+        `${app.sqlDateColumn("created_at")} > ${app.sqlPast(period)}`
       )
     )
     .select(app.orm.database.raw("count(*) as messageCount"))

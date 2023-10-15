@@ -75,7 +75,9 @@ export default new app.Command({
           .where("guild_id", config._id)
           .where(
             app.orm.database.raw(
-              `datetime(created_at, 'localtime') > datetime('now', 'localtime') - ${autoUpdatePeriod}`
+              `${app.sqlDateColumn("created_at")} > ${app.sqlPast(
+                autoUpdatePeriod
+              )}`
             )
           )
           .limit(1)
