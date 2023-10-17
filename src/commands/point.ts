@@ -8,6 +8,8 @@ export default new app.Command({
   channelType: "guild",
   aliases: ["points", "pts", "score"],
   async run(message) {
+    await message.delete()
+
     const user = await app.getUser(message.member, true)
 
     const data = (await points.query

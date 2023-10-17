@@ -12,7 +12,7 @@
     "format": "prettier --write src tests",
     "update": "gulp update",
     "test": "tsc --noEmit && npm run start.test",
-    "deploy": "git reset --hard && git pull && npm run build && pm2 restart bot.ts",
+    "deploy": "git reset --hard && git pull && npm run build && pm2 restart tool",
     "start.test": "npm run build && node tests/index.test.js"
   },
   "prettier": {
@@ -82,7 +82,7 @@
     "vinyl-paths": "^4.0.0"
   },
   "engines": {
-    "node": ">=18.18.2",
-    "npm": ">=9.6.2"
+    "node": ">=18.x.x",
+    "npm": ">=9.x.x"
   }
 }
