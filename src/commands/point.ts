@@ -8,8 +8,6 @@ export default new app.Command({
   channelType: "guild",
   aliases: ["points", "pts", "score"],
   async run(message) {
-    await message.delete()
-
     const user = await app.getUser(message.member, true)
 
     const data = (await points.query
@@ -47,6 +45,8 @@ export default new app.Command({
         },
       ],
       async run(message) {
+        await message.delete()
+
         await message.channel.send({
           embeds: [
             new app.MessageEmbed()
@@ -77,6 +77,7 @@ export default new app.Command({
                 .setEmoji(message.client.emojis.resolve("507420549765529610")!)
             ),
           ],
+          options: {},
         })
 
         await app.sendLog(
