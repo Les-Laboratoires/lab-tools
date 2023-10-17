@@ -20,5 +20,5 @@ export function addCreatedAt(table: Knex.CreateTableBuilder) {
     .datetime("created_at", {
       useTz: true,
     })
-    .defaultTo(app.orm.raw(now))
+    .defaultTo(app.orm.database.fn.now())
 }
