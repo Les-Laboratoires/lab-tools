@@ -1,9 +1,10 @@
 import * as app from "../app.js"
 
-export interface Restart extends app.Timestamps {
+export interface Restart {
   content: string
   last_channel_id: string
   last_message_id: string | null
+  created_at: string
 }
 
 export default new app.Table<Restart>({
@@ -12,6 +13,6 @@ export default new app.Table<Restart>({
     table.string("content").notNullable()
     table.string("last_channel_id").notNullable()
     table.string("last_message_id")
-    table.timestamps(true, true)
+    app.addCreatedAt(table)
   },
 })

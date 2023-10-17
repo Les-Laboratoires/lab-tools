@@ -1,9 +1,10 @@
 import * as app from "../app.js"
 
-export interface Point extends app.Timestamps {
+export interface Point {
   to_id: number
   from_id: number
   amount: number
+  created_at: string
 }
 
 export default new app.Table<Point>({
@@ -22,7 +23,7 @@ export default new app.Table<Point>({
       .onDelete("CASCADE")
       .notNullable()
     table.integer("amount").unsigned().notNullable()
-    table.timestamps(true, true)
+    app.addCreatedAt(table)
   },
 })
 

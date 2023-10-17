@@ -13,9 +13,7 @@ const listener: app.Listener<"ready"> = {
   description: "Send restart messages",
   once: true,
   async run(client) {
-    const restartMessages: Restart[] = await restart.query.select(
-      app.orm.database.raw("*, datetime(created_at, 'localtime') as created_at")
-    )
+    const restartMessages: Restart[] = await restart.query.select()
 
     app.log("Restart messages: " + restartMessages.length)
 

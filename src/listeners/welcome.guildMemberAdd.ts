@@ -10,6 +10,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
   event: "guildMemberAdd",
   description: "Prepares to welcome a new member",
   async run(member) {
+    if (!app.cache.ensure<boolean>("turn", true)) return
     if (await app.isIgnored(member.guild.id)) return
 
     const config = await app.getGuild(member.guild, true)

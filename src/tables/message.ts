@@ -1,8 +1,9 @@
 import * as app from "../app.js"
 
-export interface Message extends app.Timestamps {
+export interface Message {
   author_id: number
   guild_id: number
+  created_at: string
 }
 
 export default new app.Table<Message>({
@@ -20,6 +21,6 @@ export default new app.Table<Message>({
       .inTable("guild")
       .onDelete("CASCADE")
       .notNullable()
-    table.timestamps(true, true)
+    app.addCreatedAt(table)
   },
 })

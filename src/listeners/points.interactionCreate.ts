@@ -6,6 +6,7 @@ const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
   description: "Handle points given for help quality",
   async run(interaction) {
+    if (!app.cache.ensure<boolean>("turn", true)) return
     if (!interaction.isButton()) return
     if (!interaction.customId.startsWith("point")) return
 

@@ -6,6 +6,7 @@ const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
   description: "Record sent messages",
   async run(message) {
+    if (!app.cache.ensure<boolean>("turn", true)) return
     if (!message.guild) return
 
     const user = await app.getUser(message.author, true)
