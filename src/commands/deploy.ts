@@ -58,6 +58,8 @@ export default new app.Command({
     } catch (error: any) {
       await restart.query.delete().where({ last_message_id: waiting.id })
 
+      app.error(error)
+
       return waiting.edit({
         embeds: [
           new app.MessageEmbed()
