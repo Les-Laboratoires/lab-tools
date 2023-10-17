@@ -30,6 +30,7 @@ const listener: app.Listener<"interactionCreate"> = {
       from_id: fromUser._id,
       to_id: toUser._id,
       amount: +amount,
+      created_at: new Date().toISOString(),
     })
 
     await interaction.reply({

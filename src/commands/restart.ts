@@ -16,6 +16,7 @@ export default new app.Command({
       content: `${app.emote(message, "CHECK")} Successfully restarted!`,
       last_channel_id: message.channel.id,
       last_message_id: toEdit.id,
+      created_at: new Date().toISOString(),
     })
 
     process.exit(0)
