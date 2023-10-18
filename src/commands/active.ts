@@ -71,10 +71,10 @@ export default new app.Command({
 
       intervals[message.guild.id] = setInterval(async () => {
         const activityLastHour = await messages.query
-          .select(app.orm.database.raw("count(*) as messageCount"))
+          .select(app.orm.raw("count(*) as messageCount"))
           .where("guild_id", config._id)
           .where(
-            app.orm.database.raw(
+            app.orm.raw(
               `${app.sqlDateColumn("created_at")} > ${app.sqlPast(
                 autoUpdatePeriod
               )}`

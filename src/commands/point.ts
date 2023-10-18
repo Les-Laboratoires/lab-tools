@@ -11,7 +11,7 @@ export default new app.Command({
     const user = await app.getUser(message.member, true)
 
     const data = (await points.query
-      .select(app.orm.database.raw("sum(amount) as total"))
+      .select(app.orm.raw("sum(amount) as total"))
       .where("to_id", user._id)
       .first()) as { total: number } | undefined
 

@@ -62,7 +62,7 @@ export async function getLadder(
     note_count: number
   }[]
 > {
-  const data = await app.orm.database.raw(`
+  const data = await app.orm.raw(`
     select 
         avg(value) as score,
         count(\`from_id\`) as note_count,
@@ -90,7 +90,7 @@ export async function getLadder(
 export async function getAvailableUsersTotal(
   minNoteCount: number
 ): Promise<number> {
-  return app.orm.database
+  return app.orm
     .raw(
       `
       select 
@@ -102,7 +102,7 @@ export async function getAvailableUsersTotal(
       having note_count >= ${minNoteCount}
     `
     )
-    .then((rows) => rows[0]?.total ?? 0)
+    .then((rows: any) => rows[0]?.total ?? 0)
 }
 
 export default table
