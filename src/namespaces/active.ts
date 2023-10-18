@@ -14,13 +14,12 @@ export async function isActive(
   guild ??= await app.getGuild(member.guild, true)
 
   const data = await messages.query
+    .select(app.orm.raw("count(*) as messageCount"))
     .where("author_id", user._id)
     .where("guild_id", guild._id)
     .where(
       app.orm.raw(`${app.sqlDateColumn("created_at")} > ${app.sqlPast(period)}`)
     )
-    .select(app.orm.raw("count(*) as messageCount"))
-    .limit(1)
     .then((rows) => rows[0] as unknown as { messageCount: number })
 
   return data.messageCount > requiredMessageCount
@@ -62,7 +61,7 @@ export async function updateActive(
   if (options.force) {
     await active.query.delete().where("guild_id", options.guildConfig._id)
 
-    if (activeMembers.length === 0)
+    if (activeMembers.length > 0)
       await active.query.insert(
         await Promise.all(
           activeMembers.map(async (member) => {

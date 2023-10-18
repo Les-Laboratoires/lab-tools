@@ -34,6 +34,7 @@ export default new app.Command({
       castValue: "number",
       default: "1814400000", // 3 weeks
       checkCastedValue: (value) => value > 0,
+      checkingErrorMessage: "The period must be greater than 0.",
     },
     {
       name: "messageCount",
@@ -42,6 +43,15 @@ export default new app.Command({
       castValue: "number",
       default: "50",
       checkCastedValue: (value) => value > 0,
+      checkingErrorMessage: "The period must be greater than 0.",
+    },
+    {
+      name: "interval",
+      description: "The interval to auto update the active list",
+      castValue: "number",
+      default: "86400000", // 1 day
+      checkCastedValue: (value) => value > 0,
+      checkingErrorMessage: "The period must be greater than 0.",
     },
   ],
   async run(message) {
@@ -64,8 +74,6 @@ export default new app.Command({
     used = false
 
     if (message.args.auto) {
-      const autoUpdatePeriod = 1000 * 60 * 60
-
       if (intervals[message.guild.id] !== undefined)
         clearInterval(intervals[message.guild.id])
 
@@ -76,7 +84,7 @@ export default new app.Command({
           .where(
             app.orm.raw(
               `${app.sqlDateColumn("created_at")} > ${app.sqlPast(
-                autoUpdatePeriod
+                message.args.interval
               )}`
             )
           )
@@ -100,7 +108,7 @@ export default new app.Command({
           message.guild,
           `Finished updating the active list, found **${found}** active members.`
         )
-      }, autoUpdatePeriod)
+      }, message.args.interval)
 
       await message.send(
         `${app.emote(
