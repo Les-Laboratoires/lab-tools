@@ -111,10 +111,7 @@ export default new app.Command({
       }, message.args.interval)
 
       await message.send(
-        `${app.emote(
-          message,
-          "CHECK"
-        )} Automated active list hourly update enabled.`
+        `${app.emote(message, "CHECK")} Automated active list update enabled.`
       )
     }
   },
