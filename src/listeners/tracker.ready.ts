@@ -8,7 +8,7 @@ const listener: app.Listener<"ready"> = {
       for (const guild of client.guilds.cache.values()) {
         await app.updateGuildOnlineCountTracker(guild)
       }
-    }, 1000 * 60 * 60)
+    }, 1000 * 60 * 5) // 5 minutes
   },
 }
 

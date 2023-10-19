@@ -30,7 +30,9 @@ export async function updateGuildOnlineCountTracker(guild: app.Guild) {
     const channel = await guild.channels.fetch(config.online_tracker_channel_id)
 
     if (channel) {
-      const members = await guild.members.fetch()
+      const members = await guild.members.fetch({
+        withPresences: true,
+      })
 
       guild.members.cache.clear()
 
@@ -38,8 +40,10 @@ export async function updateGuildOnlineCountTracker(guild: app.Guild) {
         config.online_tracker_pattern.replace(
           "$n",
           app.shortNumber(
-            members.filter((member) => member.presence?.status !== "offline")
-              .size
+            members.filter(
+              (member) =>
+                !!member.presence && member.presence.status !== "offline"
+            ).size
           )
         )
       )
