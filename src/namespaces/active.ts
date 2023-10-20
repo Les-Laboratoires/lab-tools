@@ -226,8 +226,8 @@ export const activeLadder: (
           user.id as target,
           count(*) as messageCount
       from message
-      where guild_id = ${guild_id}
       left join user on message.author_id = user._id
+      where guild_id = ${guild_id}
       group by target
       order by rank asc
       limit ${options.itemCountByPage}
@@ -238,9 +238,9 @@ export const activeLadder: (
       return app.orm
         .raw(
           `select
-          count(distinct author_id) as total
-        where guild_id = ${guild_id}
-        from message`
+            count(distinct author_id) as total
+          where guild_id = ${guild_id}
+          from message`
         )
         .then((rows: any) => rows[0]?.total ?? 0)
     },
