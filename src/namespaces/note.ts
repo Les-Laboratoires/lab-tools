@@ -31,7 +31,7 @@ export async function getNoteLadder(options: {
   itemCountByPage: number
   minNoteCount: number
 }): Promise<NoteLadderLine[]> {
-  const data = await app.orm.raw(`
+  return app.orm.raw(`
     select
         avg(value) as score,
         count(from_id) as note_count,
@@ -47,14 +47,6 @@ export async function getNoteLadder(options: {
     limit ${options.itemCountByPage}
     offset ${options.page * options.itemCountByPage}
   `)
-
-  for (const row of data) {
-    const user = await app.getUser(row.user_id, true)
-
-    row.user_id = user.id
-  }
-
-  return data
 }
 
 export function formatNoteLadderLine(line: NoteLadderLine) {
