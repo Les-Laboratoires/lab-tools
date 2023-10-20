@@ -4,25 +4,37 @@ import { Guild } from "../tables/guild.js"
 import messages from "../tables/message.js"
 import active from "../tables/active.js"
 
-export async function isActive(
-  member: app.GuildMember,
-  period = 1000 * 60 * 60 * 24 * 7,
-  requiredMessageCount = 50,
-  guild?: Guild
-): Promise<boolean> {
-  const user = await app.getUser(member, true)
-  guild ??= await app.getGuild(member.guild, true)
-
-  const data = await messages.query
-    .select(app.orm.raw("count(*) as messageCount"))
-    .where("author_id", user._id)
-    .where("guild_id", guild._id)
-    .where(
-      app.orm.raw(`${app.sqlDateColumn("created_at")} > ${app.sqlPast(period)}`)
-    )
-    .then((rows) => rows[0] as unknown as { messageCount: number })
-
-  return data.messageCount > requiredMessageCount
+/**
+ * @param guild_id internal guild id
+ * @param period period to check activity in hours
+ * @param messageCount minimum message count in period to be active
+ */
+export async function fetchActiveMembers(
+  guild_id: number,
+  period: number,
+  messageCount: number
+): Promise<
+  {
+    messageCount: number
+    target: string
+  }[]
+> {
+  return app.orm.raw(`
+    select
+      count(*) as messageCount,
+      user.id as target
+    from message
+    left join user on message.author_id = user._id
+    where
+        guild_id = ${guild_id}
+    and
+        unixepoch(datetime(created_at, 'localtime')) >
+        unixepoch(datetime('now', '-${period} hours', 'localtime'))
+    and
+        messageCount >= ${messageCount}
+    group by target
+    order by messageCount desc
+  `)
 }
 
 export async function updateActive(
@@ -46,13 +58,14 @@ export async function updateActive(
   const activeMembers: app.GuildMember[] = []
   const inactiveMembers: app.GuildMember[] = []
 
+  const actives = await app.fetchActiveMembers(
+    options.guildConfig._id,
+    options.period,
+    options.messageCount
+  )
+
   for (const member of members) {
-    const isActive = await app.isActive(
-      member,
-      options.period,
-      options.messageCount,
-      options.guildConfig
-    )
+    const isActive = actives.find((active) => active.target === member.id)
 
     if (isActive) activeMembers.push(member)
     else inactiveMembers.push(member)
@@ -167,4 +180,22 @@ export async function updateActive(
     )
 
   return activeMembers.length
+}
+
+export async function hasActivity(
+  guild_id: number,
+  period: number
+): Promise<boolean> {
+  return app.orm
+    .raw(
+      `select
+        count(*) > 0 as hasActivity
+      from message
+      where
+        guild_id = ${guild_id}
+      and
+        unixepoch(datetime(created_at, 'localtime')) >
+        unixepoch(datetime('now', '-${period} hours', 'localtime'))`
+    )
+    .then((result) => !!result[0]?.hasActivity)
 }

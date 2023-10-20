@@ -30,9 +30,9 @@ export default new app.Command({
   options: [
     {
       name: "period",
-      description: "The period to check",
+      description: "The period to check (in hours)",
       castValue: "number",
-      default: "1814400000", // 3 weeks
+      default: String(24 * 7), // 1 week
       checkCastedValue: (value) => value > 0,
       checkingErrorMessage: "The period must be greater than 0.",
     },
@@ -41,15 +41,15 @@ export default new app.Command({
       aliases: ["count"],
       description: "The minimum message count",
       castValue: "number",
-      default: "50",
+      default: String(50),
       checkCastedValue: (value) => value > 0,
       checkingErrorMessage: "The period must be greater than 0.",
     },
     {
       name: "interval",
-      description: "The interval to auto update the active list",
+      description: "The interval to auto update the active list (in hours)",
       castValue: "number",
-      default: "86400000", // 1 day
+      default: String(24), // 1 day
       checkCastedValue: (value) => value > 0,
       checkingErrorMessage: "The period must be greater than 0.",
     },
@@ -78,20 +78,7 @@ export default new app.Command({
         clearInterval(intervals[message.guild.id])
 
       intervals[message.guild.id] = setInterval(async () => {
-        const activityLastHour = await messages.query
-          .select(app.orm.raw("count(*) as messageCount"))
-          .where("guild_id", config._id)
-          .where(
-            app.orm.raw(
-              `${app.sqlDateColumn("created_at")} > ${app.sqlPast(
-                message.args.interval
-              )}`
-            )
-          )
-          .limit(1)
-          .then((rows) => rows[0] as unknown as { messageCount: number })
-
-        if (activityLastHour.messageCount === 0)
+        if (await app.hasActivity(config._id, message.args.interval))
           return await app.sendLog(
             message.guild,
             `Ignored automated active list hourly update, no activity in the last hour.`
@@ -108,7 +95,7 @@ export default new app.Command({
           message.guild,
           `Finished updating the active list, found **${found}** active members.`
         )
-      }, message.args.interval)
+      }, message.args.interval * 1000 * 60 * 60)
 
       await message.send(
         `${app.emote(message, "CHECK")} Automated active list update enabled.`
