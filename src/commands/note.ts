@@ -1,23 +1,6 @@
 import * as app from "../app.js"
 
-import note, {
-  userNote,
-  graphicalNote,
-  getAvailableUsersTotal,
-  getLadder,
-} from "../tables/note.js"
-
-async function noteEmbed(target: app.User) {
-  const { count, avg } = await userNote(target)
-
-  return new app.MessageEmbed()
-    .setAuthor({
-      name: `Note of ${target.tag}`,
-      iconURL: target.displayAvatarURL({ dynamic: true }),
-    })
-    .setDescription(`${graphicalNote(avg)} **${avg?.toFixed(2) ?? 0}** / 5`)
-    .setFooter({ text: `Total: ${count ?? 0} notes` })
-}
+import note from "../tables/note.js"
 
 export default new app.Command({
   name: "note",
@@ -66,52 +49,42 @@ export default new app.Command({
         )
       }
 
-      return message.send({ embeds: [await noteEmbed(message.args.user)] })
+      return message.send({ embeds: [await app.noteEmbed(message.args.user)] })
     }
 
-    return message.send({ embeds: [await noteEmbed(message.author)] })
+    return message.send({ embeds: [await app.noteEmbed(message.author)] })
   },
   subs: [
     new app.Command({
       name: "leaderboard",
-      aliases: ["top", "lb", "ladder"],
+      aliases: ["top", "lb", "ladder", "rank"],
       description: "The leaderboard",
       channelType: "all",
       async run(message) {
         const itemCountByPage = 15
-        const minNoteCount = 5
+        const minNoteCount = 1
 
         new app.DynamicPaginator({
           channel: message.channel,
           fetchPageCount: async () => {
-            const total = await getAvailableUsersTotal(minNoteCount)
+            const total = await app.getNoteLadderAvailableUsersTotal(
+              minNoteCount
+            )
             return Math.ceil(total / itemCountByPage)
           },
           fetchPage: async (pageIndex) => {
-            const page = await getLadder(
-              pageIndex,
+            const page = await app.getNoteLadder({
+              page: pageIndex,
               itemCountByPage,
-              minNoteCount
-            )
+              minNoteCount,
+            })
 
             if (page.length === 0)
               return `${app.emote(message, "DENY")} No ladder available.`
 
             return new app.MessageEmbed()
               .setTitle(`Leaderboard`)
-              .setDescription(
-                page
-                  .map((line) => {
-                    return `\`[ ${app.forceTextSize(
-                      line.rank,
-                      3,
-                      true
-                    )} ]\` ${graphicalNote(line.score)}  **${line.score.toFixed(
-                      2
-                    )}**  <@${line.user_id}>`
-                  })
-                  .join("\n")
-              )
+              .setDescription(page.map(app.formatNoteLadderLine).join("\n"))
           },
         })
       },

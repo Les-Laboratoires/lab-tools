@@ -1,6 +1,6 @@
 import * as app from "../app.js"
 
-import points, { getPersonalRank, getLeaderboard } from "../tables/point.js"
+import points from "../tables/point.js"
 
 export default new app.Command({
   name: "point",
@@ -90,57 +90,29 @@ export default new app.Command({
       name: "leaderboard",
       description: "Show the leaderboard of points",
       channelType: "guild",
-      aliases: ["ladder", "lb", "top"],
+      aliases: ["ladder", "lb", "top", "rank"],
       async run(message) {
-        const data = await getLeaderboard()
+        const itemCountByPage = 15
 
-        if (data.length === 0)
-          return message.send(
-            `${app.emote(
-              message,
-              "DENY"
-            )} Aucun point n'a été attribué pour le moment.`
-          )
+        new app.DynamicPaginator({
+          channel: message.channel,
+          fetchPageCount: async () => {
+            const total = await app.getPointLadderAvailableUsersTotal()
+            return Math.ceil(total / itemCountByPage)
+          },
+          fetchPage: async (pageIndex) => {
+            const page = await app.getPointLadder({
+              page: pageIndex,
+              itemCountByPage,
+            })
 
-        const personalRank = data.every(
-          (_) => _.member_id !== message.member.id
-        )
-          ? await getPersonalRank(message.member.id)
-          : undefined
+            if (page.length === 0)
+              return `${app.emote(message, "DENY")} No ladder available.`
 
-        const embed = new app.MessageEmbed()
-          .setTitle("Classement des helpers")
-          .setDescription(
-            data
-              .map(
-                (row, index) =>
-                  `#\`${app.forceTextSize(
-                    String(row.rank),
-                    2
-                  )}\` avec \`${app.forceTextSize(
-                    String(row.score),
-                    data[0].score.toString().length
-                  )}\` pts - <@${row.member_id}>`
-              )
-              .join("\n")
-          )
-
-        if (personalRank)
-          embed.setFields([
-            {
-              name: `Classement de ${message.member.displayName}`,
-              value: `#\`${app.forceTextSize(
-                String(personalRank.rank),
-                2
-              )}\` avec \`${app.forceTextSize(
-                String(personalRank.score),
-                data[0].score.toString().length
-              )}\` pts`,
-            },
-          ])
-
-        await message.send({
-          embeds: [embed],
+            return new app.MessageEmbed()
+              .setTitle(`Leaderboard`)
+              .setDescription(page.map(app.formatPointLadderLine).join("\n"))
+          },
         })
       },
     }),
