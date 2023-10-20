@@ -206,3 +206,48 @@ export async function hasActivity(
     )
     .then((result) => !!result[0]?.hasActivity)
 }
+
+export interface ActiveLadderLine {
+  rank: number
+  target: string
+  messageCount: number
+}
+
+export const activeLadder: (
+  guild_id: number
+) => app.Ladder<ActiveLadderLine> = (guild_id: number) =>
+  ({
+    fetchPage(options) {
+      return app.orm.raw(`
+      select
+          rank() over (
+              order by count(*) desc
+          ) as rank,
+          user.id as target,
+          count(*) as messageCount
+      from message
+      where guild_id = ${guild_id}
+      left join user on message.author_id = user._id
+      group by target
+      order by rank asc
+      limit ${options.itemCountByPage}
+      offset ${options.page * options.itemCountByPage}
+    `)
+    },
+    async fetchCount() {
+      return app.orm
+        .raw(
+          `select
+          count(distinct author_id) as total
+        where guild_id = ${guild_id}
+        from message`
+        )
+        .then((rows: any) => rows[0]?.total ?? 0)
+    },
+    formatLine(line, index, lines) {
+      return `${app.formatRank(line.rank)} avec \`${app.forceTextSize(
+        String(line.messageCount),
+        Math.max(...lines.map((l) => l.messageCount)).toString().length
+      )}\` msg - <@${line.target}>`
+    },
+  } satisfies app.Ladder<ActiveLadderLine>)

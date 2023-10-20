@@ -6,29 +6,39 @@ export default new app.Command({
   description: "The leaderboard command",
   channelType: "guild",
   async run(message) {
-    const noteLadder = await app.getNoteLadder({
-      page: 0,
-      itemCountByPage: 15,
-      minNoteCount: 0,
-    })
+    const guild = await app.getGuild(message.guild, true)
 
-    const pointLadder = await app.getPointLadder({
-      page: 0,
-      itemCountByPage: 15,
-    })
+    const ladders = [
+      [app.noteLadder, "Notes"] as const,
+      [app.pointLadder, "Points"] as const,
+      [app.activeLadder(guild._id), "Active"] as const,
+    ]
+
+    const fetched = await Promise.all(
+      ladders.map(
+        async ([ladder, name]) =>
+          [
+            ladder,
+            await ladder.fetchPage({
+              page: 0,
+              itemCountByPage: 15,
+              minScore: 0,
+            }),
+            name,
+          ] as const
+      )
+    )
 
     return message.send({
       embeds: [
-        new app.MessageEmbed().setTitle("Leaderboards").setFields([
-          {
-            name: "Notes sur 5",
-            value: noteLadder.map(app.formatNoteLadderLine).join("\n"),
-          },
-          {
-            name: "Help points",
-            value: pointLadder.map(app.formatPointLadderLine).join("\n"),
-          },
-        ]),
+        new app.MessageEmbed().setTitle("Leaderboards").setFields(
+          fetched.map(([ladder, page, name]) => ({
+            name,
+            // @ts-ignore
+            value: page.map(ladder.formatLine).join("\n"),
+            inline: true,
+          }))
+        ),
       ],
     })
   },

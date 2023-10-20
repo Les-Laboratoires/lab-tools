@@ -67,16 +67,14 @@ export default new app.Command({
         new app.DynamicPaginator({
           channel: message.channel,
           fetchPageCount: async () => {
-            const total = await app.getNoteLadderAvailableUsersTotal(
-              minNoteCount
-            )
+            const total = await app.noteLadder.fetchCount(minNoteCount)
             return Math.ceil(total / itemCountByPage)
           },
           fetchPage: async (pageIndex) => {
-            const page = await app.getNoteLadder({
+            const page = await app.noteLadder.fetchPage({
               page: pageIndex,
               itemCountByPage,
-              minNoteCount,
+              minScore: minNoteCount,
             })
 
             if (page.length === 0)
@@ -84,7 +82,7 @@ export default new app.Command({
 
             return new app.MessageEmbed()
               .setTitle(`Leaderboard`)
-              .setDescription(page.map(app.formatNoteLadderLine).join("\n"))
+              .setDescription(page.map(app.noteLadder.formatLine).join("\n"))
           },
         })
       },

@@ -97,13 +97,14 @@ export default new app.Command({
         new app.DynamicPaginator({
           channel: message.channel,
           fetchPageCount: async () => {
-            const total = await app.getPointLadderAvailableUsersTotal()
+            const total = await app.pointLadder.fetchCount(0)
             return Math.ceil(total / itemCountByPage)
           },
           fetchPage: async (pageIndex) => {
-            const page = await app.getPointLadder({
+            const page = await app.pointLadder.fetchPage({
               page: pageIndex,
               itemCountByPage,
+              minScore: 0,
             })
 
             if (page.length === 0)
@@ -111,7 +112,7 @@ export default new app.Command({
 
             return new app.MessageEmbed()
               .setTitle(`Leaderboard`)
-              .setDescription(page.map(app.formatPointLadderLine).join("\n"))
+              .setDescription(page.map(app.pointLadder.formatLine).join("\n"))
           },
         })
       },

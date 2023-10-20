@@ -102,4 +102,31 @@ export default new app.Command({
       )
     }
   },
+  subs: [
+    new app.Command({
+      name: "ladder",
+      aliases: ["lb", "leaderboard", "top", "rank"],
+      description: "The active ladder",
+      channelType: "guild",
+      async run(message) {
+        const guild = await app.getGuild(message.guild, true)
+
+        const ladder = app.activeLadder(guild._id)
+
+        const page = await ladder.fetchPage({
+          page: 0,
+          itemCountByPage: 15,
+          minScore: 0,
+        })
+
+        return message.send({
+          embeds: [
+            new app.MessageEmbed()
+              .setTitle("Active ladder")
+              .setDescription(page.map(ladder.formatLine).join("\n")),
+          ],
+        })
+      },
+    }),
+  ],
 })
