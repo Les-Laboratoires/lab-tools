@@ -26,12 +26,19 @@ export async function fetchActiveMembers(
     from message
     left join user on message.author_id = user._id
     where
-        guild_id = ${guild_id}
+      guild_id = ${guild_id}
     and
-        unixepoch(datetime(created_at, 'localtime')) >
-        unixepoch(datetime('now', '-${period} hours', 'localtime'))
+      unixepoch(datetime(created_at, 'localtime')) >
+      unixepoch(datetime('now', '-${period} hours', 'localtime'))
     and
-        messageCount >= ${messageCount}
+      (
+          select count(*) from message as m
+          where m.author_id = user._id
+          and m.guild_id = ${guild_id}
+          and
+              unixepoch(datetime(m.created_at, 'localtime')) >
+              unixepoch(datetime('now', '-${period} hours', 'localtime'))
+      ) >= ${messageCount}
     group by target
     order by messageCount desc
   `)
