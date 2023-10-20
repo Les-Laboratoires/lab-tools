@@ -36,7 +36,7 @@ export default new app.Command({
             name,
             // @ts-ignore
             value: page.map(ladder.formatLine).join("\n"),
-            inline: true,
+            inline: false,
           }))
         ),
       ],
