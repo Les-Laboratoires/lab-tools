@@ -9,31 +9,16 @@ export default new app.Command({
     const guild = await app.getGuild(message.guild, true)
 
     const ladders = [
-      [app.noteLadder, "Notes"] as const,
-      [app.pointLadder, "Points"] as const,
-      [app.activeLadder(guild._id), "Active"] as const,
+      app.noteLadder,
+      app.pointLadder,
+      app.activeLadder(guild._id),
     ]
-
-    const fetched = await Promise.all(
-      ladders.map(
-        async ([ladder, name]) =>
-          [
-            ladder,
-            await ladder.fetchPage({
-              page: 0,
-              itemCountByPage: 15,
-              minScore: 0,
-            }),
-            name,
-          ] as const
-      )
-    )
 
     return message.send({
       embeds: [
         new app.MessageEmbed().setTitle("Leaderboards").setFields(
-          fetched.map(([ladder, page, name]) => ({
-            name,
+          ladders.map((ladder) => ({
+            name: ladder.options.title,
             // @ts-ignore
             value: page.map(ladder.formatLine).join("\n"),
             inline: false,

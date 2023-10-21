@@ -30,16 +30,8 @@ export async function fetchActiveMembers(
     and
       unixepoch(datetime(created_at, 'localtime')) >
       unixepoch(datetime('now', '-${period} hours', 'localtime'))
-    and
-      (
-          select count(*) from message as m
-          where m.author_id = user._id
-          and m.guild_id = ${guild_id}
-          and
-              unixepoch(datetime(m.created_at, 'localtime')) >
-              unixepoch(datetime('now', '-${period} hours', 'localtime'))
-      ) >= ${messageCount}
     group by target
+    having messageCount >= ${messageCount}
     order by messageCount desc
   `)
 }
@@ -213,11 +205,10 @@ export interface ActiveLadderLine {
   messageCount: number
 }
 
-export const activeLadder: (
-  guild_id: number
-) => app.Ladder<ActiveLadderLine> = (guild_id: number) =>
-  ({
-    fetchPage(options) {
+export const activeLadder = (guild_id: number) =>
+  new app.Ladder<ActiveLadderLine>({
+    title: "Activity",
+    fetchLines(options) {
       return app.orm.raw(`
       select
           rank() over (
@@ -230,11 +221,11 @@ export const activeLadder: (
       where guild_id = ${guild_id}
       group by target
       order by rank asc
-      limit ${options.itemCountByPage}
-      offset ${options.page * options.itemCountByPage}
+      limit ${options.pageLineCount}
+      offset ${options.pageIndex * options.pageLineCount}
     `)
     },
-    async fetchCount() {
+    async fetchLineCount() {
       return app.orm
         .raw(
           `select
@@ -250,4 +241,4 @@ export const activeLadder: (
         Math.max(...lines.map((l) => l.messageCount)).toString().length
       )}\` msg - <@${line.target}>`
     },
-  } satisfies app.Ladder<ActiveLadderLine>)
+  })

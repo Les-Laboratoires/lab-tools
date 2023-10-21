@@ -30,6 +30,7 @@ export default new app.Command({
     })
   },
   subs: [
+    app.pointLadder.generateCommand(),
     new app.Command({
       name: "ask",
       channelType: "guild",
@@ -84,37 +85,6 @@ export default new app.Command({
           message.guild,
           `${message.author} ask points to ${message.args.member} in ${message.channel}.`
         )
-      },
-    }),
-    new app.Command({
-      name: "leaderboard",
-      description: "Show the leaderboard of points",
-      channelType: "guild",
-      aliases: ["ladder", "lb", "top", "rank"],
-      async run(message) {
-        const itemCountByPage = 15
-
-        new app.DynamicPaginator({
-          channel: message.channel,
-          fetchPageCount: async () => {
-            const total = await app.pointLadder.fetchCount(0)
-            return Math.ceil(total / itemCountByPage)
-          },
-          fetchPage: async (pageIndex) => {
-            const page = await app.pointLadder.fetchPage({
-              page: pageIndex,
-              itemCountByPage,
-              minScore: 0,
-            })
-
-            if (page.length === 0)
-              return `${app.emote(message, "DENY")} No ladder available.`
-
-            return new app.MessageEmbed()
-              .setTitle(`Leaderboard`)
-              .setDescription(page.map(app.pointLadder.formatLine).join("\n"))
-          },
-        })
       },
     }),
   ],

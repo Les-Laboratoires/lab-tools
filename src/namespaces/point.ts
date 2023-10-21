@@ -6,8 +6,9 @@ export interface PointLadderLine {
   rank: number
 }
 
-export const pointLadder: app.Ladder<PointLadderLine> = {
-  async fetchPage(options) {
+export const pointLadder = new app.Ladder<PointLadderLine>({
+  title: "Helpers",
+  async fetchLines(options) {
     return app.orm.raw(`
       select
           sum(amount) as score,
@@ -19,16 +20,16 @@ export const pointLadder: app.Ladder<PointLadderLine> = {
       left join user on point.to_id = user._id
       group by to_id
       order by score desc
-      limit ${options.itemCountByPage}
-      offset ${options.page * options.itemCountByPage}
+      limit ${options.pageLineCount}
+      offset ${options.pageIndex * options.pageLineCount}
     `)
   },
-  async fetchCount() {
+  async fetchLineCount() {
     return app.orm
       .raw(
         `select
-        count(distinct to_id) as total
-      from point`
+          count(distinct to_id) as total
+        from point`
       )
       .then((rows: any) => rows[0]?.total ?? 0)
   },
@@ -38,4 +39,4 @@ export const pointLadder: app.Ladder<PointLadderLine> = {
       Math.max(...lines.map((l) => l.score)).toString().length
     )}\` pts - <@${line.target}>`
   },
-}
+})

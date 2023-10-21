@@ -54,38 +54,5 @@ export default new app.Command({
 
     return message.send({ embeds: [await app.noteEmbed(message.author)] })
   },
-  subs: [
-    new app.Command({
-      name: "leaderboard",
-      aliases: ["top", "lb", "ladder", "rank"],
-      description: "The leaderboard",
-      channelType: "all",
-      async run(message) {
-        const itemCountByPage = 15
-        const minNoteCount = 1
-
-        new app.DynamicPaginator({
-          channel: message.channel,
-          fetchPageCount: async () => {
-            const total = await app.noteLadder.fetchCount(minNoteCount)
-            return Math.ceil(total / itemCountByPage)
-          },
-          fetchPage: async (pageIndex) => {
-            const page = await app.noteLadder.fetchPage({
-              page: pageIndex,
-              itemCountByPage,
-              minScore: minNoteCount,
-            })
-
-            if (page.length === 0)
-              return `${app.emote(message, "DENY")} No ladder available.`
-
-            return new app.MessageEmbed()
-              .setTitle(`Leaderboard`)
-              .setDescription(page.map(app.noteLadder.formatLine).join("\n"))
-          },
-        })
-      },
-    }),
-  ],
+  subs: [app.noteLadder.generateCommand()],
 })

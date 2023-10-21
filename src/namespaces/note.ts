@@ -9,8 +9,11 @@ export interface NoteLadderLine {
   note_count: number
 }
 
-export const noteLadder: app.Ladder<NoteLadderLine> = {
-  async fetchPage(options) {
+const mineNoteCount = 5
+
+export const noteLadder = new app.Ladder<NoteLadderLine>({
+  title: "Notes",
+  async fetchLines(options) {
     return app.orm.raw(`
       select
           avg(value) as score,
@@ -22,24 +25,22 @@ export const noteLadder: app.Ladder<NoteLadderLine> = {
       from note
       left join user on note.to_id = user._id
       group by to_id
-      having note_count >= ${options.minScore}
+      having note_count >= ${mineNoteCount}
       order by score desc
-      limit ${options.itemCountByPage}
-      offset ${options.page * options.itemCountByPage}
+      limit ${options.pageLineCount}
+      offset ${options.pageIndex * options.pageLineCount}
     `)
   },
-  async fetchCount(minScore) {
+  async fetchLineCount() {
     return app.orm
       .raw(
-        `
-      select 
-          count(\`from_id\`) as note_count,
-          \`to_id\` as user_id,
-          count(*) as total
-      from note
-      group by user_id
-      having note_count >= ${minScore}
-    `
+        `select 
+            count(\`from_id\`) as note_count,
+            \`to_id\` as user_id,
+            count(*) as total
+        from note
+        group by user_id
+        having note_count >= ${mineNoteCount}`
       )
       .then((rows: any) => rows[0]?.total ?? 0)
   },
@@ -48,7 +49,7 @@ export const noteLadder: app.Ladder<NoteLadderLine> = {
       line.score
     )}  **${line.score.toFixed(2)}**  <@${line.target}>`
   },
-}
+})
 
 export async function userNote(user: { id: string }) {
   const { _id } = await app.getUser(user, true)
