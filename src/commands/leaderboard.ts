@@ -30,10 +30,11 @@ export default new app.Command({
           await Promise.all(
             ladders.map(async (ladder) => ({
               name: ladder.options.title,
-              value: await ladder.fetchPage({
-                pageIndex: 0,
-                pageLineCount: 15,
-              }),
+              value:
+                (await ladder.fetchPage({
+                  pageIndex: 0,
+                  pageLineCount: 15,
+                })) ?? `${app.emote(message, "DENY")} No ladder available`,
               inline: false,
             }))
           )
