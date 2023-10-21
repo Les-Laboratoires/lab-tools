@@ -26,6 +26,7 @@ export const noteLadder = new app.Ladder<NoteLadderLine>({
       left join user on note.to_id = user._id
       group by to_id
       having note_count >= ${mineNoteCount}
+      and user.is_bot = false
       order by score desc
       limit ${options.pageLineCount}
       offset ${options.pageIndex * options.pageLineCount}
@@ -35,12 +36,14 @@ export const noteLadder = new app.Ladder<NoteLadderLine>({
     return app.orm
       .raw(
         `select 
-            count(\`from_id\`) as note_count,
-            \`to_id\` as user_id,
+            count(from_id) as note_count,
+            to_id as user_id,
             count(*) as total
         from note
+        left join user on note.to_id = user._id
         group by user_id
-        having note_count >= ${mineNoteCount}`
+        having note_count >= ${mineNoteCount}
+        and user.is_bot = false`
       )
       .then((rows: any) => rows[0]?.total ?? 0)
   },

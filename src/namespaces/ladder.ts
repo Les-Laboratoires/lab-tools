@@ -1,7 +1,12 @@
-import * as app from "../app.js"
+import discord from "discord.js"
+import * as core from "../app/core.js"
+import * as command from "../app/command.js"
+import * as pagination from "../app/pagination.js"
+
+import * as tools from "./tools.js"
 
 export function formatRank(rank: number) {
-  return `\`[ ${app.forceTextSize(rank, 3, true)} ]\``
+  return `\`[ ${core.forceTextSize(rank, 3, true)} ]\``
 }
 
 export interface LadderLine {
@@ -30,7 +35,7 @@ export class Ladder<Line extends LadderLine> {
   }
 
   async fetchEmbed(options: LadderPaginatorOptions) {
-    return new app.MessageEmbed()
+    return new discord.MessageEmbed()
       .setTitle(`${this.options.title} leaderboard`)
       .setDescription(await this.fetchPage(options))
       .setFooter({
@@ -49,10 +54,10 @@ export class Ladder<Line extends LadderLine> {
    * Seng the ladder paginator to a channel
    */
   send(
-    channel: app.TextChannel,
+    channel: discord.TextChannel,
     options: Omit<LadderPaginatorOptions, "pageIndex">
   ) {
-    new app.DynamicPaginator({
+    new pagination.DynamicPaginator({
       channel,
       fetchPageCount: () => {
         return this.fetchPageCount(options)
@@ -64,7 +69,7 @@ export class Ladder<Line extends LadderLine> {
         })
 
         if (page.length === 0)
-          return `${app.emote(channel, "DENY")} No ladder available.`
+          return `${tools.emote(channel, "DENY")} No ladder available.`
 
         return await this.fetchEmbed({
           pageIndex,
@@ -75,7 +80,7 @@ export class Ladder<Line extends LadderLine> {
   }
 
   generateCommand() {
-    return new app.Command({
+    return new command.Command({
       name: "leaderboard",
       description: `Show the leaderboard of ${this.options.title}`,
       channelType: "guild",

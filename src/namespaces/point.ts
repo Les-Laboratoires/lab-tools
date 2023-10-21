@@ -19,6 +19,7 @@ export const pointLadder = new app.Ladder<PointLadderLine>({
       from point
       left join user on point.to_id = user._id
       group by to_id
+      having user.is_bot = false
       order by score desc
       limit ${options.pageLineCount}
       offset ${options.pageIndex * options.pageLineCount}
@@ -29,7 +30,9 @@ export const pointLadder = new app.Ladder<PointLadderLine>({
       .raw(
         `select
           count(distinct to_id) as total
-        from point`
+        from point
+        left join user on point.to_id = user._id
+        having user.is_bot = false`
       )
       .then((rows: any) => rows[0]?.total ?? 0)
   },

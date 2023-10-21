@@ -1,7 +1,5 @@
 import * as app from "../app.js"
 
-import messages from "../tables/message.js"
-
 let used = false
 
 const intervals: Record<string, NodeJS.Timeout> = {}
@@ -104,27 +102,25 @@ export default new app.Command({
   },
   subs: [
     new app.Command({
-      name: "ladder",
-      aliases: ["lb", "leaderboard", "top", "rank"],
-      description: "The active ladder",
+      name: "leaderboard",
+      description: `Show the leaderboard of Activity`,
       channelType: "guild",
-      async run(message) {
+      aliases: ["ladder", "lb", "top", "rank"],
+      options: [
+        {
+          name: "lines",
+          description: "Number of lines to show per page",
+          castValue: "number",
+          default: String(15),
+          aliases: ["line", "count"],
+          checkCastedValue: (value) => value > 0 && value <= 50,
+        },
+      ],
+      run: async (message) => {
         const guild = await app.getGuild(message.guild, true)
 
-        const ladder = app.activeLadder(guild._id)
-
-        const page = await ladder.fetchPage({
-          page: 0,
-          itemCountByPage: 15,
-          minScore: 0,
-        })
-
-        return message.send({
-          embeds: [
-            new app.MessageEmbed()
-              .setTitle("Active ladder")
-              .setDescription(page.map(ladder.formatLine).join("\n")),
-          ],
+        app.activeLadder(guild._id).send(message.channel, {
+          pageLineCount: message.args.lines,
         })
       },
     }),

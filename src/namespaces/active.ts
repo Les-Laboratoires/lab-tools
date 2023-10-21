@@ -220,6 +220,7 @@ export const activeLadder = (guild_id: number) =>
       left join user on message.author_id = user._id
       where guild_id = ${guild_id}
       group by target
+      having user.is_bot = false
       order by rank asc
       limit ${options.pageLineCount}
       offset ${options.pageIndex * options.pageLineCount}
@@ -230,8 +231,10 @@ export const activeLadder = (guild_id: number) =>
         .raw(
           `select
             count(distinct author_id) as total
+          from message
+          left join user on message.author_id = user._id
           where guild_id = ${guild_id}
-          from message`
+          having user.is_bot = false`
         )
         .then((rows: any) => rows[0]?.total ?? 0)
     },
