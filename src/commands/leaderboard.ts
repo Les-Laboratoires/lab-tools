@@ -5,6 +5,16 @@ export default new app.Command({
   aliases: ["lb", "ladder", "top", "rank"],
   description: "The leaderboard command",
   channelType: "guild",
+  options: [
+    {
+      name: "lines",
+      description: "Number of lines to show per page",
+      castValue: "number",
+      default: String(15),
+      aliases: ["line", "count"],
+      checkCastedValue: (value) => value > 0 && value <= 50,
+    },
+  ],
   async run(message) {
     const guild = await app.getGuild(message.guild, true)
 
@@ -17,12 +27,16 @@ export default new app.Command({
     return message.send({
       embeds: [
         new app.MessageEmbed().setTitle("Leaderboards").setFields(
-          ladders.map((ladder) => ({
-            name: ladder.options.title,
-            // @ts-ignore
-            value: page.map(ladder.formatLine).join("\n"),
-            inline: false,
-          }))
+          await Promise.all(
+            ladders.map(async (ladder) => ({
+              name: ladder.options.title,
+              value: await ladder.fetchPage({
+                pageIndex: 0,
+                pageLineCount: 15,
+              }),
+              inline: false,
+            }))
+          )
         ),
       ],
     })

@@ -1,5 +1,3 @@
-import Discord from "discord.js"
-
 import * as app from "../app.js"
 
 import users, { User } from "../tables/user.js"
@@ -42,7 +40,10 @@ export async function sendLog(
 }
 
 export async function createUser(user: { id: string }) {
-  await users.query.insert({ id: user.id })
+  await users.query.insert({
+    id: user.id,
+    is_bot: app.client.client.users.cache.get(user.id)?.bot ?? false,
+  })
 }
 
 export async function getUser(user: { id: string }): Promise<User | undefined>
