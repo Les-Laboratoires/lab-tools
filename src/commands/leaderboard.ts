@@ -34,7 +34,7 @@ export default new app.Command({
                 (await ladder.fetchPage({
                   pageIndex: 0,
                   pageLineCount: 15,
-                })) ?? `${app.emote(message, "DENY")} No ladder available`,
+                })) || `${app.emote(message, "DENY")} No ladder available`,
               inline: false,
             }))
           )
