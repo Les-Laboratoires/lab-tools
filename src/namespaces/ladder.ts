@@ -34,10 +34,16 @@ export class Ladder<Line extends LadderLine> {
     return lines.map(this.options.formatLine).join("\n")
   }
 
-  async fetchEmbed(options: LadderPaginatorOptions) {
+  async fetchEmbed(
+    ctx: { client: discord.Client },
+    options: LadderPaginatorOptions
+  ) {
     return new discord.MessageEmbed()
       .setTitle(`${this.options.title} leaderboard`)
-      .setDescription(await this.fetchPage(options))
+      .setDescription(
+        (await this.fetchPage(options)) ||
+          `${tools.emote(ctx, "DENY")} No ladder available`
+      )
       .setFooter({
         text: `Page: ${options.pageIndex + 1} / ${await this.fetchPageCount(
           options
@@ -71,7 +77,7 @@ export class Ladder<Line extends LadderLine> {
         if (page.length === 0)
           return `${tools.emote(channel, "DENY")} No ladder available.`
 
-        return await this.fetchEmbed({
+        return await this.fetchEmbed(channel, {
           pageIndex,
           ...options,
         })
