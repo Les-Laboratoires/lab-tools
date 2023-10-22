@@ -241,7 +241,7 @@ export const activeLadder = (guild_id: number) =>
     formatLine(line, index, lines) {
       return `${app.formatRank(line.rank)} avec \`${app.forceTextSize(
         String(line.messageCount),
-        Math.max(...lines.map((l) => l.messageCount)).toString().length
+        Math.max(...lines.map((l) => l.messageCount), 0).toString().length
       )}\` msg - <@${line.target}>`
     },
   })

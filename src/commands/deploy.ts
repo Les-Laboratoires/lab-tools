@@ -68,7 +68,7 @@ export default new app.Command({
             .setColor("RED")
             .setDescription(
               app.code.stringify({
-                content: (error?.stack ?? error?.message ?? error.toString())
+                content: (error?.stack ?? error?.message ?? String(error))
                   .split("")
                   .reverse()
                   .slice(0, 2000)
