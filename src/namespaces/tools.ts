@@ -42,7 +42,7 @@ export async function sendLog(
 export async function createUser(user: { id: string }) {
   await users.query.insert({
     id: user.id,
-    is_bot: app.client.client.users.cache.get(user.id)?.bot ?? false,
+    is_bot: app.client.users.cache.get(user.id)?.bot ?? false,
   })
 }
 
