@@ -63,14 +63,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
           )
 
           await app.sendLabList(message.channel, 10)
-        } catch (error) {
-          app.error(
-            `cannot send messages from ${chalk.blueBright(
-              member.guild.name
-            )} to ${chalk.blueBright(member.user.tag)}`,
-            __filename
-          )
-        }
+        } catch (error) {}
       }
     }
 

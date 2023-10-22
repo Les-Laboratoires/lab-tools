@@ -156,7 +156,7 @@ export async function getAutoRoles(member: app.GuildMember): Promise<string[]> {
 export async function applyAutoRoles(member: app.GuildMember) {
   const autoRoles = await getAutoRoles(member)
 
-  if (member.roles.cache.hasAll(...autoRoles)) return
+  if (member.roles.cache.hasAll(...autoRoles) || autoRoles.length === 0) return
 
   await member.roles.add(autoRoles).catch()
 }
