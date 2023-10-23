@@ -79,7 +79,7 @@ export default new app.Command({
         if (await app.hasActivity(config._id, message.args.interval))
           return await app.sendLog(
             message.guild,
-            `Ignored automated active list hourly update, no activity in the last hour.`
+            `Ignored automated active list update, no activity detected in the last period.`
           )
 
         const found = await app.updateActive(message.guild, {
