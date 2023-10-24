@@ -4,14 +4,14 @@ import lab from "../tables/lab.js"
 
 /**
  * @Todo use forum channels instead...
- * @param message
  */
 export async function updateLabsInAffiliationChannels(
-  message: app.GuildMessage
+  message: app.GuildMessage,
+  packSize: number
 ) {
   const labs = await lab.query.select()
 
-  const pages = app.divider(labs, message.args.packSize)
+  const pages = app.divider(labs, packSize)
 
   for (const guild of message.client.guilds.cache.values()) {
     const config = await app.getGuild(guild)
@@ -29,14 +29,14 @@ export async function updateLabsInAffiliationChannels(
             page.map((lab) => `${lab.title} ${lab.url}`).join("\n")
           )
 
-        await message.send(
+        await message.channel.send(
           `${app.emote(message, "CHECK")} Updated **${guild}** affiliations`
         )
       }
     }
   }
 
-  await message.send(
+  await message.channel.send(
     `${app.emote(message, "CHECK")} Successfully updated all affiliations.`
   )
 }

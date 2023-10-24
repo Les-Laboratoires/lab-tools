@@ -9,8 +9,8 @@ export default new app.Command({
   positional: [
     {
       name: "bot",
-      castValue: "user",
-      checkCastedValue: (user: app.User) => user.bot,
+      type: "user",
+      validate: (user: app.User) => user.bot,
       description: "Bot to invite",
       checkingErrorMessage: "User must be a bot.",
     },

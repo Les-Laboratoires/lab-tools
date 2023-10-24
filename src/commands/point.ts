@@ -15,7 +15,7 @@ export default new app.Command({
       .where("to_id", user._id)
       .first()) as { total: number } | undefined
 
-    await message.send({
+    await message.channel.send({
       embeds: [
         new app.MessageEmbed()
           .setTitle(`Points de ${message.member.displayName}`)
@@ -40,8 +40,9 @@ export default new app.Command({
           name: "member",
           description: "The member you want to ask points",
           required: true,
-          castValue: "member",
-          checkCastedValue: (value, message) => value.id !== message?.member.id,
+          type: "member",
+          validate: (value: app.GuildMember, message?: app.GuildMessage) =>
+            value.id !== message?.member.id,
           checkingErrorMessage: "You can't ask points to yourself.",
         },
       ],

@@ -21,6 +21,7 @@ export default new app.Command({
         {
           name: "url",
           description: "Lab invite url",
+          type: "string",
           required: true,
         },
       ],
@@ -28,6 +29,7 @@ export default new app.Command({
         {
           name: "id",
           description: "The guild id",
+          type: "string",
         },
       ],
       rest: {
@@ -41,7 +43,7 @@ export default new app.Command({
           : await app.getGuild(message.guild, true)
 
         if (!guild)
-          return message.send(
+          return message.channel.send(
             `${app.emote(message, "DENY")} Incorrect guild id`
           )
 
@@ -54,7 +56,7 @@ export default new app.Command({
           .onConflict("guild_id")
           .merge()
 
-        return message.send(
+        return message.channel.send(
           `${app.emote(message, "CHECK")} Successfully added **${
             message.args.id
               ? message.client.guilds.cache.get(message.args.id)?.name
@@ -74,13 +76,16 @@ export default new app.Command({
         {
           name: "packSize",
           description: "How many labs to send per message",
-          castValue: "number",
-          checkCastedValue: (value) => value > 0 && value <= 12,
+          type: "number",
+          validate: (value: number) => value > 0 && value <= 12,
           default: "10",
         },
       ],
       async run(message) {
-        await app.updateLabsInAffiliationChannels(message)
+        await app.updateLabsInAffiliationChannels(
+          message,
+          message.args.packSize
+        )
 
         message.triggerCoolDown()
       },
@@ -94,8 +99,8 @@ export default new app.Command({
         {
           name: "packSize",
           description: "How many labs to send per message",
-          castValue: "number",
-          checkCastedValue: (value) => value > 0 && value <= 12,
+          type: "number",
+          validate: (value: number) => value > 0 && value <= 12,
           default: "10",
         },
       ],

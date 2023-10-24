@@ -29,27 +29,27 @@ export default new app.Command({
     {
       name: "period",
       description: "The period to check (in hours)",
-      castValue: "number",
+      type: "number",
       default: String(24 * 7), // 1 week
-      checkCastedValue: (value) => value > 0,
-      checkingErrorMessage: "The period must be greater than 0.",
+      validate: (value: number) => value > 0,
+      validationErrorMessage: "The period must be greater than 0.",
     },
     {
       name: "messageCount",
       aliases: ["count"],
       description: "The minimum message count",
-      castValue: "number",
+      type: "number",
       default: String(50),
-      checkCastedValue: (value) => value > 0,
-      checkingErrorMessage: "The period must be greater than 0.",
+      validate: (value: number) => value > 0,
+      validationErrorMessage: "The period must be greater than 0.",
     },
     {
       name: "interval",
       description: "The interval to auto update the active list (in hours)",
-      castValue: "number",
+      type: "number",
       default: String(24), // 1 day
-      checkCastedValue: (value) => value > 0,
-      checkingErrorMessage: "The period must be greater than 0.",
+      validate: (value: number) => value > 0,
+      validationErrorMessage: "The period must be greater than 0.",
     },
   ],
   async run(message) {
@@ -57,7 +57,7 @@ export default new app.Command({
 
     const config = await app.getGuild(message.guild, true)
 
-    const waiting = await message.send(
+    const waiting = await message.channel.send(
       `${app.emote(message, "WAIT")} Fetching members...`
     )
 
@@ -95,7 +95,7 @@ export default new app.Command({
         )
       }, message.args.interval * 1000 * 60 * 60)
 
-      await message.send(
+      await message.channel.send(
         `${app.emote(message, "CHECK")} Automated active list update enabled.`
       )
     }
@@ -110,10 +110,10 @@ export default new app.Command({
         {
           name: "lines",
           description: "Number of lines to show per page",
-          castValue: "number",
+          type: "number",
           default: String(15),
           aliases: ["line", "count"],
-          checkCastedValue: (value) => value > 0 && value <= 50,
+          validate: (value: number) => value > 0 && value <= 50,
         },
       ],
       run: async (message) => {

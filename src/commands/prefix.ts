@@ -10,8 +10,9 @@ export default new app.Command({
   positional: [
     {
       name: "prefix",
-      checkValue: (value) => value.length < 10 && /^\S/.test(value),
       description: "The new prefix",
+      type: "string",
+      validate: (value: string) => value.length < 10 && /^\S/.test(value),
     },
   ],
   async run(message) {

@@ -18,9 +18,11 @@ function todoItem(todo: ToDo) {
     .slice(0, 40)}`
 }
 
-async function showTodoList(message: app.NormalMessage, user: User) {
-  const perPage: number = message.args.perPage ?? 10
-
+async function showTodoList(
+  message: app.NormalMessage,
+  user: User,
+  perPage = 10
+) {
   new app.DynamicPaginator({
     channel: message.channel,
     filter: (reaction, user) => user.id === message.author.id,
@@ -58,10 +60,10 @@ async function showTodoList(message: app.NormalMessage, user: User) {
   })
 }
 
-const perPageOption: app.Option<app.NormalMessage> = {
+const perPageOption: app.IOption = {
   name: "perPage",
   description: "Count of task per page",
-  castValue: "number",
+  type: "number",
   default: () => "10",
   aliases: ["per", "by", "count", "nbr", "div", "*"],
 }
@@ -76,7 +78,7 @@ export default new app.Command({
     const user = await app.getUser(message.author, true)
 
     return message.rest.length === 0
-      ? showTodoList(message, user)
+      ? showTodoList(message, user, message.args.perPage)
       : message.channel.send(
           `${app.emote(
             message,
@@ -150,16 +152,17 @@ export default new app.Command({
       positional: [
         {
           name: "target",
-          castValue: "user",
+          type: "user",
           description: "The target member",
-          default: (message) => message?.author.id ?? "no default",
+          default: (message?: app.IMessage) =>
+            message?.author.id ?? "no default",
         },
       ],
       options: [perPageOption],
       async run(message) {
         const target = await app.getUser(message.args.target, true)
 
-        return showTodoList(message, target)
+        return showTodoList(message, target, message.args.perPage)
       },
     }),
     new app.Command({
@@ -185,7 +188,7 @@ export default new app.Command({
       positional: [
         {
           name: "id",
-          castValue: "number",
+          type: "number",
           required: true,
           description: "Id of todo task",
         },
@@ -221,7 +224,7 @@ export default new app.Command({
       positional: [
         {
           name: "id",
-          castValue: "number",
+          type: "number",
           required: true,
           description: "Id of todo task",
         },
@@ -259,8 +262,9 @@ export default new app.Command({
       positional: [
         {
           name: "search",
-          required: true,
           description: "Searching query",
+          type: "string",
+          required: true,
         },
       ],
       async run(message) {

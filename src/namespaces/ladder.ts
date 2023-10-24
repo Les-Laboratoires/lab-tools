@@ -95,10 +95,10 @@ export class Ladder<Line extends LadderLine> {
         {
           name: "lines",
           description: "Number of lines to show per page",
-          castValue: "number",
+          type: "number",
           default: String(15),
           aliases: ["line", "count"],
-          checkCastedValue: (value) => value > 0 && value <= 50,
+          validate: (value: number) => value > 0 && value <= 50,
         },
       ],
       run: async (message) => {

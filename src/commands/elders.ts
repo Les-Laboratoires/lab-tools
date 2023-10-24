@@ -22,7 +22,7 @@ export default new app.Command({
   async run(message) {
     used = true
 
-    const waiting = await message.send(
+    const waiting = await message.channel.send(
       `${app.emote(message, "WAIT")} Fetching elder roles...`
     )
 

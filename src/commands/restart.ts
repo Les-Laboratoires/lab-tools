@@ -8,7 +8,7 @@ export default new app.Command({
   channelType: "all",
   botOwnerOnly: true,
   async run(message) {
-    const toEdit = await message.send(
+    const toEdit = await message.channel.send(
       `${app.emote(message, "WAIT")} Restarting...`
     )
 

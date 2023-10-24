@@ -9,10 +9,10 @@ export default new app.Command({
     {
       name: "lines",
       description: "Number of lines to show per page",
-      castValue: "number",
+      type: "number",
       default: String(15),
       aliases: ["line", "count"],
-      checkCastedValue: (value) => value > 0 && value <= 50,
+      validate: (value: number) => value > 0 && value <= 50,
     },
   ],
   async run(message) {
@@ -24,7 +24,7 @@ export default new app.Command({
       app.activeLadder(guild._id),
     ]
 
-    return message.send({
+    return message.channel.send({
       embeds: [
         new app.MessageEmbed().setTitle("Leaderboards").setFields(
           await Promise.all(

@@ -142,12 +142,13 @@ export default new app.Command({
         {
           name: "name",
           required: true,
+          type: "string",
           description: "The name of edited property",
         },
       ],
       async run(message) {
         if (message.args.name === "id" || message.args.name === "_id")
-          return message.send(
+          return message.channel.send(
             `${app.emote(message, "DENY")} You can't edit the guild id!`
           )
 
@@ -175,6 +176,7 @@ export default new app.Command({
         {
           name: "name",
           required: true,
+          type: "string",
           description: "The name of edited property",
         },
       ],
@@ -182,7 +184,7 @@ export default new app.Command({
         const config = await app.getGuild(message.guild)
 
         if (!config)
-          return message.send({
+          return message.channel.send({
             embeds: [
               new app.MessageEmbed()
                 .setColor("BLURPLE")

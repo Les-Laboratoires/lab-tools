@@ -18,7 +18,7 @@ export default new app.Command({
       positional: [
         {
           name: "roles",
-          castValue: "array",
+          type: "array",
           required: true,
           description: "Role list",
         },
@@ -45,7 +45,7 @@ export default new app.Command({
           })
         )
 
-        return message.send(
+        return message.channel.send(
           `${app.emote(message, "CHECK")} Auto-roles are successfully pushed.`
         )
       },
@@ -58,7 +58,7 @@ export default new app.Command({
       positional: [
         {
           name: "role",
-          castValue: "role",
+          type: "role",
           required: true,
           description: "Role to add",
         },
@@ -80,7 +80,7 @@ export default new app.Command({
           bot: message.args.bot,
         })
 
-        return message.send(
+        return message.channel.send(
           `${app.emote(message, "CHECK")} Auto-role is successfully pushed.`
         )
       },
@@ -95,7 +95,7 @@ export default new app.Command({
 
         const autoRoles = await autoRole.query.where("guild_id", guild._id)
 
-        return message.send({
+        return message.channel.send({
           embeds: [
             new app.MessageEmbed()
               .setColor("BLURPLE")
@@ -132,7 +132,7 @@ export default new app.Command({
           name: "target",
           description: "Target member",
           required: true,
-          castValue: "member",
+          type: "member",
         },
       ],
       async run(message) {
@@ -140,7 +140,7 @@ export default new app.Command({
 
         await app.applyAutoRoles(target)
 
-        return message.send(
+        return message.channel.send(
           `${app.emote(
             message,
             "CHECK"
@@ -154,7 +154,7 @@ export default new app.Command({
           aliases: ["*"],
           channelType: "guild",
           async run(message) {
-            const waiting = await message.send(
+            const waiting = await message.channel.send(
               `${app.emote(message, "WAIT")} Fetching members...`
             )
 
@@ -181,7 +181,7 @@ export default new app.Command({
               )
             }
 
-            return message.send(
+            return message.channel.send(
               `${app.emote(
                 message,
                 "CHECK"

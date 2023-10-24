@@ -10,8 +10,8 @@ export default new app.Command({
     {
       name: "user",
       description: "The noted user",
-      castValue: "user",
-      checkCastedValue: (value, message) => {
+      type: "user",
+      validate: (value: app.User, message?: app.IMessage) => {
         return (
           (value !== message?.author && value !== undefined) ||
           "You can't target yourself."
@@ -21,8 +21,9 @@ export default new app.Command({
     {
       name: "note",
       description: "Note from 0 to 5",
-      castValue: "number",
-      checkValue: /^[012345]$/,
+      type: "number",
+      validate: (note: number) =>
+        note >= 0 && note <= 5 && Number.isInteger(note),
     },
   ],
   async run(message) {
@@ -44,15 +45,19 @@ export default new app.Command({
           await note.query.insert({ value, ...pack })
         }
 
-        return message.send(
+        return message.channel.send(
           `${app.emote(message, "CHECK")} Successfully noted.`
         )
       }
 
-      return message.send({ embeds: [await app.noteEmbed(message.args.user)] })
+      return message.channel.send({
+        embeds: [await app.noteEmbed(message.args.user)],
+      })
     }
 
-    return message.send({ embeds: [await app.noteEmbed(message.author)] })
+    return message.channel.send({
+      embeds: [await app.noteEmbed(message.author)],
+    })
   },
   subs: [app.noteLadder.generateCommand()],
 })
