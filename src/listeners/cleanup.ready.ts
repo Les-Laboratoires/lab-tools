@@ -35,7 +35,7 @@ const listener: app.Listener<"ready"> = {
     // todo cleanup message if a don't need to keep them
 
     app.log(
-      `Deleted ${chalk.blueBright(userCount)} users, ${chalk.blueBright(
+      `deleted ${chalk.blueBright(userCount)} users, ${chalk.blueBright(
         guildCount
       )} guilds and ${chalk.blueBright(0)} messages.`
     )
