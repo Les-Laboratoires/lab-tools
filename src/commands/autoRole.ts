@@ -42,11 +42,11 @@ export default new app.Command({
               role_id: roleId,
               bot: message.args.bot,
             }
-          })
+          }),
         )
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Auto-roles are successfully pushed.`
+          `${app.emote(message, "CHECK")} Auto-roles are successfully pushed.`,
         )
       },
     }),
@@ -81,7 +81,7 @@ export default new app.Command({
         })
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Auto-role is successfully pushed.`
+          `${app.emote(message, "CHECK")} Auto-role is successfully pushed.`,
         )
       },
     }),
@@ -143,8 +143,8 @@ export default new app.Command({
         return message.channel.send(
           `${app.emote(
             message,
-            "CHECK"
-          )} Auto-roles are successfully applied to **${target.user.tag}**.`
+            "CHECK",
+          )} Auto-roles are successfully applied to **${target.user.tag}**.`,
         )
       },
       subs: [
@@ -155,17 +155,17 @@ export default new app.Command({
           channelType: "guild",
           async run(message) {
             const waiting = await message.channel.send(
-              `${app.emote(message, "WAIT")} Fetching members...`
+              `${app.emote(message, "WAIT")} Fetching members...`,
             )
 
             const members = Array.from(
-              (await message.guild.members.fetch({ force: true })).values()
+              (await message.guild.members.fetch({ force: true })).values(),
             )
 
             message.guild.members.cache.clear()
 
             await waiting.edit(
-              `${app.emote(message, "WAIT")} Applying auto-roles to members...`
+              `${app.emote(message, "WAIT")} Applying auto-roles to members...`,
             )
 
             for (const member of members) {
@@ -177,17 +177,17 @@ export default new app.Command({
                 waiting,
                 index,
                 members.length,
-                "Applying auto-roles to members... (`$%` %)"
+                "Applying auto-roles to members... (`$%` %)",
               )
             }
 
             return message.channel.send(
               `${app.emote(
                 message,
-                "CHECK"
+                "CHECK",
               )} Auto-roles are successfully applied to **${
                 members.length
-              }** members.`
+              }** members.`,
             )
           },
         }),

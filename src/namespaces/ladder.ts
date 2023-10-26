@@ -37,17 +37,17 @@ export class Ladder<Line extends LadderLine> {
 
   async fetchEmbed(
     ctx: { client: discord.Client },
-    options: LadderPaginatorOptions
+    options: LadderPaginatorOptions,
   ) {
     return new discord.MessageEmbed()
       .setTitle(`${this.options.title} leaderboard`)
       .setDescription(
         (await this.fetchPage(options)) ||
-          `${tools.emote(ctx, "DENY")} No ladder available`
+          `${tools.emote(ctx, "DENY")} No ladder available`,
       )
       .setFooter({
         text: `Page: ${options.pageIndex + 1} / ${await this.fetchPageCount(
-          options
+          options,
         )}`,
       })
   }
@@ -62,7 +62,7 @@ export class Ladder<Line extends LadderLine> {
    */
   send(
     channel: discord.TextChannel,
-    options: Omit<LadderPaginatorOptions, "pageIndex">
+    options: Omit<LadderPaginatorOptions, "pageIndex">,
   ) {
     new pagination.DynamicPaginator({
       channel,

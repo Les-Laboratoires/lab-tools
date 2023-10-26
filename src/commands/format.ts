@@ -22,11 +22,11 @@ export default new app.Command({
         app.code.stringify({
           content: prettified,
           lang,
-        })
+        }),
       )
     } else {
       await message.channel.send(
-        `${app.emote(message, "DENY")} Bad usage, please use code block tags`
+        `${app.emote(message, "DENY")} Bad usage, please use code block tags`,
       )
     }
   },

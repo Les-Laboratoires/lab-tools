@@ -44,7 +44,7 @@ export default new app.Command({
 
         if (!guild)
           return message.channel.send(
-            `${app.emote(message, "DENY")} Incorrect guild id`
+            `${app.emote(message, "DENY")} Incorrect guild id`,
           )
 
         await lab.query
@@ -61,7 +61,7 @@ export default new app.Command({
             message.args.id
               ? message.client.guilds.cache.get(message.args.id)?.name
               : message.guild.name
-          }**`
+          }**`,
         )
       },
     }),
@@ -87,7 +87,7 @@ export default new app.Command({
       async run(message) {
         await app.updateLabsInAffiliationChannels(
           message,
-          message.args.packSize
+          message.args.packSize,
         )
 
         message.triggerCoolDown()

@@ -7,7 +7,7 @@ import lab from "../tables/lab.js"
  */
 export async function updateLabsInAffiliationChannels(
   message: app.GuildMessage,
-  packSize: number
+  packSize: number,
 ) {
   const labs = await lab.query.select()
 
@@ -26,24 +26,24 @@ export async function updateLabsInAffiliationChannels(
 
         for (const page of pages)
           await channel.send(
-            page.map((lab) => `${lab.title} ${lab.url}`).join("\n")
+            page.map((lab) => `${lab.title} ${lab.url}`).join("\n"),
           )
 
         await message.channel.send(
-          `${app.emote(message, "CHECK")} Updated **${guild}** affiliations`
+          `${app.emote(message, "CHECK")} Updated **${guild}** affiliations`,
         )
       }
     }
   }
 
   await message.channel.send(
-    `${app.emote(message, "CHECK")} Successfully updated all affiliations.`
+    `${app.emote(message, "CHECK")} Successfully updated all affiliations.`,
   )
 }
 
 export async function sendLabList(
   channel: app.TextBasedChannel,
-  packSize: number
+  packSize: number,
 ) {
   const labs = await lab.query.select()
 
@@ -52,7 +52,7 @@ export async function sendLabList(
   if (channel.isText()) {
     for (const page of pages)
       await channel.send(
-        page.map((lab) => `${lab.title} ${lab.url}`).join("\n")
+        page.map((lab) => `${lab.title} ${lab.url}`).join("\n"),
       )
   }
 }

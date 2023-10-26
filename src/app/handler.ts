@@ -27,7 +27,7 @@ export class Handler {
 
   on<EventName extends keyof HandlerEvents>(
     event: EventName,
-    listener: (...args: HandlerEvents[EventName]) => unknown
+    listener: (...args: HandlerEvents[EventName]) => unknown,
   ): this {
     if (!this.listeners[event]) this.listeners[event] = new Set()
     this.listeners[event].add(listener)
@@ -36,7 +36,7 @@ export class Handler {
 
   once<EventName extends keyof HandlerEvents>(
     event: EventName,
-    listener: (...args: HandlerEvents[EventName]) => unknown
+    listener: (...args: HandlerEvents[EventName]) => unknown,
   ): this {
     Object.defineProperty(listener, "once", {
       value: true,

@@ -25,14 +25,14 @@ const listener: app.Listener<"guildMemberAdd"> = {
 
       if (config.general_channel_id && config.bot_welcome_message) {
         const general = member.client.channels.cache.get(
-          config.general_channel_id
+          config.general_channel_id,
         )
 
         if (general)
           await app.sendTemplatedEmbed(
             general,
             config.bot_welcome_message,
-            app.embedReplacers(member)
+            app.embedReplacers(member),
           )
       }
     } else {
@@ -43,14 +43,14 @@ const listener: app.Listener<"guildMemberAdd"> = {
 
       if (config.general_channel_id && config.member_welcome_message) {
         const general = member.client.channels.cache.get(
-          config.general_channel_id
+          config.general_channel_id,
         )
 
         if (general)
           await app.sendTemplatedEmbed(
             general,
             config.member_welcome_message,
-            app.embedReplacers(member)
+            app.embedReplacers(member),
           )
       }
 
@@ -59,7 +59,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
 
         try {
           const message = await member.send(
-            "Welcome to the **Les Laboratoires** network.\nOne of these servers may be of interest to you!"
+            "Welcome to the **Les Laboratoires** network.\nOne of these servers may be of interest to you!",
           )
 
           await app.sendLabList(message.channel, 10)
@@ -70,7 +70,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
     return app.sendLog(
       member.guild,
       `${member.user} is a new **${member.user.bot ? "bot" : "member"}**.`,
-      config
+      config,
     )
   },
 }

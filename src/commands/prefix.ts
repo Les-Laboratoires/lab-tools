@@ -21,8 +21,8 @@ export default new app.Command({
     if (!prefix)
       return message.channel.send(
         `My current prefix for "**${message.guild}**" is \`${await app.prefix(
-          message.guild
-        )}\``
+          message.guild,
+        )}\``,
       )
 
     await guilds.query
@@ -34,7 +34,7 @@ export default new app.Command({
       .merge()
 
     await message.channel.send(
-      `My new prefix for "**${message.guild}**" is \`${prefix}\``
+      `My new prefix for "**${message.guild}**" is \`${prefix}\``,
     )
   },
 })

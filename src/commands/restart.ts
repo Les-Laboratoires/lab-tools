@@ -9,7 +9,7 @@ export default new app.Command({
   botOwnerOnly: true,
   async run(message) {
     const toEdit = await message.channel.send(
-      `${app.emote(message, "WAIT")} Restarting...`
+      `${app.emote(message, "WAIT")} Restarting...`,
     )
 
     await restart.query.insert({

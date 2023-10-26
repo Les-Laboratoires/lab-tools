@@ -18,7 +18,7 @@ const listener: app.Listener<"interactionCreate"> = {
       return await interaction.reply({
         content: `${app.emote(
           interaction,
-          "DENY"
+          "DENY",
         )} You can't give points to yourself.`,
         ephemeral: true,
       })
@@ -43,7 +43,7 @@ const listener: app.Listener<"interactionCreate"> = {
 
     await app.sendLog(
       interaction.guild!,
-      `${interaction.user} give **${amount}** points to <@${to_id}> in ${interaction.channel}.`
+      `${interaction.user} give **${amount}** points to <@${to_id}> in ${interaction.channel}.`,
     )
   },
 }

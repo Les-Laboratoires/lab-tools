@@ -29,7 +29,7 @@ const listener: app.Listener<"guildMemberRemove"> = {
       await app.sendLog(
         guild,
         `${member.user ?? member} left all the labs.`,
-        config
+        config,
       )
     }
   },

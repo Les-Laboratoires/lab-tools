@@ -45,7 +45,7 @@ export default new app.Command({
         }
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully noted.`
+          `${app.emote(message, "CHECK")} Successfully noted.`,
         )
       }
 

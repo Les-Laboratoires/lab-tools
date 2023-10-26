@@ -32,14 +32,14 @@ export const pointLadder = new app.Ladder<PointLadderLine>({
           count(distinct to_id) as total
         from point
         left join user on point.to_id = user._id
-        having user.is_bot = false`
+        having user.is_bot = false`,
       )
       .then((rows: any) => rows[0]?.total ?? 0)
   },
   formatLine(line, index, lines) {
     return `${app.formatRank(line.rank)} avec \`${app.forceTextSize(
       String(line.score),
-      Math.max(...lines.map((l) => l.score)).toString().length
+      Math.max(...lines.map((l) => l.score)).toString().length,
     )}\` pts - <@${line.target}>`
   },
 })

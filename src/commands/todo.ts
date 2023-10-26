@@ -21,7 +21,7 @@ function todoItem(todo: ToDo) {
 async function showTodoList(
   message: app.NormalMessage,
   user: User,
-  perPage = 10
+  perPage = 10,
 ) {
   new app.DynamicPaginator({
     channel: message.channel,
@@ -29,7 +29,7 @@ async function showTodoList(
     placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
     async fetchPage(index): Promise<app.Page> {
       const itemCount = await app.countOf(
-        todoTable.query.where("user_id", user._id)
+        todoTable.query.where("user_id", user._id),
       )
       const pageCount = Math.ceil(itemCount / perPage)
       const pageTasks = await todoTable.query
@@ -54,7 +54,7 @@ async function showTodoList(
     async fetchPageCount(): Promise<number> {
       return Math.ceil(
         (await app.countOf(todoTable.query.where("user_id", user._id))) /
-          perPage
+          perPage,
       )
     },
   })
@@ -82,10 +82,10 @@ export default new app.Command({
       : message.channel.send(
           `${app.emote(
             message,
-            "DENY"
+            "DENY",
           )} Bad command usage. Show command detail with \`${
             message.usedPrefix
-          }todo -h\``
+          }todo -h\``,
         )
   },
   subs: [
@@ -108,15 +108,15 @@ export default new app.Command({
         const user = await app.getUser(message.author, true)
 
         const count = await app.countOf(
-          todoTable.query.where("user_id", user._id)
+          todoTable.query.where("user_id", user._id),
         )
 
         if (count > 999)
           return message.channel.send(
             `${app.emote(
               message,
-              "DENY"
-            )} You have too many todo tasks, please remove some first.`
+              "DENY",
+            )} You have too many todo tasks, please remove some first.`,
           )
 
         try {
@@ -133,13 +133,13 @@ export default new app.Command({
 
           return message.channel.send(
             `${app.emote(message, "CHECK")} Saved with ${todoId(
-              todo
-            )} as identifier.`
+              todo,
+            )} as identifier.`,
           )
         } catch (error: any) {
           app.error(error, __filename)
           return message.channel.send(
-            `${app.emote(message, "DENY")} An error has occurred.`
+            `${app.emote(message, "DENY")} An error has occurred.`,
           )
         }
       },
@@ -175,7 +175,7 @@ export default new app.Command({
         await todoTable.query.delete().where("user_id", user._id)
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully deleted todo list`
+          `${app.emote(message, "CHECK")} Successfully deleted todo list`,
         )
       },
     }),
@@ -203,7 +203,7 @@ export default new app.Command({
 
         if (!todo)
           return message.channel.send(
-            `${app.emote(message, "DENY")} Unknown todo task id.`
+            `${app.emote(message, "DENY")} Unknown todo task id.`,
           )
 
         return message.channel.send({
@@ -236,20 +236,20 @@ export default new app.Command({
 
         if (!todo)
           return message.channel.send(
-            `${app.emote(message, "DENY")} Unknown todo task id.`
+            `${app.emote(message, "DENY")} Unknown todo task id.`,
           )
 
         const user = await app.getUser(message.author, true)
 
         if (todo.user_id !== user._id)
           return message.channel.send(
-            `${app.emote(message, "DENY")} This is not your own task.`
+            `${app.emote(message, "DENY")} This is not your own task.`,
           )
 
         await todoTable.query.delete().where("_id", message.args.id)
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully deleted todo task`
+          `${app.emote(message, "CHECK")} Successfully deleted todo task`,
         )
       },
     }),
@@ -284,10 +284,10 @@ export default new app.Command({
           pages: app.divider(todoList, 10).map((page, i, pages) =>
             new app.MessageEmbed()
               .setTitle(
-                `Result of "${message.args.search}" search (${todoList.length} items)`
+                `Result of "${message.args.search}" search (${todoList.length} items)`,
               )
               .setDescription(page.join("\n"))
-              .setFooter({ text: `Page ${i + 1} / ${pages.length}` })
+              .setFooter({ text: `Page ${i + 1} / ${pages.length}` }),
           ),
         })
       },

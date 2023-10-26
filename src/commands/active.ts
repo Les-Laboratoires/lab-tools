@@ -58,7 +58,7 @@ export default new app.Command({
     const config = await app.getGuild(message.guild, true)
 
     const waiting = await message.channel.send(
-      `${app.emote(message, "WAIT")} Fetching members...`
+      `${app.emote(message, "WAIT")} Fetching members...`,
     )
 
     await app.updateActive(message.guild, {
@@ -75,28 +75,31 @@ export default new app.Command({
       if (intervals[message.guild.id] !== undefined)
         clearInterval(intervals[message.guild.id])
 
-      intervals[message.guild.id] = setInterval(async () => {
-        if (await app.hasActivity(config._id, message.args.interval))
-          return await app.sendLog(
+      intervals[message.guild.id] = setInterval(
+        async () => {
+          if (await app.hasActivity(config._id, message.args.interval))
+            return await app.sendLog(
+              message.guild,
+              `Ignored automated active list update, no activity detected in the last period.`,
+            )
+
+          const found = await app.updateActive(message.guild, {
+            force: false,
+            period: message.args.period,
+            messageCount: message.args.messageCount,
+            guildConfig: config,
+          })
+
+          await app.sendLog(
             message.guild,
-            `Ignored automated active list update, no activity detected in the last period.`
+            `Finished updating the active list, found **${found}** active members.`,
           )
-
-        const found = await app.updateActive(message.guild, {
-          force: false,
-          period: message.args.period,
-          messageCount: message.args.messageCount,
-          guildConfig: config,
-        })
-
-        await app.sendLog(
-          message.guild,
-          `Finished updating the active list, found **${found}** active members.`
-        )
-      }, message.args.interval * 1000 * 60 * 60)
+        },
+        message.args.interval * 1000 * 60 * 60,
+      )
 
       await message.channel.send(
-        `${app.emote(message, "CHECK")} Automated active list update enabled.`
+        `${app.emote(message, "CHECK")} Automated active list update enabled.`,
       )
     }
   },

@@ -20,7 +20,7 @@ const listener: app.Listener<"ready"> = {
     for (const restartMessage of restartMessages) {
       const channel = await client.channels.fetch(
         restartMessage.last_channel_id,
-        { force: true }
+        { force: true },
       )
 
       if (channel?.isText()) {
@@ -30,18 +30,18 @@ const listener: app.Listener<"ready"> = {
             {
               format: "ms",
               maxPartCount: 3,
-            }
+            },
           )
           .replace(
             /(?:millièmes? de seconde|thousandths? of (?:a )?second)/,
-            "ms"
+            "ms",
           )
           .replace(/(\d+)/g, "**$1**")})`
 
         if (!restartMessage.last_message_id) await channel.send(content)
         else {
           const message = await channel.messages.fetch(
-            restartMessage.last_message_id
+            restartMessage.last_message_id,
           )
 
           try {
@@ -53,7 +53,7 @@ const listener: app.Listener<"ready"> = {
       } else {
         app.error(
           `channel ${restartMessage.last_channel_id} is not a text channel`,
-          __filename
+          __filename,
         )
       }
     }

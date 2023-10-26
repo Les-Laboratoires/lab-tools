@@ -17,7 +17,7 @@ export default new app.Command({
     message.triggerCoolDown()
 
     const waiting = await message.channel.send(
-      `${app.emote(message, "WAIT")} Deploying...`
+      `${app.emote(message, "WAIT")} Deploying...`,
     )
 
     const commands: string[] = []
@@ -26,8 +26,8 @@ export default new app.Command({
       return new Promise(async (resolve, reject) => {
         await waiting.edit(
           `${app.emote(message, "WAIT")} Deploying...${commands.join(
-            ""
-          )}${`\n${app.emote(message, "WAIT")} \`>_ ${command}\``}`
+            "",
+          )}${`\n${app.emote(message, "WAIT")} \`>_ ${command}\``}`,
         )
 
         let timer = Date.now()
@@ -38,7 +38,7 @@ export default new app.Command({
           commands.push(
             `\n${app.emote(message, "CHECK")} \`>_ ${command}\` (${
               Date.now() - timer
-            }ms)`
+            }ms)`,
           )
 
           resolve(void 0)
@@ -77,7 +77,7 @@ export default new app.Command({
                   .slice(0, 2000)
                   .reverse()
                   .join(""),
-              })
+              }),
             ),
         ],
       })

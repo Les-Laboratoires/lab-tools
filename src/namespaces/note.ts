@@ -43,13 +43,13 @@ export const noteLadder = new app.Ladder<NoteLadderLine>({
         left join user on note.to_id = user._id
         group by user_id
         having note_count >= ${mineNoteCount}
-        and user.is_bot = false`
+        and user.is_bot = false`,
       )
       .then((rows: any) => rows[0]?.total ?? 0)
   },
   formatLine(line) {
     return `${app.formatRank(line.rank)} ${app.graphicalNote(
-      line.score
+      line.score,
     )}  **${line.score.toFixed(2)}**  <@${line.target}>`
   },
 })

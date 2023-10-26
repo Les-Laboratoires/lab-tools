@@ -36,8 +36,8 @@ export default new app.Command({
                   pageLineCount: 15,
                 })) || `${app.emote(message, "DENY")} No ladder available`,
               inline: false,
-            }))
-          )
+            })),
+          ),
         ),
       ],
     })

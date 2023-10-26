@@ -59,10 +59,10 @@ export default new app.Command({
                     return Number(val)
                   return val
                 },
-                2
+                2,
               ),
               lang: "json",
-            })
+            }),
           )
           .setThumbnail(bot.displayAvatarURL({ dynamic: true }))
           .setURL(url.toString()),

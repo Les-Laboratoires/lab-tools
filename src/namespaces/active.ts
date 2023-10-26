@@ -12,7 +12,7 @@ import active from "../tables/active.js"
 export async function fetchActiveMembers(
   guild_id: number,
   period: number,
-  messageCount: number
+  messageCount: number,
 ): Promise<
   {
     messageCount: number
@@ -44,7 +44,7 @@ export async function updateActive(
     messageCount: number
     onLog?: (text: string) => unknown | Promise<unknown>
     guildConfig: Guild
-  }
+  },
 ): Promise<number> {
   guild.members.cache.clear()
 
@@ -60,7 +60,7 @@ export async function updateActive(
   const actives = await app.fetchActiveMembers(
     options.guildConfig._id,
     options.period,
-    options.messageCount
+    options.messageCount,
   )
 
   for (const member of members) {
@@ -83,15 +83,15 @@ export async function updateActive(
               user_id: user._id,
               guild_id: options.guildConfig._id,
             }
-          })
-        )
+          }),
+        ),
       )
 
     if (options.onLog)
       await options.onLog(
         `${app.emote(guild, "WAIT")} Verification of **0**/**${
           members.length
-        }** members...`
+        }** members...`,
       )
 
     for (const member of activeMembers) {
@@ -104,10 +104,10 @@ export async function updateActive(
         await options.onLog(
           `${app.emote(
             guild,
-            "WAIT"
+            "WAIT",
           )} Verification of **${activeMembers.indexOf(member)}**/**${
             members.length
-          }** members...`
+          }** members...`,
         )
     }
 
@@ -121,7 +121,7 @@ export async function updateActive(
         await options.onLog(
           `${app.emote(guild, "WAIT")} Verification of **${
             activeMembers.length + inactiveMembers.indexOf(member)
-          }**/**${members.length}** members...`
+          }**/**${members.length}** members...`,
         )
     }
   } else {
@@ -129,14 +129,14 @@ export async function updateActive(
 
     const activeMembersCache = await active.query.where(
       "guild_id",
-      options.guildConfig._id
+      options.guildConfig._id,
     )
 
     if (options.onLog)
       await options.onLog(
         `${app.emote(guild, "WAIT")} Update of **${
           activeMembers.length
-        }** active members...`
+        }** active members...`,
       )
 
     for (const member of activeMembers) {
@@ -155,7 +155,7 @@ export async function updateActive(
       await options.onLog(
         `${app.emote(guild, "WAIT")} Update of **${
           inactiveMembers.length
-        }** inactive members...`
+        }** inactive members...`,
       )
 
     for (const member of inactiveMembers) {
@@ -175,7 +175,7 @@ export async function updateActive(
     options.onLog(
       `${app.emote(guild, "CHECK")} Found **${
         activeMembers.length
-      }** active members.`
+      }** active members.`,
     )
 
   return activeMembers.length
@@ -188,7 +188,7 @@ export async function updateActive(
  */
 export async function hasActivity(
   guild_id: number,
-  period: number
+  period: number,
 ): Promise<boolean> {
   return true
   // return app.orm
@@ -240,14 +240,14 @@ export const activeLadder = (guild_id: number) =>
           from message
           left join user on message.author_id = user._id
           where guild_id = ${guild_id}
-          having user.is_bot = false`
+          having user.is_bot = false`,
         )
         .then((rows: any) => rows[0]?.total ?? 0)
     },
     formatLine(line, index, lines) {
       return `${app.formatRank(line.rank)} avec \`${app.forceTextSize(
         String(line.messageCount),
-        Math.max(...lines.map((l) => l.messageCount), 0).toString().length
+        Math.max(...lines.map((l) => l.messageCount), 0).toString().length,
       )}\` msg - <@${line.target}>`
     },
   })

@@ -23,7 +23,7 @@ export default new app.Command({
     used = true
 
     const waiting = await message.channel.send(
-      `${app.emote(message, "WAIT")} Fetching elder roles...`
+      `${app.emote(message, "WAIT")} Fetching elder roles...`,
     )
 
     const config = await app.getGuild(message.guild, true)
@@ -52,7 +52,7 @@ export default new app.Command({
     await waiting.edit(
       `${app.emote(message, "WAIT")} Looking for new elders from ${
         members.length
-      } members...`
+      } members...`,
     )
 
     for (const member of members) {
@@ -78,7 +78,7 @@ export default new app.Command({
           waiting,
           members.indexOf(member),
           members.length,
-          "Looking for new elders... (`$%` %)"
+          "Looking for new elders... (`$%` %)",
         )
       }
     }
@@ -101,11 +101,11 @@ export default new app.Command({
           .setTitle(
             `Added ${
               logs.filter((log) => !log.includes("error:")).length
-            } elders`
+            } elders`,
           )
           .setFooter({
             text: `Page: ${index + 1} sur ${pages.length}`,
-          })
+          }),
       ),
     })
 

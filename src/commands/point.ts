@@ -23,8 +23,8 @@ export default new app.Command({
             `Vous avez actuellement ${
               data?.total ?? 0
             } points. Vous pouvez en gagner en aidant les autres membres et en utilisant la commande \`${await app.prefix(
-              message.guild
-            )}point ask @membre\`.`
+              message.guild,
+            )}point ask @membre\`.`,
           ),
       ],
     })
@@ -56,26 +56,26 @@ export default new app.Command({
                 `Vous pouvez attribuer des points à ${
                   message.member
                 } en fonction de la qualité de l'aide apportée en cliquant sur le bouton souhaité. Vous pouvez également noter la personne avec la commande \`${await app.prefix(
-                  message.guild
-                )}note @${message.member.user.username} <1..5>\``
+                  message.guild,
+                )}note @${message.member.user.username} <1..5>\``,
               ),
           ],
           components: [
             new app.MessageActionRow().addComponents(
               new app.MessageButton()
                 .setCustomId(
-                  `point;1;${message.args.member!.id};${message.member.id}`
+                  `point;1;${message.args.member!.id};${message.member.id}`,
                 )
                 .setLabel("Très bien")
                 .setStyle("PRIMARY")
                 .setEmoji("👍"),
               new app.MessageButton()
                 .setCustomId(
-                  `point;5;${message.args.member!.id};${message.member.id}`
+                  `point;5;${message.args.member!.id};${message.member.id}`,
                 )
                 .setLabel("Excellent!")
                 .setStyle("PRIMARY")
-                .setEmoji(message.client.emojis.resolve("507420549765529610")!)
+                .setEmoji(message.client.emojis.resolve("507420549765529610")!),
             ),
           ],
           options: {},
@@ -83,7 +83,7 @@ export default new app.Command({
 
         await app.sendLog(
           message.guild,
-          `${message.author} ask points to ${message.args.member} in ${message.channel}.`
+          `${message.author} ask points to ${message.args.member} in ${message.channel}.`,
         )
       },
     }),

@@ -36,8 +36,8 @@ const listener: app.Listener<"ready"> = {
 
     app.log(
       `deleted ${chalk.blueBright(userCount)} users, ${chalk.blueBright(
-        guildCount
-      )} guilds and ${chalk.blueBright(0)} messages.`
+        guildCount,
+      )} guilds and ${chalk.blueBright(0)} messages.`,
     )
   },
 }

@@ -5,11 +5,14 @@ const listener: app.Listener<"ready"> = {
   description: "Launch the hourly check for tracker",
   once: true,
   async run(client) {
-    setInterval(async () => {
-      for (const guild of client.guilds.cache.values()) {
-        await app.updateGuildOnlineCountTracker(guild)
-      }
-    }, 1000 * 60 * 5) // 5 minutes
+    setInterval(
+      async () => {
+        for (const guild of client.guilds.cache.values()) {
+          await app.updateGuildOnlineCountTracker(guild)
+        }
+      },
+      1000 * 60 * 5,
+    ) // 5 minutes
   },
 }
 

@@ -41,7 +41,7 @@ export function hasConfigKey(key: keyof Guild): command.Middleware<"guild"> {
 }
 
 export function isNotInUse(
-  inUse: () => boolean
+  inUse: () => boolean,
 ): command.Middleware<"all" | "guild" | "dm"> {
   return async function isNotInUse(message, data) {
     return {

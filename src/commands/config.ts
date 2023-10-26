@@ -59,8 +59,8 @@ export default new app.Command({
                             lang: isJSON ? "json" : undefined,
                             format: isJSON ? { printWidth: 62 } : undefined,
                             content: value,
-                          })
-                        )
+                          }),
+                        ),
                       )
 
                       return null
@@ -69,7 +69,7 @@ export default new app.Command({
                     return `**${key}** = ${entity}`
                   })
                   .filter((line) => line !== null)
-                  .join("\n")
+                  .join("\n"),
           ),
       ],
     })
@@ -97,7 +97,7 @@ export default new app.Command({
         await guilds.query.insert({ ...config, id: message.guild.id })
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully overwritten config. `
+          `${app.emote(message, "CHECK")} Successfully overwritten config. `,
         )
       },
     }),
@@ -124,7 +124,7 @@ export default new app.Command({
           .merge()
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully merged values. `
+          `${app.emote(message, "CHECK")} Successfully merged values. `,
         )
       },
     }),
@@ -149,7 +149,7 @@ export default new app.Command({
       async run(message) {
         if (message.args.name === "id" || message.args.name === "_id")
           return message.channel.send(
-            `${app.emote(message, "DENY")} You can't edit the guild id!`
+            `${app.emote(message, "DENY")} You can't edit the guild id!`,
           )
 
         await guilds.query
@@ -163,7 +163,7 @@ export default new app.Command({
         return message.channel.send(
           `${app.emote(message, "CHECK")} Successfully updated \`${
             message.args.name
-          }\` value. `
+          }\` value. `,
         )
       },
     }),
@@ -212,7 +212,7 @@ export default new app.Command({
                       ? JSON.stringify(json, null, 2)
                       : String(value),
                   lang: json !== null ? "json" : undefined,
-                })
+                }),
               ),
           ],
         })
@@ -227,7 +227,7 @@ export default new app.Command({
         await guilds.query.delete().where("id", message.guild.id)
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully reset guild config.`
+          `${app.emote(message, "CHECK")} Successfully reset guild config.`,
         )
       },
     }),

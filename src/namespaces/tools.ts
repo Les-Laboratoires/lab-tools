@@ -23,7 +23,7 @@ export enum Emotes {
 export async function sendLog(
   guild: app.Guild,
   toSend: string | app.MessageEmbed,
-  config?: Guild
+  config?: Guild,
 ) {
   config ??= await getGuild(guild)
 
@@ -64,11 +64,11 @@ export async function getGuild(guild: {
 }): Promise<Guild | undefined>
 export async function getGuild(
   guild: { id: string },
-  force: true
+  force: true,
 ): Promise<Guild>
 export async function getGuild(
   guild: { id: string },
-  force?: true
+  force?: true,
 ): Promise<Guild | undefined> {
   const config = await guilds.query.where("id", guild.id).first()
 
@@ -83,7 +83,7 @@ export async function getGuild(
 export async function sendTemplatedEmbed(
   channel: app.AnyChannel,
   template: string,
-  replacers: { [k: string]: string }
+  replacers: { [k: string]: string },
 ) {
   if (!channel.isText()) return
 
@@ -116,7 +116,7 @@ export async function sendTemplatedEmbed(
           app.code.stringify({
             lang: "json",
             content: template,
-          })
+          }),
       )
     }
     return channel.send(template)
@@ -138,7 +138,7 @@ export function embedReplacers(subject: app.GuildMember) {
 
 export function emote(
   { client }: { client: app.Client },
-  name: keyof typeof Emotes
+  name: keyof typeof Emotes,
 ) {
   return client.emojis.resolve(Emotes[name])
 }
@@ -173,14 +173,14 @@ export async function sendProgress(
   index: number,
   total: number,
   pattern: string,
-  interval = 10
+  interval = 10,
 ) {
   if (index % interval === 0) {
     await message.edit(
       `${emote(message, "WAIT")} ${pattern
         .replace("$%", String(Math.round((index * 100) / total)))
         .replace("$#", String(index))
-        .replace("$$", String(total))}`
+        .replace("$$", String(total))}`,
     )
   }
 }

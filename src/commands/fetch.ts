@@ -1,6 +1,6 @@
 import * as app from "../app.js"
 
-import messages from "../tables/message.js"
+import messages, { Message } from "../tables/message.js"
 
 export default new app.Command({
   name: "fetch",
@@ -19,10 +19,7 @@ export default new app.Command({
     const target = message.args.channel
 
     const feedback = await message.channel.send(
-      `${app.emote(
-        message,
-        "WAIT"
-      )} Fetching messages from ${target}... (**0**)`
+      `${app.emote(message, "WAIT")} Fetching messages from ${target}...`,
     )
 
     let found = 0
@@ -31,33 +28,41 @@ export default new app.Command({
 
     const userCache = new Map()
 
-    await app.fetchMessages(message.args.channel, {
-      onChunk: async (chunk) => {
-        found += chunk.length
+    const editInterval = 5000
+    let lastEdit = Date.now()
 
-        messages.query.insert(
-          await Promise.all(
-            chunk.map(async (m) => {
-              if (!userCache.has(m.author.id))
-                userCache.set(m.author.id, await app.getUser(m.author, true))
+    await app.fetchMessages(message.args.channel, async (chunk) => {
+      found += chunk.length
 
-              return {
-                id: m.id,
-                author_id: userCache.get(m.author.id)!._id,
-                guild_id: guild._id,
-                created_at: m.createdAt.toISOString(),
-              }
-            })
-          )
-        )
+      const data: Message[] = []
 
-        feedback.edit(
-          `${app.emote(
-            message,
-            "WAIT"
-          )} Fetching messages from ${target}... (**${found}**)`
-        )
-      },
+      for (const m of chunk) {
+        if (!userCache.has(m.author.id)) {
+          const user = await app.getUser(m.author, true)
+          userCache.set(m.author.id, user)
+        }
+
+        data.push({
+          author_id: userCache.get(m.author.id)!._id,
+          guild_id: guild._id,
+          created_at: m.createdAt.toISOString(),
+        })
+      }
+
+      await messages.query.insert(data)
+
+      if (Date.now() < lastEdit + editInterval) return
+
+      lastEdit = Date.now()
+
+      await feedback.edit(
+        `${app.emote(
+          message,
+          "WAIT",
+        )} Fetching messages from ${target}... (**${found}** messages from **${
+          userCache.size
+        }** users)`,
+      )
     })
 
     if (target.isText()) target.messages.cache.clear()
@@ -65,8 +70,10 @@ export default new app.Command({
     return feedback.edit(
       `${app.emote(
         message,
-        "CHECK"
-      )} Successfully fetched **${found}** messages from ${target}.`
+        "CHECK",
+      )} Successfully fetched **${found}** messages from **${
+        userCache.size
+      }** users from ${target}.`,
     )
   },
 })

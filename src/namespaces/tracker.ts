@@ -14,8 +14,8 @@ export async function updateGuildMemberCountTracker(guild: app.Guild) {
       await channel.setName(
         config.member_tracker_pattern.replace(
           "$n",
-          app.shortNumber(members.size)
-        )
+          app.shortNumber(members.size),
+        ),
       )
     }
   }
@@ -42,10 +42,10 @@ export async function updateGuildOnlineCountTracker(guild: app.Guild) {
           app.shortNumber(
             members.filter(
               (member) =>
-                !!member.presence && member.presence.status !== "offline"
-            ).size
-          )
-        )
+                !!member.presence && member.presence.status !== "offline",
+            ).size,
+          ),
+        ),
       )
     }
   }
