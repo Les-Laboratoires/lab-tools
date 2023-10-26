@@ -9,7 +9,10 @@ export default new app.Command({
   description: "Deploy Lab Tool",
   channelType: "all",
   botOwnerOnly: true,
-  coolDown: 5000,
+  cooldown: {
+    duration: 10000,
+    type: app.CooldownType.Global,
+  },
   async run(message) {
     message.triggerCoolDown()
 

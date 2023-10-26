@@ -60,13 +60,13 @@ async function showTodoList(
   })
 }
 
-const perPageOption: app.IOption = {
+const perPageOption = app.option({
   name: "perPage",
   description: "Count of task per page",
   type: "number",
-  default: () => "10",
+  default: () => 10,
   aliases: ["per", "by", "count", "nbr", "div", "*"],
-}
+})
 
 export default new app.Command({
   name: "todo",
@@ -150,13 +150,12 @@ export default new app.Command({
       aliases: ["ls"],
       channelType: "all",
       positional: [
-        {
+        app.positional({
           name: "target",
           type: "user",
           description: "The target member",
-          default: (message?: app.IMessage) =>
-            message?.author.id ?? "no default",
-        },
+          default: (message) => message.author,
+        }),
       ],
       options: [perPageOption],
       async run(message) {

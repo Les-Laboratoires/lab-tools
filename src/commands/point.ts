@@ -36,15 +36,14 @@ export default new app.Command({
       channelType: "guild",
       description: "Send a message for asking points",
       positional: [
-        {
+        app.positional({
           name: "member",
           description: "The member you want to ask points",
           required: true,
           type: "member",
-          validate: (value: app.GuildMember, message?: app.GuildMessage) =>
-            value.id !== message?.member.id,
-          checkingErrorMessage: "You can't ask points to yourself.",
-        },
+          validate: (value, message) => value.id !== message?.member?.id,
+          validationErrorMessage: "You can't ask points to yourself.",
+        }),
       ],
       async run(message) {
         await message.delete()
@@ -65,14 +64,14 @@ export default new app.Command({
             new app.MessageActionRow().addComponents(
               new app.MessageButton()
                 .setCustomId(
-                  `point;1;${message.args.member.id};${message.member.id}`
+                  `point;1;${message.args.member!.id};${message.member.id}`
                 )
                 .setLabel("Très bien")
                 .setStyle("PRIMARY")
                 .setEmoji("👍"),
               new app.MessageButton()
                 .setCustomId(
-                  `point;5;${message.args.member.id};${message.member.id}`
+                  `point;5;${message.args.member!.id};${message.member.id}`
                 )
                 .setLabel("Excellent!")
                 .setStyle("PRIMARY")

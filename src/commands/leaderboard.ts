@@ -6,14 +6,14 @@ export default new app.Command({
   description: "The leaderboard command",
   channelType: "guild",
   options: [
-    {
+    app.option({
       name: "lines",
       description: "Number of lines to show per page",
       type: "number",
-      default: String(15),
+      default: 15,
       aliases: ["line", "count"],
-      validate: (value: number) => value > 0 && value <= 50,
-    },
+      validate: (value) => value > 0 && value <= 50,
+    }),
   ],
   async run(message) {
     const guild = await app.getGuild(message.guild, true)

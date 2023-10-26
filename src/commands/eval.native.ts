@@ -7,11 +7,9 @@ import * as app from "../app.js"
 
 const exec = util.promisify(cp.exec)
 
-const packageJson = app.fetchPackageJson()
-
 const alreadyInstalled = (pack: string): boolean =>
-  packageJson.dependencies.hasOwnProperty(pack) ||
-  packageJson.devDependencies.hasOwnProperty(pack)
+  app.packageJSON.dependencies.hasOwnProperty(pack) ||
+  app.packageJSON.devDependencies.hasOwnProperty(pack)
 
 export default new app.Command({
   name: "eval",
@@ -25,14 +23,15 @@ export default new app.Command({
     required: true,
   },
   options: [
-    {
+    app.option({
       name: "use",
       type: "array",
       description: "NPM packages I want to includes in my code",
-      validate: (packages: string[]) => {
+      validate: (packages) => {
         return packages.length > 0
       },
-    },
+      default: [],
+    }),
   ],
   flags: [
     {
@@ -51,6 +50,7 @@ export default new app.Command({
     const installed = new Set<string>()
 
     let code = message.args.code
+    let use = message.args.use
 
     if (message.args.use.length > 0) {
       const given = new Set<string>(message.args.use.filter((p: string) => p))

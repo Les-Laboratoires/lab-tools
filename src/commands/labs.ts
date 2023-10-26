@@ -71,15 +71,18 @@ export default new app.Command({
       description: "Update all affiliations",
       channelType: "guild",
       botOwnerOnly: true,
-      coolDown: 10000,
+      cooldown: {
+        duration: 10000,
+        type: app.CooldownType.Global,
+      },
       positional: [
-        {
+        app.positional({
           name: "packSize",
           description: "How many labs to send per message",
           type: "number",
-          validate: (value: number) => value > 0 && value <= 12,
-          default: "10",
-        },
+          validate: (value) => value > 0 && value <= 12,
+          default: 10,
+        }),
       ],
       async run(message) {
         await app.updateLabsInAffiliationChannels(

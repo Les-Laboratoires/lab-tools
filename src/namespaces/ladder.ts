@@ -1,12 +1,13 @@
 import discord from "discord.js"
-import * as core from "../app/core.js"
+import * as util from "../app/util.js"
 import * as command from "../app/command.js"
+import * as argument from "../app/argument.js"
 import * as pagination from "../app/pagination.js"
 
 import * as tools from "./tools.js"
 
 export function formatRank(rank: number) {
-  return `\`[ ${core.forceTextSize(rank, 3, true)} ]\``
+  return `\`[ ${util.forceTextSize(rank, 3, true)} ]\``
 }
 
 export interface LadderLine {
@@ -92,14 +93,14 @@ export class Ladder<Line extends LadderLine> {
       channelType: "guild",
       aliases: ["ladder", "lb", "top", "rank"],
       options: [
-        {
+        argument.option({
           name: "lines",
           description: "Number of lines to show per page",
           type: "number",
-          default: String(15),
+          default: 15,
           aliases: ["line", "count"],
-          validate: (value: number) => value > 0 && value <= 50,
-        },
+          validate: (value) => value > 0 && value <= 50,
+        }),
       ],
       run: async (message) => {
         this.send(message.channel, {

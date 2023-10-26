@@ -26,31 +26,31 @@ export default new app.Command({
     },
   ],
   options: [
-    {
+    app.option({
       name: "period",
       description: "The period to check (in hours)",
       type: "number",
-      default: String(24 * 7), // 1 week
-      validate: (value: number) => value > 0,
+      default: 24 * 7, // 1 week
+      validate: (value) => value > 0,
       validationErrorMessage: "The period must be greater than 0.",
-    },
-    {
+    }),
+    app.option({
       name: "messageCount",
       aliases: ["count"],
       description: "The minimum message count",
       type: "number",
-      default: String(50),
-      validate: (value: number) => value > 0,
+      default: 50,
+      validate: (value) => value > 0,
       validationErrorMessage: "The period must be greater than 0.",
-    },
-    {
+    }),
+    app.option({
       name: "interval",
       description: "The interval to auto update the active list (in hours)",
       type: "number",
-      default: String(24), // 1 day
-      validate: (value: number) => value > 0,
+      default: 24, // 1 day
+      validate: (value) => value > 0,
       validationErrorMessage: "The period must be greater than 0.",
-    },
+    }),
   ],
   async run(message) {
     used = true
@@ -107,14 +107,14 @@ export default new app.Command({
       channelType: "guild",
       aliases: ["ladder", "lb", "top", "rank"],
       options: [
-        {
+        app.option({
           name: "lines",
           description: "Number of lines to show per page",
           type: "number",
-          default: String(15),
+          default: 15,
           aliases: ["line", "count"],
-          validate: (value: number) => value > 0 && value <= 50,
-        },
+          validate: (value) => value > 0 && value <= 50,
+        }),
       ],
       run: async (message) => {
         const guild = await app.getGuild(message.guild, true)

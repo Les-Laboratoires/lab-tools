@@ -7,13 +7,13 @@ export default new app.Command({
   aliases: ["invitation", "bot", "cobaye"],
   channelType: "all",
   positional: [
-    {
+    app.positional({
       name: "bot",
       type: "user",
-      validate: (user: app.User) => user.bot,
+      validate: (user) => user.bot,
       description: "Bot to invite",
-      checkingErrorMessage: "User must be a bot.",
-    },
+      validationErrorMessage: "User must be a bot.",
+    }),
   ],
   flags: [
     {
