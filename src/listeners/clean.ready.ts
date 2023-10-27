@@ -43,7 +43,7 @@ const listener: app.Listener<"ready"> = {
       }
     }
 
-    await deleteUsers.del()
+    if (!first) await deleteUsers.del()
 
     first = true
 
@@ -59,7 +59,7 @@ const listener: app.Listener<"ready"> = {
       }
     }
 
-    await deleteGuilds.del()
+    if (!first) await deleteGuilds.del()
 
     const messageCountAfter = await _message.count()
     const userCountAfter = await _user.count()
