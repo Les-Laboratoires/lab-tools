@@ -234,13 +234,18 @@ export const activeLadder = (guild_id: number) =>
     async fetchLineCount() {
       return app.orm
         .raw(
-          `select
+          `select count(*) from (select
+            rank() over (
+                order by count(*) desc
+            ) as rank,
+            user.id as target,
             count(*) as messageCount
           from message
           left join user on message.author_id = user._id
           where guild_id = ${guild_id}
-          group by user.id
-          having user.is_bot = 0`,
+          group by target
+          having user.is_bot = 0
+          order by rank asc)`,
         )
         .then((rows: any) => rows[0]?.messageCount ?? 0)
     },
