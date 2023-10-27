@@ -12,7 +12,7 @@ const listener: app.Listener<"ready"> = {
   async run(client) {
     // Delete removed users
 
-    await client.guilds.fetch()
+    const realGuilds = await client.guilds.fetch()
 
     const members = (
       await Promise.all(
@@ -52,7 +52,7 @@ const listener: app.Listener<"ready"> = {
     let guildCount = 0
 
     for (const guild of guilds) {
-      if (!client.guilds.cache.has(guild.id)) {
+      if (!realGuilds.has(guild.id)) {
         deleteGuilds[first ? "where" : "orWhere"]("id", guild.id)
         guildCount++
         first = false
