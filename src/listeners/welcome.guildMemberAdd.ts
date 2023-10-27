@@ -55,8 +55,6 @@ const listener: app.Listener<"guildMemberAdd"> = {
       }
 
       if (!(await app.getUser(member))) {
-        await app.createUser(member)
-
         try {
           const message = await member.send(
             "Welcome to the **Les Laboratoires** network.\nOne of these servers may be of interest to you!",

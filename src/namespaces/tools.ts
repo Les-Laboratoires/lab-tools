@@ -39,20 +39,19 @@ export async function sendLog(
   }
 }
 
-export async function createUser(user: { id: string }) {
-  await users.query.insert({
-    id: user.id,
-    is_bot: app.client.users.cache.get(user.id)?.bot ?? false,
-  })
-}
-
 export async function getUser(user: { id: string }): Promise<User | undefined>
 export async function getUser(user: { id: string }, force: true): Promise<User>
 export async function getUser(user: { id: string }, force?: true) {
   const userInDb = await users.query.where("id", user.id).first()
 
   if (force && !userInDb) {
-    await createUser(user)
+    await users.query
+      .insert({
+        id: user.id,
+        is_bot: app.client.users.cache.get(user.id)?.bot ?? false,
+      })
+      .onConflict("id")
+      .merge()
     return (await users.query.where("id", user.id).first())!
   }
 
