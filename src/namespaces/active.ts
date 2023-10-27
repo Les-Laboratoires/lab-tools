@@ -215,33 +215,34 @@ export const activeLadder = (guild_id: number) =>
     title: "Activity",
     fetchLines(options) {
       return app.orm.raw(`
-      select
-          rank() over (
-              order by count(*) desc
-          ) as rank,
-          user.id as target,
-          count(*) as messageCount
-      from message
-      left join user on message.author_id = user._id
-      where guild_id = ${guild_id}
-      group by target
-      having user.is_bot = false
-      order by rank asc
-      limit ${options.pageLineCount}
-      offset ${options.pageIndex * options.pageLineCount}
-    `)
+        select
+            rank() over (
+                order by count(*) desc
+            ) as rank,
+            user.id as target,
+            count(*) as messageCount
+        from message
+        left join user on message.author_id = user._id
+        where guild_id = ${guild_id}
+        group by target
+        having user.is_bot = 0
+        order by rank asc
+        limit ${options.pageLineCount}
+        offset ${options.pageIndex * options.pageLineCount}
+      `)
     },
     async fetchLineCount() {
       return app.orm
         .raw(
           `select
-            count(distinct author_id) as total
+            count(*) as messageCount
           from message
           left join user on message.author_id = user._id
           where guild_id = ${guild_id}
-          having user.is_bot = false`,
+          group by user.id
+          having user.is_bot = 0`,
         )
-        .then((rows: any) => rows[0]?.total ?? 0)
+        .then((rows: any) => rows[0]?.messageCount ?? 0)
     },
     formatLine(line, index, lines) {
       return `${app.formatRank(line.rank)} avec \`${app.forceTextSize(
