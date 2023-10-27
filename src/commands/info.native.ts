@@ -21,7 +21,7 @@ export default new app.Command({
     const embed = new app.MessageEmbed()
       .setColor("BLURPLE")
       .setAuthor({
-        name: `Information about ${message.client.user.tag}`,
+        name: `Information about ${message.client.user.username}`,
         iconURL: message.client.user?.displayAvatarURL({ dynamic: true }),
       })
       .setDescription(conf.description)

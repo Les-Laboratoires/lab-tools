@@ -144,7 +144,9 @@ export default new app.Command({
           `${app.emote(
             message,
             "CHECK",
-          )} Auto-roles are successfully applied to **${target.user.tag}**.`,
+          )} Auto-roles are successfully applied to **${
+            target.user.username
+          }**.`,
         )
       },
       subs: [
