@@ -77,7 +77,7 @@ export default new app.Command({
 
       intervals[message.guild.id] = setInterval(
         async () => {
-          if (await app.hasActivity(config._id, message.args.interval))
+          if (!(await app.hasActivity(config._id, message.args.interval)))
             return await app.sendLog(
               message.guild,
               `Ignored automated active list update, no activity detected in the last period.`,

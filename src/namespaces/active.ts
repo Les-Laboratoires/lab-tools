@@ -190,19 +190,18 @@ export async function hasActivity(
   guild_id: number,
   period: number,
 ): Promise<boolean> {
-  return true
-  // return app.orm
-  //   .raw(
-  //     `select
-  //       count(*) > 0 as hasActivity
-  //     from message
-  //     where
-  //       guild_id = ${guild_id}
-  //     and
-  //       unixepoch(datetime(created_at, 'localtime')) >
-  //       unixepoch(datetime('now', '-${period} hours', 'localtime'))`
-  //   )
-  //   .then((result) => !!result[0]?.hasActivity)
+  return app.orm
+    .raw(
+      `select
+        count(*) > 0 as hasActivity
+      from message
+      where
+        guild_id = ${guild_id}
+      and
+        unixepoch(datetime(created_at, 'localtime')) >
+        unixepoch(datetime('now', '-${period} hours', 'localtime'))`,
+    )
+    .then((result) => !!result[0]?.hasActivity)
 }
 
 export interface ActiveLadderLine {
