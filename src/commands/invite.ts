@@ -28,7 +28,7 @@ export default new app.Command({
 
     const url = new URL("/oauth2/authorize", "https://discord.com/")
 
-    url.searchParams.append("scope", "bot")
+    url.searchParams.append("scope", "bot applications.commands")
     url.searchParams.append("client_id", bot.id)
 
     if (here && app.isGuildMessage(message)) {
