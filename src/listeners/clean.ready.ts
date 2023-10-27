@@ -1,9 +1,9 @@
+import chalk from "chalk"
 import * as app from "../app.js"
 
 import _user from "../tables/user.js"
 import _guild from "../tables/guild.js"
-import _message from "../tables/message"
-import chalk from "chalk"
+import _message from "../tables/message.js"
 
 const listener: app.Listener<"ready"> = {
   event: "ready",

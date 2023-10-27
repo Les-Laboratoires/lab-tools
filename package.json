@@ -2,7 +2,7 @@
   "name": "lab-tools",
   "version": "v6.0.4-Felons",
   "author": "ghom",
-  "description": "Discord bot in TypeScript",
+  "description": "Bot de gestion des Laboratoires, écrit en TypeScript avec le framework bot.ts.",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
