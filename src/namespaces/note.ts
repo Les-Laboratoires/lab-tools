@@ -16,12 +16,12 @@ export const noteLadder = new app.Ladder<NoteLadderLine>({
   async fetchLines(options) {
     return app.orm.raw(`
       select
-          avg(value) as score,
-          count(from_id) as note_count,
-          rank() over (
-              order by avg(value) desc
-          ) as rank,
-          user.id as target
+        avg(value) as score,
+        count(from_id) as note_count,
+        rank() over (
+          order by avg(value) desc
+        ) as rank,
+        user.id as target
       from note
       left join user on note.to_id = user._id
       group by to_id
@@ -36,14 +36,22 @@ export const noteLadder = new app.Ladder<NoteLadderLine>({
     return app.orm
       .raw(
         `select 
+          count(*) as total
+        from (
+          select
+            avg(value) as score,
             count(from_id) as note_count,
-            to_id as user_id,
-            count(*) as total
-        from note
-        left join user on note.to_id = user._id
-        group by user_id
-        having note_count >= ${mineNoteCount}
-        and user.is_bot = false`,
+            rank() over (
+              order by avg(value) desc
+            ) as rank,
+            user.id as target
+          from note
+          left join user on note.to_id = user._id
+          group by to_id
+          having note_count >= ${mineNoteCount}
+          and user.is_bot = false
+          order by score desc
+        )`,
       )
       .then((rows: any) => rows[0]?.total ?? 0)
   },
