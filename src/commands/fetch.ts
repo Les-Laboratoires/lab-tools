@@ -49,7 +49,7 @@ export default new app.Command({
         })
       }
 
-      await messages.query.insert(data)
+      if (data.length > 0) await messages.query.insert(data)
 
       if (Date.now() < lastEdit + editInterval) return
 
