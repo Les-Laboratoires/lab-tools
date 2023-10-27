@@ -29,10 +29,20 @@ export const pointLadder = new app.Ladder<PointLadderLine>({
     return app.orm
       .raw(
         `select
-          count(distinct to_id) as total
-        from point
-        left join user on point.to_id = user._id
-        having user.is_bot = false`,
+          count(*) as total
+        from (
+          select
+            sum(amount) as score,
+            rank() over (
+                order by sum(amount) desc
+            ) as rank,
+            user.id as target
+          from point
+          left join user on point.to_id = user._id
+          group by to_id
+          having user.is_bot = false
+          order by score desc
+        )`,
       )
       .then((rows: any) => rows[0]?.total ?? 0)
   },
