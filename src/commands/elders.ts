@@ -47,7 +47,7 @@ export default new app.Command({
 
     message.guild.members.cache.clear()
 
-    const logs: string[] = []
+    const logs: { username: string; years: number }[] = []
 
     await waiting.edit(
       `${app.emote(message, "WAIT")} Looking for new elders from ${
@@ -70,7 +70,10 @@ export default new app.Command({
         ) {
           if (!member.roles.cache.has(elderRoleId.id)) {
             await member.roles.add(elderRoleId.id)
-            logs.push(`**${member.user.tag}** is **${years}** years old!`)
+            logs.push({
+              username: member.user.username,
+              years,
+            })
           }
         }
 
@@ -97,12 +100,13 @@ export default new app.Command({
       channel: message.channel,
       pages: app.divider(logs, 10).map((page, index, pages) =>
         new app.MessageEmbed()
-          .setDescription(page.join("\n"))
-          .setTitle(
-            `Added ${
-              logs.filter((log) => !log.includes("error:")).length
-            } elders`,
+          .setDescription(
+            page
+              .sort((a, b) => b.years - a.years)
+              .map((log) => `\`${log.years}\` years old: **${log.username}**`)
+              .join("\n"),
           )
+          .setTitle(`Added ${logs.length} elders`)
           .setFooter({
             text: `Page: ${index + 1} sur ${pages.length}`,
           }),
