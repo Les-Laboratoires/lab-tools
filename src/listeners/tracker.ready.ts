@@ -9,6 +9,7 @@ const listener: app.Listener<"ready"> = {
       async () => {
         for (const guild of client.guilds.cache.values()) {
           await app.updateGuildOnlineCountTracker(guild)
+          await app.updateGuildMessageCountTracker(guild)
         }
       },
       1000 * 60 * 5,
