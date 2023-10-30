@@ -17,18 +17,13 @@ export default new app.Command({
       name: "force",
       description: "Force the update of all members",
     },
-    {
-      flag: "a",
-      name: "auto",
-      description: "Automatically update the active list",
-    },
   ],
   options: [
     app.option({
       name: "period",
       description: "The period to check (in hours)",
       type: "number",
-      default: 24 * 7, // 1 week
+      default: 24 * 7 * 3, // 3 week
       validate: (value) => value > 0,
       validationErrorMessage: "The period must be greater than 0.",
     }),
@@ -38,14 +33,6 @@ export default new app.Command({
       description: "The minimum message count",
       type: "number",
       default: 50,
-      validate: (value) => value > 0,
-      validationErrorMessage: "The period must be greater than 0.",
-    }),
-    app.option({
-      name: "interval",
-      description: "The interval to auto update the active list (in hours)",
-      type: "number",
-      default: 24, // 1 day
       validate: (value) => value > 0,
       validationErrorMessage: "The period must be greater than 0.",
     }),
@@ -68,12 +55,6 @@ export default new app.Command({
     })
 
     used = false
-
-    if (message.args.auto) {
-      await message.channel.send(
-        `${app.emote(message, "CHECK")} Automated active list update enabled.`,
-      )
-    }
   },
   subs: [
     new app.Command({
