@@ -33,18 +33,32 @@ const listener: app.Listener<"interactionCreate"> = {
       created_at: new Date().toISOString(),
     })
 
+    await app.sendLog(
+      interaction.guild!,
+      `${interaction.user} give **${amount}** points to <@${to_id}> in ${interaction.channel}.`,
+    )
+
     await interaction.reply({
       content: `${app.emote(interaction, "CHECK")} Successfully noted.`,
       ephemeral: true,
     })
 
+    const target = await interaction.client.users.fetch(to_id, {
+      cache: false,
+      force: true,
+    })
+
+    await target.send(
+      `${app.emote(
+        interaction,
+        "CHECK",
+      )} You received **${amount}** points from ${interaction.user} in ${
+        interaction.channel
+      }.`,
+    )
+
     if (interaction.message instanceof app.Message)
       await interaction.message.delete?.()
-
-    await app.sendLog(
-      interaction.guild!,
-      `${interaction.user} give **${amount}** points to <@${to_id}> in ${interaction.channel}.`,
-    )
   },
 }
 
