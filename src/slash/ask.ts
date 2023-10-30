@@ -6,19 +6,28 @@ export default new app.SlashCommand({
   async run(interaction) {
     if (!interaction.channel || !interaction.channel.isThread())
       return interaction.reply({
-        content: "This command can only be used in a thread channel.",
+        content: `${app.emote(
+          interaction,
+          "DENY",
+        )} This command can only be used in a thread channel.`,
         ephemeral: true,
       })
 
     if (!interaction.guild)
       return interaction.reply({
-        content: "This command can only be used in a guild.",
+        content: `${app.emote(
+          interaction,
+          "DENY",
+        )} This command can only be used in a guild.`,
         ephemeral: true,
       })
 
     if (interaction.user.id === interaction.channel.ownerId)
       return interaction.reply({
-        content: "You can't ask points to yourself.",
+        content: `${app.emote(
+          interaction,
+          "DENY",
+        )} You can't ask points to yourself.`,
         ephemeral: true,
       })
 
@@ -30,7 +39,10 @@ export default new app.SlashCommand({
     await interaction.reply({
       embeds: [
         new app.MessageEmbed()
-          .setTitle(`Notez l'aide de ${interaction.user.username}`)
+          .setAuthor({
+            name: `Notez l'aide de ${interaction.user.username}`,
+            iconURL: interaction.user.avatarURL()!,
+          })
           .setDescription(
             `Vous pouvez attribuer des points à ${
               interaction.member
