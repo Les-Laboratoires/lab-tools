@@ -2,8 +2,6 @@ import * as app from "../app.js"
 
 let used = false
 
-const intervals: Record<string, NodeJS.Timeout> = {}
-
 export default new app.Command({
   name: "active",
   description: "Update the active list",
@@ -72,32 +70,6 @@ export default new app.Command({
     used = false
 
     if (message.args.auto) {
-      if (intervals[message.guild.id] !== undefined)
-        clearInterval(intervals[message.guild.id])
-
-      intervals[message.guild.id] = setInterval(
-        async () => {
-          if (!(await app.hasActivity(config._id, message.args.interval)))
-            return await app.sendLog(
-              message.guild,
-              `Ignored automated active list update, no activity detected in the last period.`,
-            )
-
-          const found = await app.updateActive(message.guild, {
-            force: false,
-            period: message.args.period,
-            messageCount: message.args.messageCount,
-            guildConfig: config,
-          })
-
-          await app.sendLog(
-            message.guild,
-            `Finished updating the active list, found **${found}** active members.`,
-          )
-        },
-        message.args.interval * 1000 * 60 * 60,
-      )
-
       await message.channel.send(
         `${app.emote(message, "CHECK")} Automated active list update enabled.`,
       )

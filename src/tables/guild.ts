@@ -24,6 +24,8 @@ export interface Guild {
   member_tracker_pattern: string
   message_tracker_pattern: string
   online_tracker_pattern: string
+  active_period: `${number}`
+  active_message_count: `${number}`
 }
 
 export default new app.Table<Guild>({
@@ -37,6 +39,10 @@ export default new app.Table<Guild>({
       table.string("member_tracker_pattern").defaultTo("📈｜$n membres")
       table.string("message_tracker_pattern").defaultTo("📨｜$n messages")
       table.string("online_tracker_pattern").defaultTo("🟢｜$n connectés")
+    },
+    2: (table) => {
+      table.string("active_period").defaultTo(String(24 * 7 * 3)) // 3 weeks
+      table.string("active_message_count").defaultTo(String(50))
     },
   },
   setup: (table) => {
