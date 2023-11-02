@@ -15,7 +15,7 @@ const listener: app.Listener<"ready"> = {
 
       if (intervals[guild.id] !== undefined) clearInterval(intervals[guild.id])
 
-      const interval = 2 // hours
+      const interval = 6 // hours
       const period = Number(config.active_period)
       const messageCount = Number(config.active_message_count)
 
@@ -23,11 +23,7 @@ const listener: app.Listener<"ready"> = {
         async () => {
           const realGuild = await guild.fetch()
 
-          if (!(await app.hasActivity(config._id, interval)))
-            return await app.sendLog(
-              realGuild,
-              `Ignored automated active list update, no activity detected in the last period.`,
-            )
+          if (!(await app.hasActivity(config._id, interval))) return
 
           const found = await app.updateActive(realGuild, {
             force: false,

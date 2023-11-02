@@ -195,8 +195,11 @@ export async function hasActivity(
       `select
         count(*) > 0 as hasActivity
       from message
+      left join user on message.author_id = user._id
       where
         guild_id = ${guild_id}
+      and
+        user.is_bot = 0
       and
         unixepoch(datetime(created_at, 'localtime')) >
         unixepoch(datetime('now', '-${period} hours', 'localtime'))`,
