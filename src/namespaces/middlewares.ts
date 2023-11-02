@@ -16,7 +16,7 @@ export function staffOnly(): command.Middleware<"guild"> {
         (config?.staff_role_id &&
           message.member.roles.cache.has(config.staff_role_id)) ||
         message.guild.ownerId === message.author.id ||
-        message.member.permissions.has("ADMINISTRATOR") ||
+        message.member.permissions.has("Administrator") ||
         "You must be a member of staff.",
       data,
     }

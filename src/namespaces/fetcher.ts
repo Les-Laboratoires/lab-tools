@@ -1,10 +1,10 @@
-import { AnyChannel, Message } from "discord.js"
+import { Channel, Message } from "discord.js"
 
 export async function fetchMessages(
-  channel: AnyChannel,
+  channel: Channel,
   onChunk: (chunk: Message[]) => unknown,
 ) {
-  if (!channel.isText())
+  if (!channel.isTextBased())
     throw new Error(
       "discord-fetch-all: channel parameter is not a textual channel.",
     )

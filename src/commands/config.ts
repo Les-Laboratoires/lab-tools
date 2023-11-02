@@ -18,14 +18,14 @@ export default new app.Command({
   async run(message) {
     const config = await app.getGuild(message.guild, true)
 
-    const specialProps: app.MessageEmbed[] = []
+    const specialProps: app.EmbedBuilder[] = []
 
     await message.channel.send({
       embeds: [
-        new app.MessageEmbed()
+        new app.EmbedBuilder()
           .setAuthor({
             name: `${message.guild.name} | Configs`,
-            iconURL: message.guild.iconURL({ dynamic: true }) ?? undefined,
+            iconURL: message.guild.iconURL() ?? undefined,
           })
           .setDescription(
             message.args.raw
@@ -54,7 +54,7 @@ export default new app.Command({
                       const isJSON = app.isJSON(value)
 
                       specialProps.push(
-                        new app.MessageEmbed().setTitle(key).setDescription(
+                        new app.EmbedBuilder().setTitle(key).setDescription(
                           app.code.stringify({
                             lang: isJSON ? "json" : undefined,
                             format: isJSON ? { printWidth: 62 } : undefined,
@@ -186,8 +186,8 @@ export default new app.Command({
         if (!config)
           return message.channel.send({
             embeds: [
-              new app.MessageEmbed()
-                .setColor("BLURPLE")
+              new app.EmbedBuilder()
+                .setColor("Blurple")
                 .setTitle(`${message.guild.name} - ${message.args.name}`)
                 .setDescription(app.code.stringify({ content: "null" })),
             ],
@@ -202,8 +202,8 @@ export default new app.Command({
 
         return message.channel.send({
           embeds: [
-            new app.MessageEmbed()
-              .setColor("BLURPLE")
+            new app.EmbedBuilder()
+              .setColor("Blurple")
               .setTitle(`${message.guild.name} - ${message.args.name}`)
               .setDescription(
                 app.code.stringify({

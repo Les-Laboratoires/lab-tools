@@ -40,10 +40,10 @@ export default new app.Command({
 
     await message.channel.send({
       embeds: [
-        new app.MessageEmbed()
+        new app.EmbedBuilder()
           .setAuthor({
             name: `Invitez ${bot.username} ${here ? "ici" : ""}`,
-            iconURL: message.guild?.iconURL({ dynamic: true }) ?? undefined,
+            iconURL: message.guild?.iconURL() ?? undefined,
             url: url.toString(),
           })
           .setDescription(
@@ -64,7 +64,7 @@ export default new app.Command({
               lang: "json",
             }),
           )
-          .setThumbnail(bot.displayAvatarURL({ dynamic: true }))
+          .setThumbnail(bot.displayAvatarURL())
           .setURL(url.toString()),
       ],
     })

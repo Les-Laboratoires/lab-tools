@@ -19,7 +19,7 @@ export async function updateLabsInAffiliationChannels(
     if (config?.affiliation_channel_id) {
       const channel = guild.channels.cache.get(config.affiliation_channel_id)
 
-      if (channel?.isText()) {
+      if (channel?.isTextBased()) {
         const messages = await channel.messages.fetch()
 
         for (const m of messages.values()) await m.delete()
@@ -49,7 +49,7 @@ export async function sendLabList(
 
   const pages = app.divider(labs, packSize)
 
-  if (channel.isText()) {
+  if (channel.isTextBased()) {
     for (const page of pages)
       await channel.send(
         page.map((lab) => `${lab.title} ${lab.url}`).join("\n"),

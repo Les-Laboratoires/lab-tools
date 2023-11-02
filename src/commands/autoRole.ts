@@ -97,8 +97,8 @@ export default new app.Command({
 
         return message.channel.send({
           embeds: [
-            new app.MessageEmbed()
-              .setColor("BLURPLE")
+            new app.EmbedBuilder()
+              .setColor("Blurple")
               .setTitle("Auto-role list")
               .addFields([
                 {
@@ -161,7 +161,7 @@ export default new app.Command({
             )
 
             const members = Array.from(
-              (await message.guild.members.fetch({ force: true })).values(),
+              (await message.guild.members.fetch()).values(),
             )
 
             message.guild.members.cache.clear()

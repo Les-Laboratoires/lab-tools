@@ -41,7 +41,7 @@ export default new app.Command({
 
     message.guild.members.cache.clear()
 
-    const members = (await message.guild.members.fetch({ force: true }))
+    const members = (await message.guild.members.fetch())
       .filter((member) => !member.user.bot)
       .map((member) => member)
 
@@ -99,7 +99,7 @@ export default new app.Command({
     new app.StaticPaginator({
       channel: message.channel,
       pages: app.divider(logs, 10).map((page, index, pages) =>
-        new app.MessageEmbed()
+        new app.EmbedBuilder()
           .setDescription(
             page
               .sort((a, b) => b.years - a.years)

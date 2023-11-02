@@ -65,7 +65,7 @@ export default new app.Command({
       )
     })
 
-    if (target.isText()) target.messages.cache.clear()
+    if (target.isTextBased()) target.messages.cache.clear()
 
     return feedback.edit(
       `${app.emote(

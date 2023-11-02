@@ -1,6 +1,6 @@
 {
   "name": "lab-tools",
-  "version": "v6.0.5-Felons",
+  "version": "v7.0.0-Senchu",
   "author": "ghom",
   "description": "Bot de gestion des Laboratoires, écrit en TypeScript avec le framework bot.ts.",
   "main": "dist/index.js",
@@ -13,7 +13,8 @@
     "update": "gulp update",
     "test": "tsc --noEmit && npm run start.test",
     "deploy": "git reset --hard && git pull && npm run build && pm2 restart tool",
-    "start.test": "npm run build && node tests/index.test.js"
+    "start.test": "npm run build && node tests/index.test.js",
+    "readme": "gulp readme"
   },
   "prettier": {
     "semi": false,
@@ -38,7 +39,7 @@
     "chalk": "^5.0.1",
     "dayjs": "^1.11.3",
     "dirname-filename-esm": "^1.1.1",
-    "discord.js": "^13.8.1",
+    "discord.js": "^14.13.0",
     "dotenv": "^16.0.1",
     "emoji-regex": "^10.1.0",
     "figlet": "^1.5.2",
@@ -79,10 +80,12 @@
     "make-bot.ts": "^6.0.5",
     "nodemon": "^2.0.19",
     "typescript": "^5.2.2",
-    "vinyl-paths": "^4.0.0"
+    "vinyl-paths": "^4.0.0",
+    "@ghom/bot.ts-cli": "^7.0.3"
   },
   "engines": {
     "node": ">=18.x.x",
-    "npm": ">=9.x.x"
+    "npm": ">=9.x.x",
+    "git": ">=2.x.x"
   }
 }

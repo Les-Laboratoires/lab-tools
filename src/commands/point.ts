@@ -17,7 +17,7 @@ export default new app.Command({
 
     await message.channel.send({
       embeds: [
-        new app.MessageEmbed()
+        new app.EmbedBuilder()
           .setTitle(`Points de ${message.member.displayName}`)
           .setDescription(
             `Vous avez actuellement ${
@@ -48,38 +48,13 @@ export default new app.Command({
       async run(message) {
         await message.delete()
 
-        await message.channel.send({
-          embeds: [
-            new app.MessageEmbed()
-              .setTitle(`Notez l'aide de ${message.member.displayName}`)
-              .setDescription(
-                `Vous pouvez attribuer des points à ${
-                  message.member
-                } en fonction de la qualité de l'aide apportée en cliquant sur le bouton souhaité. Vous pouvez également noter la personne avec la commande \`${await app.prefix(
-                  message.guild,
-                )}note @${message.member.user.username} <1..5>\``,
-              ),
-          ],
-          components: [
-            new app.MessageActionRow().addComponents(
-              new app.MessageButton()
-                .setCustomId(
-                  `point;1;${message.args.member!.id};${message.member.id}`,
-                )
-                .setLabel("Très bien")
-                .setStyle("PRIMARY")
-                .setEmoji("👍"),
-              new app.MessageButton()
-                .setCustomId(
-                  `point;5;${message.args.member!.id};${message.member.id}`,
-                )
-                .setLabel("Excellent!")
-                .setStyle("PRIMARY")
-                .setEmoji(message.client.emojis.resolve("507420549765529610")!),
-            ),
-          ],
-          options: {},
-        })
+        await message.channel.send(
+          await app.buildAskPointEmbed(
+            message.author,
+            message.args.member!,
+            message.guild,
+          ),
+        )
 
         await app.sendLog(
           message.guild,

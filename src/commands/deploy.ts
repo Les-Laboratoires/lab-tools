@@ -66,9 +66,9 @@ export default new app.Command({
 
       return waiting.edit({
         embeds: [
-          new app.MessageEmbed()
+          new app.EmbedBuilder()
             .setTitle("\\❌ An error has occurred.")
-            .setColor("RED")
+            .setColor("Red")
             .setDescription(
               app.code.stringify({
                 content: (error?.stack ?? error?.message ?? String(error))

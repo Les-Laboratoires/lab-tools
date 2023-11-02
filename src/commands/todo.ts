@@ -26,7 +26,7 @@ async function showTodoList(
   new app.DynamicPaginator({
     channel: message.channel,
     filter: (reaction, user) => user.id === message.author.id,
-    placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
+    placeHolder: new app.EmbedBuilder().setTitle("No todo task found."),
     async fetchPage(index): Promise<app.Page> {
       const itemCount = await app.countOf(
         todoTable.query.where("user_id", user._id),
@@ -40,13 +40,13 @@ async function showTodoList(
       if (perPage === 1) {
         const [todo] = pageTasks
 
-        return new app.MessageEmbed()
+        return new app.EmbedBuilder()
           .setTitle(`Todo task of ${message.author.tag}`)
           .setDescription(`${todoId(todo)} ${todo.content}`)
           .setFooter({ text: `Item ${index + 1} / ${itemCount}` })
       }
 
-      return new app.MessageEmbed()
+      return new app.EmbedBuilder()
         .setTitle(`Todo list of ${message.author.tag} (${itemCount} items)`)
         .setDescription(pageTasks.map(todoItem).join("\n"))
         .setFooter({ text: `Page ${index + 1} / ${pageCount}` })
@@ -208,7 +208,7 @@ export default new app.Command({
 
         return message.channel.send({
           embeds: [
-            new app.MessageEmbed()
+            new app.EmbedBuilder()
               .setTitle(`Todo task of ${message.author.tag}`)
               .setDescription(`${todoId(todo)} ${todo.content}`),
           ],
@@ -279,10 +279,10 @@ export default new app.Command({
 
         new app.StaticPaginator({
           channel: message.channel,
-          placeHolder: new app.MessageEmbed().setTitle("No todo task found."),
+          placeHolder: new app.EmbedBuilder().setTitle("No todo task found."),
           filter: (reaction, user) => user.id === message.author.id,
           pages: app.divider(todoList, 10).map((page, i, pages) =>
-            new app.MessageEmbed()
+            new app.EmbedBuilder()
               .setTitle(
                 `Result of "${message.args.search}" search (${todoList.length} items)`,
               )

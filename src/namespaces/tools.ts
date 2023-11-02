@@ -4,10 +4,6 @@ import users, { User } from "../tables/user.js"
 import guilds, { Guild } from "../tables/guild.js"
 import autoRole from "../tables/autoRole.js"
 
-import { filename } from "dirname-filename-esm"
-
-const __filename = filename(import.meta)
-
 export enum Emotes {
   APPROVED = "865281743333228604",
   DISAPPROVED = "865281743560638464",
@@ -22,7 +18,7 @@ export enum Emotes {
 
 export async function sendLog(
   guild: app.Guild,
-  toSend: string | app.MessageEmbed,
+  toSend: string | app.EmbedBuilder,
   config?: Guild,
 ) {
   config ??= await getGuild(guild)
@@ -32,7 +28,7 @@ export async function sendLog(
   if (config.log_channel_id) {
     const logs = guild.channels.cache.get(config.log_channel_id)
 
-    if (logs?.isText())
+    if (logs?.isTextBased())
       return typeof toSend === "string"
         ? logs.send({ content: toSend, allowedMentions: { parse: [] } })
         : logs.send({ embeds: [toSend], allowedMentions: { parse: [] } })
@@ -80,22 +76,21 @@ export async function getGuild(
 }
 
 export async function sendTemplatedEmbed(
-  channel: app.AnyChannel,
+  channel: app.Channel,
   template: string,
   replacers: { [k: string]: string },
 ) {
-  if (!channel.isText()) return
+  if (!channel.isTextBased()) return
 
   for (const k in replacers)
     template = template.replace(new RegExp(`{${k}}`, "g"), replacers[k])
 
   let embeds
   try {
-    const data: app.MessageEmbedOptions | app.MessageEmbedOptions[] =
-      JSON.parse(template)
+    const data: app.EmbedData | app.EmbedData[] = JSON.parse(template)
 
     embeds = (Array.isArray(data) ? data : [data]).map((options) => {
-      const embed = new app.MessageEmbed(options)
+      const embed = new app.EmbedBuilder(options)
 
       if (options.thumbnail?.url) embed.setThumbnail(options.thumbnail.url)
       if (options.image?.url) embed.setImage(options.image.url)
@@ -127,10 +122,10 @@ export function embedReplacers(subject: app.GuildMember) {
     user: subject.user.toString(),
     username: subject.user.username.replace(/"/g, '\\"'),
     guild_icon:
-      subject.guild.iconURL({ dynamic: true }) ??
+      subject.guild.iconURL() ??
       "https://discord.com/assets/f9bb9c4af2b9c32a2c5ee0014661546d.png",
     displayName: subject.displayName.replace(/"/g, '\\"'),
-    user_avatar: subject.user.displayAvatarURL({ dynamic: true }),
+    user_avatar: subject.user.displayAvatarURL(),
   }
 }
 

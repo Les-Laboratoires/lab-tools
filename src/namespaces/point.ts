@@ -53,3 +53,38 @@ export const pointLadder = new app.Ladder<PointLadderLine>({
     )}\` pts - <@${line.target}>`
   },
 })
+
+export async function buildAskPointEmbed(
+  helper: app.User,
+  helped: { id: string },
+  guild: app.Guild,
+) {
+  return {
+    embeds: [
+      new app.EmbedBuilder()
+        .setAuthor({
+          name: `Notez l'aide de ${helper.username}`,
+          iconURL: helper.avatarURL()!,
+        })
+        .setDescription(
+          `Vous pouvez attribuer des points à ${helper} en fonction de la qualité de l'aide apportée en cliquant sur le bouton souhaité. Vous pouvez également noter la personne avec la commande \`${await app.prefix(
+            guild,
+          )}note @${helper.username} <1..5>\``,
+        ),
+    ],
+    components: [
+      new app.ActionRowBuilder<app.ButtonBuilder>().addComponents(
+        new app.ButtonBuilder()
+          .setCustomId(`point;10;${helped.id};${helper.id}`)
+          .setLabel("Très bien")
+          .setStyle(app.ButtonStyle.Primary)
+          .setEmoji("👍"),
+        new app.ButtonBuilder()
+          .setCustomId(`point;15;${helped.id};${helper.id}`)
+          .setLabel("Excellent!")
+          .setStyle(app.ButtonStyle.Primary)
+          .setEmoji("507420549765529610"),
+      ),
+    ],
+  }
+}

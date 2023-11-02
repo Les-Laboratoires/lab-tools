@@ -17,7 +17,7 @@ const listener: app.Listener<"ready"> = {
     const members = (
       await Promise.all(
         client.guilds.cache.map(async (guild) =>
-          Array.from((await guild.members.fetch({ force: true })).values()),
+          Array.from((await guild.members.fetch()).values()),
         ),
       )
     ).flat()

@@ -82,10 +82,10 @@ export function graphicalNote(note?: number) {
 export async function noteEmbed(target: app.User) {
   const { count, avg } = await app.userNote(target)
 
-  return new app.MessageEmbed()
+  return new app.EmbedBuilder()
     .setAuthor({
       name: `Note of ${target.tag}`,
-      iconURL: target.displayAvatarURL({ dynamic: true }),
+      iconURL: target.displayAvatarURL(),
     })
     .setDescription(`${app.graphicalNote(avg)} **${avg?.toFixed(2) ?? 0}** / 5`)
     .setFooter({ text: `Total: ${count ?? 0} notes` })

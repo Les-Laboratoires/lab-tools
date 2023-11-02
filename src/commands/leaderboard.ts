@@ -26,7 +26,7 @@ export default new app.Command({
 
     return message.channel.send({
       embeds: [
-        new app.MessageEmbed().setTitle("Leaderboards").setFields(
+        new app.EmbedBuilder().setTitle("Leaderboards").setFields(
           await Promise.all(
             ladders.map(async (ladder) => ({
               name: ladder.options.title,

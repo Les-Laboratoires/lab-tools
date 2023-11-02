@@ -7,7 +7,7 @@ export default new app.Command({
     type: app.CooldownType.ByGuild,
   },
   channelType: "all",
-  botPermissions: ["MANAGE_WEBHOOKS"],
+  botPermissions: ["ManageWebhooks"],
   description: "Fake an user message",
   positional: [
     {
@@ -32,8 +32,9 @@ export default new app.Command({
       name = member.displayName
     } catch (error) {}
 
-    const webhook = await message.channel.createWebhook(name, {
-      avatar: user.displayAvatarURL({ dynamic: true }),
+    const webhook = await message.channel.createWebhook({
+      name,
+      avatar: user.displayAvatarURL(),
     })
 
     if (webhook.token) {

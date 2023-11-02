@@ -39,7 +39,7 @@ export class Ladder<Line extends LadderLine> {
     ctx: { client: discord.Client },
     options: LadderPaginatorOptions,
   ) {
-    return new discord.MessageEmbed()
+    return new discord.EmbedBuilder()
       .setTitle(`${this.options.title} leaderboard`)
       .setDescription(
         (await this.fetchPage(options)) ||
