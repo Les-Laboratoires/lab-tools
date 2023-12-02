@@ -1,14 +1,47 @@
 import * as app from "../app.js"
 
 import lab from "../tables/lab.js"
+import guild from "../tables/guild.js"
 
 export default new app.Command({
   name: "labs",
   aliases: ["lab", "affiliations", "affiliation"],
   description: "The labs command",
   channelType: "guild",
+  positional: [
+    {
+      name: "name",
+      description: "A part of lab name",
+      type: "string",
+    },
+  ],
   async run(message) {
-    return app.sendCommandDetails(message, this)
+    if (!message.args.name) return app.sendCommandDetails(message, this as any)
+
+    const labs = await lab.query.select("guild_id", "title", "url")
+    const guilds = await guild.query.select("id", "_id").where(
+      "_id",
+      "in",
+      labs.map((lab) => lab.guild_id),
+    )
+
+    const result = guilds.filter(
+      (guild) =>
+        message.client.guilds.cache
+          .get(guild.id)
+          ?.name.toLowerCase()
+          .includes(message.args.name.toLowerCase()),
+    )
+
+    if (!result)
+      return message.channel.send(`${app.emote(message, "DENY")} No lab found`)
+
+    const labResult = labs.find((lab) => lab.guild_id === result[0]._id)
+
+    if (!labResult)
+      return message.channel.send(`${app.emote(message, "DENY")} No lab found`)
+
+    return message.channel.send(`${labResult.title} ${labResult.url}`)
   },
   subs: [
     new app.Command({

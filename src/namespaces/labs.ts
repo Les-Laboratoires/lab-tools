@@ -49,6 +49,9 @@ export async function sendLabList(
 
   const pages = app.divider(labs, packSize)
 
+  if (pages.length === 0)
+    return channel.send(`${app.emote(channel, "DENY")} No labs found.`)
+
   if (channel.isTextBased()) {
     for (const page of pages)
       await channel.send(
