@@ -18,7 +18,7 @@ const cleanSpamMessages = () => {
   }
 }
 
-export function detectAndBanSpam(message: app.Message): void {
+export function detectAndBanSpammer(message: app.Message): void {
   if (message.author.bot) return
 
   const key = message.author.id

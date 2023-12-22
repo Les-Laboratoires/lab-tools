@@ -4,7 +4,7 @@ const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
   description: "A messageCreate listener",
   async run(message) {
-    app.detectAndBanSpam(message)
+    app.detectAndBanSpammer(message)
   },
 }
 
