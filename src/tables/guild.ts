@@ -26,6 +26,7 @@ export interface Guild {
   online_tracker_pattern: string
   active_period: `${number}`
   active_message_count: `${number}`
+  active_refresh_interval: `${number}`
 }
 
 export default new app.Table<Guild>({
@@ -43,6 +44,9 @@ export default new app.Table<Guild>({
     2: (table) => {
       table.string("active_period").defaultTo(String(24 * 7 * 3)) // 3 weeks
       table.string("active_message_count").defaultTo(String(50))
+    },
+    3: (table) => {
+      table.string("active_refresh_interval").defaultTo(String(2)) // 2 hours
     },
   },
   setup: (table) => {

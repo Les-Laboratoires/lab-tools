@@ -15,7 +15,7 @@ const listener: app.Listener<"ready"> = {
 
       if (intervals[guild.id] !== undefined) clearInterval(intervals[guild.id])
 
-      const interval = 6 // hours
+      const interval = Number(config.active_refresh_interval)
       const period = Number(config.active_period)
       const messageCount = Number(config.active_message_count)
 

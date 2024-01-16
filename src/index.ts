@@ -1,5 +1,9 @@
 import { filename } from "dirname-filename-esm"
 
+// todo: remove this and try to implement hot reloading in bot.ts
+// @ts-expect-error
+import.meta.hot?.accept()
+
 const __filename = filename(import.meta)
 
 import "dotenv/config.js"
