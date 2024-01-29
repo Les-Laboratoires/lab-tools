@@ -9,33 +9,38 @@ const listener: app.Listener<"ready"> = {
     const guilds = await client.guilds.fetch()
 
     for (const [, guild] of guilds) {
-      const config = await app.getGuild(guild)
+      const guildConfig = await app.getGuild(guild)
 
-      if (!config?.active_role_id) continue
+      if (!guildConfig?.active_role_id) continue
 
       if (intervals[guild.id] !== undefined) clearInterval(intervals[guild.id])
 
-      const interval = Number(config.active_refresh_interval)
-      const period = Number(config.active_period)
-      const messageCount = Number(config.active_message_count)
+      const interval = Number(guildConfig.active_refresh_interval)
+
+      const configs = await app.getActiveConfigs(guild)
+
+      let oldCount = 0
 
       intervals[guild.id] = setInterval(
         async () => {
           const realGuild = await guild.fetch()
 
-          if (!(await app.hasActivity(config._id, interval))) return
+          if (!(await app.hasActivity(guildConfig._id, interval))) return
 
-          const found = await app.updateActive(realGuild, {
-            force: false,
-            period,
-            messageCount,
-            guildConfig: config,
-          })
+          let found = 0
 
-          await app.sendLog(
-            realGuild,
-            `Finished updating the active list, found **${found}** active members.`,
-          )
+          for (const activeConfig of configs) {
+            found += await app.updateActive(realGuild, {
+              force: false,
+              activeConfig,
+              guildConfig,
+            })
+          }
+
+          if (found === oldCount) return
+          else oldCount = found
+
+          await app.sendLog(realGuild, `Found **${found}** active members.`)
         },
         interval * 1000 * 60 * 60,
       )

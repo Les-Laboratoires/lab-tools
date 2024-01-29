@@ -1,8 +1,9 @@
 import * as app from "../app.js"
 
 import { Guild } from "../tables/guild.js"
-import messages from "../tables/message.js"
+
 import active from "../tables/active.js"
+import activeConfig, { ActiveConfig } from "../tables/activeConfig.js"
 
 /**
  * @param guild_id internal guild id
@@ -40,12 +41,14 @@ export async function updateActive(
   guild: app.Guild,
   options: {
     force: boolean
-    period: number
-    messageCount: number
     onLog?: (text: string) => unknown | Promise<unknown>
+    activeConfig: ActiveConfig
     guildConfig: Guild
   },
 ): Promise<number> {
+  const period = Number(options.activeConfig.active_period)
+  const messageCount = Number(options.activeConfig.active_message_count)
+
   guild.members.cache.clear()
 
   const members = (await guild.members.fetch())
@@ -59,8 +62,8 @@ export async function updateActive(
 
   const actives = await app.fetchActiveMembers(
     options.guildConfig._id,
-    options.period,
-    options.messageCount,
+    period,
+    messageCount,
   )
 
   for (const member of members) {
@@ -71,7 +74,10 @@ export async function updateActive(
   }
 
   if (options.force) {
-    await active.query.delete().where("guild_id", options.guildConfig._id)
+    await active.query
+      .delete()
+      .where("guild_id", options.guildConfig._id)
+      .andWhere("config_id", options.activeConfig._id)
 
     if (activeMembers.length > 0)
       await active.query.insert(
@@ -82,6 +88,7 @@ export async function updateActive(
             return {
               user_id: user._id,
               guild_id: options.guildConfig._id,
+              config_id: options.activeConfig._id,
             }
           }),
         ),
@@ -127,10 +134,9 @@ export async function updateActive(
   } else {
     // use the cache to update only the changed members
 
-    const activeMembersCache = await active.query.where(
-      "guild_id",
-      options.guildConfig._id,
-    )
+    const activeMembersCache = await active.query
+      .where("guild_id", options.guildConfig._id)
+      .andWhere("config_id", options.activeConfig._id)
 
     if (options.onLog)
       await options.onLog(
@@ -147,6 +153,7 @@ export async function updateActive(
         await active.query.insert({
           user_id: user._id,
           guild_id: options.guildConfig._id,
+          config_id: options.activeConfig._id,
         })
       }
     }
@@ -166,6 +173,7 @@ export async function updateActive(
         await active.query.delete().where({
           user_id: user._id,
           guild_id: options.guildConfig._id,
+          config_id: options.activeConfig._id,
         })
       }
     }
@@ -205,6 +213,13 @@ export async function hasActivity(
         unixepoch(datetime('now', '-${period} hours', 'localtime'))`,
     )
     .then((result) => !!result[0]?.hasActivity)
+}
+
+export async function getActiveConfigs(guild: {
+  id: string
+}): Promise<ActiveConfig[]> {
+  const { _id } = await app.getGuild(guild, true)
+  return activeConfig.query.where("guild_id", _id)
 }
 
 export interface ActiveLadderLine {
