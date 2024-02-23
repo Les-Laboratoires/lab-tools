@@ -3,24 +3,15 @@ import * as app from "../app.js"
 export default new app.SlashCommand({
   name: "ask",
   description: "Ask points to a member",
+  guildOnly: true,
+  threadOnly: true,
   async run(interaction) {
-    if (!interaction.channel || !interaction.channel.isThread())
-      return interaction.reply({
-        content: `${app.emote(
-          interaction,
-          "DENY",
-        )} This command can only be used in a thread channel.`,
-        ephemeral: true,
-      })
-
-    if (!interaction.guild)
-      return interaction.reply({
-        content: `${app.emote(
-          interaction,
-          "DENY",
-        )} This command can only be used in a guild.`,
-        ephemeral: true,
-      })
+    if (
+      !interaction.channel ||
+      !interaction.channel.isThread() ||
+      !interaction.guild
+    )
+      return
 
     if (interaction.user.id === interaction.channel.ownerId)
       return interaction.reply({

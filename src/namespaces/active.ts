@@ -46,6 +46,8 @@ export async function updateActive(
     guildConfig: Guild
   },
 ): Promise<number> {
+  if (process.env.BOT_MODE === "dev") return 0
+
   guild.members.cache.clear()
 
   const members = (await guild.members.fetch())

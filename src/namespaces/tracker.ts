@@ -3,6 +3,8 @@ import * as app from "../app.js"
 import message from "../tables/message.js"
 
 export async function updateGuildMemberCountTracker(guild: app.Guild) {
+  if (process.env.BOT_MODE === "dev") return
+
   const config = await app.getGuild(guild)
 
   if (config?.member_tracker_channel_id) {
@@ -24,6 +26,8 @@ export async function updateGuildMemberCountTracker(guild: app.Guild) {
 }
 
 export async function updateGuildMessageCountTracker(guild: app.Guild) {
+  if (process.env.BOT_MODE === "dev") return
+
   const config = await app.getGuild(guild)
 
   if (config?.message_tracker_channel_id) {
@@ -42,6 +46,8 @@ export async function updateGuildMessageCountTracker(guild: app.Guild) {
 }
 
 export async function updateGuildOnlineCountTracker(guild: app.Guild) {
+  if (process.env.BOT_MODE === "dev") return
+
   const config = await app.getGuild(guild)
 
   if (config?.online_tracker_channel_id) {
