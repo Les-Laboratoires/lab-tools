@@ -46,6 +46,8 @@ export async function updateActive(
     guildConfig: Guild
   },
 ): Promise<number> {
+  if (process.env.BOT_MODE === "dev") return 0
+
   const period = Number(options.activeConfig.active_period)
   const messageCount = Number(options.activeConfig.active_message_count)
 

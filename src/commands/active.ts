@@ -46,13 +46,16 @@ export default new app.Command({
       `${app.emote(message, "WAIT")} Fetching members...`,
     )
 
-    await app.updateActive(message.guild, {
-      force: message.args.force,
-      period: message.args.period,
-      messageCount: message.args.messageCount,
-      onLog: (text) => waiting.edit(text),
-      guildConfig: config,
-    })
+    const configs = await app.getActiveConfigs(message.guild)
+
+    for (const activeConfig of configs) {
+      await app.updateActive(message.guild, {
+        force: message.args.force,
+        onLog: (text) => waiting.edit(text),
+        guildConfig: config,
+        activeConfig,
+      })
+    }
 
     used = false
   },
