@@ -55,6 +55,7 @@
     "yargs-parser": "^21.0.1"
   },
   "devDependencies": {
+    "@esbuild/linux-x64": "^0.20.1",
     "@ghom/bot.ts-cli": "^7.0.3",
     "@types/boxen": "^3.0.1",
     "@types/cron": "^1.7.3",
