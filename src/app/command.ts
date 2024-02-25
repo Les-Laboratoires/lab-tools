@@ -412,10 +412,10 @@ export async function prepareCommand(
       cmd.options.cooldown.type === CooldownType.Global
         ? "global"
         : cmd.options.cooldown.type === CooldownType.ByUser
-        ? message.author.id
-        : cmd.options.cooldown.type === CooldownType.ByGuild
-        ? message.guildId
-        : message.channel.id,
+          ? message.author.id
+          : cmd.options.cooldown.type === CooldownType.ByGuild
+            ? message.guildId
+            : message.channel.id,
     )
     const coolDown = util.cache.ensure<CoolDownData>(slug, {
       time: 0,
