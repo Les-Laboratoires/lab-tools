@@ -34,6 +34,10 @@ export async function generateThreadTitle(
           name: message.author.username.replace(/\s/g, "-"),
           content: message.content,
         })),
+      {
+        role: "system",
+        content: "Title: ",
+      },
     ],
     max_tokens: 25,
     model: "gpt-3.5-turbo",
