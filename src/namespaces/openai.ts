@@ -19,13 +19,16 @@ export async function generateThreadTitle(
         content:
           "We are in a JavaScript developer helping Discord server. " +
           "Your role is to generate a title for the current topic of the thread. " +
-          `The author of topic is "${threadOwner.user.username}".`,
+          `The author of topic is "${threadOwner.user.username}".  ` +
+          "Please generate the title in French.",
       },
-      ...messages.map((message) => ({
-        role: "user" as const,
-        name: message.author.username,
-        content: message.content,
-      })),
+      ...messages
+        .filter((message) => !message.author.bot)
+        .map((message) => ({
+          role: "user" as const,
+          name: message.author.username.replace(/\s/g, "-"),
+          content: message.content,
+        })),
     ],
     max_tokens: 50,
     model: "gpt-3.5-turbo",
@@ -35,5 +38,5 @@ export async function generateThreadTitle(
 
   if (!title) throw new Error("An error occurred while generating the title")
 
-  return title
+  return title.replace(/\n/g, " ").replace(/"/g, "")
 }

@@ -30,7 +30,7 @@ export default new app.SlashCommand({
 
     // Change the title
 
-    interaction.channel.setName(title)
+    await interaction.channel.setName(title)
 
     await app.sendLog(
       interaction.guild,

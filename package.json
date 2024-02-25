@@ -35,6 +35,7 @@
     "@ghom/handler": "^3.1.0",
     "@ghom/logger": "^1.2.0",
     "@ghom/orm": "^1.7.0",
+    "@ghom/web-scrapper": "^1.0.2",
     "boxen": "^7.0.0",
     "chalk": "^5.0.1",
     "dayjs": "^1.11.3",
