@@ -30,7 +30,7 @@ export async function generateThreadTitle(
           content: message.content,
         })),
     ],
-    max_tokens: 50,
+    max_tokens: 25,
     model: "gpt-3.5-turbo",
   })
 
@@ -38,5 +38,5 @@ export async function generateThreadTitle(
 
   if (!title) throw new Error("An error occurred while generating the title")
 
-  return title.replace(/\n/g, " ").replace(/"/g, "")
+  return title.replace(/\n/g, " ").replace(/"/g, "").slice(0, 100)
 }
