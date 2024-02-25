@@ -1,8 +1,8 @@
 import * as app from "../app.js"
 
 export default new app.SlashCommand({
-  name: "title",
-  description: "Generate a title for the thread from its content.",
+  name: "hint",
+  description: "Try to help the author of the thread by generating a hint.",
   guildOnly: true,
   threadOnly: true,
   async run(interaction) {
@@ -22,27 +22,19 @@ export default new app.SlashCommand({
         ephemeral: true,
       })
 
-    // Generate a title
+    // Generate a hint
 
-    const title = await app.generateThreadTitle(interaction.channel)
+    const hint = await app.generateThreadHint(interaction.channel)
 
-    // Change the title
+    // Send the hint
 
-    await interaction.channel.setName(title)
+    await interaction.reply({ content: hint })
 
     // Feedbacks
 
     await app.sendLog(
       interaction.guild,
-      `${interaction.user} changed the title of ${interaction.channel} to:\n> **${title}**`,
+      `${interaction.user} generated a hint for ${interaction.channel} of **${hint.length}** characters.`,
     )
-
-    await interaction.reply({
-      content: `${app.emote(
-        interaction,
-        "CHECK",
-      )} The title has been changed to "${title}".`,
-      ephemeral: true,
-    })
   },
 })
