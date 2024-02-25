@@ -1,11 +1,16 @@
 import OpenAI from "openai"
 import discord from "discord.js"
 
-const openai = new OpenAI()
+let openai: OpenAI
+
+if (process.env.BOT_MODE !== "text") openai = new OpenAI()
 
 export async function generateThreadTitle(
   thread: discord.ThreadChannel,
 ): Promise<string> {
+  if (process.env.BOT_MODE === "text")
+    throw new Error("OpenAI is not available in test mode")
+
   const messages = await thread.messages.fetch({ limit: 100 })
   const threadOwner = await thread.fetchOwner()
 
