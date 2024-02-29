@@ -50,9 +50,9 @@
     "openai": "^4.28.0",
     "prettier": "^3.0.3",
     "regex-parser": "^2.2.11",
-    "sqlite3": "latest",
     "tims": "^2.1.0",
-    "yargs-parser": "^21.0.1"
+    "yargs-parser": "^21.0.1",
+    "pg": "latest"
   },
   "devDependencies": {
     "@esbuild/linux-x64": "^0.20.1",

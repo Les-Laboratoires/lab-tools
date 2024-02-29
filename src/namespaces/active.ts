@@ -23,16 +23,19 @@ export async function fetchActiveMembers(
     select
       count(*) as messageCount,
       user.id as target
-    from message
+    from
+      message
     left join user on message.author_id = user._id
     where
       guild_id = ${guild_id}
-    and
-      unixepoch(datetime(created_at, 'localtime')) >
-      unixepoch(datetime('now', '-${period} hours', 'localtime'))
-    group by target
-    having messageCount >= ${messageCount}
-    order by messageCount desc
+      and
+      extract(epoch from now() - interval '1 hour' * ${period}) < extract(epoch from message.created_at at time zone 'UTC' at time zone 'localtime')
+    group by
+      user.id
+    having
+      count(*) >= ${messageCount}
+    order by
+      messageCount desc;
   `)
 }
 
@@ -195,16 +198,18 @@ export async function hasActivity(
   return app.orm
     .raw(
       `select
-        count(*) > 0 as hasActivity
-      from message
-      left join user on message.author_id = user._id
+        count(*) > 0 as "hasActivity"
+      from
+        message
+      left join
+        "user" on message."author_id" = "user"."_id"
       where
-        guild_id = ${guild_id}
+        "guild_id" = ${guild_id}
       and
-        user.is_bot = 0
+        "user"."is_bot" = 0
       and
-        unixepoch(datetime(created_at, 'localtime')) >
-        unixepoch(datetime('now', '-${period} hours', 'localtime'))`,
+        extract(epoch from now()) - extract(epoch from message."created_at" at time zone 'localtime') < ${period} * 3600
+      `,
     )
     .then((result) => !!result[0]?.hasActivity)
 }
@@ -224,16 +229,26 @@ export const activeLadder = (guild_id: number) =>
             rank() over (
                 order by count(*) desc
             ) as rank,
-            user.id as target,
-            count(*) as messageCount
-        from message
-        left join user on message.author_id = user._id
-        where guild_id = ${guild_id}
-        group by target
-        having user.is_bot = 0
-        order by rank asc
-        limit ${options.pageLineCount}
-        offset ${options.pageIndex * options.pageLineCount}
+            "user"."id" as target,
+            count(*) as "messageCount"
+        from
+            "message"
+        left join
+            "user" on "message"."author_id" = "user"."_id"
+        where
+            "guild_id" = ${guild_id}
+            and
+            "user"."is_bot" = 0
+        group by
+            "user"."id"
+        having
+            count(*) > 0
+        order by
+            rank asc
+        limit
+            ${options.pageLineCount}
+        offset
+            ${options.pageIndex} * ${options.pageLineCount}
       `)
     },
     async fetchLineCount() {
