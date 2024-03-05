@@ -37,6 +37,9 @@ async function showTodoList(
         .offset(index * perPage)
         .limit(perPage)
 
+      if (pageTasks.length === 0)
+        return new app.EmbedBuilder().setTitle("No todo task found.")
+
       if (perPage === 1) {
         const [todo] = pageTasks
 

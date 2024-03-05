@@ -4,24 +4,9 @@ export default new app.SlashCommand({
   name: "title",
   description: "Generate a title for the thread from its content.",
   guildOnly: true,
-  threadOnly: true,
+  channelType: "thread",
+  userPermissions: ["Administrator"],
   async run(interaction) {
-    if (
-      !interaction.channel ||
-      !interaction.channel.isThread() ||
-      !interaction.guild
-    )
-      return
-
-    if (!interaction.memberPermissions?.has("Administrator"))
-      return interaction.reply({
-        content: `${app.emote(
-          interaction,
-          "DENY",
-        )} You must be an admin to use this command.`,
-        ephemeral: true,
-      })
-
     // Generate a title
 
     const title = await app.generateThreadTitle(interaction.channel)
