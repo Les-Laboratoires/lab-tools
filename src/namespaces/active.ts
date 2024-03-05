@@ -218,14 +218,14 @@ export const activeLadder = (guild_id: number) =>
       return message.query
         .select(
           app.orm.raw(
-            `rank() over (order by count(*) desc) as rank, user.id as target, count(*) as messageCount`,
+            `rank() over (order by count(*) desc) as "rank", "user"."id" as "target", count(*) as "messageCount"`,
           ),
         )
         .leftJoin("user", "message.author_id", "user._id")
         .where("guild_id", guild_id)
         .andWhere("user.is_bot", false)
-        .groupBy("target")
-        .having("messageCount", ">", 0)
+        .groupBy("user.id")
+        .having(app.orm.raw("count(*) > 0"))
         .orderBy("rank", "asc")
         .limit(options.pageLineCount)
         .offset(options.pageIndex * options.pageLineCount)
@@ -237,7 +237,7 @@ export const activeLadder = (guild_id: number) =>
           .where("guild_id", guild_id)
           .andWhere("user.is_bot", false)
           .groupBy("user.id")
-          .having("count(*)", ">", 0),
+          .having(app.orm.raw("count(*) > 0")),
       )
     },
     formatLine(line, index, lines) {

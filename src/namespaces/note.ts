@@ -22,8 +22,8 @@ export const noteLadder = new app.Ladder<NoteLadderLine>({
         app.orm.raw("rank() over (order by avg(value) desc) as rank"),
       ])
       .leftJoin("user", "note.to_id", "user._id")
-      .groupBy("to_id")
-      .having("note_count", ">=", mineNoteCount)
+      .groupBy("user.id")
+      .having(app.orm.raw("count(from_id)"), ">=", mineNoteCount)
       .and.where("user.is_bot", false)
       .orderBy("score", "desc")
       .limit(options.pageLineCount)
@@ -33,9 +33,9 @@ export const noteLadder = new app.Ladder<NoteLadderLine>({
     return app.countOf(
       table.query
         .leftJoin("user", "note.to_id", "user._id")
-        .groupBy("to_id")
-        .having("user.is_bot", "=", false)
-        .and.having("note_count", ">=", mineNoteCount),
+        .where("user.is_bot", "=", false)
+        .groupBy("user._id")
+        .having(app.orm.raw("count(*)"), ">=", mineNoteCount),
     )
   },
   formatLine(line) {

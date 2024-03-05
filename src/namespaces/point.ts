@@ -13,20 +13,27 @@ export const pointLadder = new app.Ladder<PointLadderLine>({
   async fetchLines(options) {
     return point.query
       .select([
-        app.orm.raw("sum(amount) as score"),
-        app.orm.raw("rank() over (order by sum(amount) desc) as rank"),
+        app.orm.raw('sum("point"."amount") as "score"'),
+        app.orm.raw(
+          'rank() over (order by sum("point"."amount") desc) as "rank"',
+        ),
         "user.id as target",
       ])
       .leftJoin("user", "point.to_id", "user._id")
-      .groupBy("to_id")
-      .having("user.is_bot", "=", false)
+      .where("user.is_bot", false)
+      .groupBy("user.id")
       .orderBy("score", "desc")
       .limit(options.pageLineCount)
       .offset(options.pageIndex * options.pageLineCount)
   },
   async fetchLineCount() {
     return app.countOf(
-      point.query.distinct("to_id").having("user.is_bot", "=", false),
+      point.query
+        .distinct("to_id")
+        .join("user", "point.to_id", "user._id")
+        .where("user.is_bot", false)
+        .groupBy("to_id"),
+      "to_id",
     )
   },
   formatLine(line, index, lines) {
