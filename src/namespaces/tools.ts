@@ -187,9 +187,9 @@ export function isJSON(value: string) {
   }
 }
 
-export function countOf(builder: any): Promise<number> {
-  return builder.count({ total: "*" }).then((rows: any) => {
-    return rows[0].total as number
+export async function countOf(builder: any, column = "*"): Promise<number> {
+  return builder.count({ total: column }).then((rows: any) => {
+    return rows[0]?.total ?? (0 as number)
   })
 }
 

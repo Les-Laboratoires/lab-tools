@@ -3,6 +3,7 @@ import * as app from "../app.js"
 import { Guild } from "../tables/guild.js"
 import messages from "../tables/message.js"
 import active from "../tables/active.js"
+import message from "../tables/message.js"
 
 /**
  * @param guild_id internal guild id
@@ -19,21 +20,18 @@ export async function fetchActiveMembers(
     target: string
   }[]
 > {
-  return app.orm.raw(`
-    select
-      count(*) as messageCount,
-      user.id as target
-    from message
-    left join user on message.author_id = user._id
-    where
-      guild_id = ${guild_id}
-    and
-      unixepoch(datetime(created_at, 'localtime')) >
-      unixepoch(datetime('now', '-${period} hours', 'localtime'))
-    group by target
-    having messageCount >= ${messageCount}
-    order by messageCount desc
-  `)
+  return message.query
+    .select("author_id as target")
+    .count("* as messageCount")
+    .where("guild_id", guild_id)
+    .and.where(
+      "created_at",
+      ">",
+      app.orm.raw(`now() - interval '1 hour' * ${period}`),
+    )
+    .groupBy("author_id")
+    .having("messageCount", ">=", messageCount)
+    .orderBy("messageCount", "desc")
 }
 
 export async function updateActive(
@@ -192,21 +190,19 @@ export async function hasActivity(
   guild_id: number,
   period: number,
 ): Promise<boolean> {
-  return app.orm
-    .raw(
-      `select
-        count(*) > 0 as hasActivity
-      from message
-      left join user on message.author_id = user._id
-      where
-        guild_id = ${guild_id}
-      and
-        user.is_bot = 0
-      and
-        unixepoch(datetime(created_at, 'localtime')) >
-        unixepoch(datetime('now', '-${period} hours', 'localtime'))`,
+  return app
+    .countOf(
+      message.query
+        .leftJoin("user", "message.author_id", "user._id")
+        .where("message.guild_id", guild_id)
+        .andWhere("user.is_bot", false)
+        .andWhere(
+          app.orm.raw(
+            `extract(epoch from now()) - extract(epoch from message.created_at) < ${period} * 3600`,
+          ),
+        ),
     )
-    .then((result) => !!result[0]?.hasActivity)
+    .then((count) => count > 0)
 }
 
 export interface ActiveLadderLine {
@@ -219,44 +215,30 @@ export const activeLadder = (guild_id: number) =>
   new app.Ladder<ActiveLadderLine>({
     title: "Activity",
     fetchLines(options) {
-      return app.orm.raw(`
-        select
-            rank() over (
-                order by count(*) desc
-            ) as rank,
-            user.id as target,
-            count(*) as messageCount
-        from message
-        left join user on message.author_id = user._id
-        where guild_id = ${guild_id}
-        group by target
-        having user.is_bot = 0
-        order by rank asc
-        limit ${options.pageLineCount}
-        offset ${options.pageIndex * options.pageLineCount}
-      `)
+      return message.query
+        .select(
+          app.orm.raw(
+            `rank() over (order by count(*) desc) as "rank", "user"."id" as "target", count(*) as "messageCount"`,
+          ),
+        )
+        .leftJoin("user", "message.author_id", "user._id")
+        .where("guild_id", guild_id)
+        .andWhere("user.is_bot", false)
+        .groupBy("user.id")
+        .having(app.orm.raw("count(*) > 0"))
+        .orderBy("rank", "asc")
+        .limit(options.pageLineCount)
+        .offset(options.pageIndex * options.pageLineCount)
     },
     async fetchLineCount() {
-      return app.orm
-        .raw(
-          `select 
-            count(*) as messageCount 
-          from (
-            select
-              rank() over (
-                  order by count(*) desc
-              ) as rank,
-              user.id as target,
-              count(*) as messageCount
-            from message
-            left join user on message.author_id = user._id
-            where guild_id = ${guild_id}
-            group by target
-            having user.is_bot = 0
-            order by rank asc
-          )`,
-        )
-        .then((rows: any) => rows[0]?.messageCount ?? 0)
+      return app.countOf(
+        message.query
+          .leftJoin("user", "message.author_id", "user._id")
+          .where("guild_id", guild_id)
+          .andWhere("user.is_bot", false)
+          .groupBy("user.id")
+          .having(app.orm.raw("count(*) > 0")),
+      )
     },
     formatLine(line, index, lines) {
       return `${app.formatRank(line.rank)} avec \`${app.forceTextSize(

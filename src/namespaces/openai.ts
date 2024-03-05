@@ -23,9 +23,11 @@ export async function generateThreadTitle(
         role: "system",
         content:
           "We are in a JavaScript developer helping Discord server. " +
-          "Your role is to generate a title for the current topic of the thread. " +
+          "Your role is to generate an accurate title for the current topic of the thread. " +
+          "The generated title should represent the problem of the author of the thread. " +
+          'There should be no mention of "need help" in the title, this would not be relevant in a support server. ' +
           `The author of topic is "${threadOwner.user.username}".  ` +
-          "Please generate the title in French.",
+          "The title must be written in French.",
       },
       ...messages
         .filter((message) => !message.author.bot)

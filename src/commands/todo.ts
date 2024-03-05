@@ -37,6 +37,9 @@ async function showTodoList(
         .offset(index * perPage)
         .limit(perPage)
 
+      if (pageTasks.length === 0)
+        return new app.EmbedBuilder().setTitle("No todo task found.")
+
       if (perPage === 1) {
         const [todo] = pageTasks
 
@@ -44,6 +47,7 @@ async function showTodoList(
           .setTitle(`Todo task of ${message.author.tag}`)
           .setDescription(`${todoId(todo)} ${todo.content}`)
           .setFooter({ text: `Item ${index + 1} / ${itemCount}` })
+          .setTimestamp(todo.created_at)
       }
 
       return new app.EmbedBuilder()
@@ -120,7 +124,7 @@ export default new app.Command({
           )
 
         try {
-          const todoData: Omit<ToDo, "_id"> = {
+          const todoData: Omit<ToDo, "_id" | "created_at"> = {
             user_id: user._id,
             content,
           }
@@ -210,7 +214,8 @@ export default new app.Command({
           embeds: [
             new app.EmbedBuilder()
               .setTitle(`Todo task of ${message.author.tag}`)
-              .setDescription(`${todoId(todo)} ${todo.content}`),
+              .setDescription(`${todoId(todo)} ${todo.content}`)
+              .setTimestamp(todo.created_at),
           ],
         })
       },

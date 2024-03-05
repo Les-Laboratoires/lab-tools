@@ -4,10 +4,16 @@ export interface ToDo {
   _id: number
   user_id: number
   content: string
+  created_at: Date
 }
 
 export default new app.Table<ToDo>({
   name: "todo",
+  migrations: {
+    1: (table) => {
+      app.addCreatedAt(table)
+    },
+  },
   setup: (table) => {
     table.increments("_id", { primaryKey: true }).unsigned()
     table

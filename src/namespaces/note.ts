@@ -14,46 +14,29 @@ const mineNoteCount = 5
 export const noteLadder = new app.Ladder<NoteLadderLine>({
   title: "Notes",
   async fetchLines(options) {
-    return app.orm.raw(`
-      select
-        avg(value) as score,
-        count(from_id) as note_count,
-        rank() over (
-          order by avg(value) desc
-        ) as rank,
-        user.id as target
-      from note
-      left join user on note.to_id = user._id
-      group by to_id
-      having note_count >= ${mineNoteCount}
-      and user.is_bot = false
-      order by score desc
-      limit ${options.pageLineCount}
-      offset ${options.pageIndex * options.pageLineCount}
-    `)
+    return table.query
+      .avg({ score: "value" })
+      .count({ note_count: "from_id" })
+      .select([
+        "user.id as target",
+        app.orm.raw("rank() over (order by avg(value) desc) as rank"),
+      ])
+      .leftJoin("user", "note.to_id", "user._id")
+      .groupBy("user.id")
+      .having(app.orm.raw("count(from_id)"), ">=", mineNoteCount)
+      .and.where("user.is_bot", false)
+      .orderBy("score", "desc")
+      .limit(options.pageLineCount)
+      .offset(options.pageIndex * options.pageLineCount) as any
   },
   async fetchLineCount() {
-    return app.orm
-      .raw(
-        `select 
-          count(*) as total
-        from (
-          select
-            avg(value) as score,
-            count(from_id) as note_count,
-            rank() over (
-              order by avg(value) desc
-            ) as rank,
-            user.id as target
-          from note
-          left join user on note.to_id = user._id
-          group by to_id
-          having note_count >= ${mineNoteCount}
-          and user.is_bot = false
-          order by score desc
-        )`,
-      )
-      .then((rows: any) => rows[0]?.total ?? 0)
+    return app.countOf(
+      table.query
+        .leftJoin("user", "note.to_id", "user._id")
+        .where("user.is_bot", "=", false)
+        .groupBy("user._id")
+        .having(app.orm.raw("count(*)"), ">=", mineNoteCount),
+    )
   },
   formatLine(line) {
     return `${app.formatRank(line.rank)} ${app.graphicalNote(
