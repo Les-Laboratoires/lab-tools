@@ -1,6 +1,6 @@
 // system file, please don't modify it
 
-import discord, { Guild } from "discord.js"
+import discord from "discord.js"
 import * as rest from "@discordjs/rest"
 import v10 from "discord-api-types/v10"
 import path from "path"
