@@ -24,7 +24,7 @@ export default new app.SlashCommand({
 
     await interaction.reply({
       content: `${app.emote(
-        interaction,
+        interaction.guild,
         "CHECK",
       )} The title has been changed to "${title}".`,
       ephemeral: true,
