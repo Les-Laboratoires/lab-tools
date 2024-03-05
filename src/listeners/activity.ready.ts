@@ -2,6 +2,8 @@ import * as app from "../app.js"
 
 const intervals: Record<string, NodeJS.Timeout> = {}
 
+let lastActiveCount = 0
+
 const listener: app.Listener<"ready"> = {
   event: "ready",
   description: "A ready listener",
@@ -32,10 +34,23 @@ const listener: app.Listener<"ready"> = {
             guildConfig: config,
           })
 
-          await app.sendLog(
-            realGuild,
-            `Finished updating the active list, found **${found}** active members.`,
-          )
+          if (found > lastActiveCount) {
+            await app.sendLog(
+              realGuild,
+              `Finished updating the active list, found **${
+                found - lastActiveCount
+              }** active members.`,
+            )
+          } else if (found < lastActiveCount) {
+            await app.sendLog(
+              realGuild,
+              `Finished updating the active list, **${
+                lastActiveCount - found
+              }** members have been removed.`,
+            )
+          }
+
+          lastActiveCount = found
         },
         interval * 1000 * 60 * 60,
       )

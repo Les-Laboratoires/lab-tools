@@ -64,7 +64,7 @@ const listener: app.Listener<"ready"> = {
     const messageCountAfter = await _message.count()
     const userCountAfter = await _user.count()
 
-    // todo cleanup message if a don't need to keep them
+    // todo cleanup message if we don't need to keep them
 
     app.log(
       `deleted ${chalk.blueBright(
