@@ -20,9 +20,9 @@ export default new app.SlashCommand({
       cache: false,
     }))!
 
-    await interaction.reply(
-      await app.buildAskPointEmbed(interaction.user, target, interaction.guild),
-    )
+    await interaction[
+      interaction.replied || interaction.deferred ? "followUp" : "reply"
+    ](await app.buildAskPointEmbed(interaction.user, target, interaction.guild))
 
     await app.sendLog(
       interaction.guild,

@@ -21,13 +21,5 @@ export default new app.SlashCommand({
       interaction.guild,
       `${interaction.user} changed the title of ${interaction.channel} to:\n> **${title}**`,
     )
-
-    await interaction.reply({
-      content: `${app.emote(
-        interaction.guild,
-        "CHECK",
-      )} The title has been changed to "${title}".`,
-      ephemeral: true,
-    })
   },
 })
