@@ -1,29 +1,29 @@
 import * as app from "../app.js"
 
-import table from "../tables/note.js"
+import table from "../tables/rating.js"
 
-export interface NoteLadderLine {
+export interface RatingLadderLine {
   target: string
   score: number
   rank: number
-  note_count: number
+  rating_count: number
 }
 
-const mineNoteCount = 5
+const mineRatingCount = 5
 
-export const noteLadder = new app.Ladder<NoteLadderLine>({
-  title: "Notes",
+export const ratingLadder = new app.Ladder<RatingLadderLine>({
+  title: "Rating",
   async fetchLines(options) {
     return table.query
       .avg({ score: "value" })
-      .count({ note_count: "from_id" })
+      .count({ rating_count: "from_id" })
       .select([
         "user.id as target",
         app.orm.raw("rank() over (order by avg(value) desc) as rank"),
       ])
       .leftJoin("user", "note.to_id", "user._id")
       .groupBy("user.id")
-      .having(app.orm.raw("count(from_id)"), ">=", mineNoteCount)
+      .having(app.orm.raw("count(from_id)"), ">=", mineRatingCount)
       .and.where("user.is_bot", false)
       .orderBy("score", "desc")
       .limit(options.pageLineCount)
@@ -35,17 +35,17 @@ export const noteLadder = new app.Ladder<NoteLadderLine>({
         .leftJoin("user", "note.to_id", "user._id")
         .where("user.is_bot", "=", false)
         .groupBy("user._id")
-        .having(app.orm.raw("count(*)"), ">=", mineNoteCount),
+        .having(app.orm.raw("count(*)"), ">=", mineRatingCount),
     )
   },
   formatLine(line) {
-    return `${app.formatRank(line.rank)} ${app.graphicalNote(
+    return `${app.formatRank(line.rank)} ${renderRating(
       line.score,
     )}  **${line.score.toFixed(2)}**  <@${line.target}>`
   },
 })
 
-export async function userNote(user: { id: string }) {
+export async function userRating(user: { id: string }) {
   const { _id } = await app.getUser(user, true)
 
   return await table.query
@@ -55,21 +55,21 @@ export async function userNote(user: { id: string }) {
     .then((result) => result[0])
 }
 
-export function graphicalNote(note?: number) {
+export function renderRating(rating?: number) {
   const full = "▰"
   const empty = "▱"
-  const round = Math.round(note ?? 0)
+  const round = Math.round(rating ?? 0)
   return full.repeat(round) + empty.repeat(5 - round)
 }
 
-export async function noteEmbed(target: app.User) {
-  const { count, avg } = await app.userNote(target)
+export async function ratingEmbed(target: app.User) {
+  const { count, avg } = await userRating(target)
 
   return new app.EmbedBuilder()
     .setAuthor({
-      name: `Note of ${target.tag}`,
+      name: `Rating of ${target.tag}`,
       iconURL: target.displayAvatarURL(),
     })
-    .setDescription(`${app.graphicalNote(avg)} **${avg?.toFixed(2) ?? 0}** / 5`)
-    .setFooter({ text: `Total: ${count ?? 0} notes` })
+    .setDescription(`${renderRating(avg)} **${avg?.toFixed(2) ?? 0}** / 5`)
+    .setFooter({ text: `Total: ${count ?? 0} ratings` })
 }

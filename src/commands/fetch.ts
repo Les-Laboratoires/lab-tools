@@ -4,7 +4,7 @@ import messages, { Message } from "../tables/message.js"
 
 export default new app.Command({
   name: "fetch",
-  description: "The fetch command",
+  description: "Fetch all messages from a channel",
   channelType: "guild",
   botOwnerOnly: true,
   positional: [

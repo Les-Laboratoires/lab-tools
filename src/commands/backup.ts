@@ -4,7 +4,7 @@ import restart from "../tables/restart.js"
 
 export default new app.Command({
   name: "backup",
-  description: "The backup command",
+  description: "Manage database backups",
   channelType: "all",
   botOwnerOnly: true,
   async run(message) {
@@ -13,7 +13,7 @@ export default new app.Command({
   subs: [
     new app.Command({
       name: "create",
-      description: "Create a backup",
+      description: "Create a database backup",
       aliases: ["new", "add", "save"],
       channelType: "all",
       botOwnerOnly: true,
@@ -27,7 +27,7 @@ export default new app.Command({
     }),
     new app.Command({
       name: "restore",
-      description: "Restore a backup",
+      description: "Restore a database backup",
       aliases: ["load"],
       channelType: "all",
       botOwnerOnly: true,

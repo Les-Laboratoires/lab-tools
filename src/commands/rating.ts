@@ -1,15 +1,16 @@
 import * as app from "../app.js"
 
-import note from "../tables/note.js"
+import rating from "../tables/rating.js"
 
 export default new app.Command({
-  name: "note",
-  description: "Note management",
+  name: "rating",
+  aliases: ["note", "rate"],
+  description: "Rate a user or a bot",
   channelType: "all",
   positional: [
     app.positional({
       name: "user",
-      description: "The noted user",
+      description: "The rated user",
       type: "user",
       validate: (value, message) => {
         return (
@@ -19,16 +20,17 @@ export default new app.Command({
       },
     }),
     app.positional({
-      name: "note",
-      description: "Note from 0 to 5",
+      name: "rating",
+      description: "Rating from 0 to 5",
       type: "number",
-      validate: (note) => note >= 0 && note <= 5 && Number.isInteger(note),
+      validate: (rating) =>
+        rating >= 0 && rating <= 5 && Number.isInteger(rating),
     }),
   ],
   async run(message) {
     if (message.args.user) {
-      if (message.args.note !== null) {
-        const value = message.args.note as 0 | 1 | 2 | 3 | 4 | 5
+      if (message.args.rating !== null) {
+        const value = message.args.rating as 0 | 1 | 2 | 3 | 4 | 5
 
         const fromUser = await app.getUser(message.author, true)
         const toUser = await app.getUser(message.args.user, true)
@@ -38,25 +40,25 @@ export default new app.Command({
           to_id: toUser._id,
         }
 
-        if (await note.query.where(pack).first()) {
-          await note.query.update({ value }).where(pack)
+        if (await rating.query.where(pack).first()) {
+          await rating.query.update({ value }).where(pack)
         } else {
-          await note.query.insert({ value, ...pack })
+          await rating.query.insert({ value, ...pack })
         }
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully noted.`,
+          `${app.emote(message, "CHECK")} Successfully rated.`,
         )
       }
 
       return message.channel.send({
-        embeds: [await app.noteEmbed(message.args.user)],
+        embeds: [await app.ratingEmbed(message.args.user)],
       })
     }
 
     return message.channel.send({
-      embeds: [await app.noteEmbed(message.author)],
+      embeds: [await app.ratingEmbed(message.author)],
     })
   },
-  subs: [app.noteLadder.generateCommand()],
+  subs: [app.ratingLadder.generateCommand()],
 })

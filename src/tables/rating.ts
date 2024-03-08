@@ -1,12 +1,12 @@
 import * as app from "../app.js"
 
-export interface Note {
+export interface Rating {
   to_id: number
   from_id: number
   value: 0 | 1 | 2 | 3 | 4 | 5
 }
 
-export default new app.Table<Note>({
+export default new app.Table<Rating>({
   name: "note",
   migrations: {
     1: (table) => {

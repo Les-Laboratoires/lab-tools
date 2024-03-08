@@ -3,7 +3,7 @@ import * as app from "../app.js"
 export default new app.Command({
   name: "leaderboard",
   aliases: ["lb", "ladder", "top", "rank"],
-  description: "The leaderboard command",
+  description: "Show all leaderboards",
   channelType: "guild",
   options: [
     app.option({
@@ -19,7 +19,7 @@ export default new app.Command({
     const guild = await app.getGuild(message.guild, true)
 
     const ladders = [
-      app.noteLadder,
+      app.ratingLadder,
       app.pointLadder,
       app.activeLadder(guild._id),
     ]

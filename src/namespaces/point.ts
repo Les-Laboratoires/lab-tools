@@ -59,7 +59,7 @@ export async function buildAskPointEmbed(
         .setDescription(
           `Vous pouvez attribuer des points à ${helper} en fonction de la qualité de l'aide apportée en cliquant sur le bouton souhaité. Vous pouvez également noter la personne avec la commande \`${await app.prefix(
             guild,
-          )}note @${helper.username} <1..5>\``,
+          )}rate @${helper.username} <1..5>\``,
         ),
     ],
     components: [

@@ -6,7 +6,7 @@ let lastActiveCount = 0
 
 const listener: app.Listener<"ready"> = {
   event: "ready",
-  description: "A ready listener",
+  description: "Start an interval to update the active list",
   async run(client) {
     const guilds = await client.guilds.fetch()
 

@@ -89,7 +89,7 @@ export class Ladder<Line extends LadderLine> {
   generateCommand() {
     return new command.Command({
       name: "leaderboard",
-      description: `Show the leaderboard of ${this.options.title}`,
+      description: `Show the leaderboard of ${this.options.title.toLowerCase()}`,
       channelType: "guild",
       aliases: ["ladder", "lb", "top", "rank"],
       options: [

@@ -39,7 +39,7 @@ const listener: app.Listener<"interactionCreate"> = {
     )
 
     await interaction.reply({
-      content: `${app.emote(interaction, "CHECK")} Successfully noted.`,
+      content: `${app.emote(interaction, "CHECK")} Successfully rated.`,
       ephemeral: true,
     })
 

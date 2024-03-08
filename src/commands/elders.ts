@@ -5,7 +5,7 @@ let used = false
 export default new app.Command({
   name: "elders",
   aliases: ["elder", "old"],
-  description: "The elders command",
+  description: "Fetch the new elders of the server",
   channelType: "guild",
   middlewares: [
     app.staffOnly(),

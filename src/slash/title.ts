@@ -2,7 +2,7 @@ import * as app from "../app.js"
 
 export default new app.SlashCommand({
   name: "title",
-  description: "Generate a title for the thread from its content.",
+  description: "Generate a title for the thread from its content",
   guildOnly: true,
   channelType: "thread",
   userPermissions: ["Administrator"],

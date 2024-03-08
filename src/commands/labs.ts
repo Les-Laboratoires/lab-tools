@@ -6,7 +6,7 @@ import guild from "../tables/guild.js"
 export default new app.Command({
   name: "labs",
   aliases: ["lab", "affiliations", "affiliation"],
-  description: "The labs command",
+  description: "Get a lab invite link",
   channelType: "guild",
   positional: [
     {

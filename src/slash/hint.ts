@@ -2,7 +2,7 @@ import * as app from "../app.js"
 
 export default new app.SlashCommand({
   name: "hint",
-  description: "Try to help the author of the thread by generating a hint.",
+  description: "Try to help the author of the thread by generating a hint",
   channelType: "thread",
   guildOnly: true,
   userPermissions: ["Administrator"],
