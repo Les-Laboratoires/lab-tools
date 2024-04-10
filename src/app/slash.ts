@@ -121,12 +121,12 @@ export interface SlashCommandInteraction<
   channel: ChannelType extends "dm"
     ? discord.DMChannel
     : ChannelType extends "thread"
-      ? discord.ThreadChannel
-      : GuildOnly extends true
-        ? discord.GuildTextBasedChannel
-        : ChannelType extends "guild"
-          ? discord.GuildTextBasedChannel
-          : discord.TextBasedChannel
+    ? discord.ThreadChannel
+    : GuildOnly extends true
+    ? discord.GuildTextBasedChannel
+    : ChannelType extends "guild"
+    ? discord.GuildTextBasedChannel
+    : discord.TextBasedChannel
 }
 
 export function validateSlashCommand(command: ISlashCommand) {
@@ -219,8 +219,8 @@ export async function prepareSlashCommand(
 
       if (command.options.allowRoles) {
         if (
-          !member.roles.cache.some((role) =>
-            command.options.allowRoles?.includes(role.id),
+          !member.roles.cache.some(
+            (role) => command.options.allowRoles?.includes(role.id),
           )
         )
           return new discord.EmbedBuilder()
@@ -232,8 +232,8 @@ export async function prepareSlashCommand(
 
       if (command.options.denyRoles) {
         if (
-          member.roles.cache.some((role) =>
-            command.options.denyRoles?.includes(role.id),
+          member.roles.cache.some(
+            (role) => command.options.denyRoles?.includes(role.id),
           )
         )
           return new discord.EmbedBuilder()

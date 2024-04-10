@@ -10,16 +10,17 @@ export interface Guild {
   member_tracker_channel_id: string | null
   message_tracker_channel_id: string | null
   online_tracker_channel_id: string | null
+  auto_ban_channel_id: string | null
+  meme_channel_id: string | null
+  log_channel_id: string | null
   member_welcome_message: string | null
   bot_welcome_message: string | null
   member_role_id: string | null
+  staff_role_id: string | null
   bot_role_id: string | null
   active_role_id: string | null
-  log_channel_id: string | null
   member_leave_message: string | null
   bot_leave_message: string | null
-  meme_channel_id: string | null
-  staff_role_id: string | null
   elders_role_pattern: string | null
   member_tracker_pattern: string
   message_tracker_pattern: string
@@ -47,6 +48,9 @@ export default new app.Table<Guild>({
     },
     3: (table) => {
       table.string("active_refresh_interval").defaultTo(String(2)) // 2 hours
+    },
+    4: (table) => {
+      table.string("auto_ban_channel_id")
     },
   },
   setup: (table) => {
