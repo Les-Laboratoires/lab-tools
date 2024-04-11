@@ -15,11 +15,11 @@ export const ratingLadder = new app.Ladder<RatingLadderLine>({
   title: "Rating",
   async fetchLines(options) {
     return table.query
-      .avg({ score: "value" })
       .count({ rating_count: "from_id" })
       .select([
         "user.id as target",
         app.orm.raw("rank() over (order by avg(value) desc) as rank"),
+        app.orm.raw("avg(value)::float as score"),
       ])
       .leftJoin("user", "note.to_id", "user._id")
       .groupBy("user.id")
