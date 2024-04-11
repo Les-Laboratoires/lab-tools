@@ -53,12 +53,12 @@ export async function userRating(user: { id: string }): Promise<{
 
   return await table.query
     .where("to_id", _id)
-    .avg({ avg: "value" })
-    .count({ count: "*" })
+    .avg({ score: "value" })
+    .count({ rating_count: "*" })
     .first()
     .then((result) => ({
-      avg: (result?.avg ?? 0) as number,
-      count: (result?.count ?? 0) as number,
+      avg: Number(result?.score ?? 0),
+      count: Number(result?.rating_count ?? 0),
     }))
 }
 
@@ -71,6 +71,11 @@ export function renderRating(rating?: number) {
 
 export async function ratingEmbed(target: app.User) {
   const { avg, count } = await userRating(target)
+
+  console.table({
+    type: typeof avg,
+    value: avg,
+  })
 
   return new app.EmbedBuilder()
     .setAuthor({
