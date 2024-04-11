@@ -155,12 +155,12 @@ export interface SlashCommandInteraction<
   channel: ChannelType extends "dm"
     ? discord.DMChannel
     : ChannelType extends "thread"
-    ? discord.ThreadChannel
-    : GuildOnly extends true
-    ? discord.GuildTextBasedChannel
-    : ChannelType extends "guild"
-    ? discord.GuildTextBasedChannel
-    : discord.TextBasedChannel
+      ? discord.ThreadChannel
+      : GuildOnly extends true
+        ? discord.GuildTextBasedChannel
+        : ChannelType extends "guild"
+          ? discord.GuildTextBasedChannel
+          : discord.TextBasedChannel
   options: {
     [K in keyof Options]: SlashCommandOptionToType<Options[K]>
   }
@@ -327,8 +327,8 @@ export async function prepareSlashCommand(
 
       if (command.options.allowRoles) {
         if (
-          !member.roles.cache.some(
-            (role) => command.options.allowRoles?.includes(role.id),
+          !member.roles.cache.some((role) =>
+            command.options.allowRoles?.includes(role.id),
           )
         )
           return new discord.EmbedBuilder()
@@ -340,8 +340,8 @@ export async function prepareSlashCommand(
 
       if (command.options.denyRoles) {
         if (
-          member.roles.cache.some(
-            (role) => command.options.denyRoles?.includes(role.id),
+          member.roles.cache.some((role) =>
+            command.options.denyRoles?.includes(role.id),
           )
         )
           return new discord.EmbedBuilder()
@@ -425,26 +425,26 @@ export type SlashCommandOptionToType<
 > = Option["required"] extends true
   ? TypeNameToType<Option["type"]>
   : Option["default"] extends TypeNameToType<Option["type"]>
-  ? TypeNameToType<Option["type"]>
-  : TypeNameToType<Option["type"]> | null
+    ? TypeNameToType<Option["type"]>
+    : TypeNameToType<Option["type"]> | null
 
 export type TypeNameToType<TypeName extends SlashCommandOptionTypeName> =
   TypeName extends "String"
     ? string
     : TypeName extends "Integer"
-    ? number
-    : TypeName extends "Boolean"
-    ? boolean
-    : TypeName extends "User"
-    ? discord.User
-    : TypeName extends "Channel"
-    ? discord.Channel
-    : TypeName extends "Role"
-    ? discord.Role
-    : TypeName extends "Mentionable"
-    ? discord.User | discord.Role | discord.Channel
-    : TypeName extends "Number"
-    ? number
-    : TypeName extends "Attachment"
-    ? discord.Attachment
-    : never
+      ? number
+      : TypeName extends "Boolean"
+        ? boolean
+        : TypeName extends "User"
+          ? discord.User
+          : TypeName extends "Channel"
+            ? discord.Channel
+            : TypeName extends "Role"
+              ? discord.Role
+              : TypeName extends "Mentionable"
+                ? discord.User | discord.Role | discord.Channel
+                : TypeName extends "Number"
+                  ? number
+                  : TypeName extends "Attachment"
+                    ? discord.Attachment
+                    : never
