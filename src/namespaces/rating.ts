@@ -9,7 +9,7 @@ export interface RatingLadderLine {
   rating_count: number
 }
 
-const mineRatingCount = 5
+const mineRatingCount = 1
 
 export const ratingLadder = new app.Ladder<RatingLadderLine>({
   title: "Rating",
@@ -45,14 +45,21 @@ export const ratingLadder = new app.Ladder<RatingLadderLine>({
   },
 })
 
-export async function userRating(user: { id: string }) {
+export async function userRating(user: { id: string }): Promise<{
+  avg: number
+  count: number
+}> {
   const { _id } = await app.getUser(user, true)
 
   return await table.query
     .where("to_id", _id)
     .avg({ avg: "value" })
     .count({ count: "*" })
-    .then((result) => result[0])
+    .first()
+    .then((result) => ({
+      avg: (result?.avg ?? 0) as number,
+      count: (result?.count ?? 0) as number,
+    }))
 }
 
 export function renderRating(rating?: number) {
@@ -63,13 +70,13 @@ export function renderRating(rating?: number) {
 }
 
 export async function ratingEmbed(target: app.User) {
-  const { count, avg } = await userRating(target)
+  const { avg, count } = await userRating(target)
 
   return new app.EmbedBuilder()
     .setAuthor({
       name: `Rating of ${target.tag}`,
       iconURL: target.displayAvatarURL(),
     })
-    .setDescription(`${renderRating(avg)} **${avg?.toFixed(2) ?? 0}** / 5`)
+    .setDescription(`${renderRating(avg)} **${avg.toFixed(2)}** / 5`)
     .setFooter({ text: `Total: ${count ?? 0} ratings` })
 }
