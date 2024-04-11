@@ -117,7 +117,9 @@ export async function sendTemplatedEmbed(
   }
 }
 
-export function embedReplacers(subject: app.GuildMember) {
+export function embedReplacers(
+  subject: app.GuildMember | app.PartialGuildMember,
+) {
   return {
     user: subject.user.toString(),
     username: subject.user.username.replace(/"/g, '\\"'),

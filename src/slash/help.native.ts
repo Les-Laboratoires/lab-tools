@@ -4,18 +4,14 @@ export default new app.SlashCommand({
   name: "help",
   description: "Show slash command details or list all slash commands",
   guildOnly: true,
-  build() {
-    this.addStringOption((option) => {
-      return option
-        .setName("command")
-        .setDescription("The target command name.")
-        .setRequired(false)
-    })
+  options: {
+    command: {
+      description: "The target command name.",
+      type: "String",
+    },
   },
   async run(interaction) {
-    const target = interaction.options.get("command")?.value as
-      | string
-      | undefined
+    const target = interaction.options.command
 
     const command = interaction.guild.commands.cache.find(
       (cmd) => cmd.name === target,
@@ -28,7 +24,10 @@ export default new app.SlashCommand({
           (
             await Promise.all(
               app.slashCommands.map(async (cmd) => {
-                const prepared = await app.prepareSlashCommand(interaction, cmd)
+                const prepared = await app.prepareSlashCommand(
+                  interaction.base,
+                  cmd,
+                )
 
                 if (prepared instanceof app.EmbedBuilder) return ""
 
