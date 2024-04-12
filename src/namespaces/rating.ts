@@ -24,7 +24,7 @@ export function renderRating(rating?: number) {
 
 export const ratingLadder = (guild_id?: number) =>
   new app.Ladder<RatingLadderLine>({
-    title: "Rating",
+    title: guild_id ? "Guild rating" : "Global rating",
     async fetchLines(options) {
       const query = table.query
         .count({ rating_count: "from_id" })
