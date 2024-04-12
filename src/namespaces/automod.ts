@@ -40,10 +40,22 @@ export async function detectAndBanSpammer(message: app.Message) {
 
     await Promise.allSettled(
       guilds.map(async (guild) => {
-        await guild.members.ban(message.author.id, {
-          reason: "Spamming",
-          deleteMessageSeconds: 10,
-        })
+        try {
+          await guild.members.ban(message.author.id, {
+            reason: "Spamming",
+            deleteMessageSeconds: 10,
+          })
+        } catch (error: any) {
+          await app.sendLog(
+            guild,
+            `<@&620302774638215168> **${
+              message.author.tag
+            }** could not be banned for spamming...${app.code.stringify({
+              content: error.message,
+              lang: "js",
+            })}`,
+          )
+        }
 
         await app.sendLog(
           guild,
