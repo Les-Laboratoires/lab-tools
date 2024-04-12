@@ -93,7 +93,7 @@ export async function userRating(
 }
 
 export async function ratingEmbed(target: app.GuildMember) {
-  const rating = await userRating(target, target.guild)
+  const guildRating = await userRating(target, target.guild)
   const globalRating = await userRating(target)
 
   const externalRating = (
@@ -107,7 +107,7 @@ export async function ratingEmbed(target: app.GuildMember) {
     )
   ).filter((rating) => rating.count > 0)
 
-  return new app.EmbedBuilder()
+  const embed = new app.EmbedBuilder()
     .setAuthor({
       name: `Rating of ${target.user.tag}`,
       iconURL: target.displayAvatarURL(),
@@ -117,28 +117,39 @@ export async function ratingEmbed(target: app.GuildMember) {
         globalRating.avg,
       )}** / 5`,
     )
-    .addFields(
-      [
-        {
-          name: target.guild.name,
-          value: `${renderRating(rating.avg)} ${renderNoteValue(
-            rating.avg,
-          )} / 5 (x${rating.count})`,
-        },
-        externalRating.length > 0
-          ? {
-              name: "External ratings",
-              value: externalRating
-                .map(
-                  (rating) =>
-                    `${renderRating(rating.avg)} ${renderNoteValue(
-                      rating.avg,
-                    )} / 5 (x${rating.count})`,
-                )
-                .join("\n"),
-            }
-          : null,
-      ].filter((field): field is app.EmbedField => !!field),
-    )
-    .setFooter({ text: `Total: ${globalRating.count ?? 0} ratings` })
+
+  const fields: app.EmbedField[] = []
+
+  if (
+    guildRating.count > 0 &&
+    guildRating.avg !== globalRating.avg &&
+    guildRating.count !== globalRating.count
+  ) {
+    fields.push({
+      name: target.guild.name,
+      value: `${renderRating(guildRating.avg)} ${renderNoteValue(
+        guildRating.avg,
+      )} / 5 (x${guildRating.count})`,
+      inline: false,
+    })
+  }
+
+  if (externalRating.length > 0) {
+    fields.push({
+      name: "External ratings",
+      value: externalRating
+        .map(
+          (rating) =>
+            `${renderRating(rating.avg)} ${renderNoteValue(rating.avg)} / 5 (x${
+              rating.count
+            })`,
+        )
+        .join("\n"),
+      inline: false,
+    })
+  }
+
+  if (fields.length > 0) embed.addFields(fields)
+
+  return embed.setFooter({ text: `Total: ${globalRating.count ?? 0} ratings` })
 }
