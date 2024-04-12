@@ -22,7 +22,7 @@ export async function fetchActiveMembers(
 > {
   return message.query
     .select("author_id as target")
-    .count("* as messageCount")
+    .count({ messageCount: "*" })
     .where("guild_id", guild_id)
     .and.where(
       "created_at",
@@ -31,7 +31,7 @@ export async function fetchActiveMembers(
     )
     .groupBy("author_id")
     .having("messageCount", ">=", messageCount)
-    .orderBy("messageCount", "desc")
+    .orderBy("count(*)", "desc")
 }
 
 export async function updateActive(
