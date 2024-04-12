@@ -19,7 +19,7 @@ export default new app.Command({
     const guild = await app.getGuild(message.guild, true)
 
     const ladders = [
-      app.ratingLadder,
+      app.ratingLadder(guild._id),
       app.pointLadder,
       app.activeLadder(guild._id),
     ]

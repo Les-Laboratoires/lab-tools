@@ -3,6 +3,7 @@ import * as app from "../app.js"
 export interface Rating {
   to_id: number
   from_id: number
+  guild_id: number
   value: 0 | 1 | 2 | 3 | 4 | 5
 }
 
@@ -12,6 +13,14 @@ export default new app.Table<Rating>({
     1: (table) => {
       table.renameColumn("to", "to_id")
       table.renameColumn("from", "from_id")
+    },
+    2: (table) => {
+      table
+        .integer("guild_id")
+        .references("_id")
+        .inTable("guild")
+        .onDelete("CASCADE")
+        .nullable()
     },
   },
   setup: (table) => {

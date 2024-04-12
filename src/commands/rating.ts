@@ -6,16 +6,15 @@ export default new app.Command({
   name: "rating",
   aliases: ["note", "rate"],
   description: "Rate a user or a bot",
-  channelType: "all",
+  channelType: "guild",
   positional: [
     app.positional({
-      name: "user",
-      description: "The rated user",
-      type: "user",
+      name: "member",
+      description: "The rated member",
+      type: "member",
       validate: (value, message) => {
         return (
-          (value !== message.author && value !== undefined) ||
-          "You can't target yourself."
+          (value !== message.member && !!value) || "You can't target yourself."
         )
       },
     }),
@@ -28,14 +27,16 @@ export default new app.Command({
     }),
   ],
   async run(message) {
-    if (message.args.user) {
+    if (message.args.member) {
       if (message.args.rating !== null) {
         const value = message.args.rating as 0 | 1 | 2 | 3 | 4 | 5
 
         const fromUser = await app.getUser(message.author, true)
-        const toUser = await app.getUser(message.args.user, true)
+        const toUser = await app.getUser(message.args.member, true)
+        const guild = await app.getGuild(message.guild, true)
 
         const pack = {
+          guild_id: guild._id,
           from_id: fromUser._id,
           to_id: toUser._id,
         }
@@ -52,13 +53,46 @@ export default new app.Command({
       }
 
       return message.channel.send({
-        embeds: [await app.ratingEmbed(message.args.user)],
+        embeds: [await app.ratingEmbed(message.args.member)],
       })
     }
 
     return message.channel.send({
-      embeds: [await app.ratingEmbed(message.author)],
+      embeds: [await app.ratingEmbed(message.member)],
     })
   },
-  subs: [app.ratingLadder.generateCommand()],
+  subs: [
+    new app.Command({
+      name: "leaderboard",
+      description: `Show the leaderboard of Rating`,
+      channelType: "guild",
+      aliases: ["ladder", "lb", "top", "rank"],
+      options: [
+        app.option({
+          name: "lines",
+          description: "Number of lines to show per page",
+          type: "number",
+          default: 15,
+          aliases: ["line", "count"],
+          validate: (value) => value > 0 && value <= 50,
+        }),
+      ],
+      flags: [
+        app.flag({
+          name: "global",
+          flag: "g",
+          description: "Show the global leaderboard of Rating",
+        }),
+      ],
+      run: async (message) => {
+        const guild = message.args.global
+          ? undefined
+          : await app.getGuild(message.guild, true)
+
+        app.ratingLadder(guild?._id).send(message.channel, {
+          pageLineCount: message.args.lines,
+        })
+      },
+    }),
+  ],
 })
