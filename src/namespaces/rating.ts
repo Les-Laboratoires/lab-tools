@@ -12,7 +12,7 @@ export interface RatingLadderLine {
 const mineRatingCount = 5
 
 export function renderNoteValue(score: number) {
-  return `**${score.toFixed(2).replace(/0+$/, "")}**`
+  return `**${score.toFixed(2).replace(/\.?0+$/, "")}**`
 }
 
 export function renderRating(rating?: number) {
@@ -103,9 +103,12 @@ export async function ratingEmbed(target: app.GuildMember) {
           (guild) =>
             guild.id !== target.guild.id && guild.members.cache.has(target.id),
         )
-        .map((guild) => userRating(target, guild)),
+        .map(async (guild) => ({
+          guild,
+          rating: await userRating(target, guild),
+        })),
     )
-  ).filter((rating) => rating.count > 0)
+  ).filter(({ rating }) => rating.count > 0)
 
   const embed = new app.EmbedBuilder()
     .setAuthor({
@@ -113,12 +116,19 @@ export async function ratingEmbed(target: app.GuildMember) {
       iconURL: target.displayAvatarURL(),
     })
     .setDescription(
-      `${renderRating(globalRating.avg)} **${renderNoteValue(
-        globalRating.avg,
-      )}** / 5`,
+      "You can rate a user by using the `rating` command. \n" +
+        "The rating is a number between 0 and 5.",
     )
 
-  const fields: app.EmbedField[] = []
+  const fields: app.EmbedField[] = [
+    {
+      name: "Global rating",
+      value: `${renderRating(globalRating.avg)} ${renderNoteValue(
+        globalRating.avg,
+      )} / 5 (x${globalRating.count})`,
+      inline: false,
+    },
+  ]
 
   if (
     guildRating.count > 0 &&
@@ -139,10 +149,10 @@ export async function ratingEmbed(target: app.GuildMember) {
       name: "External ratings",
       value: externalRating
         .map(
-          (rating) =>
+          ({ rating, guild }) =>
             `${renderRating(rating.avg)} ${renderNoteValue(rating.avg)} / 5 (x${
               rating.count
-            })`,
+            }) - **${guild.name}**`,
         )
         .join("\n"),
       inline: false,
@@ -151,5 +161,5 @@ export async function ratingEmbed(target: app.GuildMember) {
 
   if (fields.length > 0) embed.addFields(fields)
 
-  return embed.setFooter({ text: `Total: ${globalRating.count ?? 0} ratings` })
+  return embed
 }
