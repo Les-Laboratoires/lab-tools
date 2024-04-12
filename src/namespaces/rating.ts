@@ -9,17 +9,21 @@ export interface RatingLadderLine {
   rating_count: number
 }
 
-const mineRatingCount = 5
+const mineRatingCount = 2
 
-export function renderNoteValue(score: number) {
-  return `**${score.toFixed(2).replace(/\.?0+$/, "")}**`
+export function renderNoteValue(value: number) {
+  return `**${value.toFixed(2).replace(/\.?0+$/, "")}**`
 }
 
-export function renderRating(rating?: number) {
+export function renderNoteBar(value?: number) {
   const full = "▰"
   const empty = "▱"
-  const round = Math.round(rating ?? 0)
+  const round = Math.round(value ?? 0)
   return full.repeat(round) + empty.repeat(5 - round)
+}
+
+export function renderNoteLine(value: number, count: number) {
+  return `${renderNoteBar(value)}  ${renderNoteValue(value)} / 5  (*x${count}*)`
 }
 
 export const ratingLadder = (guild_id?: number) =>
@@ -59,9 +63,10 @@ export const ratingLadder = (guild_id?: number) =>
       )
     },
     formatLine(line) {
-      return `${app.formatRank(line.rank)} ${renderRating(
+      return `${app.formatRank(line.rank)} ${renderNoteLine(
         line.score,
-      )} ${renderNoteValue(line.score)} / 5 <@${line.target}>`
+        line.rating_count,
+      )}  <@${line.target}>`
     },
   })
 
@@ -123,9 +128,7 @@ export async function ratingEmbed(target: app.GuildMember) {
   const fields: app.EmbedField[] = [
     {
       name: "Global rating",
-      value: `${renderRating(globalRating.avg)} ${renderNoteValue(
-        globalRating.avg,
-      )} / 5 (x${globalRating.count})`,
+      value: renderNoteLine(globalRating.avg, globalRating.count),
       inline: false,
     },
   ]
@@ -137,9 +140,7 @@ export async function ratingEmbed(target: app.GuildMember) {
   ) {
     fields.push({
       name: target.guild.name,
-      value: `${renderRating(guildRating.avg)} ${renderNoteValue(
-        guildRating.avg,
-      )} / 5 (x${guildRating.count})`,
+      value: renderNoteLine(guildRating.avg, guildRating.count),
       inline: false,
     })
   }
@@ -150,9 +151,7 @@ export async function ratingEmbed(target: app.GuildMember) {
       value: externalRating
         .map(
           ({ rating, guild }) =>
-            `${renderRating(rating.avg)} ${renderNoteValue(rating.avg)} / 5 (x${
-              rating.count
-            }) - **${guild.name}**`,
+            `${renderNoteLine(rating.avg, rating.count)} - **${guild.name}**`,
         )
         .join("\n"),
       inline: false,
