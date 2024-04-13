@@ -48,7 +48,7 @@ export async function detectAndBanSpammer(message: app.Message) {
         } catch (error: any) {
           await app.sendLog(
             guild,
-            `<@&620302774638215168> **${
+            `<@&${guild.id}> **${
               message.author.tag
             }** could not be banned for spamming...${app.code.stringify({
               content: error.message,
