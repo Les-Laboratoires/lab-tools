@@ -30,12 +30,15 @@ export async function detectAndBanSpammer(message: app.Message) {
 
   const config = await app.getGuild({ id: message.guildId })
 
-  if (!config) return
-  if (!config.auto_ban_channel_id) return
+  if (!config || !config.auto_ban_channel_id) return
 
   if (message.channel.id === config.auto_ban_channel_id) {
     const guilds = message.client.guilds.cache.filter(
-      (guild) => guild.members.me?.permissions.has("BanMembers", true),
+      (guild) =>
+        guild.members.me?.permissions.has(
+          app.PermissionFlagsBits.BanMembers,
+          true,
+        ),
     )
 
     await Promise.allSettled(
@@ -54,12 +57,14 @@ export async function detectAndBanSpammer(message: app.Message) {
               content: error.message,
               lang: "js",
             })}`,
+            config,
           )
         }
 
         await app.sendLog(
           guild,
           `**${message.author.tag}** has been banned for spamming from **${guilds.size}** guilds.`,
+          config,
         )
       }),
     )

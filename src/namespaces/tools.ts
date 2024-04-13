@@ -17,7 +17,7 @@ export enum Emotes {
 }
 
 export async function sendLog(
-  guild: app.Guild,
+  guild: Pick<app.Guild, "id" | "channels">,
   toSend: string | app.EmbedBuilder,
   config?: Guild,
 ) {
