@@ -30,8 +30,8 @@ export async function fetchActiveMembers(
       app.orm.raw(`now() - interval '1 hour' * ${period}`),
     )
     .groupBy("author_id")
-    .having("count(*)", ">=", messageCount)
-    .orderBy("count(*)", "desc")
+    .havingRaw(`count(*) >= ${messageCount}`)
+    .orderByRaw("count(*) desc")
 }
 
 export async function updateActive(
