@@ -27,12 +27,26 @@ const listener: app.Listener<"ready"> = {
 
           if (!(await app.hasActivity(config._id, interval))) return
 
-          const found = await app.updateActive(realGuild, {
-            force: false,
-            period,
-            messageCount,
-            guildConfig: config,
-          })
+          let found: number
+
+          try {
+            found = await app.updateActive(realGuild, {
+              force: false,
+              period,
+              messageCount,
+              guildConfig: config,
+            })
+          } catch (error: any) {
+            await app.sendLog(
+              realGuild,
+              `Failed to update the active list...${app.code.stringify({
+                content: error.message,
+                lang: "js",
+              })}`,
+            )
+
+            return
+          }
 
           if (found > lastActiveCount) {
             await app.sendLog(
