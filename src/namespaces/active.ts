@@ -30,7 +30,7 @@ export async function fetchActiveMembers(
       app.orm.raw(`now() - interval '1 hour' * ${period}`),
     )
     .groupBy("author_id")
-    .having("messageCount", ">=", messageCount)
+    .having("count(*)", ">=", messageCount)
     .orderBy("count(*)", "desc")
 }
 
