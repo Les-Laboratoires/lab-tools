@@ -13,7 +13,8 @@ export default new app.Command({
     if (code) {
       const { lang, content } = code
 
-      const prettified = prettify.format(content, lang, {
+      const prettified = await prettify.format(content, {
+        lang: lang as any,
         semi: false,
         printWidth: 86,
       })

@@ -36,6 +36,9 @@
     "@ghom/logger": "^1.2.0",
     "@ghom/orm": "^1.7.0",
     "@ghom/web-scrapper": "^1.0.2",
+    "@prettier/plugin-php": "^0.22.2",
+    "@prettier/plugin-ruby": "^4.0.4",
+    "@prettier/plugin-xml": "^3.4.1",
     "boxen": "^7.0.0",
     "chalk": "^5.0.1",
     "dayjs": "^1.11.3",
@@ -45,14 +48,14 @@
     "emoji-regex": "^10.1.0",
     "figlet": "^1.5.2",
     "ghom-eval": "^1.1.3",
-    "ghom-prettify": "^2.0.1",
+    "ghom-prettify": "^3.0.0",
     "knex": "^3.0.1",
     "openai": "^4.28.0",
+    "pg": "latest",
     "prettier": "^3.0.3",
     "regex-parser": "^2.2.11",
     "tims": "^2.1.0",
-    "yargs-parser": "^21.0.1",
-    "pg": "latest"
+    "yargs-parser": "^21.0.1"
   },
   "devDependencies": {
     "@esbuild/linux-x64": "^0.20.1",
