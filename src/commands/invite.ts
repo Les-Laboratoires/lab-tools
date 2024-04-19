@@ -47,7 +47,7 @@ export default new app.Command({
             url: url.toString(),
           })
           .setDescription(
-            app.code.stringify({
+            await app.code.stringify({
               content: JSON.stringify(
                 Object.fromEntries(url.searchParams.entries()),
                 (key, val) => {

@@ -33,12 +33,11 @@ export async function detectAndBanSpammer(message: app.Message) {
   if (!config || !config.auto_ban_channel_id) return
 
   if (message.channel.id === config.auto_ban_channel_id) {
-    const guilds = message.client.guilds.cache.filter(
-      (guild) =>
-        guild.members.me?.permissions.has(
-          app.PermissionFlagsBits.BanMembers,
-          true,
-        ),
+    const guilds = message.client.guilds.cache.filter((guild) =>
+      guild.members.me?.permissions.has(
+        app.PermissionFlagsBits.BanMembers,
+        true,
+      ),
     )
 
     const result = await Promise.allSettled(

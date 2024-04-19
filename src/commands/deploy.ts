@@ -70,7 +70,7 @@ export default new app.Command({
             .setTitle("\\❌ An error has occurred.")
             .setColor("Red")
             .setDescription(
-              app.code.stringify({
+              await app.code.stringify({
                 content: (error?.stack ?? error?.message ?? String(error))
                   .split("")
                   .reverse()

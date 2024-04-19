@@ -52,7 +52,7 @@
     "knex": "^3.0.1",
     "openai": "^4.28.0",
     "pg": "latest",
-    "prettier": "^3.0.3",
+    "prettier": "^3.2.5",
     "regex-parser": "^2.2.11",
     "tims": "^2.1.0",
     "yargs-parser": "^21.0.1"

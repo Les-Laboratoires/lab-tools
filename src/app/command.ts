@@ -414,10 +414,10 @@ export async function prepareCommand(
       cmd.options.cooldown.type === CooldownType.Global
         ? "global"
         : cmd.options.cooldown.type === CooldownType.ByUser
-        ? message.author.id
-        : cmd.options.cooldown.type === CooldownType.ByGuild
-        ? message.guildId
-        : message.channel.id,
+          ? message.author.id
+          : cmd.options.cooldown.type === CooldownType.ByGuild
+            ? message.guildId
+            : message.channel.id,
     )
     const coolDown = util.cache.ensure<CoolDownData>(slug, {
       time: 0,
@@ -967,7 +967,7 @@ export async function sendCommandDetails(
 
     embed.addFields({
       name: "examples:",
-      value: util.code.stringify({
+      value: await util.code.stringify({
         content: examples
           .map((example) => message.usedPrefix + example)
           .join("\n"),

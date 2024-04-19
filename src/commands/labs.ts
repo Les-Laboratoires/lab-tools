@@ -25,12 +25,11 @@ export default new app.Command({
       labs.map((lab) => lab.guild_id),
     )
 
-    const result = guilds.filter(
-      (guild) =>
-        message.client.guilds.cache
-          .get(guild.id)
-          ?.name.toLowerCase()
-          .includes(message.args.name.toLowerCase()),
+    const result = guilds.filter((guild) =>
+      message.client.guilds.cache
+        .get(guild.id)
+        ?.name.toLowerCase()
+        .includes(message.args.name.toLowerCase()),
     )
 
     if (!result)

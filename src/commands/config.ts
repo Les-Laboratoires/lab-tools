@@ -29,45 +29,51 @@ export default new app.Command({
           })
           .setDescription(
             message.args.raw
-              ? app.code.stringify({
+              ? await app.code.stringify({
                   lang: "json",
                   content: JSON.stringify(config, null, 2),
                 })
-              : Object.entries(config)
-                  .filter(([key]) => !key.startsWith("_"))
-                  .map(([key, value]) => {
-                    let entity: any
+              : (
+                  await Promise.all(
+                    Object.entries(config)
+                      .filter(([key]) => !key.startsWith("_"))
+                      .map(async ([key, value]) => {
+                        let entity: any
 
-                    if (value === null) entity = "`null`"
-                    else if (key.includes("channel_id")) entity = `<#${value}>`
-                    else if (key.includes("role_id")) entity = `<@&${value}>`
-                    else if (/(user|member)_id/.test(key))
-                      entity = `<@${value}>`
-                    else if (key.includes("emoji_id"))
-                      entity = message.client.emojis.cache.get(value)
-                    else if (
-                      value.split("\n").length > 1 ||
-                      (app.isJSON(value) &&
-                        !/^\d+$/.test(value) &&
-                        value.length > 50)
-                    ) {
-                      const isJSON = app.isJSON(value)
+                        if (value === null) entity = "`null`"
+                        else if (key.includes("channel_id"))
+                          entity = `<#${value}>`
+                        else if (key.includes("role_id"))
+                          entity = `<@&${value}>`
+                        else if (/(user|member)_id/.test(key))
+                          entity = `<@${value}>`
+                        else if (key.includes("emoji_id"))
+                          entity = message.client.emojis.cache.get(value)
+                        else if (
+                          value.split("\n").length > 1 ||
+                          (app.isJSON(value) &&
+                            !/^\d+$/.test(value) &&
+                            value.length > 50)
+                        ) {
+                          const isJSON = app.isJSON(value)
 
-                      specialProps.push(
-                        new app.EmbedBuilder().setTitle(key).setDescription(
-                          app.code.stringify({
-                            lang: isJSON ? "json" : undefined,
-                            format: isJSON ? { printWidth: 62 } : undefined,
-                            content: value,
-                          }),
-                        ),
-                      )
+                          specialProps.push(
+                            new app.EmbedBuilder().setTitle(key).setDescription(
+                              await app.code.stringify({
+                                lang: isJSON ? "json" : undefined,
+                                format: isJSON ? { printWidth: 62 } : undefined,
+                                content: value,
+                              }),
+                            ),
+                          )
 
-                      return null
-                    } else entity = `"${value}"`
+                          return null
+                        } else entity = `"${value}"`
 
-                    return `**${key}** = ${entity}`
-                  })
+                        return `**${key}** = ${entity}`
+                      }),
+                  )
+                )
                   .filter((line) => line !== null)
                   .join("\n"),
           ),
@@ -189,7 +195,7 @@ export default new app.Command({
               new app.EmbedBuilder()
                 .setColor("Blurple")
                 .setTitle(`${message.guild.name} - ${message.args.name}`)
-                .setDescription(app.code.stringify({ content: "null" })),
+                .setDescription(await app.code.stringify({ content: "null" })),
             ],
           })
 
@@ -206,7 +212,7 @@ export default new app.Command({
               .setColor("Blurple")
               .setTitle(`${message.guild.name} - ${message.args.name}`)
               .setDescription(
-                app.code.stringify({
+                await app.code.stringify({
                   content:
                     json !== null
                       ? JSON.stringify(json, null, 2)

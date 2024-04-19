@@ -20,7 +20,7 @@ export default new app.Command({
       })
 
       await message.channel.send(
-        app.code.stringify({
+        await app.code.stringify({
           content: prettified,
           lang,
         }),

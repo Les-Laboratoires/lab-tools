@@ -39,7 +39,7 @@ const listener: app.Listener<"ready"> = {
           } catch (error: any) {
             await app.sendLog(
               realGuild,
-              `Failed to update the active list...${app.code.stringify({
+              `Failed to update the active list...${await app.code.stringify({
                 content: error.message,
                 lang: "js",
               })}`,

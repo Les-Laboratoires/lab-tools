@@ -27,8 +27,8 @@ export type Outputs<
   >["required"] extends true
     ? ArgumentTypes[_item<Inputs, K>["type"]]
     : _item<Inputs, K>["default"] extends undefined
-    ? ArgumentTypes[_item<Inputs, K>["type"]] | null
-    : ArgumentTypes[_item<Inputs, K>["type"]]
+      ? ArgumentTypes[_item<Inputs, K>["type"]] | null
+      : ArgumentTypes[_item<Inputs, K>["type"]]
 }
 
 // const test: Outputs<
@@ -71,8 +71,8 @@ export type OutputPositionalValues<
   [K in Inputs[number]["name"]]: _item<Inputs, K>["required"] extends true
     ? ArgumentTypes[_item<Inputs, K>["type"]]
     : _item<Inputs, K>["default"] extends undefined
-    ? ArgumentTypes[_item<Inputs, K>["type"]] | null
-    : ArgumentTypes[_item<Inputs, K>["type"]]
+      ? ArgumentTypes[_item<Inputs, K>["type"]] | null
+      : ArgumentTypes[_item<Inputs, K>["type"]]
 }>[]
 
 // {
@@ -319,7 +319,7 @@ export async function validate(
   if (!checkResult)
     return errorEmbed(
       typeof subject.validate === "function"
-        ? util.code.stringify({
+        ? await util.code.stringify({
             content: subject.validate.toString(),
             format: true,
             lang: "js",
@@ -554,7 +554,7 @@ export async function resolveType(
     await cast()
     return true
   } catch (error: any) {
-    const errorCode = util.code.stringify({
+    const errorCode = await util.code.stringify({
       content: `${error.name}: ${error.message}`,
       lang: "js",
     })
