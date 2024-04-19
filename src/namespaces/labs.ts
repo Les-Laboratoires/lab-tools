@@ -1,6 +1,7 @@
 import * as app from "../app.js"
 
 import lab from "../tables/lab.js"
+import { timedCache } from "../app.js"
 
 /**
  * @Todo use forum channels instead...
@@ -9,7 +10,9 @@ export async function updateLabsInAffiliationChannels(
   message: app.GuildMessage,
   packSize: number,
 ) {
-  const labs = await lab.query.select()
+  const labs = await app.timedCache.ensure("all_labs", 60_000, () =>
+    lab.query.select(),
+  )
 
   const pages = app.divider(labs, packSize)
 
@@ -45,7 +48,9 @@ export async function sendLabList(
   channel: app.TextBasedChannel,
   packSize: number,
 ) {
-  const labs = await lab.query.select()
+  const labs = await app.timedCache.ensure("all_labs", 60_000, () =>
+    lab.query.select(),
+  )
 
   const pages = app.divider(labs, packSize)
 
@@ -61,6 +66,15 @@ export async function sendLabList(
 }
 
 export async function isIgnored(id: string): Promise<boolean> {
+  let isIgnored = app.timedCache.get<boolean>(`ignored_${id}`)
+
+  if (isIgnored !== undefined) return isIgnored
+
   const guild = await app.getGuild({ id }, true)
-  return (await lab.query.where("guild_id", guild._id).first())?.ignored ?? true
+  isIgnored =
+    (await lab.query.where("guild_id", guild._id).first())?.ignored ?? true
+
+  app.timedCache.set(`ignored_${id}`, 60_000, isIgnored)
+
+  return isIgnored
 }

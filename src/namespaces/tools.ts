@@ -3,6 +3,7 @@ import * as app from "../app.js"
 import users, { User } from "../tables/user.js"
 import guilds, { Guild } from "../tables/guild.js"
 import autoRole from "../tables/autoRole.js"
+import time from "tims"
 
 export enum Emotes {
   APPROVED = "865281743333228604",
@@ -15,6 +16,38 @@ export enum Emotes {
   LEFT = "865281743371894794",
   WAIT = "865282736041361468",
 }
+
+interface TimedCacheData<T> {
+  data: T
+  expires: number
+}
+
+export const timedCache = new (class {
+  cache: Map<string, TimedCacheData<any>> = new Map()
+
+  get<T>(key: string): T | undefined {
+    this.clean()
+    return this.cache.get(key)?.data
+  }
+
+  async ensure<T>(key: string, timeout: number, fallback: () => T): Promise<T> {
+    return this.get(key) ?? this.set(key, timeout, await fallback())
+  }
+
+  set<T>(key: string, timeout: number, data: T): T {
+    this.cache.set(key, {
+      data,
+      expires: Date.now() + timeout,
+    })
+
+    return data
+  }
+
+  clean() {
+    for (const [key, value] of this.cache.entries())
+      if (value.expires < Date.now()) this.cache.delete(key)
+  }
+})()
 
 export async function sendLog(
   guild: Pick<app.Guild, "id" | "channels">,
@@ -38,7 +71,9 @@ export async function sendLog(
 export async function getUser(user: { id: string }): Promise<User | undefined>
 export async function getUser(user: { id: string }, force: true): Promise<User>
 export async function getUser(user: { id: string }, force?: true) {
-  const userInDb = await users.query.where("id", user.id).first()
+  const userInDb = await timedCache.ensure(`user_${user.id}`, 60_000, () =>
+    users.query.where("id", user.id).first(),
+  )
 
   if (force && !userInDb) {
     await users.query
@@ -48,7 +83,12 @@ export async function getUser(user: { id: string }, force?: true) {
       })
       .onConflict("id")
       .merge()
-    return (await users.query.where("id", user.id).first())!
+
+    return timedCache.set(
+      `user_${user.id}`,
+      60_000,
+      (await users.query.where("id", user.id).first())!,
+    )
   }
 
   return userInDb
@@ -65,11 +105,20 @@ export async function getGuild(
   guild: { id: string },
   force?: true,
 ): Promise<Guild | undefined> {
-  const config = await guilds.query.where("id", guild.id).first()
+  const config = await timedCache.ensure(
+    `guild_config_${guild.id}`,
+    60_000,
+    () => guilds.query.where("id", guild.id).first(),
+  )
 
   if (force && !config) {
     await guilds.query.insert({ id: guild.id })
-    return (await guilds.query.where("id", guild.id).first())!
+
+    return timedCache.set(
+      `guild_config_${guild.id}`,
+      60_000,
+      (await guilds.query.where("id", guild.id).first())!,
+    )
   }
 
   return config

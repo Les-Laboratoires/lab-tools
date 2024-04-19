@@ -24,6 +24,8 @@ const listener: app.Listener<"guildMemberRemove"> = {
         }
       }
     } else {
+      if (member.guild.bans.cache.has(member.id)) return
+
       if (config.general_channel_id && config.member_leave_message) {
         const general = member.client.channels.cache.get(
           config.general_channel_id,

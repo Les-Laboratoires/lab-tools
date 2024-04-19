@@ -1,8 +1,5 @@
 import fs from "fs/promises"
 import * as app from "../app.js"
-import { ORM } from "@ghom/orm"
-import path from "path"
-import { logger } from "@ghom/logger"
 
 export async function createBackup() {
   await fs.cp(

@@ -41,12 +41,13 @@ export async function detectAndBanSpammer(message: app.Message) {
         ),
     )
 
-    await Promise.allSettled(
+    const result = await Promise.allSettled(
       guilds.map(async (guild) => {
         try {
-          await guild.members.ban(message.author.id, {
+          await guild.bans.create(message.author.id, {
             reason: "Spamming",
-            deleteMessageSeconds: 10,
+            // delete all messages from the user in the last 5 hours
+            deleteMessageSeconds: 60 * 60 * 5,
           })
         } catch (error: any) {
           await app.sendLog(
@@ -59,25 +60,50 @@ export async function detectAndBanSpammer(message: app.Message) {
             })}`,
             config,
           )
+
+          throw error
         }
 
         await app.sendLog(
           guild,
-          `**${message.author.tag}** has been banned for spamming from **${guilds.size}** guilds.`,
+          `**${message.author.tag}** has been banned here for spamming in **${guild.name}**`,
           config,
         )
       }),
     )
 
-    const alert = await message.channel.send(
-      `${app.emote(message, "CHECK")} **${
-        message.author.tag
-      }** detected as a spammer and banned from **${guilds.size}** guilds.`,
-    )
+    if (config.general_channel_id) {
+      const general = message.client.channels.cache.get(
+        config.general_channel_id,
+      )
 
-    setTimeout(() => {
-      alert.delete().catch()
-    }, 100 * 1000)
+      if (general?.isTextBased()) {
+        const success = result.filter(
+          (result) => result.status === "fulfilled",
+        ).length
+        const errored = result.length - success
+
+        if (success > 0 && errored === 0) {
+          await general.send(
+            `${app.emote(message, "CHECK")} **${
+              message.author.tag
+            }** detected as a spammer and banned from **${success}** labs.`,
+          )
+        } else if (success > 0 && errored > 0) {
+          await general.send(
+            `${app.emote(message, "CHECK")} **${
+              message.author.tag
+            }** detected as a spammer and banned from **${success}** labs.\n> **${errored}** labs failed to ban the user.`,
+          )
+        } else {
+          await general.send(
+            `${app.emote(message, "DENY")} **${
+              message.author.tag
+            }** detected as a spammer but all labs failed to ban the user.`,
+          )
+        }
+      }
+    }
   }
 }
 
