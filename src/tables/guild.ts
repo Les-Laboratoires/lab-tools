@@ -13,13 +13,14 @@ export interface Guild {
   auto_ban_channel_id: string | null
   meme_channel_id: string | null
   log_channel_id: string | null
-  member_welcome_message: string | null
-  bot_welcome_message: string | null
   member_role_id: string | null
   staff_role_id: string | null
   bot_role_id: string | null
   active_role_id: string | null
+  member_welcome_message: string | null
+  member_welcome_direct_message: string | null
   member_leave_message: string | null
+  bot_welcome_message: string | null
   bot_leave_message: string | null
   elders_role_pattern: string | null
   member_tracker_pattern: string
@@ -51,6 +52,9 @@ export default new app.Table<Guild>({
     },
     4: (table) => {
       table.string("auto_ban_channel_id")
+    },
+    5: (table) => {
+      table.string("member_welcome_direct_message")
     },
   },
   setup: (table) => {

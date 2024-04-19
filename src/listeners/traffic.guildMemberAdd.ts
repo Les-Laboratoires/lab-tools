@@ -41,6 +41,18 @@ const listener: app.Listener<"guildMemberAdd"> = {
           .add(config.member_role_id)
           .catch((error) => app.error(error, __filename))
 
+      if (config.member_welcome_direct_message) {
+        try {
+          const dm = await member.createDM(true)
+
+          await app.sendTemplatedEmbed(
+            dm,
+            config.member_welcome_direct_message,
+            app.embedReplacers(member),
+          )
+        } catch (error) {}
+      }
+
       if (config.general_channel_id && config.member_welcome_message) {
         const general = member.client.channels.cache.get(
           config.general_channel_id,
