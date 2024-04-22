@@ -17,6 +17,11 @@ export default new app.Command({
       required: true,
     },
   ],
+  rest: {
+    name: "content",
+    description: "The content of the faked message",
+    required: true,
+  },
   async run(message) {
     const user = message.args.target
 

@@ -1,5 +1,6 @@
 // system file, please don't modify it
 
+import url from "url"
 import discord from "discord.js"
 import chalk from "chalk"
 import tims from "tims"
@@ -23,7 +24,7 @@ export const commandHandler = new handler.Handler(
   {
     pattern: /\.js$/,
     loader: async (filepath) => {
-      const file = await import("file://" + filepath)
+      const file = await import(url.pathToFileURL(filepath).href)
       return file.default as ICommand
     },
     onLoad: async (filepath, command) => {
@@ -479,17 +480,15 @@ export async function prepareCommand(
         })
 
     if (cmd.options.botPermissions) {
+      const member = await message.guild.members.fetch(message.client.user)
+
       const botPermissions = await util.scrap(
         cmd.options.botPermissions,
         message,
       )
 
       for (const permission of botPermissions)
-        if (
-          !message.guild.members
-            .resolve(message.client.user)
-            ?.permissions.has(permission, true)
-        )
+        if (!member.permissions.has(permission, true))
           return new discord.EmbedBuilder()
             .setColor("Red")
             .setAuthor({
@@ -836,6 +835,8 @@ export async function prepareCommand(
   return true
 }
 
+const commandGitURLs = new Map<string, string>()
+
 export async function sendCommandDetails(
   message: IMessage,
   cmd: ICommand,
@@ -859,11 +860,22 @@ export async function sendCommandDetails(
         "no description",
     )
 
+  const breadcrumb = commandBreadcrumb(cmd)
+
+  if (config.openSource && util.packageJSON.repository?.url && cmd.filepath) {
+    let url = commandGitURLs.get(breadcrumb)
+
+    if (!url) url = await util.getFileGitURL(cmd.filepath)
+
+    if (url) {
+      commandGitURLs.set(breadcrumb, url)
+      embed.setURL(url)
+    }
+  }
+
   const title = [
     message.usedPrefix +
-      (cmd.options.isDefault
-        ? `[${commandBreadcrumb(cmd)}]`
-        : commandBreadcrumb(cmd)),
+      (cmd.options.isDefault ? `[${breadcrumb}]` : breadcrumb),
   ]
 
   if (cmd.options.positional) {

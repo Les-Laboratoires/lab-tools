@@ -2,6 +2,7 @@ import * as app from "./app.js"
 
 export const config: app.Config = {
   ignoreBots: true,
+  openSource: true,
   getPrefix: (message) => {
     return app.prefix(message.guild)
   },

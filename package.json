@@ -55,7 +55,8 @@
     "prettier": "^3.2.5",
     "regex-parser": "^2.2.11",
     "tims": "^2.1.0",
-    "yargs-parser": "^21.0.1"
+    "yargs-parser": "^21.0.1",
+    "simple-git": "^3.24.0"
   },
   "devDependencies": {
     "@esbuild/linux-x64": "^0.20.1",
