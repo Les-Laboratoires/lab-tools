@@ -1,7 +1,11 @@
 import * as app from "../app.js"
 
 import lab from "../tables/lab.js"
-import { timedCache } from "../app.js"
+
+export const allLabsCache = new app.ResponseCache(
+  async () => lab.query.select(),
+  60_000,
+)
 
 /**
  * @Todo use forum channels instead...
@@ -10,9 +14,7 @@ export async function updateLabsInAffiliationChannels(
   message: app.GuildMessage,
   packSize: number,
 ) {
-  const labs = await app.timedCache.ensure("all_labs", 60_000, () =>
-    lab.query.select(),
-  )
+  const labs = await allLabsCache.get()
 
   const pages = app.divider(labs, packSize)
 
@@ -48,9 +50,7 @@ export async function sendLabList(
   channel: app.TextBasedChannel,
   packSize: number,
 ) {
-  const labs = await app.timedCache.ensure("all_labs", 60_000, () =>
-    lab.query.select(),
-  )
+  const labs = await allLabsCache.get()
 
   const pages = app.divider(labs, packSize)
 
@@ -65,16 +65,13 @@ export async function sendLabList(
   }
 }
 
+const ignoredCache = new app.ResponseCache(async (id: string) => {
+  return lab.query
+    .where("guild_id", id)
+    .first()
+    .then((lab) => !!lab?.ignored)
+}, 60_000)
+
 export async function isIgnored(id: string): Promise<boolean> {
-  let isIgnored = app.timedCache.get<boolean>(`ignored_${id}`)
-
-  if (isIgnored !== undefined) return isIgnored
-
-  const guild = await app.getGuild({ id }, true)
-  isIgnored =
-    (await lab.query.where("guild_id", guild._id).first())?.ignored ?? true
-
-  app.timedCache.set(`ignored_${id}`, 60_000, isIgnored)
-
-  return isIgnored
+  return ignoredCache.get(id)
 }

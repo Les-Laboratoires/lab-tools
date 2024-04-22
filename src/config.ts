@@ -18,12 +18,12 @@ export const config: app.Config = {
       "GuildVoiceStates",
       "GuildPresences",
       "GuildMessages",
-      "MessageContent",
       "GuildMessageTyping",
       "GuildMessageReactions",
       "DirectMessages",
       "DirectMessageTyping",
       "DirectMessageReactions",
+      "MessageContent",
     ],
   },
 }

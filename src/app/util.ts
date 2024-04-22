@@ -331,27 +331,42 @@ export const cache = new (class Cache {
   }
 })()
 
-interface ResponseCacheData<Value> {
+export interface ResponseCacheData<Value> {
   value: Value
   expires: number
 }
 
-class ResponseCache<Value> {
-  private _cache?: ResponseCacheData<Value>
+export class ResponseCache<Params extends any[], Value> {
+  private _cache = new Map<string, ResponseCacheData<Value>>()
 
   constructor(
-    private _request: () => Promise<Value>,
+    private _request: (...params: Params) => Promise<Value>,
     private _timeout: number,
   ) {}
 
-  async get(): Promise<Value> {
-    if (!this._cache || this._cache.expires < Date.now()) {
-      this._cache = {
-        value: await this._request(),
+  async get(...params: Params): Promise<Value> {
+    const key = JSON.stringify(params)
+    const cached = this._cache.get(key)
+
+    if (!cached || cached.expires < Date.now()) {
+      this._cache.set(key, {
+        value: await this._request(...params),
         expires: Date.now() + this._timeout,
-      }
+      })
     }
-    return this._cache.value
+
+    return this._cache.get(key)!.value
+  }
+
+  set(params: Params, value: Value): Value {
+    const key = JSON.stringify(params)
+
+    this._cache.set(key, {
+      value,
+      expires: Date.now() + this._timeout,
+    })
+
+    return value
   }
 }
 
