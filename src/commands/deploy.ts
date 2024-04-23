@@ -33,7 +33,7 @@ export default new app.Command({
         let timer = Date.now()
 
         cp.exec(command, { cwd: process.cwd() }, (err, stdout, stderr) => {
-          if (err) return reject()
+          if (err) return reject(err)
 
           commands.push(
             `\n${app.emote(message, "CHECK")} \`>_ ${command}\` (${
