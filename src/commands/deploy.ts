@@ -24,11 +24,9 @@ export default new app.Command({
 
     async function run(command: string, args: string[] = []) {
       await waiting.edit(
-        `${app.emote(message, "WAIT")} Deploying...${commands
+        `${app.emote(message, "WAIT")} Deploying...\n${app.emote(message, "WAIT")} \`>_ ${command} ${args.join(" ")}\`${commands
           .toReversed()
-          .join(
-            "",
-          )}\n${app.emote(message, "WAIT")} \`>_ ${command} ${args.join(" ")}\``,
+          .join("")}`,
       )
 
       let timer = Date.now()
