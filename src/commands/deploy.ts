@@ -1,4 +1,4 @@
-import cp from "child_process"
+import { execa } from "execa"
 
 import * as app from "../app.js"
 
@@ -22,28 +22,24 @@ export default new app.Command({
 
     const commands: string[] = []
 
-    async function run(command: string) {
-      return new Promise(async (resolve, reject) => {
-        await waiting.edit(
-          `${app.emote(message, "WAIT")} Deploying...${commands.join(
-            "",
-          )}${`\n${app.emote(message, "WAIT")} \`>_ ${command}\``}`,
-        )
+    async function run(command: string, args: string[] = []) {
+      await waiting.edit(
+        `${app.emote(message, "WAIT")} Deploying...${commands
+          .toReversed()
+          .join("")}\n${app.emote(message, "WAIT")} \`>_ ${command}\``,
+      )
 
-        let timer = Date.now()
+      let timer = Date.now()
 
-        cp.exec(command, { cwd: process.cwd() }, (err, stdout, stderr) => {
-          if (err) return reject(err)
-
-          commands.push(
-            `\n${app.emote(message, "CHECK")} \`>_ ${command}\` (${
-              Date.now() - timer
-            }ms)`,
-          )
-
-          resolve(void 0)
-        })
+      await execa(command, args, {
+        cwd: process.cwd(),
       })
+
+      commands.push(
+        `\n${app.emote(message, "CHECK")} \`>_ ${command}\` (${
+          Date.now() - timer
+        }ms)`,
+      )
     }
 
     await restart.query.insert({
@@ -54,11 +50,11 @@ export default new app.Command({
     })
 
     try {
-      await run("git reset --hard")
-      await run("git pull")
-      await run("npm i")
-      await run("yarn build")
-      await run("pm2 restart tool")
+      await run("git", ["reset", "--hard"])
+      await run("git", ["pull"])
+      await run("npm", ["install"])
+      await run("yarn", ["build"])
+      await run("pm2", ["restart", "tool"])
     } catch (error: any) {
       await restart.query.delete().where({ last_message_id: waiting.id })
 
