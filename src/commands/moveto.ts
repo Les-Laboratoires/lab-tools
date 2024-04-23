@@ -29,7 +29,9 @@ export default new app.Command({
     const destination = message.args.destination as app.GuildChannel
     const firstMessage = message.args.firstMessage as app.Message<true>
 
-    await message.delete().catch()
+    try {
+      await message.delete()
+    } catch (e) {}
 
     if (!destination.isTextBased())
       return await message.channel.send(
@@ -111,11 +113,15 @@ export default new app.Command({
       }
     }
 
-    await message.channel.bulkDelete(messages).catch()
+    try {
+      await message.channel.bulkDelete(messages)
+    } catch (e) {}
 
     for (const { client, webhook } of webhooks.values()) {
       client.destroy()
-      await webhook.delete().catch()
+      try {
+        await webhook.delete()
+      } catch (e) {}
     }
 
     await message.channel.send(
