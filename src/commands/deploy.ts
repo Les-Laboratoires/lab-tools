@@ -1,4 +1,4 @@
-import { execa } from "execa"
+import { execSync } from "child_process"
 
 import * as app from "../app.js"
 
@@ -26,17 +26,19 @@ export default new app.Command({
       await waiting.edit(
         `${app.emote(message, "WAIT")} Deploying...${commands
           .toReversed()
-          .join("")}\n${app.emote(message, "WAIT")} \`>_ ${command}\``,
+          .join(
+            "",
+          )}\n${app.emote(message, "WAIT")} \`>_ ${command} ${args.join(" ")}\``,
       )
 
       let timer = Date.now()
 
-      await execa(command, args, {
+      execSync(`${command} ${args.join(" ")}`, {
         cwd: process.cwd(),
       })
 
       commands.push(
-        `\n${app.emote(message, "CHECK")} \`>_ ${command}\` (${
+        `\n${app.emote(message, "CHECK")} \`>_ ${command} ${args.join(" ")}\` (${
           Date.now() - timer
         }ms)`,
       )
@@ -53,7 +55,7 @@ export default new app.Command({
       await run("git", ["reset", "--hard"])
       await run("git", ["pull"])
       await run("npm", ["install"])
-      await run("yarn", ["build"])
+      await run("npm", ["run", "build"])
       await run("pm2", ["restart", "tool"])
     } catch (error: any) {
       await restart.query.delete().where({ last_message_id: waiting.id })
