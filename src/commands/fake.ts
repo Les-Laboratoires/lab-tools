@@ -2,13 +2,13 @@ import * as app from "../app.js"
 
 export default new app.Command({
   name: "fake",
+  description: "Fake an user message",
+  channelType: "all",
+  botPermissions: ["ManageWebhooks"],
   cooldown: {
     duration: 10000,
     type: app.CooldownType.ByGuild,
   },
-  channelType: "all",
-  botPermissions: ["ManageWebhooks"],
-  description: "Fake an user message",
   positional: [
     {
       name: "target",

@@ -7,5 +7,5 @@ export default new app.Command({
   async run(message) {
     // todo: code here
     return message.channel.send("remind command is not yet implemented.")
-  }
+  },
 })
