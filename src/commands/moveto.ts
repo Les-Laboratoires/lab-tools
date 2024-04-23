@@ -100,7 +100,15 @@ export default new app.Command({
 
       if (!webhookObject) continue
 
-      await webhookObject.client.send(m.content)
+      try {
+        await webhookObject.client.send({
+          content: m.content,
+          embeds: m.embeds,
+          files: m.attachments.map((a) => a.url),
+        })
+      } catch (e) {
+        await webhookObject.client.send("**[Unknown message]**")
+      }
     }
 
     await message.channel.bulkDelete(messages).catch()
