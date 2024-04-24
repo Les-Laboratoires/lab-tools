@@ -39,7 +39,7 @@ export default new app.Command({
         )[command.state],
       )} ${command.state === "running" ? "**" : ""}\`>_ ${command.cmd}\`${
         command.state === "running" ? "**" : ""
-      } ${command.time ? `(**${command.time}**ms)` : ""}`.trim()
+      } ${command.time ? `(**${command.time}** ms)` : ""}`.trim()
 
     const makeView = (finish?: boolean) =>
       `${commands
