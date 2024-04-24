@@ -4,6 +4,9 @@ import * as app from "../app.js"
 
 import restart from "../tables/restart.js"
 
+type State = "waiting" | "running" | "done"
+type Command = { cmd: string; state: State; time: number }
+
 export default new app.Command({
   name: "deploy",
   description: "Deploy Lab Tool",
@@ -16,51 +19,72 @@ export default new app.Command({
   async run(message) {
     message.triggerCoolDown()
 
-    const waiting = await message.channel.send(
-      `${app.emote(message, "WAIT")} Deploying...`,
-    )
+    const commands: Command[] = [
+      { state: "waiting", time: 0, cmd: "git reset --hard" },
+      { state: "waiting", time: 0, cmd: "git pull" },
+      { state: "waiting", time: 0, cmd: "npm install" },
+      { state: "waiting", time: 0, cmd: "npm run build" },
+      { state: "waiting", time: 0, cmd: "pm2 restart tool" },
+    ]
 
-    const commands: string[] = []
+    const format = (command: Command) =>
+      `${app.emote(
+        message,
+        (
+          {
+            waiting: "MINUS",
+            running: "WAIT",
+            done: "CHECK",
+          } as const
+        )[command.state],
+      )} ${command.state === "running" ? "**" : ""}\`>_ ${command.cmd}\`${
+        command.state === "running" ? "**" : ""
+      } ${command.time ? `(**${command.time}**ms)` : ""}`.trim()
 
-    async function run(command: string, args: string[] = []) {
-      await waiting.edit(
-        `${app.emote(message, "WAIT")} Deploying...\n${app.emote(message, "WAIT")} \`>_ ${command} ${args.join(" ")}\`${commands
-          .toReversed()
-          .join("")}`,
-      )
+    const makeView = (finish?: boolean) =>
+      `${commands
+        .map((command) =>
+          format({ ...command, state: finish ? "done" : command.state }),
+        )
+        .join("\n")}\n${app.emote(message, finish ? "CHECK" : "WAIT")} ${
+        finish ? `**Deployed** 🚀` : "Deploying..."
+      }`
 
-      let timer = Date.now()
+    const run = async (command: Command) => {
+      command.state = "running"
 
-      execSync(`${command} ${args.join(" ")}`, {
-        cwd: process.cwd(),
-      })
+      await view.edit(makeView())
 
-      commands.push(
-        `\n${app.emote(message, "CHECK")} \`>_ ${command} ${args.join(" ")}\` (${
-          Date.now() - timer
-        }ms)`,
-      )
+      execSync(command.cmd, { cwd: process.cwd() })
+
+      command.state = "done"
     }
 
+    const view = await message.channel.send(makeView())
+
+    const created_at = new Date().toISOString()
+
     await restart.query.insert({
-      content: `${app.emote(message, "CHECK")} Successfully deployed.`,
+      content: makeView(true),
       last_channel_id: message.channel.id,
-      last_message_id: waiting.id,
-      created_at: new Date().toISOString(),
+      last_message_id: view.id,
+      created_at,
     })
 
     try {
-      await run("git", ["reset", "--hard"])
-      await run("git", ["pull"])
-      await run("npm", ["install"])
-      await run("npm", ["run", "build"])
-      await run("pm2", ["restart", "tool"])
+      for (const command of commands) {
+        let time = Date.now()
+
+        await run(command)
+
+        command.time = Date.now() - time
+      }
     } catch (error: any) {
-      await restart.query.delete().where({ last_message_id: waiting.id })
+      await restart.query.delete().where({ created_at })
 
       app.error(error)
 
-      return waiting.edit({
+      return view.edit({
         embeds: [
           new app.EmbedBuilder()
             .setTitle("\\❌ An error has occurred.")

@@ -5,8 +5,6 @@ import guilds, { Guild } from "../tables/guild.js"
 import autoRole from "../tables/autoRole.js"
 
 export enum Emotes {
-  APPROVED = "865281743333228604",
-  DISAPPROVED = "865281743560638464",
   CHECK = "865281743333228604",
   MINUS = "865281743422226443",
   DENY = "865281743560638464",
