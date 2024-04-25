@@ -48,6 +48,12 @@ export default new app.Command({
         `${app.emote(message, "DENY")} First message must be in the same channel.`,
       )
 
+    // Show view
+
+    const view = await message.channel.send(
+      `${app.emote(message, "WAIT")} Fetching messages...`,
+    )
+
     // Fetch the messages to move
 
     let messages = await message.channel.messages
@@ -55,11 +61,12 @@ export default new app.Command({
       .then((result) => Array.from(result.values()))
 
     messages.push(firstMessage)
+    messages = messages.filter((m) => m.id !== view.id)
+
+    const messageCountToDelete = messages.length
 
     if (messages.length === 0)
-      return await message.channel.send(
-        `${app.emote(message, "DENY")} No messages found.`,
-      )
+      return await view.edit(`${app.emote(message, "DENY")} No messages found.`)
 
     if (messages.length > 20) messages = messages.slice(0, 20)
 
@@ -67,7 +74,7 @@ export default new app.Command({
 
     message.triggerCoolDown()
 
-    // Group the message authors as GuildMembers
+    // Group the message authors as GuildMembers and webhook ids
 
     const members = new Set(
       messages
@@ -75,7 +82,13 @@ export default new app.Command({
         .filter((m): m is app.GuildMember => !!m),
     )
 
-    // Prepare a webhook for message author
+    const webhookAuthors = new Set(
+      messages.map((msg) => msg.webhookId).filter((a): a is string => !!a),
+    )
+
+    // Prepare webhooks for message author
+
+    await view.edit(`${app.emote(message, "WAIT")} Creating webhooks...`)
 
     const webhooks = new Map<
       string,
@@ -95,12 +108,45 @@ export default new app.Command({
       webhooks.set(member.id, { webhook, client })
     }
 
+    for (const id of webhookAuthors) {
+      const baseWebhook = await message.client.fetchWebhook(id)
+
+      const webhook = await destination.createWebhook({
+        name: baseWebhook.name,
+        avatar: baseWebhook.avatar,
+      })
+
+      if (!webhook.token) continue
+
+      const client = new app.WebhookClient(webhook)
+
+      webhooks.set(id, { webhook, client })
+    }
+
+    if (messages.some((m) => m.system)) {
+      const webhook = await destination.createWebhook({
+        name: "System",
+        avatar: message.guild.iconURL(),
+      })
+
+      if (webhook.token) {
+        const client = new app.WebhookClient(webhook)
+
+        webhooks.set("system", { webhook, client })
+      }
+    }
+
     // Send the messages to the destination channel
+
+    await view.edit(`${app.emote(message, "WAIT")} Sending messages...`)
 
     for (const m of messages.toReversed()) {
       const webhookObject = webhooks.get(m.author.id)
 
-      if (!webhookObject) continue
+      if (!webhookObject) {
+        messages.splice(messages.indexOf(m), 1)
+        continue
+      }
 
       try {
         await webhookObject.client.send({
@@ -109,9 +155,11 @@ export default new app.Command({
           files: m.attachments.map((a) => a.url),
         })
       } catch (e) {
-        await webhookObject.client.send("**[Unknown message]**")
+        messages.splice(messages.indexOf(m), 1)
       }
     }
+
+    await view.edit(`${app.emote(message, "WAIT")} Deleting old messages...`)
 
     try {
       await message.channel.bulkDelete(messages)
@@ -124,8 +172,12 @@ export default new app.Command({
       } catch (e) {}
     }
 
-    await message.channel.send(
-      `${app.emote(message, "CHECK")} Conversation moved to ${destination}`,
+    await view.edit(
+      `${app.emote(message, "CHECK")} Conversation moved to ${destination}${
+        messages.length < messageCountToDelete
+          ? ` (${messageCountToDelete - messages.length} messages failed to move)`
+          : ""
+      }`,
     )
   },
 })
