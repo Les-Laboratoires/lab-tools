@@ -1,6 +1,6 @@
 import * as app from "./app.js"
 
-export const config: app.Config = {
+export const config: app.Scrap<app.Config> = () => ({
   ignoreBots: true,
   openSource: true,
   getPrefix: (message) => {
@@ -8,22 +8,22 @@ export const config: app.Config = {
   },
   client: {
     intents: [
-      "Guilds",
-      "GuildMembers",
-      "GuildBans",
-      "GuildEmojisAndStickers",
-      "GuildIntegrations",
-      "GuildWebhooks",
-      "GuildInvites",
-      "GuildVoiceStates",
-      "GuildPresences",
-      "GuildMessages",
-      "GuildMessageTyping",
-      "GuildMessageReactions",
-      "DirectMessages",
-      "DirectMessageTyping",
-      "DirectMessageReactions",
-      "MessageContent",
+      app.IntentsBitField.Flags.Guilds,
+      app.IntentsBitField.Flags.GuildMembers,
+      app.IntentsBitField.Flags.GuildModeration,
+      app.IntentsBitField.Flags.GuildEmojisAndStickers,
+      app.IntentsBitField.Flags.GuildIntegrations,
+      app.IntentsBitField.Flags.GuildWebhooks,
+      app.IntentsBitField.Flags.GuildInvites,
+      app.IntentsBitField.Flags.GuildVoiceStates,
+      app.IntentsBitField.Flags.GuildPresences,
+      app.IntentsBitField.Flags.GuildMessages,
+      app.IntentsBitField.Flags.GuildMessageTyping,
+      app.IntentsBitField.Flags.GuildMessageReactions,
+      app.IntentsBitField.Flags.DirectMessages,
+      app.IntentsBitField.Flags.DirectMessageTyping,
+      app.IntentsBitField.Flags.DirectMessageReactions,
+      app.IntentsBitField.Flags.MessageContent,
     ],
   },
   paginatorEmojis: {
@@ -37,4 +37,4 @@ export const config: app.Config = {
     error: app.Emotes.Cross,
     loading: app.Emotes.Loading,
   },
-}
+})

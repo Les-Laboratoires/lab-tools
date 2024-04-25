@@ -46,7 +46,8 @@ export async function getUser(user: { id: string }, force?: true) {
     await users.query
       .insert({
         id: user.id,
-        is_bot: app.client.users.cache.get(user.id)?.bot ?? false,
+        is_bot:
+          app.ClientSingleton.get().users.cache.get(user.id)?.bot ?? false,
       })
       .onConflict("id")
       .merge()
