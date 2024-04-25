@@ -33,12 +33,12 @@ export default new app.Command({
     )
 
     if (!result)
-      return message.channel.send(`${app.emote(message, "DENY")} No lab found`)
+      return message.channel.send(`${app.emote(message, "Cross")} No lab found`)
 
     const labResult = labs.find((lab) => lab.guild_id === result[0]._id)
 
     if (!labResult)
-      return message.channel.send(`${app.emote(message, "DENY")} No lab found`)
+      return message.channel.send(`${app.emote(message, "Cross")} No lab found`)
 
     return message.channel.send(`${labResult.title} ${labResult.url}`)
   },
@@ -76,7 +76,7 @@ export default new app.Command({
 
         if (!guild)
           return message.channel.send(
-            `${app.emote(message, "DENY")} Incorrect guild id`,
+            `${app.emote(message, "Cross")} Incorrect guild id`,
           )
 
         await lab.query
@@ -89,7 +89,7 @@ export default new app.Command({
           .merge()
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully added **${
+          `${app.emote(message, "CheckMark")} Successfully added **${
             message.args.id
               ? message.client.guilds.cache.get(message.args.id)?.name
               : message.guild.name

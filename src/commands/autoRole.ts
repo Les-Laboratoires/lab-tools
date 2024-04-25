@@ -46,7 +46,7 @@ export default new app.Command({
         )
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Auto-roles are successfully pushed.`,
+          `${app.emote(message, "CheckMark")} Auto-roles are successfully pushed.`,
         )
       },
     }),
@@ -81,7 +81,7 @@ export default new app.Command({
         })
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Auto-role is successfully pushed.`,
+          `${app.emote(message, "CheckMark")} Auto-role is successfully pushed.`,
         )
       },
     }),
@@ -143,7 +143,7 @@ export default new app.Command({
         return message.channel.send(
           `${app.emote(
             message,
-            "CHECK",
+            "CheckMark",
           )} Auto-roles are successfully applied to **${
             target.user.username
           }**.`,
@@ -157,7 +157,7 @@ export default new app.Command({
           channelType: "guild",
           async run(message) {
             const waiting = await message.channel.send(
-              `${app.emote(message, "WAIT")} Fetching members...`,
+              `${app.emote(message, "Loading")} Fetching members...`,
             )
 
             const members = Array.from(
@@ -167,7 +167,7 @@ export default new app.Command({
             message.guild.members.cache.clear()
 
             await waiting.edit(
-              `${app.emote(message, "WAIT")} Applying auto-roles to members...`,
+              `${app.emote(message, "Loading")} Applying auto-roles to members...`,
             )
 
             for (const member of members) {
@@ -186,7 +186,7 @@ export default new app.Command({
             return message.channel.send(
               `${app.emote(
                 message,
-                "CHECK",
+                "CheckMark",
               )} Auto-roles are successfully applied to **${
                 members.length
               }** members.`,

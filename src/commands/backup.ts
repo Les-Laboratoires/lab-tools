@@ -21,7 +21,7 @@ export default new app.Command({
         await app.createBackup()
 
         return message.reply(
-          `${app.emote(message, "CHECK")} Successfully created backup.`,
+          `${app.emote(message, "CheckMark")} Successfully created backup.`,
         )
       },
     }),
@@ -34,7 +34,7 @@ export default new app.Command({
       async run(message) {
         await app.restoreBackup(() =>
           message.channel.send(
-            `${app.emote(message, "CHECK")} Successfully restored backup.`,
+            `${app.emote(message, "CheckMark")} Successfully restored backup.`,
           ),
         )
       },

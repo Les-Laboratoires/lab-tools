@@ -35,14 +35,14 @@ export async function updateLabsInAffiliationChannels(
           )
 
         await message.channel.send(
-          `${app.emote(message, "CHECK")} Updated **${guild}** affiliations`,
+          `${app.emote(message, "CheckMark")} Updated **${guild}** affiliations`,
         )
       }
     }
   }
 
   await message.channel.send(
-    `${app.emote(message, "CHECK")} Successfully updated all affiliations.`,
+    `${app.emote(message, "CheckMark")} Successfully updated all affiliations.`,
   )
 }
 
@@ -55,7 +55,7 @@ export async function sendLabList(
   const pages = app.divider(labs, packSize)
 
   if (pages.length === 0)
-    return channel.send(`${app.emote(channel, "DENY")} No labs found.`)
+    return channel.send(`${app.emote(channel, "Cross")} No labs found.`)
 
   if (channel.isTextBased()) {
     for (const page of pages)

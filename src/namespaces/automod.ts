@@ -84,19 +84,19 @@ export async function detectAndBanSpammer(message: app.Message) {
 
         if (success > 0 && errored === 0) {
           await general.send(
-            `${app.emote(message, "CHECK")} **${
+            `${app.emote(message, "CheckMark")} **${
               message.author.tag
             }** detected as a spammer and banned from **${success}** labs.`,
           )
         } else if (success > 0 && errored > 0) {
           await general.send(
-            `${app.emote(message, "CHECK")} **${
+            `${app.emote(message, "CheckMark")} **${
               message.author.tag
             }** detected as a spammer and banned from **${success}** labs.\n> **${errored}** labs failed to ban the user.`,
           )
         } else {
           await general.send(
-            `${app.emote(message, "DENY")} **${
+            `${app.emote(message, "Cross")} **${
               message.author.tag
             }** detected as a spammer but all labs failed to ban the user.`,
           )

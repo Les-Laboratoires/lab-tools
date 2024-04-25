@@ -103,7 +103,7 @@ export default new app.Command({
         await guilds.query.insert({ ...config, id: message.guild.id })
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully overwritten config. `,
+          `${app.emote(message, "CheckMark")} Successfully overwritten config. `,
         )
       },
     }),
@@ -130,7 +130,7 @@ export default new app.Command({
           .merge()
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully merged values. `,
+          `${app.emote(message, "CheckMark")} Successfully merged values. `,
         )
       },
     }),
@@ -155,7 +155,7 @@ export default new app.Command({
       async run(message) {
         if (message.args.name === "id" || message.args.name === "_id")
           return message.channel.send(
-            `${app.emote(message, "DENY")} You can't edit the guild id!`,
+            `${app.emote(message, "Cross")} You can't edit the guild id!`,
           )
 
         await guilds.query
@@ -167,7 +167,7 @@ export default new app.Command({
           .merge()
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully updated \`${
+          `${app.emote(message, "CheckMark")} Successfully updated \`${
             message.args.name
           }\` value. `,
         )
@@ -233,7 +233,7 @@ export default new app.Command({
         await guilds.query.delete().where("id", message.guild.id)
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully reset guild config.`,
+          `${app.emote(message, "CheckMark")} Successfully reset guild config.`,
         )
       },
     }),

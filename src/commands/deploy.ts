@@ -32,9 +32,9 @@ export default new app.Command({
         message,
         (
           {
-            waiting: "MINUS",
-            running: "WAIT",
-            done: "CHECK",
+            waiting: "Minus",
+            running: "Loading",
+            done: "CheckMark",
           } as const
         )[command.state],
       )} ${command.state === "running" ? "**" : ""}\`>_ ${command.cmd}\`${
@@ -46,7 +46,7 @@ export default new app.Command({
         .map((command) =>
           format({ ...command, state: finish ? "done" : command.state }),
         )
-        .join("\n")}\n${app.emote(message, finish ? "CHECK" : "WAIT")} ${
+        .join("\n")}\n${app.emote(message, finish ? "CheckMark" : "Loading")} ${
         finish ? `**Deployed** 🚀` : "Deploying..."
       }`
 

@@ -43,7 +43,7 @@ export default new app.Command({
     const config = await app.getGuild(message.guild, true)
 
     const waiting = await message.channel.send(
-      `${app.emote(message, "WAIT")} Fetching members...`,
+      `${app.emote(message, "Loading")} Fetching members...`,
     )
 
     await app.updateActive(message.guild, {

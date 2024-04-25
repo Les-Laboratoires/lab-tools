@@ -23,7 +23,7 @@ export default new app.Command({
     used = true
 
     const waiting = await message.channel.send(
-      `${app.emote(message, "WAIT")} Fetching elder roles...`,
+      `${app.emote(message, "Loading")} Fetching elder roles...`,
     )
 
     const config = await app.getGuild(message.guild, true)
@@ -37,7 +37,7 @@ export default new app.Command({
       .sort((a, b) => a.comparePositionTo(b))
       .map((role) => role)
 
-    await waiting.edit(`${app.emote(message, "WAIT")} Fetching members...`)
+    await waiting.edit(`${app.emote(message, "Loading")} Fetching members...`)
 
     message.guild.members.cache.clear()
 
@@ -50,7 +50,7 @@ export default new app.Command({
     const logs: { username: string; years: number }[] = []
 
     await waiting.edit(
-      `${app.emote(message, "WAIT")} Looking for new elders from ${
+      `${app.emote(message, "Loading")} Looking for new elders from ${
         members.length
       } members...`,
     )
@@ -91,7 +91,9 @@ export default new app.Command({
     if (logs.length === 0) {
       used = false
 
-      return waiting.edit(`${app.emote(message, "DENY")} Not new elders found.`)
+      return waiting.edit(
+        `${app.emote(message, "Cross")} Not new elders found.`,
+      )
     }
 
     await waiting.delete().catch()
@@ -99,17 +101,14 @@ export default new app.Command({
     new app.StaticPaginator({
       channel: message.channel,
       pages: app.divider(logs, 10).map((page, index, pages) =>
-        new app.EmbedBuilder()
-          .setDescription(
-            page
-              .sort((a, b) => b.years - a.years)
-              .map((log) => `\`${log.years}\` years old: **${log.username}**`)
-              .join("\n"),
-          )
-          .setTitle(`Added ${logs.length} elders`)
-          .setFooter({
-            text: `Page: ${index + 1} sur ${pages.length}`,
-          }),
+        app.getSystemMessage("success", {
+          title: `Added ${logs.length} elders`,
+          description: page
+            .sort((a, b) => b.years - a.years)
+            .map((log) => `\`${log.years}\` years old: **${log.username}**`)
+            .join("\n"),
+          footer: { text: `Page ${index + 1} / ${pages.length}` },
+        }),
       ),
     })
 

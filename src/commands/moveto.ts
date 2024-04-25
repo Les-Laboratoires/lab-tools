@@ -5,7 +5,7 @@ export default new app.Command({
   description: "Move a conversation to another channel",
   channelType: "guild",
   aliases: ["move", "mt", "mv"],
-  botPermissions: ["ManageWebhooks", "ManageChannels"],
+  botPermissions: ["ManageWebhooks", "ManageMessages"],
   middlewares: [app.middlewares.staffOnly()],
   cooldown: {
     duration: 10000,
@@ -35,23 +35,23 @@ export default new app.Command({
 
     if (!destination.isTextBased())
       return await message.channel.send(
-        `${app.emote(message, "DENY")} Destination channel must be a guild text channel.`,
+        `${app.emote(message, "Cross")} Destination channel must be a guild text channel.`,
       )
 
     if (!message.guild.channels.cache.has(destination.id))
       return await message.channel.send(
-        `${app.emote(message, "DENY")} Destination channel must be in the same guild.`,
+        `${app.emote(message, "Cross")} Destination channel must be in the same guild.`,
       )
 
     if (firstMessage.channel.id !== message.channel.id)
       return await message.channel.send(
-        `${app.emote(message, "DENY")} First message must be in the same channel.`,
+        `${app.emote(message, "Cross")} First message must be in the same channel.`,
       )
 
     // Show view
 
     const view = await message.channel.send(
-      `${app.emote(message, "WAIT")} Fetching messages...`,
+      `${app.emote(message, "Loading")} Fetching messages...`,
     )
 
     // Fetch the messages to move
@@ -66,7 +66,9 @@ export default new app.Command({
     const messageCountToDelete = messages.length
 
     if (messages.length === 0)
-      return await view.edit(`${app.emote(message, "DENY")} No messages found.`)
+      return await view.edit(
+        `${app.emote(message, "Cross")} No messages found.`,
+      )
 
     if (messages.length > 20) messages = messages.slice(0, 20)
 
@@ -81,7 +83,7 @@ export default new app.Command({
     // Prepare webhooks for message author
 
     await view.edit(
-      `${app.emote(message, "WAIT")} Creating webhooks for **${authors.size}** users...`,
+      `${app.emote(message, "Loading")} Creating webhooks for **${authors.size}** users...`,
     )
 
     const webhooks = new Map<
@@ -120,7 +122,7 @@ export default new app.Command({
     // Send the messages to the destination channel
 
     await view.edit(
-      `${app.emote(message, "WAIT")} Sending **${messages.length}** messages...`,
+      `${app.emote(message, "Loading")} Sending **${messages.length}** messages...`,
     )
 
     for (const m of messages.toReversed()) {
@@ -143,7 +145,7 @@ export default new app.Command({
     }
 
     await view.edit(
-      `${app.emote(message, "WAIT")} Deleting **${messages.length}** old messages...`,
+      `${app.emote(message, "Loading")} Deleting **${messages.length}** old messages...`,
     )
 
     try {
@@ -158,7 +160,7 @@ export default new app.Command({
     }
 
     await view.edit(
-      `${app.emote(message, "CHECK")} Conversation moved to ${destination}${
+      `${app.emote(message, "CheckMark")} Conversation moved to ${destination}${
         messages.length < messageCountToDelete
           ? ` (**${messageCountToDelete - messages.length}** messages failed to move)`
           : ""

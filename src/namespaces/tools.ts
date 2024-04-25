@@ -5,13 +5,13 @@ import guilds, { Guild } from "../tables/guild.js"
 import autoRole from "../tables/autoRole.js"
 
 export enum Emotes {
-  CHECK = "865281743333228604",
-  MINUS = "865281743422226443",
-  DENY = "865281743560638464",
-  PLUS = "865281743648194610",
-  RIGHT = "865281743510044723",
-  LEFT = "865281743371894794",
-  WAIT = "865282736041361468",
+  Loading = "865282736041361468",
+  CheckMark = "865281743333228604",
+  Cross = "865281743560638464",
+  Minus = "865281743422226443",
+  Plus = "865281743648194610",
+  Left = "865281743371894794",
+  Right = "865281743510044723",
 }
 
 export async function sendLog(
@@ -186,7 +186,7 @@ export async function sendProgress(
 ) {
   if (index % interval === 0) {
     await message.edit(
-      `${emote(message, "WAIT")} ${pattern
+      `${emote(message, "Loading")} ${pattern
         .replace("$%", String(Math.round((index * 100) / total)))
         .replace("$#", String(index))
         .replace("$$", String(total))}`,

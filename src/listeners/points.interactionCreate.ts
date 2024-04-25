@@ -18,7 +18,7 @@ const listener: app.Listener<"interactionCreate"> = {
       return await interaction.reply({
         content: `${app.emote(
           interaction,
-          "DENY",
+          "Cross",
         )} You can't give points to yourself.`,
         ephemeral: true,
       })
@@ -39,7 +39,7 @@ const listener: app.Listener<"interactionCreate"> = {
     )
 
     await interaction.reply({
-      content: `${app.emote(interaction, "CHECK")} Successfully rated.`,
+      content: `${app.emote(interaction, "CheckMark")} Successfully rated.`,
       ephemeral: true,
     })
 
@@ -51,7 +51,7 @@ const listener: app.Listener<"interactionCreate"> = {
     await target.send(
       `${app.emote(
         interaction,
-        "CHECK",
+        "CheckMark",
       )} You received **${amount}** points from ${interaction.user} in ${
         interaction.channel
       }.`,

@@ -19,7 +19,7 @@ export default new app.Command({
     const target = message.args.channel
 
     const feedback = await message.channel.send(
-      `${app.emote(message, "WAIT")} Fetching messages from ${target}...`,
+      `${app.emote(message, "Loading")} Fetching messages from ${target}...`,
     )
 
     let found = 0
@@ -58,7 +58,7 @@ export default new app.Command({
       await feedback.edit(
         `${app.emote(
           message,
-          "WAIT",
+          "Loading",
         )} Fetching messages from ${target}... (**${found}** messages from **${
           userCache.size
         }** users)`,
@@ -70,7 +70,7 @@ export default new app.Command({
     return feedback.edit(
       `${app.emote(
         message,
-        "CHECK",
+        "CheckMark",
       )} Successfully fetched **${found}** messages from **${
         userCache.size
       }** users from ${target}.`,

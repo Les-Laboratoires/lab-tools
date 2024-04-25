@@ -48,7 +48,7 @@ export default new app.Command({
         }
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully rated.`,
+          `${app.emote(message, "CheckMark")} Successfully rated.`,
         )
       }
 

@@ -27,7 +27,7 @@ export default new app.Command({
       )
     } else {
       await message.channel.send(
-        `${app.emote(message, "DENY")} Bad usage, please use code block tags`,
+        `${app.emote(message, "Cross")} Bad usage, please use code block tags`,
       )
     }
   },

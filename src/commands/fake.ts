@@ -48,7 +48,7 @@ export default new app.Command({
       client.destroy()
     } else {
       await message.channel.send(
-        `${app.emote(message, "DENY")} Permission error`,
+        `${app.emote(message, "Cross")} Permission error`,
       )
     }
     await message.delete().catch()

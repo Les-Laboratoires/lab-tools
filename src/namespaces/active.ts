@@ -89,7 +89,7 @@ export async function updateActive(
 
     if (options.onLog)
       await options.onLog(
-        `${app.emote(guild, "WAIT")} Verification of **0**/**${
+        `${app.emote(guild, "Loading")} Verification of **0**/**${
           members.length
         }** members...`,
       )
@@ -104,7 +104,7 @@ export async function updateActive(
         await options.onLog(
           `${app.emote(
             guild,
-            "WAIT",
+            "Loading",
           )} Verification of **${activeMembers.indexOf(member)}**/**${
             members.length
           }** members...`,
@@ -119,7 +119,7 @@ export async function updateActive(
 
       if (options.onLog)
         await options.onLog(
-          `${app.emote(guild, "WAIT")} Verification of **${
+          `${app.emote(guild, "Loading")} Verification of **${
             activeMembers.length + inactiveMembers.indexOf(member)
           }**/**${members.length}** members...`,
         )
@@ -134,7 +134,7 @@ export async function updateActive(
 
     if (options.onLog)
       await options.onLog(
-        `${app.emote(guild, "WAIT")} Update of **${
+        `${app.emote(guild, "Loading")} Update of **${
           activeMembers.length
         }** active members...`,
       )
@@ -153,7 +153,7 @@ export async function updateActive(
 
     if (options.onLog)
       await options.onLog(
-        `${app.emote(guild, "WAIT")} Update of **${
+        `${app.emote(guild, "Loading")} Update of **${
           inactiveMembers.length
         }** inactive members...`,
       )
@@ -173,7 +173,7 @@ export async function updateActive(
 
   if (options.onLog)
     options.onLog(
-      `${app.emote(guild, "CHECK")} Found **${
+      `${app.emote(guild, "CheckMark")} Found **${
         activeMembers.length
       }** active members.`,
     )

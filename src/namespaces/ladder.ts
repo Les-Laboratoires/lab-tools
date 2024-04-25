@@ -43,7 +43,7 @@ export class Ladder<Line extends LadderLine> {
       .setTitle(`${this.options.title} leaderboard`)
       .setDescription(
         (await this.fetchPage(options)) ||
-          `${tools.emote(ctx, "DENY")} No ladder available`,
+          `${tools.emote(ctx, "Cross")} No ladder available`,
       )
       .setFooter({
         text: `Page: ${options.pageIndex + 1} / ${await this.fetchPageCount(
@@ -76,12 +76,18 @@ export class Ladder<Line extends LadderLine> {
         })
 
         if (page.length === 0)
-          return `${tools.emote(channel, "DENY")} No ladder available.`
+          return {
+            content: `${tools.emote(channel, "Cross")} No ladder available.`,
+          }
 
-        return await this.fetchEmbed(channel, {
-          pageIndex,
-          ...options,
-        })
+        return {
+          embeds: [
+            await this.fetchEmbed(channel, {
+              pageIndex,
+              ...options,
+            }),
+          ],
+        }
       },
     })
   }

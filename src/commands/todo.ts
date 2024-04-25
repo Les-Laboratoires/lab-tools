@@ -26,7 +26,9 @@ async function showTodoList(
   new app.DynamicPaginator({
     channel: message.channel,
     filter: (reaction, user) => user.id === message.author.id,
-    placeHolder: new app.EmbedBuilder().setTitle("No todo task found."),
+    placeHolder: await app.getSystemMessage("default", {
+      title: "No todo task found.",
+    }),
     async fetchPage(index): Promise<app.Page> {
       const itemCount = await app.countOf(
         todoTable.query.where("user_id", user._id),
@@ -38,22 +40,26 @@ async function showTodoList(
         .limit(perPage)
 
       if (pageTasks.length === 0)
-        return new app.EmbedBuilder().setTitle("No todo task found.")
+        return app.getSystemMessage("default", {
+          title: "No todo task found.",
+        })
 
       if (perPage === 1) {
         const [todo] = pageTasks
 
-        return new app.EmbedBuilder()
-          .setTitle(`Todo task of ${message.author.tag}`)
-          .setDescription(`${todoId(todo)} ${todo.content}`)
-          .setFooter({ text: `Item ${index + 1} / ${itemCount}` })
-          .setTimestamp(todo.created_at)
+        return await app.getSystemMessage("default", {
+          title: `Todo task of ${message.author.tag}`,
+          description: `${todoId(todo)} ${todo.content}`,
+          footer: { text: `Item ${index + 1} / ${itemCount}` },
+          timestamp: todo.created_at,
+        })
       }
 
-      return new app.EmbedBuilder()
-        .setTitle(`Todo list of ${message.author.tag} (${itemCount} items)`)
-        .setDescription(pageTasks.map(todoItem).join("\n"))
-        .setFooter({ text: `Page ${index + 1} / ${pageCount}` })
+      return await app.getSystemMessage("default", {
+        title: `Todo list of ${message.author.tag} (${itemCount} items)`,
+        description: pageTasks.map(todoItem).join("\n"),
+        footer: { text: `Page ${index + 1} / ${pageCount}` },
+      })
     },
     async fetchPageCount(): Promise<number> {
       return Math.ceil(
@@ -86,7 +92,7 @@ export default new app.Command({
       : message.channel.send(
           `${app.emote(
             message,
-            "DENY",
+            "Cross",
           )} Bad command usage. Show command detail with \`${
             message.usedPrefix
           }todo -h\``,
@@ -119,7 +125,7 @@ export default new app.Command({
           return message.channel.send(
             `${app.emote(
               message,
-              "DENY",
+              "Cross",
             )} You have too many todo tasks, please remove some first.`,
           )
 
@@ -136,14 +142,14 @@ export default new app.Command({
           if (!todo) throw new Error("Internal error in src/commands/todo.ts")
 
           return message.channel.send(
-            `${app.emote(message, "CHECK")} Saved with ${todoId(
+            `${app.emote(message, "CheckMark")} Saved with ${todoId(
               todo,
             )} as identifier.`,
           )
         } catch (error: any) {
           app.error(error, __filename)
           return message.channel.send(
-            `${app.emote(message, "DENY")} An error has occurred.`,
+            `${app.emote(message, "Cross")} An error has occurred.`,
           )
         }
       },
@@ -179,7 +185,7 @@ export default new app.Command({
         await todoTable.query.delete().where("user_id", user._id)
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully deleted todo list`,
+          `${app.emote(message, "CheckMark")} Successfully deleted todo list`,
         )
       },
     }),
@@ -207,7 +213,7 @@ export default new app.Command({
 
         if (!todo)
           return message.channel.send(
-            `${app.emote(message, "DENY")} Unknown todo task id.`,
+            `${app.emote(message, "Cross")} Unknown todo task id.`,
           )
 
         return message.channel.send({
@@ -241,20 +247,20 @@ export default new app.Command({
 
         if (!todo)
           return message.channel.send(
-            `${app.emote(message, "DENY")} Unknown todo task id.`,
+            `${app.emote(message, "Cross")} Unknown todo task id.`,
           )
 
         const user = await app.getUser(message.author, true)
 
         if (todo.user_id !== user._id)
           return message.channel.send(
-            `${app.emote(message, "DENY")} This is not your own task.`,
+            `${app.emote(message, "Cross")} This is not your own task.`,
           )
 
         await todoTable.query.delete().where("_id", message.args.id)
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully deleted todo task`,
+          `${app.emote(message, "CheckMark")} Successfully deleted todo task`,
         )
       },
     }),
@@ -284,15 +290,16 @@ export default new app.Command({
 
         new app.StaticPaginator({
           channel: message.channel,
-          placeHolder: new app.EmbedBuilder().setTitle("No todo task found."),
+          placeHolder: await app.getSystemMessage("default", {
+            title: "No todo task found.",
+          }),
           filter: (reaction, user) => user.id === message.author.id,
           pages: app.divider(todoList, 10).map((page, i, pages) =>
-            new app.EmbedBuilder()
-              .setTitle(
-                `Result of "${message.args.search}" search (${todoList.length} items)`,
-              )
-              .setDescription(page.join("\n"))
-              .setFooter({ text: `Page ${i + 1} / ${pages.length}` }),
+            app.getSystemMessage("default", {
+              title: `Result of "${message.args.search}" search (${todoList.length} items)`,
+              description: page.join("\n"),
+              footer: { text: `Page ${i + 1} / ${pages.length}` },
+            }),
           ),
         })
       },

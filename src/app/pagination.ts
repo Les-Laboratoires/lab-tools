@@ -3,6 +3,9 @@
 import discord from "discord.js"
 
 import * as logger from "./logger.js"
+import * as util from "./util.js"
+
+import { config } from "../config.js"
 
 import { filename } from "dirname-filename-esm"
 
@@ -10,11 +13,11 @@ const __filename = filename(import.meta)
 
 export type PaginatorKey = "previous" | "next" | "start" | "end"
 
-/** As Snowflakes or icons */
+/** As Snowflakes for guild emojis or icons for web emotes */
 export type PaginatorEmojis = Record<PaginatorKey, string>
 export type PaginatorLabels = Record<PaginatorKey, string>
 
-export type Page = discord.EmbedBuilder | string
+export type Page = util.SystemMessage
 
 export interface PaginatorOptions {
   useReactions?: boolean
@@ -49,7 +52,7 @@ export abstract class Paginator {
   static instances: Paginator[] = []
   static defaultPlaceHolder = "Oops, no data found"
   static keys: PaginatorKey[] = ["start", "previous", "next", "end"]
-  static defaultEmojis: PaginatorEmojis = {
+  static defaultEmojis: PaginatorEmojis = config.paginatorEmojis ?? {
     previous: "◀️",
     next: "▶️",
     start: "⏪",
@@ -137,9 +140,10 @@ export abstract class Paginator {
       ? undefined
       : await this.getComponents()
 
-    return typeof page === "string"
-      ? { content: page, components }
-      : { embeds: [page], components }
+    return {
+      ...page,
+      components,
+    }
   }
 
   protected abstract getCurrentPage(): Promise<Page> | Page
@@ -293,7 +297,9 @@ export class StaticPaginator extends Paginator {
     super(options)
 
     if (options.pages.length === 0)
-      options.pages.push(options.placeHolder ?? Paginator.defaultPlaceHolder)
+      options.pages.push(
+        options.placeHolder ?? { content: Paginator.defaultPlaceHolder },
+      )
   }
 
   protected getPageCount(): number {

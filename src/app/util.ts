@@ -19,6 +19,8 @@ import toObject from "dayjs/plugin/toObject.js"
 
 import * as logger from "./logger.js"
 
+import { config } from "../config.js"
+
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
 export async function checkUpdates() {
@@ -439,4 +441,190 @@ export async function getFileGitURL(
   } catch (error) {
     return
   }
+}
+
+export interface SystemEmojis {
+  success: string
+  error: string
+  loading: string
+  warning: string
+}
+
+const defaultSystemEmojis: SystemEmojis = {
+  success: "✅",
+  error: "❌",
+  loading: "⏳",
+  warning: "⚠️",
+}
+
+export function getSystemEmoji(name: keyof SystemEmojis): string {
+  return config.systemEmojis?.[name] ?? defaultSystemEmojis[name]
+}
+
+export interface SystemMessageOptions {
+  title: string
+  description: string
+  error: Error
+  author: discord.EmbedAuthorOptions
+  footer: discord.EmbedFooterOptions
+  timestamp: number | Date
+  fields: discord.EmbedField[]
+  allowedMentions: discord.MessageCreateOptions["allowedMentions"]
+}
+
+export type SystemMessage = Pick<
+  discord.MessageCreateOptions,
+  "embeds" | "content" | "files" | "allowedMentions"
+>
+
+export interface SystemMessages {
+  default: (
+    options: Partial<Omit<SystemMessageOptions, "error">>,
+  ) => Promise<SystemMessage>
+  success: (
+    options: Partial<Omit<SystemMessageOptions, "error">>,
+  ) => Promise<SystemMessage>
+  error: (options: Partial<SystemMessageOptions>) => Promise<SystemMessage>
+}
+
+const defaultSystemMessages: SystemMessages = {
+  default: async ({
+    allowedMentions,
+    fields,
+    title,
+    description,
+    author,
+    footer,
+    timestamp,
+  }) => ({
+    allowedMentions,
+    embeds: [
+      new discord.EmbedBuilder()
+        .setTitle(title ? `${getSystemEmoji("loading")} ${title}` : null)
+        .setDescription(description ?? null)
+        .setColor(discord.Colors.Blurple)
+        .setAuthor(
+          author
+            ? {
+                name: title
+                  ? author.name
+                  : `${getSystemEmoji("loading")} ${author.name}`,
+              }
+            : null,
+        )
+        .setFooter(footer ?? null)
+        .addFields(fields ?? [])
+        .setTimestamp(timestamp ?? null),
+    ],
+  }),
+  success: async ({
+    allowedMentions,
+    fields,
+    title,
+    description,
+    author,
+    footer,
+    timestamp,
+  }) => ({
+    allowedMentions,
+    embeds: [
+      new discord.EmbedBuilder()
+        .setTitle(title ? `${getSystemEmoji("success")} ${title}` : null)
+        .setAuthor(
+          author
+            ? {
+                name: title
+                  ? author.name
+                  : `${getSystemEmoji("success")} ${author.name}`,
+              }
+            : null,
+        )
+        .setDescription(
+          description
+            ? title || author
+              ? description
+              : `${getSystemEmoji("success")} ${description}`
+            : null,
+        )
+        .setColor(discord.Colors.Green)
+        .setFooter(footer ?? null)
+        .addFields(fields ?? [])
+        .setTimestamp(timestamp ?? null),
+    ],
+  }),
+  error: async ({
+    allowedMentions,
+    fields,
+    title,
+    description,
+    author,
+    footer,
+    timestamp,
+    error,
+  }) => {
+    const formattedError = error
+      ? await code.stringify({
+          content: `${
+            error.message
+              ?.replace(/\x1b\[\d+m/g, "")
+              .split("")
+              .reverse()
+              .slice(0, 2000)
+              .reverse()
+              .join("") ?? "unknown"
+          }`,
+          lang: "js",
+        })
+      : null
+
+    return {
+      allowedMentions,
+      embeds: [
+        new discord.EmbedBuilder()
+          .setTitle(title ? `${getSystemEmoji("error")} ${title}` : null)
+          .setAuthor(
+            author
+              ? {
+                  name: title
+                    ? author.name
+                    : `${getSystemEmoji("error")} ${author.name}`,
+                }
+              : null,
+          )
+          .setDescription(
+            description
+              ? title || author
+                ? description
+                : `${getSystemEmoji("error")} ${description}`
+              : error && fields
+                ? `${error.name ?? "Error"}: ${formattedError!}`
+                : null,
+          )
+          .setColor(discord.Colors.Red)
+          .addFields(
+            error && description && !fields
+              ? [
+                  {
+                    name: error.name ?? "Error",
+                    value: formattedError!,
+                  },
+                ]
+              : [],
+          )
+          .setFooter(footer ?? null)
+          .setTimestamp(timestamp ?? null),
+      ],
+    }
+  },
+}
+
+export function getSystemMessage<Key extends keyof SystemMessages>(
+  name: Key,
+  options: SystemMessages[Key] extends (options: infer Options) => any
+    ? Options
+    : never,
+): Promise<SystemMessage> {
+  return (config.systemMessages?.[name] ?? defaultSystemMessages[name])(
+    options as any,
+  )
 }

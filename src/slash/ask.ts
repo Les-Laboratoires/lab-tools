@@ -10,7 +10,7 @@ export default new app.SlashCommand({
       return interaction.reply({
         content: `${app.emote(
           interaction,
-          "DENY",
+          "Cross",
         )} You can't ask points to yourself.`,
         ephemeral: true,
       })
