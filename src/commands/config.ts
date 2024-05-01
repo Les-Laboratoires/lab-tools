@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import guilds, { Guild } from "../tables/guild.js"
+import guilds, { Guild } from "#tables/guild.js"
 
 export default new app.Command({
   name: "config",

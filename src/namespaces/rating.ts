@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import table from "../tables/rating.js"
+import table from "#tables/rating.js"
 
 export interface RatingLadderLine {
   target: string

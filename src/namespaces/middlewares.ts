@@ -2,7 +2,7 @@ import * as command from "../app/command.js"
 import * as logger from "../app/logger.js"
 import * as tools from "../namespaces/tools.js"
 
-import { Guild } from "../tables/guild.js"
+import { Guild } from "#tables/guild.js"
 
 export function staffOnly(): command.Middleware<"guild"> {
   return async function staffOnly(message, data) {

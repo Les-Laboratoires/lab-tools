@@ -97,6 +97,8 @@
     "git": ">=2.x.x"
   },
   "imports": {
-    "#app": "./dist/app.js"
+    "#app": "./dist/app.js",
+    "#app/*": "./dist/*",
+    "#tables/*": "./dist/tables/*"
   }
 }

@@ -2,7 +2,7 @@ import { execSync } from "child_process"
 
 import * as app from "#app"
 
-import restart from "../tables/restart.js"
+import restart from "#tables/restart.js"
 
 type State = "waiting" | "running" | "done"
 type Command = { cmd: string; state: State; time: number }

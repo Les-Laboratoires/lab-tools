@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import message from "../tables/message.js"
+import message from "#tables/message.js"
 
 export async function updateGuildMemberCountTracker(guild: app.Guild) {
   if (process.env.BOT_MODE === "dev") return

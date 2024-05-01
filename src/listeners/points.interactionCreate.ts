@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import points from "../tables/point.js"
+import points from "#tables/point.js"
 
 const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",

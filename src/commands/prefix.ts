@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import guilds from "../tables/guild.js"
+import guilds from "#tables/guild.js"
 
 export default new app.Command({
   name: "prefix",
@@ -8,12 +8,12 @@ export default new app.Command({
   channelType: "guild",
   description: "Edit or show the bot prefix",
   positional: [
-    app.positional({
+    {
       name: "prefix",
       description: "The new prefix",
       type: "string",
       validate: (value) => value.length < 10 && /^\S/.test(value),
-    }),
+    },
   ],
   async run(message) {
     const prefix = message.args.prefix

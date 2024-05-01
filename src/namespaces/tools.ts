@@ -1,8 +1,8 @@
 import * as app from "#app"
 
-import users, { User } from "../tables/user.js"
-import guilds, { Guild } from "../tables/guild.js"
-import autoRole from "../tables/autoRole.js"
+import users, { User } from "#tables/user.js"
+import guilds, { Guild } from "#tables/guild.js"
+import autoRole from "#tables/autoRole.js"
 
 export enum Emotes {
   Loading = "865282736041361468",
@@ -212,6 +212,7 @@ export async function countOf(builder: any, column = "*"): Promise<number> {
 
 export async function prefix(guild?: app.Guild | null): Promise<string> {
   let prefix = process.env.BOT_PREFIX as string
+
   if (guild) {
     const guildData = await guilds.query
       .where("id", guild.id)
@@ -221,6 +222,7 @@ export async function prefix(guild?: app.Guild | null): Promise<string> {
       return guildData.prefix ?? prefix
     }
   }
+
   return prefix
 }
 

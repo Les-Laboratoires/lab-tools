@@ -1,7 +1,7 @@
 import * as app from "#app"
 
-import lab from "../tables/lab.js"
-import guild from "../tables/guild.js"
+import lab from "#tables/lab.js"
+import guild from "#tables/guild.js"
 
 export default new app.Command({
   name: "labs",

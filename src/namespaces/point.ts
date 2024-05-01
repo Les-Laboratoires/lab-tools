@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import point from "../tables/point.js"
+import point from "#tables/point.js"
 
 export interface PointLadderLine {
   target: string
