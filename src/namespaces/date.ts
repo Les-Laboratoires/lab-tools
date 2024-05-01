@@ -1,5 +1,5 @@
 import { Knex } from "knex"
-import * as app from "../app.js"
+import * as app from "#app"
 
 export function addCreatedAt(table: Knex.CreateTableBuilder) {
   table

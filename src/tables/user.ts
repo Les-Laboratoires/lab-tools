@@ -1,4 +1,4 @@
-import * as app from "../app.js"
+import * as app from "#app"
 
 export interface User {
   _id: number

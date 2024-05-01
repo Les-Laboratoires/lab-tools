@@ -1,4 +1,4 @@
-import * as app from "../app.js"
+import * as app from "#app"
 
 export interface Message {
   author_id: number

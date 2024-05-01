@@ -1,5 +1,5 @@
 import { URL } from "url"
-import * as app from "../app.js"
+import * as app from "#app"
 
 export default new app.Command({
   name: "invite",

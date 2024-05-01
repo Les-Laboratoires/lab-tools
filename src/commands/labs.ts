@@ -1,4 +1,4 @@
-import * as app from "../app.js"
+import * as app from "#app"
 
 import lab from "../tables/lab.js"
 import guild from "../tables/guild.js"

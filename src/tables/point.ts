@@ -1,4 +1,4 @@
-import * as app from "../app.js"
+import * as app from "#app"
 
 export interface Point {
   to_id: number

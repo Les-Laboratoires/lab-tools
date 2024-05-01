@@ -1,4 +1,4 @@
-import * as app from "../app.js"
+import * as app from "#app"
 import autoRole from "../tables/autoRole.js"
 
 export default new app.Command({

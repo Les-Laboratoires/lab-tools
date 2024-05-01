@@ -11,6 +11,10 @@
     "declaration": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
-  }
+    "noImplicitOverride": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "#app": ["./src/app.ts"],
+    }
+  },
 }

@@ -3,13 +3,13 @@
 import cp from "child_process"
 import util from "util"
 import * as ge from "ghom-eval"
-import * as app from "../app.js"
+import * as app from "#app"
 
 const exec = util.promisify(cp.exec)
 
 const alreadyInstalled = (pack: string): boolean =>
-  app.packageJSON.dependencies.hasOwnProperty(pack) ||
-  app.packageJSON.devDependencies.hasOwnProperty(pack)
+  !!app.packageJSON.dependencies?.hasOwnProperty(pack) ||
+  !!app.packageJSON.devDependencies?.hasOwnProperty(pack)
 
 export default new app.Command({
   name: "eval",

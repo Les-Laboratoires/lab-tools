@@ -1,5 +1,5 @@
 import fs from "fs/promises"
-import * as app from "../app.js"
+import * as app from "#app"
 
 export async function createBackup() {
   await fs.cp(

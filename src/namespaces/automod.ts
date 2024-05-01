@@ -1,4 +1,4 @@
-import * as app from "../app.js"
+import * as app from "#app"
 
 // /**
 //  * string is the author id
