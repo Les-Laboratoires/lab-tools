@@ -9,14 +9,14 @@ export default new app.SlashCommand({
     const forum = topic.parent
 
     if (!interaction.guild)
-      return interaction.reply({
-        content: `${app.emote(interaction, "Cross")} Only usable in a guild.`,
+      return interaction.base.reply({
+        content: `${app.emote(topic, "Cross")} Only usable in a guild.`,
         ephemeral: true,
       })
 
     if (!forum || !forum.isThreadOnly())
-      return interaction.reply({
-        content: `${app.emote(interaction, "Cross")} Only usable in a forum topic.`,
+      return interaction.base.reply({
+        content: `${app.emote(topic, "Cross")} Only usable in a forum topic.`,
         ephemeral: true,
       })
 
@@ -24,17 +24,21 @@ export default new app.SlashCommand({
       await app.getGuild(interaction.guild, true)
 
     if (topic.name.startsWith(resolved_channel_indicator))
-      return interaction.reply({
-        content: `${app.emote(interaction, "Cross")} Topic is already resolved.`,
+      return interaction.base.reply({
+        content: `${app.emote(topic, "Cross")} Topic is already resolved.`,
         ephemeral: true,
       })
 
     await topic.setName(`${resolved_channel_indicator} ${topic.name}`)
 
-    if (resolved_channel_tag) await topic.setAppliedTags([resolved_channel_tag])
+    if (resolved_channel_tag) {
+      try {
+        await topic.setAppliedTags([resolved_channel_tag])
+      } catch (err) {}
+    }
 
-    return interaction.reply({
-      content: `${app.emote(interaction, "CheckMark")} Thread marked as resolved.`,
+    return interaction.base.reply({
+      content: `${app.emote(topic, "CheckMark")} Thread marked as resolved.`,
       ephemeral: true,
     })
   },
