@@ -29,6 +29,8 @@ export interface Guild {
   active_period: `${number}`
   active_message_count: `${number}`
   active_refresh_interval: `${number}`
+  resolved_channel_indicator: string
+  resolved_channel_tag: string | null
 }
 
 export default new app.Table<Guild>({
@@ -55,6 +57,10 @@ export default new app.Table<Guild>({
     },
     5: (table) => {
       table.string("member_welcome_direct_message")
+    },
+    6: (table) => {
+      table.string("resolved_channel_indicator").defaultTo("✅")
+      table.string("resolved_channel_tag")
     },
   },
   setup: (table) => {
