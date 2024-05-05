@@ -20,6 +20,16 @@ export default new app.SlashCommand({
         ephemeral: true,
       })
 
+    if (
+      !interaction.member ||
+      (interaction.member.user.id !== topic.ownerId &&
+        !interaction.memberPermissions?.has("ManageThreads"))
+    )
+      return interaction.base.reply({
+        content: `${app.emote(topic, "Cross")} You must be the owner of the topic or have the \`ManageThreads\` permission to resolve it.`,
+        ephemeral: true,
+      })
+
     const { resolved_channel_indicator, resolved_channel_tag } =
       await app.getGuild(interaction.guild, true)
 
