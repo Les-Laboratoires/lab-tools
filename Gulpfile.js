@@ -120,6 +120,7 @@ function _copyTemp() {
         "temp/template.env",
         "temp/tsconfig.json",
         "temp/tests/**/*.js",
+        "temp/templates/*",
         "!temp/src/app/database.ts",
       ],
       { base: "temp" },
@@ -200,7 +201,7 @@ function _updateDatabaseFile() {
     (name) => name in packageJSON.dependencies,
   )
   return gulp
-    .src("node_modules/@ghom/bot.ts-cli/templates/" + database)
+    .src("templates/" + database)
     .pipe(rename("database.ts"))
     .pipe(gulp.dest("src/app"))
 }

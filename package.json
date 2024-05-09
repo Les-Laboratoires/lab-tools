@@ -43,7 +43,7 @@
     "chalk": "^5.0.1",
     "dayjs": "^1.11.3",
     "dirname-filename-esm": "^1.1.1",
-    "discord.js": "^14.14.1",
+    "discord.js": "^14.15.2",
     "dotenv": "^16.0.1",
     "emoji-regex": "^10.1.0",
     "execa": "^8.0.1",
@@ -62,7 +62,7 @@
   },
   "devDependencies": {
     "@esbuild/linux-x64": "^0.20.1",
-    "@ghom/bot.ts-cli": "^7.0.3",
+    "@ghom/bot.ts-cli": "^7.1.0",
     "@types/boxen": "^3.0.1",
     "@types/cron": "^1.7.3",
     "@types/dotenv": "^8.2.0",
