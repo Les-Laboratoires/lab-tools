@@ -7,7 +7,7 @@ export default new app.SlashCommand({
   guildOnly: true,
   async run(interaction) {
     if (interaction.user.id === interaction.channel.ownerId)
-      return interaction.reply({
+      return interaction.base.reply({
         content: `${app.emote(
           interaction,
           "Cross",
@@ -20,9 +20,9 @@ export default new app.SlashCommand({
       cache: false,
     }))!
 
-    await interaction[
-      interaction.replied || interaction.deferred ? "followUp" : "reply"
-    ](await app.buildAskPointEmbed(interaction.user, target, interaction.guild))
+    await interaction.base.reply(
+      await app.buildAskPointEmbed(interaction.user, target, interaction.guild),
+    )
 
     await app.sendLog(
       interaction.guild,

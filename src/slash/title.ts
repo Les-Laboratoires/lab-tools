@@ -21,5 +21,9 @@ export default new app.SlashCommand({
       interaction.guild,
       `${interaction.user} changed the title of ${interaction.channel} to:\n> **${title}**`,
     )
+
+    // Close the interaction
+
+    await interaction.base.deferReply()
   },
 })

@@ -13,9 +13,7 @@ export default new app.SlashCommand({
 
     // Send the hint
 
-    await interaction[
-      interaction.replied || interaction.deferred ? "followUp" : "reply"
-    ]({ content: hint })
+    await interaction.base.reply({ content: hint })
 
     // Feedbacks
 
