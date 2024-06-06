@@ -1,7 +1,7 @@
 import * as app from "#app"
 
-import todoTable, { ToDo } from "#tables/todo.js"
-import { User } from "#tables/user.js"
+import todoTable, { ToDo } from "#tables/todo.ts"
+import { User } from "#tables/user.ts"
 
 import { filename } from "dirname-filename-esm"
 

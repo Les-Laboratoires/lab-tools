@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import points from "#tables/point.js"
+import points from "#tables/point.ts"
 
 const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
@@ -10,7 +10,7 @@ const listener: app.Listener<"interactionCreate"> = {
     if (!interaction.isButton()) return
     if (!interaction.customId.startsWith("point")) return
 
-    const [_, amount, from_id, to_id] = interaction.customId.split(";")
+    const [, amount, from_id, to_id] = interaction.customId.split(";")
 
     if (from_id !== interaction.user.id) return
 

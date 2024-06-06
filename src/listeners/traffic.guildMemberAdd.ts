@@ -1,7 +1,5 @@
 import * as app from "#app"
 
-import chalk from "chalk"
-
 import { filename } from "dirname-filename-esm"
 
 const __filename = filename(import.meta)

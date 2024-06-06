@@ -4,12 +4,12 @@ import url from "url"
 import discord from "discord.js"
 import path from "path"
 import chalk from "chalk"
-import apiTypes from "discord-api-types/v8.js"
+import apiTypes from "discord-api-types/v8"
 
 import * as handler from "@ghom/handler"
 
-import * as logger from "./logger.js"
-import * as client from "./client.js"
+import * as logger from "./logger.ts"
+import * as client from "./client.ts"
 
 const readyListeners = new discord.Collection<Listener<"ready">, boolean>()
 

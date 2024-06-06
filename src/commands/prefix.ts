@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import guilds from "#tables/guild.js"
+import guilds from "#tables/guild.ts"
 
 export default new app.Command({
   name: "prefix",

@@ -1,9 +1,8 @@
 import * as app from "#app"
 
-import { Guild } from "#tables/guild.js"
-import messages from "#tables/message.js"
-import active from "#tables/active.js"
-import message from "#tables/message.js"
+import { Guild } from "#tables/guild.ts"
+import active from "#tables/active.ts"
+import message from "#tables/message.ts"
 
 /**
  * @param guild_id internal guild id

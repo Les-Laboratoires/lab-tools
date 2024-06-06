@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import points from "#tables/point.js"
+import points from "#tables/point.ts"
 
 export default new app.Command({
   name: "point",

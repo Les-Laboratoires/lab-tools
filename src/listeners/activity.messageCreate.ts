@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import messages from "#tables/message.js"
+import messages from "#tables/message.ts"
 
 const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",

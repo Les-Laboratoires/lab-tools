@@ -2,7 +2,7 @@ import { execSync } from "child_process"
 
 import * as app from "#app"
 
-import restart from "#tables/restart.js"
+import restart from "#tables/restart.ts"
 
 type State = "waiting" | "running" | "done"
 type Command = { cmd: string; state: State; time: number }
@@ -73,7 +73,7 @@ export default new app.Command({
 
     try {
       for (const command of commands) {
-        let time = Date.now()
+        const time = Date.now()
 
         await run(command)
 

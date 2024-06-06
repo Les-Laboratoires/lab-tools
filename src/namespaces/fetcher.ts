@@ -11,6 +11,7 @@ export async function fetchMessages(
 
   let lastID: string | undefined
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const fetchedMessages = await channel.messages.fetch({
       limit: 100,

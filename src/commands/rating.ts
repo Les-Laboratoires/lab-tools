@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import rating from "#tables/rating.js"
+import rating from "#tables/rating.ts"
 
 export default new app.Command({
   name: "rating",

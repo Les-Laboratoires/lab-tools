@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import messages, { Message } from "#tables/message.js"
+import messages, { Message } from "#tables/message.ts"
 
 export default new app.Command({
   name: "fetch",

@@ -1,10 +1,10 @@
 import discord from "discord.js"
-import * as util from "../app/util.js"
-import * as command from "../app/command.js"
-import * as argument from "../app/argument.js"
-import * as pagination from "../app/pagination.js"
+import * as util from "../app/util.ts"
+import * as command from "../app/command.ts"
+import * as argument from "../app/argument.ts"
+import * as pagination from "../app/pagination.ts"
 
-import * as tools from "./tools.js"
+import * as tools from "./tools.ts"
 
 export function formatRank(rank: number) {
   return `\`[ ${util.forceTextSize(rank, 3, true)} ]\``

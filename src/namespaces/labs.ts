@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import lab from "#tables/lab.js"
+import lab from "#tables/lab.ts"
 
 export const allLabsCache = new app.ResponseCache(
   async () => lab.query.select(),

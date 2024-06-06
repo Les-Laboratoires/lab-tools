@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-import users from "#tables/user.js"
+import users from "#tables/user.ts"
 
 const listener: app.Listener<"guildMemberRemove"> = {
   event: "guildMemberRemove",
