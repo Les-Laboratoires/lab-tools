@@ -86,10 +86,10 @@ export async function checkUpdates() {
   }
 }
 
-const locale = env.BOT_LOCALE
+const locale = env?.BOT_LOCALE ?? "en"
 
-import(`dayjs/locale/${locale ?? "en"}.js`)
-  .then(() => dayjs.locale(locale ?? "en"))
+import(`dayjs/locale/${locale}.js`)
+  .then(() => dayjs.locale(locale))
   .catch(() =>
     logger.warn(
       `The ${chalk.bold(
