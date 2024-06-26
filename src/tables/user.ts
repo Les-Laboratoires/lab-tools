@@ -1,4 +1,4 @@
-import * as app from "#app"
+import { Table } from "@ghom/orm"
 
 export interface User {
   _id: number
@@ -6,7 +6,7 @@ export interface User {
   is_bot: boolean
 }
 
-export default new app.Table<User>({
+export default new Table<User>({
   name: "user",
   priority: 10,
   migrations: {

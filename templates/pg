@@ -1,7 +1,8 @@
 // system file, please don't modify it
 
 import { ORM } from "@ghom/orm"
-import { logger } from "@ghom/logger"
+import * as logger from "./logger.ts"
+import env from "./env.ts"
 import path from "path"
 
 export const orm = new ORM({
@@ -10,12 +11,12 @@ export const orm = new ORM({
     client: "pg",
     useNullAsDefault: true,
     connection: {
-      port: +(process.env.DB_PORT ?? 5432),
-      host: process.env.DB_HOST ?? "localhost",
-      user: process.env.DB_USER ?? "postgres",
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE ?? "postgres",
-      timezone: process.env.BOT_TIMEZONE || "UTC",
+      port: env.DB_PORT ?? 5432,
+      host: env.DB_HOST ?? "localhost",
+      user: env.DB_USER ?? "postgres",
+      password: env.DB_PASSWORD,
+      database: env.DB_DATABASE ?? "postgres",
+      timezone: env.BOT_TIMEZONE || "UTC",
     },
   },
   logger,

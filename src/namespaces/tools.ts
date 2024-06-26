@@ -1,4 +1,9 @@
-import * as app from "#app"
+import { EmbedBuilder } from "discord.js"
+
+import type * as app from "#app"
+
+import { ResponseCache, code } from "../app/util.ts"
+import { ClientSingleton } from "../app/client.ts"
 
 import users, { User } from "#tables/user.ts"
 import guilds, { Guild } from "#tables/guild.ts"
@@ -33,7 +38,7 @@ export async function sendLog(
   }
 }
 
-const userCache = new app.ResponseCache((id: string) => {
+const userCache = new ResponseCache((id: string) => {
   return users.query.where("id", id).first()
 }, 60_000)
 
@@ -46,8 +51,7 @@ export async function getUser(user: { id: string }, force?: true) {
     await users.query
       .insert({
         id: user.id,
-        is_bot:
-          app.ClientSingleton.get().users.cache.get(user.id)?.bot ?? false,
+        is_bot: ClientSingleton.get().users.cache.get(user.id)?.bot ?? false,
       })
       .onConflict("id")
       .merge()
@@ -61,7 +65,7 @@ export async function getUser(user: { id: string }, force?: true) {
   return userInDb
 }
 
-const guildCache = new app.ResponseCache((id: string) => {
+const guildCache = new ResponseCache((id: string) => {
   return guilds.query.where("id", id).first()
 }, 60_000)
 
@@ -105,7 +109,7 @@ export async function sendTemplatedEmbed(
     const data: app.EmbedData | app.EmbedData[] = JSON.parse(template)
 
     embeds = (Array.isArray(data) ? data : [data]).map((options) => {
-      const embed = new app.EmbedBuilder(options)
+      const embed = new EmbedBuilder(options)
 
       if (options.thumbnail?.url) embed.setThumbnail(options.thumbnail.url)
       if (options.image?.url) embed.setImage(options.image.url)
@@ -117,12 +121,12 @@ export async function sendTemplatedEmbed(
   } catch (error: any) {
     if (error.message.includes("Invalid Form Body")) {
       return channel.send(
-        app.code.stringify({
+        code.stringify({
           lang: "js",
           content: error.message,
         }) +
           " " +
-          app.code.stringify({
+          code.stringify({
             lang: "json",
             content: template,
           }),
