@@ -3,6 +3,7 @@ import * as app from "#app"
 import { Guild } from "#tables/guild.ts"
 import active from "#tables/active.ts"
 import message from "#tables/message.ts"
+import env from "#env"
 
 /**
  * @param guild_id internal guild id
@@ -43,7 +44,7 @@ export async function updateActive(
     guildConfig: Guild
   },
 ): Promise<number> {
-  if (process.env.BOT_MODE === "dev") return 0
+  if (env.BOT_MODE === "development") return 0
 
   guild.members.cache.clear()
 

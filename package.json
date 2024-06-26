@@ -106,7 +106,11 @@
   },
   "imports": {
     "#app": "./dist/app.js",
+    "#config": "./dist/config.js",
+    "#env": "./dist/app/env.js",
     "#app/*": "./dist/*",
-    "#tables/*": "./dist/tables/*"
+    "#tables/*": "./dist/tables/*",
+    "#client": "./dist/app/client.js",
+    "#logger": "./dist/app/logger.js"
   }
 }

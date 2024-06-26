@@ -1,4 +1,4 @@
-import * as app from "#app"
+import { Table } from "@ghom/orm"
 
 export interface AutoRole {
   guild_id: number
@@ -6,7 +6,7 @@ export interface AutoRole {
   bot: boolean
 }
 
-export default new app.Table<AutoRole>({
+export default new Table<AutoRole>({
   name: "autoRole",
   setup: (table) => {
     table

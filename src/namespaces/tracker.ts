@@ -1,9 +1,11 @@
 import * as app from "#app"
 
+import env from "#env"
+
 import message from "#tables/message.ts"
 
 export async function updateGuildMemberCountTracker(guild: app.Guild) {
-  if (process.env.BOT_MODE === "dev") return
+  if (env.BOT_MODE === "development") return
 
   const config = await app.getGuild(guild)
 
@@ -26,7 +28,7 @@ export async function updateGuildMemberCountTracker(guild: app.Guild) {
 }
 
 export async function updateGuildMessageCountTracker(guild: app.Guild) {
-  if (process.env.BOT_MODE === "dev") return
+  if (env.BOT_MODE === "development") return
 
   const config = await app.getGuild(guild)
 
@@ -46,7 +48,7 @@ export async function updateGuildMessageCountTracker(guild: app.Guild) {
 }
 
 export async function updateGuildOnlineCountTracker(guild: app.Guild) {
-  if (process.env.BOT_MODE === "dev") return
+  if (env.BOT_MODE === "development") return
 
   const config = await app.getGuild(guild)
 

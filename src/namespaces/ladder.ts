@@ -4,7 +4,7 @@ import * as command from "../app/command.ts"
 import * as argument from "../app/argument.ts"
 import * as pagination from "../app/pagination.ts"
 
-import * as tools from "./tools.ts"
+import * as emotes from "./emotes.ts"
 
 export function formatRank(rank: number) {
   return `\`[ ${util.forceTextSize(rank, 3, true)} ]\``
@@ -43,7 +43,7 @@ export class Ladder<Line extends LadderLine> {
       .setTitle(`${this.options.title} leaderboard`)
       .setDescription(
         (await this.fetchPage(options)) ||
-          `${tools.emote(ctx, "Cross")} No ladder available`,
+          `${emotes.emote(ctx, "Cross")} No ladder available`,
       )
       .setFooter({
         text: `Page: ${options.pageIndex + 1} / ${await this.fetchPageCount(
@@ -77,7 +77,7 @@ export class Ladder<Line extends LadderLine> {
 
         if (page.length === 0)
           return {
-            content: `${tools.emote(channel, "Cross")} No ladder available.`,
+            content: `${emotes.emote(channel, "Cross")} No ladder available.`,
           }
 
         return {

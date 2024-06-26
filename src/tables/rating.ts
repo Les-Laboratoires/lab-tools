@@ -1,4 +1,4 @@
-import * as app from "#app"
+import { Table } from "@ghom/orm"
 
 export interface Rating {
   to_id: number
@@ -7,7 +7,7 @@ export interface Rating {
   value: 0 | 1 | 2 | 3 | 4 | 5
 }
 
-export default new app.Table<Rating>({
+export default new Table<Rating>({
   name: "note",
   migrations: {
     1: (table) => {

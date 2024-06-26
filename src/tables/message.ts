@@ -1,4 +1,6 @@
-import * as app from "#app"
+import { Table } from "@ghom/orm"
+
+import { addCreatedAt } from "../namespaces/date.ts"
 
 export interface Message {
   author_id: number
@@ -6,7 +8,7 @@ export interface Message {
   created_at: string
 }
 
-export default new app.Table<Message>({
+export default new Table<Message>({
   name: "message",
   setup: (table) => {
     table
@@ -21,6 +23,6 @@ export default new app.Table<Message>({
       .inTable("guild")
       .onDelete("CASCADE")
       .notNullable()
-    app.addCreatedAt(table)
+    addCreatedAt(table)
   },
 })

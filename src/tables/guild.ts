@@ -1,4 +1,4 @@
-import * as app from "#app"
+import { Table } from "@ghom/orm"
 
 export interface Guild {
   _id: number
@@ -33,7 +33,7 @@ export interface Guild {
   resolved_channel_tag: string | null
 }
 
-export default new app.Table<Guild>({
+export default new Table<Guild>({
   name: "guild",
   priority: 10,
   migrations: {

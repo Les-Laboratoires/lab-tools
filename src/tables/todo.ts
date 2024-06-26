@@ -1,4 +1,6 @@
-import * as app from "#app"
+import { Table } from "@ghom/orm"
+
+import { addCreatedAt } from "../namespaces/date.ts"
 
 export interface ToDo {
   _id: number
@@ -7,11 +9,11 @@ export interface ToDo {
   created_at: Date
 }
 
-export default new app.Table<ToDo>({
+export default new Table<ToDo>({
   name: "todo",
   migrations: {
     1: (table) => {
-      app.addCreatedAt(table)
+      addCreatedAt(table)
     },
   },
   setup: (table) => {

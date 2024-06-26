@@ -1,4 +1,6 @@
-import * as app from "#app"
+import { Table } from "@ghom/orm"
+
+import { addCreatedAt } from "../namespaces/date.ts"
 
 export interface Restart {
   content: string
@@ -7,12 +9,12 @@ export interface Restart {
   created_at: string
 }
 
-export default new app.Table<Restart>({
+export default new Table<Restart>({
   name: "restart",
   setup: (table) => {
     table.string("content").notNullable()
     table.string("last_channel_id").notNullable()
     table.string("last_message_id")
-    app.addCreatedAt(table)
+    addCreatedAt(table)
   },
 })

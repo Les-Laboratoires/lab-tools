@@ -3,21 +3,15 @@ import { EmbedBuilder } from "discord.js"
 import type * as app from "#app"
 
 import { ResponseCache, code } from "../app/util.ts"
-import { ClientSingleton } from "../app/client.ts"
+
+import client from "#client"
+import env from "#env"
 
 import users, { User } from "#tables/user.ts"
 import guilds, { Guild } from "#tables/guild.ts"
 import autoRole from "#tables/autoRole.ts"
 
-export enum Emotes {
-  Loading = "865282736041361468",
-  CheckMark = "865281743333228604",
-  Cross = "865281743560638464",
-  Minus = "865281743422226443",
-  Plus = "865281743648194610",
-  Left = "865281743371894794",
-  Right = "865281743510044723",
-}
+import { emote } from "./emotes.ts"
 
 export async function sendLog(
   guild: Pick<app.Guild, "id" | "channels">,
@@ -51,7 +45,7 @@ export async function getUser(user: { id: string }, force?: true) {
     await users.query
       .insert({
         id: user.id,
-        is_bot: ClientSingleton.get().users.cache.get(user.id)?.bot ?? false,
+        is_bot: client.users.cache.get(user.id)?.bot ?? false,
       })
       .onConflict("id")
       .merge()
@@ -150,13 +144,6 @@ export function embedReplacers(
   }
 }
 
-export function emote(
-  { client }: { client: app.Client },
-  name: keyof typeof Emotes,
-) {
-  return client.emojis.resolve(Emotes[name])
-}
-
 export async function getAutoRoles(member: app.GuildMember): Promise<string[]> {
   const guild = await getGuild(member.guild, true)
 
@@ -215,7 +202,7 @@ export async function countOf(builder: any, column = "*"): Promise<number> {
 }
 
 export async function prefix(guild?: app.Guild | null): Promise<string> {
-  const prefix = process.env.BOT_PREFIX as string
+  const prefix = env.BOT_PREFIX
 
   if (guild) {
     const guildData = await guilds.query

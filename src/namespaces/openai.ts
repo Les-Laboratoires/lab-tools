@@ -1,14 +1,15 @@
 import OpenAI from "openai"
 import discord from "discord.js"
+import env from "#env"
 
 let openai: OpenAI
 
-if (process.env.BOT_MODE !== "test") openai = new OpenAI()
+if (env.BOT_MODE !== "test") openai = new OpenAI()
 
 export async function generateThreadTitle(
   thread: discord.ThreadChannel,
 ): Promise<string> {
-  if (process.env.BOT_MODE === "test")
+  if (env.BOT_MODE === "test")
     throw new Error("OpenAI is not available in test mode")
 
   const messages = await thread.messages.fetch({ limit: 100 })
@@ -55,7 +56,7 @@ export async function generateThreadTitle(
 export async function generateThreadHint(
   thread: discord.ThreadChannel,
 ): Promise<string> {
-  if (process.env.BOT_MODE === "test")
+  if (env.BOT_MODE === "test")
     throw new Error("OpenAI is not available in test mode")
 
   const messages = await thread.messages.fetch({ limit: 100 })

@@ -1,12 +1,13 @@
-import * as app from "#app"
+import type { Config } from "#app/app/config.ts"
+import { Emotes } from "./namespaces/emotes.ts"
 
-import { Emotes } from "./namespaces/tools.ts"
-
-export const config: app.Config = {
+const config: Config = {
   ignoreBots: true,
   openSource: true,
-  getPrefix: (message) => {
-    return app.prefix(message.guild)
+  async getPrefix(message) {
+    return import("./namespaces/tools.ts").then((tools) =>
+      tools.prefix(message.guild),
+    )
   },
   client: {
     intents: [
@@ -40,3 +41,5 @@ export const config: app.Config = {
     loading: Emotes.Loading,
   },
 }
+
+export default config

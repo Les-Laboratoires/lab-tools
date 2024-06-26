@@ -1,11 +1,11 @@
-import * as app from "#app"
+import { Table } from "@ghom/orm"
 
 export interface Active {
   guild_id: number
   user_id: number
 }
 
-export default new app.Table<Active>({
+export default new Table<Active>({
   name: "active",
   migrations: {
     1: (table) => {
