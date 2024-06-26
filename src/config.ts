@@ -5,9 +5,7 @@ const config: Config = {
   ignoreBots: true,
   openSource: true,
   async getPrefix(message) {
-    return import("./namespaces/tools.ts").then((tools) =>
-      tools.prefix(message.guild),
-    )
+    return import("#app").then((app) => app.prefix(message.guild))
   },
   client: {
     intents: [
