@@ -34,12 +34,12 @@ export const ratingLadder = (guild_id?: number) =>
         .count({ rating_count: "from_id" })
         .select([
           "user.id as target",
-          app.orm.raw("rank() over (order by avg(value) desc) as rank"),
-          app.orm.raw("avg(value)::float as score"),
+          app.database.raw("rank() over (order by avg(value) desc) as rank"),
+          app.database.raw("avg(value)::float as score"),
         ])
         .leftJoin("user", "note.to_id", "user._id")
         .groupBy("user.id")
-        .having(app.orm.raw("count(from_id)"), ">=", mineRatingCount)
+        .having(app.database.raw("count(from_id)"), ">=", mineRatingCount)
         .where("user.is_bot", false)
 
       if (guild_id) query.and.where("guild_id", guild_id)
@@ -59,7 +59,7 @@ export const ratingLadder = (guild_id?: number) =>
       return app.countOf(
         query
           .groupBy("user._id")
-          .having(app.orm.raw("count(*)"), ">=", mineRatingCount),
+          .having(app.database.raw("count(*)"), ">=", mineRatingCount),
       )
     },
     formatLine(line) {

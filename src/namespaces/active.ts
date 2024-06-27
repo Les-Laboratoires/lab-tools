@@ -27,7 +27,7 @@ export async function fetchActiveMembers(
     .and.where(
       "created_at",
       ">",
-      app.orm.raw(`now() - interval '1 hour' * ${period}`),
+      app.database.raw(`now() - interval '1 hour' * ${period}`),
     )
     .groupBy("author_id")
     .havingRaw(`count(*) >= ${messageCount}`)
@@ -197,7 +197,7 @@ export async function hasActivity(
         .where("message.guild_id", guild_id)
         .andWhere("user.is_bot", false)
         .andWhere(
-          app.orm.raw(
+          app.database.raw(
             `extract(epoch from now()) - extract(epoch from message.created_at) < ${period} * 3600`,
           ),
         ),
@@ -217,7 +217,7 @@ export const activeLadder = (guild_id: number) =>
     fetchLines(options) {
       return message.query
         .select(
-          app.orm.raw(
+          app.database.raw(
             `rank() over (order by count(*) desc) as "rank", "user"."id" as "target", count(*) as "messageCount"`,
           ),
         )
@@ -225,7 +225,7 @@ export const activeLadder = (guild_id: number) =>
         .where("guild_id", guild_id)
         .andWhere("user.is_bot", false)
         .groupBy("user.id")
-        .having(app.orm.raw("count(*) > 0"))
+        .having(app.database.raw("count(*) > 0"))
         .orderBy("rank", "asc")
         .limit(options.pageLineCount)
         .offset(options.pageIndex * options.pageLineCount)
@@ -237,7 +237,7 @@ export const activeLadder = (guild_id: number) =>
           .where("guild_id", guild_id)
           .andWhere("user.is_bot", false)
           .groupBy("user.id")
-          .having(app.orm.raw("count(*) > 0")),
+          .having(app.database.raw("count(*) > 0")),
       )
     },
     formatLine(line, index, lines) {

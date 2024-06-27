@@ -15,7 +15,7 @@ export async function restoreBackup(onSuccess: () => unknown) {
   // disable error handling
   console.error = () => {}
 
-  await app.orm.database.destroy()
+  await app.database.database.destroy()
 
   await fs.cp(
     app.util.rootPath("data", "sqlite3.db.backup"),

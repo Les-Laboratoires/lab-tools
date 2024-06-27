@@ -13,8 +13,8 @@ export const pointLadder = new app.Ladder<PointLadderLine>({
   async fetchLines(options) {
     return point.query
       .select([
-        app.orm.raw('sum("point"."amount") as "score"'),
-        app.orm.raw(
+        app.database.raw('sum("point"."amount") as "score"'),
+        app.database.raw(
           'rank() over (order by sum("point"."amount") desc) as "rank"',
         ),
         "user.id as target",

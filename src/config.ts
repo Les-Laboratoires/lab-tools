@@ -1,5 +1,6 @@
-import type { Config } from "#app/app/config.ts"
-import { Emotes } from "./namespaces/emotes.ts"
+import type { Config } from "#app"
+
+import { Emotes } from "#src/namespaces/emotes.ts"
 
 const config: Config = {
   ignoreBots: true,

@@ -15,7 +15,8 @@
     "deploy": "git reset --hard && git pull && npm run build && pm2 restart tool",
     "start.test": "npm run build && node tests/index.test.js",
     "readme": "gulp readme",
-    "lint": "eslint src/**/*.ts --fix"
+    "lint": "eslint src/**/*.ts --fix",
+    "bot": "npx @ghom/bot.ts-cli"
   },
   "prettier": {
     "semi": false,
@@ -60,7 +61,8 @@
     "tims": "^2.1.0",
     "types-package-json": "^2.0.39",
     "yargs-parser": "^21.0.1",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "del": "^6.1.1"
   },
   "devDependencies": {
     "@esbuild/linux-x64": "^0.20.1",
@@ -111,6 +113,8 @@
     "#app/*": "./dist/*",
     "#tables/*": "./dist/tables/*",
     "#client": "./dist/app/client.js",
-    "#logger": "./dist/app/logger.js"
+    "#logger": "./dist/app/logger.js",
+    "#database": "./dist/app/database.js",
+    "#src/*": "./dist/*"
   }
 }
