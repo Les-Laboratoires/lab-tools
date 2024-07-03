@@ -46,13 +46,13 @@ export async function checkUpdates() {
   if (isOlder(packageJSON.version, remoteJSON.version)) {
     logger.warn(
       `a new major version of ${chalk.blue(
-        "bot.ts",
+        "@ghom/bot.ts",
       )} is available: ${chalk.magenta(
         packageJSON.version,
       )} => ${chalk.magenta(remoteJSON.version)}`,
     )
     logger.warn(
-      `you can update ${chalk.blue("bot.ts")} by running ${chalk.bgWhite.black(
+      `you can update ${chalk.blue("@ghom/bot.ts")} by running ${chalk.bgWhite.black(
         `gulp update`,
       )}`,
     )
@@ -79,7 +79,7 @@ export async function checkUpdates() {
   } else {
     logger.log(
       `you are using the latest version of ${chalk.blue(
-        "bot.ts",
+        "@ghom/bot.ts",
       )} and ${chalk.blue("@ghom/bot.ts-cli")}`,
     )
   }
@@ -423,6 +423,10 @@ export const code = {
   format: prettify.format,
 }
 
+export function convertDistPathToSrc(path: string) {
+  return path.replace(/dist([/\\])/, "src$1").replace(".js", ".ts")
+}
+
 export async function getFileGitURL(
   filepath: string,
 ): Promise<string | undefined> {
@@ -440,7 +444,7 @@ export async function getFileGitURL(
 
     if (!remote) return
 
-    return `${remote.refs.fetch.replace(".git", "")}/blob/${branchName}/${rootPath(filepath).replace("dist/", "src/").replace(".js", ".ts")}`
+    return `${remote.refs.fetch.replace(".git", "")}/blob/${branchName}/${convertDistPathToSrc(rootPath(filepath)).replace(/\\/g, "/")}`
   } catch (error) {
     return
   }

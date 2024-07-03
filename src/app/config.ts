@@ -32,9 +32,7 @@ export interface Config {
   detailCommand?: (
     message: command.IMessage,
     command: command.ICommand,
-  ) =>
-    | Promise<command.MessageCreateOptionsResolvable>
-    | command.MessageCreateOptionsResolvable
+  ) => Promise<util.SystemMessage> | util.SystemMessage
 
   /**
    * Custom help command for slash commands
@@ -42,9 +40,7 @@ export interface Config {
   detailSlashCommand?: (
     interaction: slash.ISlashCommandInteraction,
     command: discord.ApplicationCommand,
-  ) =>
-    | Promise<slash.InteractionReplyOptionsResolvable>
-    | slash.InteractionReplyOptionsResolvable
+  ) => Promise<util.SystemMessage> | util.SystemMessage
 
   /**
    * Options for the Discord Client constructor

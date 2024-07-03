@@ -6,7 +6,7 @@ export default new app.SlashCommand({
   channelType: "thread",
   guildOnly: true,
   async run(interaction) {
-    if (interaction.user.id === interaction.channel.ownerId)
+    if (interaction.base.user.id === interaction.channel.ownerId)
       return interaction.base.reply({
         content: `${app.emote(
           interaction,
@@ -21,12 +21,16 @@ export default new app.SlashCommand({
     }))!
 
     await interaction.base.reply(
-      await app.buildAskPointEmbed(interaction.user, target, interaction.guild),
+      await app.buildAskPointEmbed(
+        interaction.base.user,
+        target,
+        interaction.guild,
+      ),
     )
 
     await app.sendLog(
       interaction.guild,
-      `${interaction.user} ask points to ${target.user} in ${interaction.channel}.`,
+      `${interaction.base.user} ask points to ${target.user} in ${interaction.channel}.`,
     )
   },
 })

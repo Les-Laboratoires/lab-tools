@@ -21,9 +21,9 @@ export default new app.SlashCommand({
       })
 
     if (
-      !interaction.member ||
-      (interaction.member.user.id !== topic.ownerId &&
-        !interaction.memberPermissions?.has("ManageThreads"))
+      !interaction.base.member ||
+      (interaction.base.member.user.id !== topic.ownerId &&
+        !interaction.base.memberPermissions?.has("ManageThreads"))
     )
       return interaction.base.reply({
         content: `${app.emote(topic, "Cross")} You must be the owner of the topic or have the \`ManageThreads\` permission to resolve it.`,

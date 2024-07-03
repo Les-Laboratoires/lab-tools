@@ -10,8 +10,8 @@ export default new app.SlashCommand({
   //     type: "String",
   //   },
   // },
-  build(builder) {
-    builder.addStringOption((option) =>
+  build() {
+    this.addStringOption((option) =>
       option
         .setName("command")
         .setDescription("The target command name.")
@@ -19,38 +19,30 @@ export default new app.SlashCommand({
     )
   },
   async run(interaction) {
-    await interaction.base.deferReply({ ephemeral: true })
+    const commandName = interaction.options.command as string
 
-    const target = interaction.options.command
+    const commands = [
+      ...(await interaction.client.application.commands.fetch()).values(),
+      ...(await interaction.guild.commands.fetch()).values(),
+    ]
 
-    const command = interaction.guild.commands.cache.find(
-      (cmd) => cmd.name === target,
-    )
+    const command = commands.find((cmd) => cmd.name === commandName)
 
     if (command) return app.sendSlashCommandDetails(interaction, command)
     else {
+      await interaction.base.deferReply()
+
       new app.StaticPaginator({
         pages: await app.divider(
-          (
-            await Promise.all(
-              app.slashCommands.map(async (cmd) => {
-                const prepared = await app.prepareSlashCommand(
-                  interaction.base,
-                  cmd,
-                )
+          app.slashCommands
+            .map((cmd) => {
+              const command = commands.find((c) => c.name === cmd.options.name)
 
-                if (prepared instanceof app.EmbedBuilder) return ""
+              if (!command) return `unknown command ${cmd.options.name}`
 
-                const command = interaction.guild.commands.cache.find(
-                  (c) => c.name === cmd.options.name,
-                )
-
-                if (!command) return ""
-
-                return app.slashCommandToListItem(command)
-              }),
-            )
-          ).filter((line) => line.length > 0),
+              return app.slashCommandToListItem(command)
+            })
+            .filter((line) => line.length > 0),
           10,
           (page) => {
             return app.getSystemMessage("default", {
@@ -63,7 +55,7 @@ export default new app.SlashCommand({
             })
           },
         ),
-        filter: (reaction, user) => user.id === interaction.user.id,
+        filter: (reaction, user) => user.id === interaction.base.user.id,
         channel: interaction.channel,
       })
     }

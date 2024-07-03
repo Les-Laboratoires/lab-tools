@@ -3,6 +3,7 @@ import * as logger from "../app/logger.ts"
 import * as tools from "../namespaces/tools.ts"
 
 import { Guild } from "#tables/guild.ts"
+import labs from "#tables/lab.ts"
 
 export function staffOnly(): command.Middleware<"guild"> {
   return async function staffOnly(message, data) {
@@ -46,6 +47,20 @@ export function isNotInUse(
   return async function isNotInUse(message, data) {
     return {
       result: !inUse() || "Command is already in use.",
+      data,
+    }
+  }
+}
+
+export function labOnly(): command.Middleware<"guild"> {
+  return async function labOnly(message, data) {
+    const lab = await labs.query
+      .where("guild_id", message.guild.id)
+      .andWhere("ignored", false)
+      .first()
+
+    return {
+      result: !!lab || "This command can only be used in a lab channel.",
       data,
     }
   }

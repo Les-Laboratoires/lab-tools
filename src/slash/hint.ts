@@ -19,7 +19,7 @@ export default new app.SlashCommand({
 
     await app.sendLog(
       interaction.guild,
-      `${interaction.user} generated a hint for ${interaction.channel} of **${hint.length}** characters.`,
+      `${interaction.base.user} generated a hint for ${interaction.channel} of **${hint.length}** characters.`,
     )
   },
 })

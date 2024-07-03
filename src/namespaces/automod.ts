@@ -1,4 +1,7 @@
 import * as app from "#app"
+import discord from "discord.js"
+
+import labTable from "#tables/lab.ts"
 
 // /**
 //  * string is the author id
@@ -33,43 +36,7 @@ export async function detectAndBanSpammer(message: app.Message) {
   if (!config || !config.auto_ban_channel_id) return
 
   if (message.channel.id === config.auto_ban_channel_id) {
-    const guilds = message.client.guilds.cache.filter((guild) =>
-      guild.members.me?.permissions.has(
-        app.PermissionFlagsBits.BanMembers,
-        true,
-      ),
-    )
-
-    const result = await Promise.allSettled(
-      guilds.map(async (guild) => {
-        try {
-          await guild.bans.create(message.author.id, {
-            reason: "Spamming",
-            // delete all messages from the user in the last 5 hours
-            deleteMessageSeconds: 60 * 60 * 5,
-          })
-        } catch (error: any) {
-          await app.sendLog(
-            guild,
-            `<@&${guild.id}> **${
-              message.author.tag
-            }** could not be banned for spamming...${app.code.stringify({
-              content: error.message,
-              lang: "js",
-            })}`,
-            config,
-          )
-
-          throw error
-        }
-
-        await app.sendLog(
-          guild,
-          `**${message.author.tag}** has been banned here for spamming in **${guild.name}**`,
-          config,
-        )
-      }),
-    )
+    const result = await globalBan(message.author, "Spamming")
 
     if (config.general_channel_id) {
       const general = message.client.channels.cache.get(
@@ -153,3 +120,50 @@ export async function detectAndBanSpammer(message: app.Message) {
 //
 //   if (spamMessages[key].length === 0) delete spamMessages[key]
 // }
+
+export async function globalBan(
+  user: discord.PartialUser | discord.User,
+  reason: string,
+) {
+  const guilds = user.client.guilds.cache.filter((guild) =>
+    guild.members.me?.permissions.has("BanMembers", true),
+  )
+
+  const labs = await labTable.query
+    .select("guild_id")
+    .where("ignored", false)
+    .then((results) => results.map((result) => result.guild_id))
+
+  return Promise.allSettled(
+    guilds.map(async (guild) => {
+      const config = await app.getGuild(guild)
+
+      if (!config || !labs.includes(config._id)) return
+
+      try {
+        await guild.bans.create(user.id, {
+          reason,
+          // delete all messages from the user in the last 5 hours
+          deleteMessageSeconds: 60 * 60 * 5,
+        })
+
+        await app.sendLog(
+          guild,
+          `**${user.tag}** has been banned here for **${reason.toLowerCase()}**.`,
+        )
+      } catch (error: any) {
+        await app.sendLog(
+          guild,
+          `**${user.tag}** could not be banned for **${reason.toLowerCase()}**...${await app.code.stringify(
+            {
+              content: error.message,
+              lang: "js",
+            },
+          )}`,
+        )
+
+        throw error
+      }
+    }),
+  )
+}
