@@ -54,13 +54,21 @@ export function isNotInUse(
 
 export function labOnly(): command.Middleware<"guild"> {
   return async function labOnly(message, data) {
+    const config = await tools.getGuild(message.guild)
+
+    if (!config)
+      return {
+        result: "This command can only be used in a lab.",
+        data,
+      }
+
     const lab = await labs.query
-      .where("guild_id", message.guild.id)
+      .where("guild_id", config._id)
       .andWhere("ignored", false)
       .first()
 
     return {
-      result: !!lab || "This command can only be used in a lab channel.",
+      result: !!lab || "This command can only be used in a lab.",
       data,
     }
   }
