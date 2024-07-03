@@ -20,13 +20,24 @@ export default new app.Command({
     },
   ],
   async run(message) {
-    const result = await app.globalBan(message.args.target, message.args.reason)
+    const result = await app.globalBan(
+      message.author,
+      message.args.target,
+      message.args.reason,
+    )
 
     const fails = result.filter((r) => r.status === "rejected")
 
-    await app.sendLog(
-      message.guild,
-      `**${message.args.target.tag}** has been banned by **${message.author.tag}** from **${result.length - fails.length}** labs.\nReason: ${message.args.reason}`,
+    if (fails.length === result.length) {
+      return message.reply(
+        `${app.emote(message, "Cross")} Failed to ban the user from all labs.`,
+      )
+    }
+
+    return message.reply(
+      `${app.emote(message, "CheckMark")} Banned the user from **${
+        result.length - fails.length
+      }** labs.`,
     )
   },
 })

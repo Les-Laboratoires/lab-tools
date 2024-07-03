@@ -1,4 +1,4 @@
-import type { Config } from "#app"
+import { Config, getSystemMessage } from "#app"
 
 import { Emotes } from "#src/namespaces/emotes.ts"
 

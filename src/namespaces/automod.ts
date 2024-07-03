@@ -36,7 +36,11 @@ export async function detectAndBanSpammer(message: app.Message) {
   if (!config || !config.auto_ban_channel_id) return
 
   if (message.channel.id === config.auto_ban_channel_id) {
-    const result = await globalBan(message.author, "Spamming")
+    const result = await globalBan(
+      message.client.user,
+      message.author,
+      `Spamming in ${message.guild!.name}`,
+    )
 
     if (config.general_channel_id) {
       const general = message.client.channels.cache.get(
@@ -122,10 +126,11 @@ export async function detectAndBanSpammer(message: app.Message) {
 // }
 
 export async function globalBan(
-  user: discord.PartialUser | discord.User,
+  author: discord.PartialUser | discord.User,
+  target: discord.PartialUser | discord.User,
   reason: string,
 ) {
-  const guilds = user.client.guilds.cache.filter((guild) =>
+  const guilds = target.client.guilds.cache.filter((guild) =>
     guild.members.me?.permissions.has("BanMembers", true),
   )
 
@@ -141,7 +146,7 @@ export async function globalBan(
       if (!config || !labs.includes(config._id)) return
 
       try {
-        await guild.bans.create(user.id, {
+        await guild.bans.create(target.id, {
           reason,
           // delete all messages from the user in the last 5 hours
           deleteMessageSeconds: 60 * 60 * 5,
@@ -149,17 +154,15 @@ export async function globalBan(
 
         await app.sendLog(
           guild,
-          `**${user.tag}** has been banned here for **${reason.toLowerCase()}**.`,
+          `**${target.tag}** has been banned by **${author.tag}**.\nReason: ${reason.toLowerCase()}`,
         )
       } catch (error: any) {
         await app.sendLog(
           guild,
-          `**${user.tag}** could not be banned for **${reason.toLowerCase()}**...${await app.code.stringify(
-            {
-              content: error.message,
-              lang: "js",
-            },
-          )}`,
+          `**${target.tag}** could not be banned...${await app.code.stringify({
+            content: error.message,
+            lang: "js",
+          })}`,
         )
 
         throw error
