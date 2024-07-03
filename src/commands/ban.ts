@@ -26,7 +26,7 @@ export default new app.Command({
 
     await app.sendLog(
       message.guild,
-      `**${message.args.target.tag}** has been banned by **${message.author.tag}** from **${result.length - fails.length}** labs.`,
+      `**${message.args.target.tag}** has been banned by **${message.author.tag}** from **${result.length - fails.length}** labs.\nReason: ${message.args.reason}`,
     )
   },
 })
