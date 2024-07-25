@@ -11,6 +11,7 @@ export interface Point {
 
 export default new Table<Point>({
   name: "point",
+  description: "Point reward logs",
   setup: (table) => {
     table
       .integer("to_id")

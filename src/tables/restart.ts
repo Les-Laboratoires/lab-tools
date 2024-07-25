@@ -11,6 +11,7 @@ export interface Restart {
 
 export default new Table<Restart>({
   name: "restart",
+  description: "Restart message for the deploy command",
   setup: (table) => {
     table.string("content").notNullable()
     table.string("last_channel_id").notNullable()

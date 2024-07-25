@@ -471,6 +471,7 @@ export function getSystemEmoji(name: keyof SystemEmojis): string {
 }
 
 export interface SystemMessageOptions {
+  url: string
   title: string
   description: string
   error: Error
@@ -479,11 +480,13 @@ export interface SystemMessageOptions {
   timestamp: number | Date
   fields: discord.EmbedField[]
   allowedMentions: discord.MessageCreateOptions["allowedMentions"]
+  components: discord.MessageCreateOptions["components"]
+  content: string
 }
 
 export type SystemMessage = Pick<
   discord.MessageCreateOptions,
-  "embeds" | "content" | "files" | "allowedMentions"
+  "embeds" | "content" | "files" | "allowedMentions" | "components"
 >
 
 export interface SystemMessages {
@@ -496,8 +499,9 @@ export interface SystemMessages {
   error: (options: Partial<SystemMessageOptions>) => Promise<SystemMessage>
 }
 
-const defaultSystemMessages: SystemMessages = {
+export const defaultSystemMessages: SystemMessages = {
   default: async ({
+    url,
     allowedMentions,
     fields,
     title,
@@ -505,8 +509,12 @@ const defaultSystemMessages: SystemMessages = {
     author,
     footer,
     timestamp,
+    components,
+    content,
   }) => ({
     allowedMentions,
+    components,
+    content,
     embeds: [
       new discord.EmbedBuilder()
         .setTitle(title ?? null)
@@ -515,10 +523,12 @@ const defaultSystemMessages: SystemMessages = {
         .setAuthor(author ?? null)
         .setFooter(footer ?? null)
         .addFields(fields ?? [])
-        .setTimestamp(timestamp ?? null),
+        .setTimestamp(timestamp ?? null)
+        .setURL(url ?? null),
     ],
   }),
   success: async ({
+    url,
     allowedMentions,
     fields,
     title,
@@ -526,8 +536,12 @@ const defaultSystemMessages: SystemMessages = {
     author,
     footer,
     timestamp,
+    components,
+    content,
   }) => ({
     allowedMentions,
+    components,
+    content,
     embeds: [
       new discord.EmbedBuilder()
         .setTitle(title ?? null)
@@ -542,10 +556,12 @@ const defaultSystemMessages: SystemMessages = {
         .setColor(discord.Colors.Green)
         .setFooter(footer ?? null)
         .addFields(fields ?? [])
-        .setTimestamp(timestamp ?? null),
+        .setTimestamp(timestamp ?? null)
+        .setURL(url ?? null),
     ],
   }),
   error: async ({
+    url,
     allowedMentions,
     fields,
     title,
@@ -554,6 +570,8 @@ const defaultSystemMessages: SystemMessages = {
     footer,
     timestamp,
     error,
+    components,
+    content,
   }) => {
     const formattedError = error
       ? await code.stringify({
@@ -572,6 +590,8 @@ const defaultSystemMessages: SystemMessages = {
 
     return {
       allowedMentions,
+      components,
+      content,
       embeds: [
         new discord.EmbedBuilder()
           .setTitle(title ?? null)
@@ -587,17 +607,19 @@ const defaultSystemMessages: SystemMessages = {
           )
           .setColor(discord.Colors.Red)
           .addFields(
-            error && description && !fields
+            error && description
               ? [
                   {
                     name: error.name ?? "Error",
                     value: formattedError!,
                   },
+                  ...(fields ?? []),
                 ]
-              : [],
+              : fields ?? [],
           )
           .setFooter(footer ?? null)
-          .setTimestamp(timestamp ?? null),
+          .setTimestamp(timestamp ?? null)
+          .setURL(url ?? null),
       ],
     }
   },

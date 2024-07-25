@@ -8,6 +8,7 @@ export interface User {
 
 export default new Table<User>({
   name: "user",
+  description: "User data",
   priority: 10,
   migrations: {
     1: (table) => table.boolean("is_bot").defaultTo(false),

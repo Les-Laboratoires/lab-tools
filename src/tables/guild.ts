@@ -35,6 +35,7 @@ export interface Guild {
 
 export default new Table<Guild>({
   name: "guild",
+  description: "Guild settings",
   priority: 10,
   migrations: {
     1: (table) => {

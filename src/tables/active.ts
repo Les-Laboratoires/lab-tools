@@ -7,6 +7,7 @@ export interface Active {
 
 export default new Table<Active>({
   name: "active",
+  description: "Active users in a guild",
   migrations: {
     1: (table) => {
       table

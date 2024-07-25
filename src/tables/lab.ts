@@ -9,6 +9,7 @@ export interface Lab {
 
 export default new Table<Lab>({
   name: "labs",
+  description: "Laboratory list",
   migrations: {
     1: (table) => {
       table.unique(["guild_id"])

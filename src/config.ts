@@ -1,10 +1,15 @@
-import { Config, getSystemMessage } from "#app"
-
+import { Config } from "#src/app/config.ts"
 import { Emotes } from "#src/namespaces/emotes.ts"
+import { z } from "zod"
 
-const config: Config = {
+export const config = new Config({
   ignoreBots: true,
   openSource: true,
+  printNameOnReady: true,
+  permissions: [],
+  envSchema: z.object({
+    OPENAI_API_KEY: z.string(),
+  }),
   async getPrefix(message) {
     return import("#app").then((app) => app.prefix(message.guild))
   },
@@ -39,6 +44,6 @@ const config: Config = {
     error: Emotes.Cross,
     loading: Emotes.Loading,
   },
-}
+})
 
-export default config
+export default config.options

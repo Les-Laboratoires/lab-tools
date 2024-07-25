@@ -9,6 +9,7 @@ export interface Rating {
 
 export default new Table<Rating>({
   name: "note",
+  description: "Rating of a user by another user",
   migrations: {
     1: (table) => {
       table.renameColumn("to", "to_id")

@@ -8,6 +8,7 @@ export interface AutoRole {
 
 export default new Table<AutoRole>({
   name: "autoRole",
+  description: "Auto roles in a guild",
   setup: (table) => {
     table
       .integer("guild_id")

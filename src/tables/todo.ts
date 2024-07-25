@@ -11,6 +11,7 @@ export interface ToDo {
 
 export default new Table<ToDo>({
   name: "todo",
+  description: "To-do list for users",
   migrations: {
     1: (table) => {
       addCreatedAt(table)

@@ -1,6 +1,6 @@
 import { Table } from "@ghom/orm"
 
-import { addCreatedAt } from "../namespaces/date.ts"
+import { addCreatedAt } from "#src/namespaces/date.ts"
 
 export interface Message {
   author_id: number
@@ -10,6 +10,7 @@ export interface Message {
 
 export default new Table<Message>({
   name: "message",
+  description: "All messages sent by users in a guild",
   setup: (table) => {
     table
       .integer("author_id")

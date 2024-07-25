@@ -2,6 +2,8 @@
 
 import * as app from "#app"
 import config from "#config"
+import env from "#env"
+
 import yargsParser from "yargs-parser"
 
 const listener: app.Listener<"messageCreate"> = {
@@ -12,7 +14,9 @@ const listener: app.Listener<"messageCreate"> = {
 
     if (!app.isNormalMessage(message)) return
 
-    const prefix = await config.getPrefix(message)
+    const prefix = config.getPrefix
+      ? await config.getPrefix(message)
+      : env.BOT_PREFIX
 
     if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
       return message.channel
@@ -52,6 +56,8 @@ const listener: app.Listener<"messageCreate"> = {
       const [match, used] = mentionRegex.exec(dynamicContent) as RegExpExecArray
       message.usedPrefix = `${used} `
       cut(match)
+    } else if (app.isDirectMessage(message)) {
+      message.usedPrefix = ""
     } else return
 
     let key = dynamicContent.split(/\s+/)[0]
@@ -90,14 +96,20 @@ const listener: app.Listener<"messageCreate"> = {
             depth++
             break
           } else if (sub.options.aliases) {
+            let found = false
+
             for (const alias of sub.options.aliases) {
               if (alias === subKey) {
                 key += ` ${subKey}`
                 cursor = 0
                 cmd = sub
                 depth++
+                found = true
+                break
               }
             }
+
+            if (found) break
           }
           cursor++
         }
