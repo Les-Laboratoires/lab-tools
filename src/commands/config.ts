@@ -16,7 +16,10 @@ export default new app.Command({
     },
   ],
   async run(message) {
-    const config = await app.getGuild(message.guild, true)
+    const config = await app.getGuild(message.guild, {
+      forceExists: true,
+      forceFetch: true,
+    })
 
     const specialProps: app.EmbedBuilder[] = []
 

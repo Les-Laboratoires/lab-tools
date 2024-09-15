@@ -68,15 +68,21 @@ export async function getGuild(guild: {
 }): Promise<Guild | undefined>
 export async function getGuild(
   guild: { id: string },
-  force: true,
+  options: { forceExists: true; forceFetch?: boolean },
 ): Promise<Guild>
 export async function getGuild(
   guild: { id: string },
-  force?: true,
+  options?: { forceExists?: true; forceFetch?: boolean },
 ): Promise<Guild | undefined> {
+  if (options?.forceFetch)
+    return guildCache.set(
+      [guild.id],
+      await guilds.query.where("id", guild.id).first(),
+    )
+
   const config = await guildCache.get(guild.id)
 
-  if (force && !config) {
+  if (options?.forceExists && !config) {
     await guilds.query.insert({ id: guild.id })
 
     return guildCache.set(
@@ -145,7 +151,7 @@ export function embedReplacers(
 }
 
 export async function getAutoRoles(member: app.GuildMember): Promise<string[]> {
-  const guild = await getGuild(member.guild, true)
+  const guild = await getGuild(member.guild, { forceExists: true })
 
   return (
     await autoRole.query
