@@ -7,7 +7,9 @@ const listener: app.Listener<"guildMemberRemove"> = {
     if (!app.cache.ensure<boolean>("turn", true)) return
     if (await app.isIgnored(member.guild.id)) return
 
-    const config = await app.getGuild(member.guild, true)
+    const config = await app.getGuild(member.guild)
+
+    if (!config) return
 
     if (member.user.bot) {
       if (config.general_channel_id && config.bot_leave_message) {

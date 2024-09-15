@@ -26,7 +26,10 @@ export default new app.Command({
       `${app.emote(message, "Loading")} Fetching elder roles...`,
     )
 
-    const config = await app.getGuild(message.guild, true)
+    const config = await app.getGuild(message.guild, {
+      forceFetch: true,
+      forceExists: true,
+    })
 
     const pattern = config.elders_role_pattern!
 

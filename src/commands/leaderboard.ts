@@ -16,7 +16,7 @@ export default new app.Command({
     }),
   ],
   async run(message) {
-    const guild = await app.getGuild(message.guild, true)
+    const guild = await app.getGuild(message.guild, { forceExists: true })
 
     const ladders = [
       app.ratingLadder(guild._id),

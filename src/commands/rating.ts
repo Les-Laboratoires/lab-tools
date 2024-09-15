@@ -33,7 +33,7 @@ export default new app.Command({
 
         const fromUser = await app.getUser(message.author, true)
         const toUser = await app.getUser(message.args.member, true)
-        const guild = await app.getGuild(message.guild, true)
+        const guild = await app.getGuild(message.guild, { forceExists: true })
 
         const pack = {
           guild_id: guild._id,
@@ -87,7 +87,7 @@ export default new app.Command({
       run: async (message) => {
         const guild = message.args.global
           ? undefined
-          : await app.getGuild(message.guild, true)
+          : await app.getGuild(message.guild, { forceExists: true })
 
         app.ratingLadder(guild?._id).send(message.channel, {
           pageLineCount: message.args.lines,

@@ -32,7 +32,7 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        const guild = await app.getGuild(message.guild, true)
+        const guild = await app.getGuild(message.guild, { forceExists: true })
 
         await autoRole.query.delete().where("guild_id", guild._id)
         await autoRole.query.insert(
@@ -72,7 +72,7 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        const guild = await app.getGuild(message.guild, true)
+        const guild = await app.getGuild(message.guild, { forceExists: true })
 
         await autoRole.query.insert({
           guild_id: guild._id,
@@ -91,7 +91,7 @@ export default new app.Command({
       description: "List auto roles",
       channelType: "guild",
       async run(message) {
-        const guild = await app.getGuild(message.guild, true)
+        const guild = await app.getGuild(message.guild, { forceExists: true })
 
         const autoRoles = await autoRole.query.where("guild_id", guild._id)
 

@@ -11,7 +11,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
     if (!app.cache.ensure<boolean>("turn", true)) return
     if (await app.isIgnored(member.guild.id)) return
 
-    const config = await app.getGuild(member.guild, true)
+    const config = await app.getGuild(member.guild, { forceExists: true })
 
     await app.applyAutoRoles(member)
 

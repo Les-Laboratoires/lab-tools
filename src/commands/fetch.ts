@@ -24,7 +24,7 @@ export default new app.Command({
 
     let found = 0
 
-    const guild = await app.getGuild(message.guild, true)
+    const guild = await app.getGuild(message.guild, { forceExists: true })
 
     const userCache = new Map()
 

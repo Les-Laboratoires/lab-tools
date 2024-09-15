@@ -82,7 +82,7 @@ export async function userRating(
   const query = table.query.where("to_id", userId)
 
   if (guild) {
-    const { _id: guildId } = await app.getGuild(guild, true)
+    const { _id: guildId } = await app.getGuild(guild, { forceExists: true })
 
     query.and.where("guild_id", guildId)
   }

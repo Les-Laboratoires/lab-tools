@@ -72,7 +72,7 @@ export default new app.Command({
       async run(message) {
         const guild = message.args.id
           ? await app.getGuild({ id: message.args.id })
-          : await app.getGuild(message.guild, true)
+          : await app.getGuild(message.guild, { forceExists: true })
 
         if (!guild)
           return message.channel.send(

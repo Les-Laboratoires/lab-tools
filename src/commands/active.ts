@@ -40,7 +40,10 @@ export default new app.Command({
   async run(message) {
     used = true
 
-    const config = await app.getGuild(message.guild, true)
+    const config = await app.getGuild(message.guild, {
+      forceExists: true,
+      forceFetch: true,
+    })
 
     const waiting = await message.channel.send(
       `${app.emote(message, "Loading")} Fetching members...`,
@@ -73,7 +76,7 @@ export default new app.Command({
         }),
       ],
       run: async (message) => {
-        const guild = await app.getGuild(message.guild, true)
+        const guild = await app.getGuild(message.guild, { forceExists: true })
 
         app.activeLadder(guild._id).send(message.channel, {
           pageLineCount: message.args.lines,

@@ -31,7 +31,7 @@ export default new app.SlashCommand({
       })
 
     const { resolved_channel_indicator, resolved_channel_tag } =
-      await app.getGuild(interaction.guild, true)
+      await app.getGuild(interaction.guild, { forceExists: true })
 
     if (topic.name.startsWith(resolved_channel_indicator))
       return interaction.base.reply({
