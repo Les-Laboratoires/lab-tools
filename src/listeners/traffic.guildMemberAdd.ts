@@ -26,7 +26,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
           config.general_channel_id,
         )
 
-        if (general)
+        if (general && general.isSendable())
           await app.sendTemplatedEmbed(
             general,
             config.bot_welcome_message,
@@ -56,7 +56,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
           config.general_channel_id,
         )
 
-        if (general)
+        if (general && general.isSendable())
           await app.sendTemplatedEmbed(
             general,
             config.member_welcome_message,
@@ -70,7 +70,8 @@ const listener: app.Listener<"guildMemberAdd"> = {
             "Welcome to the **Les Laboratoires** network.\nOne of these servers may be of interest to you!",
           )
 
-          await app.sendLabList(message.channel, 10)
+          if (message.channel.isSendable())
+            await app.sendLabList(message.channel, 10)
         } catch (error) {}
       }
     }

@@ -4,46 +4,44 @@ const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
   description: "Handle interactions of slash commands",
   async run(interaction) {
-    if (!interaction.isCommand()) return
+    if (!interaction.isChatInputCommand()) return
 
     const cmd = app.slashCommands.get(interaction.commandName)
 
     if (!cmd)
       return interaction.reply(
-        await app.getSystemMessage("error", {
-          description: "Command not found",
-        }),
+        await app.getSystemMessage("error", "Command not found"),
       )
 
-    let prepared: app.ISlashCommandInteraction
-
     try {
-      prepared = await app.prepareSlashCommand(interaction, cmd)
+      await app.prepareSlashCommand(interaction, cmd)
     } catch (error: unknown) {
       if (error instanceof Error) {
-        return interaction.reply(await app.getSystemMessage("error", { error }))
+        return interaction.reply(await app.getSystemMessage("error", error))
       } else {
         return interaction.reply(
-          await app.getSystemMessage("error", {
-            description: "An unknown error while preparing the command",
-          }),
+          await app.getSystemMessage(
+            "error",
+            "An unknown error while preparing the command",
+          ),
         )
       }
     }
 
     try {
-      await cmd.options.run.bind(prepared)(prepared)
+      await cmd.options.run.bind(interaction)(interaction)
     } catch (error: unknown) {
       let errorMessage: app.SystemMessage
 
       if (error instanceof Error) {
         app.error(error, cmd.filepath!, true)
 
-        errorMessage = await app.getSystemMessage("error", { error })
+        errorMessage = await app.getSystemMessage("error", error)
       } else {
-        errorMessage = await app.getSystemMessage("error", {
-          description: "An unknown error while executing the command",
-        })
+        errorMessage = await app.getSystemMessage(
+          "error",
+          "An unknown error while executing the command",
+        )
       }
 
       if (interaction.replied || interaction.deferred) {

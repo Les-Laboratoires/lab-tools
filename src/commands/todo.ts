@@ -24,11 +24,9 @@ async function showTodoList(
   perPage = 10,
 ) {
   new app.DynamicPaginator({
-    channel: message.channel,
+    target: message.channel,
     filter: (reaction, user) => user.id === message.author.id,
-    placeHolder: await app.getSystemMessage("default", {
-      title: "No todo task found.",
-    }),
+    placeHolder: await app.getSystemMessage("default", "No todo task found."),
     async fetchPage(index): Promise<app.Page> {
       const itemCount = await app.countOf(
         todoTable.query.where("user_id", user._id),
@@ -40,25 +38,23 @@ async function showTodoList(
         .limit(perPage)
 
       if (pageTasks.length === 0)
-        return app.getSystemMessage("default", {
-          title: "No todo task found.",
-        })
+        return app.getSystemMessage("default", "No todo task found.")
 
       if (perPage === 1) {
         const [todo] = pageTasks
 
         return await app.getSystemMessage("default", {
-          title: `Todo task of ${message.author.tag}`,
-          description: `${todoId(todo)} ${todo.content}`,
-          footer: { text: `Item ${index + 1} / ${itemCount}` },
-          timestamp: todo.created_at,
+          header: `Todo task of ${message.author.tag}`,
+          body: `${todoId(todo)} ${todo.content}`,
+          footer: `Item ${index + 1} / ${itemCount}`,
+          date: todo.created_at,
         })
       }
 
       return await app.getSystemMessage("default", {
-        title: `Todo list of ${message.author.tag} (${itemCount} items)`,
-        description: pageTasks.map(todoItem).join("\n"),
-        footer: { text: `Page ${index + 1} / ${pageCount}` },
+        header: `Todo list of ${message.author.tag} (${itemCount} items)`,
+        body: pageTasks.map(todoItem).join("\n"),
+        footer: `Page ${index + 1} / ${pageCount}`,
       })
     },
     async fetchPageCount(): Promise<number> {
@@ -289,16 +285,17 @@ export default new app.Command({
           .map(todoItem)
 
         new app.StaticPaginator({
-          channel: message.channel,
-          placeHolder: await app.getSystemMessage("default", {
-            title: "No todo task found.",
-          }),
+          target: message.channel as app.SendableChannels,
+          placeHolder: await app.getSystemMessage(
+            "default",
+            "No todo task found.",
+          ),
           filter: (reaction, user) => user.id === message.author.id,
           pages: app.divider(todoList, 10).map((page, i, pages) =>
             app.getSystemMessage("default", {
-              title: `Result of "${message.args.search}" search (${todoList.length} items)`,
-              description: page.join("\n"),
-              footer: { text: `Page ${i + 1} / ${pages.length}` },
+              header: `Result of "${message.args.search}" search (${todoList.length} items)`,
+              body: page.join("\n"),
+              footer: `Page ${i + 1} / ${pages.length}`,
             }),
           ),
         })

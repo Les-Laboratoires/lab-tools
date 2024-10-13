@@ -23,7 +23,7 @@ const listener: app.Listener<"ready"> = {
         { force: true },
       )
 
-      if (channel?.isTextBased()) {
+      if (channel?.isSendable()) {
         const content = `${restartMessage.content} (${time
           .duration(
             new Date(restartMessage.created_at).getTime() - Date.now(),

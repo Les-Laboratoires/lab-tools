@@ -102,15 +102,15 @@ export default new app.Command({
     await waiting.delete().catch()
 
     new app.StaticPaginator({
-      channel: message.channel,
+      target: message.channel,
       pages: app.divider(logs, 10).map((page, index, pages) =>
         app.getSystemMessage("success", {
-          title: `Added ${logs.length} elders`,
-          description: page
+          header: `Added ${logs.length} elders`,
+          body: page
             .sort((a, b) => b.years - a.years)
             .map((log) => `\`${log.years}\` years old: **${log.username}**`)
             .join("\n"),
-          footer: { text: `Page ${index + 1} / ${pages.length}` },
+          footer: `Page ${index + 1} / ${pages.length}`,
         }),
       ),
     })

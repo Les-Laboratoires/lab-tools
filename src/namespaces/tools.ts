@@ -95,7 +95,7 @@ export async function getGuild(
 }
 
 export async function sendTemplatedEmbed(
-  channel: app.Channel,
+  channel: app.SendableChannels,
   template: string,
   replacers: { [k: string]: string },
 ) {

@@ -13,13 +13,13 @@ export default new app.SlashCommand({
 
     // Send the hint
 
-    await interaction.base.reply({ content: hint })
+    await interaction.reply({ content: hint })
 
     // Feedbacks
 
     await app.sendLog(
       interaction.guild,
-      `${interaction.base.user} generated a hint for ${interaction.channel} of **${hint.length}** characters.`,
+      `${interaction.user} generated a hint for ${interaction.channel} of **${hint.length}** characters.`,
     )
   },
 })

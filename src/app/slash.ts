@@ -2,10 +2,7 @@
 
 import url from "url"
 import discord from "discord.js"
-import * as rest from "@discordjs/rest"
-import v10 from "discord-api-types/v10"
 import path from "path"
-import chalk from "chalk"
 
 import * as handler from "@ghom/handler"
 
@@ -14,10 +11,18 @@ import logger from "#logger"
 import config from "#config"
 
 import * as util from "./util.ts"
+import * as command from "./command.ts"
 
 import { filename } from "dirname-filename-esm"
 
 const __filename = filename(import.meta)
+
+class SlashCommandError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "SlashCommandError"
+  }
+}
 
 export const slashCommandHandler = new handler.Handler(
   path.join(process.cwd(), "dist", "slash"),
@@ -57,18 +62,15 @@ export interface ISlashCommandOptions {
   userPermissions?: util.PermissionsNames[]
   allowRoles?: discord.RoleResolvable[]
   denyRoles?: discord.RoleResolvable[]
-  run: (interaction: ISlashCommandInteraction) => unknown | Promise<unknown>
+  run: (
+    interaction: discord.ChatInputCommandInteraction,
+  ) => unknown | Promise<unknown>
   build?: (builder: discord.SlashCommandBuilder) => unknown | Promise<unknown>
-  options?: Record<string, SlashCommandOption<SlashCommandOptionTypeName>>
 }
 
 export interface SlashCommandOptions<
-  GuildOnly extends boolean,
   ChannelType extends SlashCommandChannelType,
-  Options extends Record<
-    string,
-    SlashCommandOption<SlashCommandOptionTypeName>
-  >,
+  GuildOnly extends boolean,
 > {
   name: string
   description: string
@@ -84,34 +86,32 @@ export interface SlashCommandOptions<
     builder: discord.SlashCommandBuilder,
   ) => unknown
   run: (
-    this: SlashCommandInteraction<GuildOnly, ChannelType, Options>,
-    interaction: SlashCommandInteraction<GuildOnly, ChannelType, Options>,
+    this: SlashCommandInteraction<ChannelType, GuildOnly>,
+    interaction: SlashCommandInteraction<ChannelType, GuildOnly>,
   ) => unknown
-  options?: Options
+}
+
+export interface SlashCommandInteraction<
+  ChannelType extends SlashCommandChannelType,
+  GuildOnly extends boolean,
+> extends discord.ChatInputCommandInteraction {
+  channel: ChannelType extends "guild"
+    ? command.GuildMessage["channel"]
+    : ChannelType extends "dm"
+      ? command.DirectMessage["channel"]
+      : discord.AnyThreadChannel
+  guild: GuildOnly extends true ? command.GuildMessage["guild"] : null
 }
 
 export class SlashCommand<
-  GuildOnly extends boolean,
   ChannelType extends SlashCommandChannelType,
-  Options extends Record<
-    string,
-    SlashCommandOption<SlashCommandOptionTypeName>
-  >,
+  GuildOnly extends boolean,
 > {
   filepath?: string
   native = false
   builder = new discord.SlashCommandBuilder()
 
-  constructor(
-    public options: SlashCommandOptions<GuildOnly, ChannelType, Options>,
-  ) {}
-}
-
-export interface SlashCommandOption<Type extends SlashCommandOptionTypeName> {
-  description: string
-  type: Type
-  required?: boolean
-  default?: NoInfer<TypeNameToType<Type>>
+  constructor(public options: SlashCommandOptions<ChannelType, GuildOnly>) {}
 }
 
 export interface ISlashCommand {
@@ -119,49 +119,6 @@ export interface ISlashCommand {
   native: boolean
   builder: discord.SlashCommandBuilder
   options: ISlashCommandOptions
-}
-
-export interface ISlashCommandInteraction {
-  base: discord.CommandInteraction
-  client: discord.Client<true>
-  guild?: discord.Guild
-  guildId?: string
-  channel:
-    | discord.ThreadChannel
-    | discord.NewsChannel
-    | discord.DMChannel
-    | discord.TextChannel
-    | discord.TextBasedChannel
-    | discord.GuildTextBasedChannel
-  options: Record<string, any>
-}
-
-export interface SlashCommandInteraction<
-  GuildOnly extends boolean,
-  ChannelType extends SlashCommandChannelType,
-  Options extends Record<
-    string,
-    SlashCommandOption<SlashCommandOptionTypeName>
-  >,
-> {
-  base: GuildOnly extends true
-    ? discord.CommandInteraction<"raw" | "cached">
-    : discord.CommandInteraction
-  client: discord.Client<true>
-  guild: GuildOnly extends true ? discord.Guild : undefined
-  guildId: GuildOnly extends true ? string : undefined
-  channel: ChannelType extends "dm"
-    ? discord.DMChannel
-    : ChannelType extends "thread"
-      ? discord.ThreadChannel
-      : GuildOnly extends true
-        ? discord.GuildTextBasedChannel
-        : ChannelType extends "guild"
-          ? discord.GuildTextBasedChannel
-          : discord.TextBasedChannel
-  options: {
-    [K in keyof Options]: SlashCommandOptionToType<Options[K]>
-  }
 }
 
 export function validateSlashCommand(command: ISlashCommand) {
@@ -172,104 +129,41 @@ export function validateSlashCommand(command: ISlashCommand) {
   if (command.options.userPermissions)
     command.builder.setDefaultMemberPermissions(
       command.options.userPermissions.reduce((bit, name) => {
-        return bit | v10.PermissionFlagsBits[name]
+        return bit | discord.PermissionFlagsBits[name]
       }, 0n),
     )
 
-  if (command.options.options) {
-    for (const name in command.options.options) {
-      const option = command.options.options[name]
-
-      const build = <Option extends discord.ApplicationCommandOptionBase>(
-        option: Option,
-      ) => {
-        option.setName(name)
-
-        if (option.description) option.setDescription(option.description)
-        if (option.required) option.setRequired(option.required)
-
-        return option
-      }
-
-      switch (option.type) {
-        case "Attachment":
-          command.builder.addAttachmentOption(build)
-          break
-        case "Boolean":
-          command.builder.addBooleanOption(build)
-          break
-        case "Channel":
-          command.builder.addChannelOption(build)
-          break
-        case "Integer":
-          command.builder.addIntegerOption(build)
-          break
-        case "Mentionable":
-          command.builder.addMentionableOption(build)
-          break
-        case "Number":
-          command.builder.addNumberOption(build)
-          break
-        case "Role":
-          command.builder.addRoleOption(build)
-          break
-        case "String":
-          command.builder.addStringOption(build)
-          break
-        case "User":
-          command.builder.addUserOption(build)
-          break
-        case "Subcommand":
-          command.builder.addSubcommand((option) => {
-            option.setName(name)
-
-            if (option.description) option.setDescription(option.description)
-
-            return option
-          })
-          break
-        case "SubcommandGroup":
-          command.builder.addSubcommandGroup((option) => {
-            option.setName(name)
-
-            if (option.description) option.setDescription(option.description)
-
-            return option
-          })
-          break
-        default:
-          throw new Error(
-            `Unknown slash command option type "${option.type}" for option "${name}"`,
-          )
-      }
-    }
-  }
-
   command.options.build?.bind(command.builder)(command.builder)
 
+  debugSlashCommandBuilder(command.builder)
+
   logger.log(
-    `loaded command ${chalk.blueBright("/" + command.options.name)}${
-      command.native ? chalk.green(" native") : ""
-    } ${chalk.grey(command.options.description)}`,
+    `loaded command ${util.styleText(
+      "blueBright",
+      "/" + command.options.name,
+    )}${
+      command.native ? util.styleText("green", " native") : ""
+    } ${util.styleText("grey", command.options.description)}`,
   )
 }
 
-export async function registerSlashCommands(guildId?: string) {
-  const api = new rest.REST({ version: "10" }).setToken(env.BOT_TOKEN)
-
+export async function registerSlashCommands(
+  client: discord.Client<true>,
+  guildId?: string,
+) {
   try {
-    const data = (await api.put(
-      guildId
-        ? v10.Routes.applicationGuildCommands(env.BOT_ID, guildId)
-        : v10.Routes.applicationCommands(env.BOT_ID),
-      {
-        body: slashCommands.map((cmd) => cmd.builder.toJSON()),
-      },
-    )) as unknown[]
+    const data = slashCommands.map((command) => command.builder.toJSON())
+
+    if (guildId) {
+      const guild = await client.guilds.fetch(guildId)
+      await guild.commands.set(data)
+    } else {
+      await client.application.commands.set(data)
+    }
 
     logger.log(
-      `deployed ${chalk.blue(data.length)} slash commands${
-        guildId ? ` to new guild ${chalk.blue(guildId)}` : ""
+      `deployed ${util.styleText("blue", String(data.length))} slash commands${
+        guildId ? ` to new guild ${util.styleText("blue", guildId)}` : ""
       }`,
     )
   } catch (error: any) {
@@ -278,20 +172,13 @@ export async function registerSlashCommands(guildId?: string) {
 }
 
 export async function prepareSlashCommand(
-  interaction: discord.CommandInteraction,
+  interaction: discord.ChatInputCommandInteraction,
   command: ISlashCommand,
-): Promise<ISlashCommandInteraction | never> {
-  const output: ISlashCommandInteraction = {
-    base: interaction,
-    client: interaction.client,
-    guild: undefined,
-    guildId: undefined,
-    channel: interaction.channel!,
-    options: {},
-  }
-
+): Promise<void | never> {
   if (command.options.botOwnerOnly && interaction.user.id !== env.BOT_OWNER)
-    throw new Error("This command can only be used by the bot owner")
+    throw new SlashCommandError(
+      "This command can only be used by the bot owner",
+    )
 
   if (
     command.options.guildOnly ||
@@ -299,16 +186,15 @@ export async function prepareSlashCommand(
       command.options.channelType !== "dm")
   ) {
     if (!interaction.inGuild() || !interaction.guild)
-      throw new Error("This command can only be used in a guild")
-
-    output.guild = interaction.guild
-    output.guildId = interaction.guildId
+      throw new SlashCommandError("This command can only be used in a guild")
 
     if (
       command.options.guildOwnerOnly &&
       interaction.user.id !== interaction.guild.ownerId
     )
-      throw new Error("This command can only be used by the guild owner")
+      throw new SlashCommandError(
+        "This command can only be used by the guild owner",
+      )
 
     if (command.options.allowRoles || command.options.denyRoles) {
       const member = await interaction.guild.members.fetch(interaction.user.id)
@@ -319,7 +205,7 @@ export async function prepareSlashCommand(
             command.options.allowRoles?.includes(role.id),
           )
         )
-          throw new Error(
+          throw new SlashCommandError(
             "You don't have the required role to use this command",
           )
       }
@@ -330,7 +216,7 @@ export async function prepareSlashCommand(
             command.options.denyRoles?.includes(role.id),
           )
         )
-          throw new Error(
+          throw new SlashCommandError(
             "You have a role that is not allowed to use this command",
           )
       }
@@ -339,37 +225,11 @@ export async function prepareSlashCommand(
 
   if (command.options.channelType === "thread") {
     if (!interaction.channel || !interaction.channel.isThread())
-      throw new Error("This command can only be used in a thread")
+      throw new SlashCommandError("This command can only be used in a thread")
   } else if (command.options.channelType === "dm") {
     if (!interaction.channel || !interaction.channel.isDMBased())
-      throw new Error("This command can only be used in a DM")
+      throw new SlashCommandError("This command can only be used in a DM")
   }
-
-  if (command.options.options) {
-    for (const name in command.options.options) {
-      const option = command.options.options[name]
-
-      const value = interaction.options.get(name) ?? option.default ?? null
-
-      if (option.required && value === null)
-        throw new Error(`Option "${name}" is required`)
-
-      output.options[name] = value
-    }
-  }
-
-  if (interaction.options.data.length > 0) {
-    output.options = interaction.options.data.reduce(
-      (acc, option) => {
-        if (option.name in output.options) return acc
-        acc[option.name] = option.value
-        return acc
-      },
-      {} as Record<string, any>,
-    )
-  }
-
-  return output
 }
 
 export function slashCommandToListItem(
@@ -381,71 +241,87 @@ export function slashCommandToListItem(
 }
 
 export async function sendSlashCommandDetails(
-  interaction: ISlashCommandInteraction,
+  interaction: discord.ChatInputCommandInteraction,
   computed: discord.ApplicationCommand,
 ) {
   const { detailSlashCommand } = config
 
   const command = slashCommands.get(computed.name)
 
-  if (!command) throw new Error(`Command ${computed.name} not found`)
+  if (!command)
+    throw new SlashCommandError(`Command ${computed.name} not found`)
 
-  await interaction.base.reply(
+  await interaction.reply(
     detailSlashCommand
       ? await detailSlashCommand(interaction, computed)
-      : await util.getSystemMessage("default", {
-          author: {
-            name: computed.name,
-            iconURL: computed.client.user?.displayAvatarURL(),
-            url: config.openSource
-              ? await util.getFileGitURL(command.filepath!)
-              : undefined,
-          },
-          description: `Use directly: </${computed.name}:${computed.id}>\nDescription: ${computed.description || "no description"}`,
-          footer: config.openSource
-            ? {
-                text: util.convertDistPathToSrc(
-                  util.rootPath(command.filepath!),
-                ),
-              }
-            : undefined,
-          fields: computed.options.map((option) => ({
-            name: option.name,
-            value: option.description || "no description",
-            inline: true,
-          })),
-        }),
+      : {
+          embeds: [
+            new discord.EmbedBuilder()
+              .setAuthor({
+                name: computed.name,
+                iconURL: computed.client.user?.displayAvatarURL(),
+                url: config.openSource
+                  ? await util.getFileGitURL(command.filepath!)
+                  : undefined,
+              })
+              .setDescription(
+                `</${computed.name}:${computed.id}> - ${
+                  computed.description || "no description"
+                }`,
+              )
+              .setFooter(
+                config.openSource
+                  ? {
+                      text: util.convertDistPathToSrc(
+                        util.rootPath(command.filepath!),
+                      ),
+                    }
+                  : null,
+              )
+              .setFields(
+                computed.options.map((option) => ({
+                  name: option.name,
+                  value: option.description || "no description",
+                  inline: true,
+                })),
+              ),
+          ],
+        },
   )
 }
 
-export type SlashCommandOptionTypeName =
-  keyof typeof discord.ApplicationCommandOptionType
+export function isSlashCommandOption(
+  object: discord.ToAPIApplicationCommandOptions,
+): object is discord.ToAPIApplicationCommandOptions &
+  discord.APIApplicationCommandOption {
+  return "type" in object
+}
 
-export type SlashCommandOptionToType<
-  Option extends SlashCommandOption<SlashCommandOptionTypeName>,
-> = Option["required"] extends true
-  ? TypeNameToType<Option["type"]>
-  : Option["default"] extends TypeNameToType<Option["type"]>
-    ? TypeNameToType<Option["type"]>
-    : TypeNameToType<Option["type"]> | null
+export function debugSlashCommandBuilder(
+  builder: discord.SlashCommandBuilder | discord.ToAPIApplicationCommandOptions,
+  path: string[] = [],
+) {
+  try {
+    builder.toJSON()
+  } catch (error: any) {
+    let pathSegment: string
 
-export type TypeNameToType<TypeName extends SlashCommandOptionTypeName> =
-  TypeName extends "String"
-    ? string
-    : TypeName extends "Integer"
-      ? number
-      : TypeName extends "Boolean"
-        ? boolean
-        : TypeName extends "User"
-          ? discord.User
-          : TypeName extends "Channel"
-            ? discord.Channel
-            : TypeName extends "Role"
-              ? discord.Role
-              : TypeName extends "Mentionable"
-                ? discord.User | discord.Role | discord.Channel
-                : TypeName extends "Number"
-                  ? number
-                  : TypeName extends "Attachment"
-                    ? discord.Attachment
-                    : never
+    if (builder instanceof discord.SlashCommandBuilder) {
+      pathSegment = builder.name
+    } else if (isSlashCommandOption(builder)) {
+      pathSegment = `${discord.ApplicationCommandOptionType[builder.type]}Option(${builder.name})`
+    } else {
+      pathSegment = "unknown"
+    }
+
+    if ("options" in builder) {
+      builder.options.forEach((option) =>
+        debugSlashCommandBuilder(option, path.concat(pathSegment)),
+      )
+    } else {
+      throw new SlashCommandError(
+        `/${path.concat(pathSegment).join(" ")}: ${error.message}`,
+      )
+    }
+  }
+}

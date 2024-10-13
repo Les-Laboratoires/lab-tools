@@ -3,7 +3,7 @@ import * as app from "#app"
 export default new app.Command({
   name: "fake",
   description: "Fake an user message",
-  channelType: "all",
+  channelType: "guild",
   botPermissions: ["ManageWebhooks"],
   cooldown: {
     duration: 10000,
@@ -24,8 +24,6 @@ export default new app.Command({
   },
   async run(message) {
     const user = message.args.target
-
-    if (!app.isGuildMessage(message)) return
 
     message.triggerCoolDown()
 

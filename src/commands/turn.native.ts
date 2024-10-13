@@ -9,17 +9,19 @@ export default new app.Command({
   channelType: "all",
   botOwnerOnly: true,
   positional: [
-    app.positional({
+    {
       name: "activated",
       description: "Is command handling activated",
       default: () => !app.cache.ensure<boolean>("turn", true),
       type: "boolean",
-    }),
+    },
   ],
   async run(message) {
     app.cache.set("turn", message.args.activated)
     return message.channel.send(
-      `${app.getSystemEmoji("success")} Command handling ${message.args.activated ? "activated" : "disabled"} `,
+      `${app.getSystemEmoji("success")} Command handling ${
+        message.args.activated ? "activated" : "disabled"
+      } `,
     )
   },
 })

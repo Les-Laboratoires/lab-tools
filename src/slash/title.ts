@@ -19,11 +19,11 @@ export default new app.SlashCommand({
 
     await app.sendLog(
       interaction.guild,
-      `${interaction.base.user} changed the title of ${interaction.channel} to:\n> **${title}**`,
+      `${interaction.user} changed the title of ${interaction.channel} to:\n> **${title}**`,
     )
 
     // Close the interaction
 
-    await interaction.base.deferReply()
+    await interaction.deferReply()
   },
 })

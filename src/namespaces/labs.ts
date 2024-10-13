@@ -47,7 +47,7 @@ export async function updateLabsInAffiliationChannels(
 }
 
 export async function sendLabList(
-  channel: app.TextBasedChannel,
+  channel: app.SendableChannels,
   packSize: number,
 ) {
   const labs = await allLabsCache.get()

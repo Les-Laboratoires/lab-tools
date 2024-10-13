@@ -6,7 +6,6 @@ import type * as zod from "zod"
 import type * as pagination from "./pagination.ts"
 import type * as command from "./command.ts"
 import type * as logger from "./logger.ts"
-import type * as slash from "./slash.ts"
 import type * as util from "./util.ts"
 
 export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
@@ -65,7 +64,7 @@ export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
    * @default slash.sendSlashCommandDetails
    */
   detailSlashCommand?: (
-    interaction: slash.ISlashCommandInteraction,
+    interaction: discord.ChatInputCommandInteraction,
     command: discord.ApplicationCommand,
   ) => Promise<util.SystemMessage> | util.SystemMessage
 
@@ -83,9 +82,13 @@ export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
 
   /**
    * Custom messages for the system
-   * @default util.defaultSystemMessages
+   * @default `${systemEmoji} ${content}`
    */
-  systemMessages?: Partial<util.SystemMessages>
+  systemMessages?: (
+    type: util.SystemMessageType,
+    data: string | util.SystemMessageOptions | Error,
+    client: discord.Client,
+  ) => Promise<util.SystemMessage>
 
   /**
    * Custom options for the system logger

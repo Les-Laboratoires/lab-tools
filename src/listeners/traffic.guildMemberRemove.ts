@@ -17,7 +17,7 @@ const listener: app.Listener<"guildMemberRemove"> = {
           config.general_channel_id,
         )
 
-        if (general) {
+        if (general && general.isSendable()) {
           await app.sendTemplatedEmbed(
             general,
             config.bot_leave_message,
@@ -33,7 +33,7 @@ const listener: app.Listener<"guildMemberRemove"> = {
           config.general_channel_id,
         )
 
-        if (general) {
+        if (general && general.isSendable()) {
           await app.sendTemplatedEmbed(
             general,
             config.member_leave_message,

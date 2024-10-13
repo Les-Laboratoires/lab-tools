@@ -2,11 +2,10 @@
 
 import fs from "fs"
 import path from "path"
+import util from "util"
 import dayjs from "dayjs"
 import discord from "discord.js"
-import prettify from "ghom-prettify"
-import * as prettier from "prettier"
-import chalk from "chalk"
+import * as discordEval from "discord-eval.ts"
 import EventEmitter from "events"
 import simpleGit from "simple-git"
 
@@ -22,6 +21,9 @@ import env from "#env"
 import client from "#client"
 import config from "#config"
 import logger from "#logger"
+
+export { styleText, promisify } from "util"
+export * from "discord-eval.ts"
 
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
 
@@ -45,18 +47,21 @@ export async function checkUpdates() {
 
   if (isOlder(packageJSON.version, remoteJSON.version)) {
     logger.warn(
-      `a new major version of ${chalk.blue(
+      `a new major version of ${util.styleText(
+        "blue",
         "@ghom/bot.ts",
-      )} is available: ${chalk.magenta(
+      )} is available: ${util.styleText(
+        "magenta",
         packageJSON.version,
-      )} => ${chalk.magenta(remoteJSON.version)}`,
+      )} => ${util.styleText("magenta", remoteJSON.version)}`,
     )
     logger.warn(
-      `you can update ${chalk.blue("@ghom/bot.ts")} by running ${chalk.bgWhite.black(
-        `gulp update`,
-      )}`,
+      `you can update ${util.styleText(
+        "blue",
+        "@ghom/bot.ts",
+      )} by running ${util.styleText("bold", `gulp update`)}`,
     )
-    logger.warn(chalk.bold(`this update may break your bot!`))
+    logger.warn(util.styleText("bold", "this update may break your bot!"))
   } else if (
     packageJSON.devDependencies &&
     remoteJSON.devDependencies &&
@@ -66,36 +71,47 @@ export async function checkUpdates() {
     )
   ) {
     logger.warn(
-      `a new version of ${chalk.blue("@ghom/bot.ts-cli")} is available: ${
-        packageJSON.devDependencies["@ghom/bot.ts-cli"]
-      } => ${chalk.blue(remoteJSON.devDependencies["@ghom/bot.ts-cli"])}`,
+      `a new version of ${util.styleText(
+        "blue",
+        "@ghom/bot.ts-cli",
+      )} is available: ${util.styleText(
+        "blue",
+        packageJSON.devDependencies["@ghom/bot.ts-cli"],
+      )} => ${util.styleText(
+        "blue",
+        remoteJSON.devDependencies["@ghom/bot.ts-cli"],
+      )}`,
     )
     logger.warn(
-      `you can update ${chalk.blue(
+      `you can update ${util.styleText(
+        "blue",
         "@ghom/bot.ts-cli",
-      )} by running ${chalk.bgWhite.black(`gulp update`)}`,
+      )} by running ${util.styleText("bold", `gulp update`)}`,
     )
-    logger.warn(chalk.bold(`this update may break your bot!`))
+    logger.warn(util.styleText("bold", `this update may break your bot!`))
   } else {
     logger.log(
-      `you are using the latest version of ${chalk.blue(
+      `you are using the latest version of ${util.styleText(
+        "blue",
         "@ghom/bot.ts",
-      )} and ${chalk.blue("@ghom/bot.ts-cli")}`,
+      )} and ${util.styleText("blue", "@ghom/bot.ts-cli")}`,
     )
   }
 }
 
 const locale = env.BOT_LOCALE
 
-import(`dayjs/locale/${locale ?? "en"}.js`)
-  .then(() => dayjs.locale(locale ?? "en"))
-  .catch(() =>
-    logger.warn(
-      `The ${chalk.bold(
-        locale,
-      )} locale is incorrect, please use an existing locale code.`,
-    ),
-  )
+if (locale)
+  import(`dayjs/locale/${locale ?? "en"}.js`)
+    .then(() => dayjs.locale(locale ?? "en"))
+    .catch(() =>
+      logger.warn(
+        `The ${util.styleText(
+          "bold",
+          locale,
+        )} locale is incorrect, please use an existing locale code.`,
+      ),
+    )
 
 dayjs.extend(utc)
 dayjs.extend(relative)
@@ -378,51 +394,6 @@ export class ResponseCache<Params extends any[], Value> {
   }
 }
 
-export interface Code {
-  lang?: string
-  content: string
-}
-
-export const code = {
-  pattern: /^```(\S+)?\s(.+[^\\])```$/is,
-  /**
-   * extract the code from code block and return code
-   */
-  parse(raw: string): Code | undefined {
-    const match = this.pattern.exec(raw)
-    if (!match) return
-    return {
-      lang: match[1],
-      content: match[2],
-    }
-  },
-  /**
-   * inject the code in the code block and return code block
-   */
-  async stringify({
-    lang,
-    content,
-    format,
-  }: Code & { format?: true | prettier.Options }): Promise<string> {
-    return (
-      "```" +
-      (lang ?? "") +
-      "\n" +
-      (format
-        ? await prettify.format(
-            content,
-            format === true ? { lang: lang as any } : format,
-          )
-        : content) +
-      "\n```"
-    )
-  },
-  /**
-   * format the code using prettier and return it
-   */
-  format: prettify.format,
-}
-
 export function convertDistPathToSrc(path: string) {
   return path.replace(/dist([/\\])/, "src$1").replace(".js", ".ts")
 }
@@ -444,7 +415,13 @@ export async function getFileGitURL(
 
     if (!remote) return
 
-    return `${remote.refs.fetch.replace(".git", "")}/blob/${branchName}/${convertDistPathToSrc(rootPath(filepath)).replace(/\\/g, "/")}`
+    return `${remote.refs.fetch.replace(
+      ".git",
+      "",
+    )}/blob/${branchName}/${convertDistPathToSrc(rootPath(filepath)).replace(
+      /\\/g,
+      "/",
+    )}`
   } catch (error) {
     return
   }
@@ -464,6 +441,14 @@ const defaultSystemEmojis: SystemEmojis = {
   warning: "⚠️",
 }
 
+export const systemColors = {
+  default: discord.Colors.Blurple,
+  success: discord.Colors.Green,
+  error: discord.Colors.Red,
+  loading: discord.Colors.Blue,
+  warning: discord.Colors.Yellow,
+}
+
 export function getSystemEmoji(name: keyof SystemEmojis): string {
   const rawEmoji = config.systemEmojis?.[name] ?? defaultSystemEmojis[name]
 
@@ -471,17 +456,10 @@ export function getSystemEmoji(name: keyof SystemEmojis): string {
 }
 
 export interface SystemMessageOptions {
-  url: string
-  title: string
-  description: string
-  error: Error
-  author: discord.EmbedAuthorOptions
-  footer: discord.EmbedFooterOptions
-  timestamp: number | Date
-  fields: discord.EmbedField[]
-  allowedMentions: discord.MessageCreateOptions["allowedMentions"]
-  components: discord.MessageCreateOptions["components"]
-  content: string
+  header?: string
+  body: string | Error
+  footer?: string
+  date?: Date
 }
 
 export type SystemMessage = Pick<
@@ -489,149 +467,71 @@ export type SystemMessage = Pick<
   "embeds" | "content" | "files" | "allowedMentions" | "components"
 >
 
-export interface SystemMessages {
-  default: (
-    options: Partial<Omit<SystemMessageOptions, "error">>,
-  ) => Promise<SystemMessage>
-  success: (
-    options: Partial<Omit<SystemMessageOptions, "error">>,
-  ) => Promise<SystemMessage>
-  error: (options: Partial<SystemMessageOptions>) => Promise<SystemMessage>
+export type SystemMessageType = "default" | keyof SystemEmojis
+
+export interface GetSystemMessageOptions {
+  /**
+   * js, json, ts, etc.
+   * if given, a formatted code clock will be displayed
+   * if true, the code block will be displayed without lang
+   */
+  code?: boolean | string
 }
 
-export const defaultSystemMessages: SystemMessages = {
-  default: async ({
-    url,
-    allowedMentions,
-    fields,
-    title,
-    description,
-    author,
-    footer,
-    timestamp,
-    components,
-    content,
-  }) => ({
-    allowedMentions,
-    components,
-    content,
-    embeds: [
-      new discord.EmbedBuilder()
-        .setTitle(title ?? null)
-        .setDescription(description ?? null)
-        .setColor(discord.Colors.Blurple)
-        .setAuthor(author ?? null)
-        .setFooter(footer ?? null)
-        .addFields(fields ?? [])
-        .setTimestamp(timestamp ?? null)
-        .setURL(url ?? null),
-    ],
-  }),
-  success: async ({
-    url,
-    allowedMentions,
-    fields,
-    title,
-    description,
-    author,
-    footer,
-    timestamp,
-    components,
-    content,
-  }) => ({
-    allowedMentions,
-    components,
-    content,
-    embeds: [
-      new discord.EmbedBuilder()
-        .setTitle(title ?? null)
-        .setAuthor(author ?? null)
-        .setDescription(
-          description
-            ? title || author
-              ? description
-              : `${getSystemEmoji("success")} ${description}`
-            : null,
-        )
-        .setColor(discord.Colors.Green)
-        .setFooter(footer ?? null)
-        .addFields(fields ?? [])
-        .setTimestamp(timestamp ?? null)
-        .setURL(url ?? null),
-    ],
-  }),
-  error: async ({
-    url,
-    allowedMentions,
-    fields,
-    title,
-    description,
-    author,
-    footer,
-    timestamp,
-    error,
-    components,
-    content,
-  }) => {
-    const formattedError = error
-      ? await code.stringify({
-          content: `${
-            error.message
-              ?.replace(/\x1b\[\d+m/g, "")
-              .split("")
-              .reverse()
-              .slice(0, 2000)
-              .reverse()
-              .join("") ?? "unknown"
-          }`,
-          lang: "js",
-        })
-      : null
-
-    return {
-      allowedMentions,
-      components,
-      content,
-      embeds: [
-        new discord.EmbedBuilder()
-          .setTitle(title ?? null)
-          .setAuthor(author ?? null)
-          .setDescription(
-            description
-              ? title || author
-                ? description
-                : `${getSystemEmoji("error")} ${description}`
-              : error && fields
-                ? `${error.name ?? "Error"}: ${formattedError!}`
-                : null,
-          )
-          .setColor(discord.Colors.Red)
-          .addFields(
-            error && description
-              ? [
-                  {
-                    name: error.name ?? "Error",
-                    value: formattedError!,
-                  },
-                  ...(fields ?? []),
-                ]
-              : fields ?? [],
-          )
-          .setFooter(footer ?? null)
-          .setTimestamp(timestamp ?? null)
-          .setURL(url ?? null),
-      ],
-    }
-  },
-}
-
-export function getSystemMessage<Key extends keyof SystemMessages>(
-  name: Key,
-  options: SystemMessages[Key] extends (options: infer Options) => any
-    ? Options
-    : never,
+export async function getSystemMessage(
+  type: SystemMessageType,
+  message: string | SystemMessageOptions | Error,
+  options?: GetSystemMessageOptions,
 ): Promise<SystemMessage> {
-  return (config.systemMessages?.[name] ?? defaultSystemMessages[name])(
-    options as any,
-  )
+  if (config.systemMessages) return config.systemMessages(type, message, client)
+
+  const output: SystemMessage = {}
+
+  // define the output content
+  if (typeof message !== "string" && "body" in message) {
+    output.content =
+      message.body instanceof Error
+        ? (message.body.stack ?? message.body.message)
+        : message.body
+  } else if (message instanceof Error) {
+    output.content = message.stack ?? message.message
+  } else {
+    output.content = message
+  }
+
+  // if the message contains code, format it
+  if (options?.code) {
+    const lang =
+      typeof options.code === "string"
+        ? options.code
+        : options.code && undefined
+
+    output.content = await discordEval.code.stringify({
+      lang,
+      content: output.content!,
+    })
+  }
+
+  // if the input has a header or a footer, use an embed
+  if (
+    typeof message !== "string" &&
+    !(message instanceof Error) &&
+    (message.header || message.footer)
+  ) {
+    output.embeds = [
+      new discord.EmbedBuilder()
+        .setColor(systemColors[type])
+        .setTitle(message.header ?? null)
+        .setDescription(output.content!)
+        .setFooter(message.footer ? { text: message.footer } : null)
+        .setTimestamp(message.date ?? null)
+        .toJSON(),
+    ]
+    delete output.content
+  } else if (type !== "default") {
+    // else, add an emoji to the message
+    output.content = `${getSystemEmoji(type)} ${output.content!}`
+  }
+
+  return output
 }

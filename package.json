@@ -16,7 +16,8 @@
     "start.test": "npm run build && node tests/index.test.js",
     "readme": "gulp readme",
     "lint": "eslint src/**/*.ts --fix",
-    "bot": "npx @ghom/bot.ts-cli"
+    "bot": "npx @ghom/bot.ts-cli",
+    "final": "gulp final"
   },
   "prettier": {
     "semi": false,
@@ -44,8 +45,10 @@
     "boxen": "^7.0.0",
     "chalk": "^5.0.1",
     "dayjs": "^1.11.3",
+    "del": "^6.1.1",
     "dirname-filename-esm": "^1.1.1",
-    "discord.js": "^14.15.2",
+    "discord-eval.ts": "^1.1.2",
+    "discord.js": "^14.16.2",
     "dotenv": "^16.0.1",
     "emoji-regex": "^10.1.0",
     "execa": "^8.0.1",
@@ -61,12 +64,11 @@
     "tims": "^2.1.0",
     "types-package-json": "^2.0.39",
     "yargs-parser": "^21.0.1",
-    "zod": "^3.23.8",
-    "del": "^6.1.1"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@esbuild/linux-x64": "^0.20.1",
-    "@ghom/bot.ts-cli": "^8.1.0",
+    "@ghom/bot.ts-cli": "^8.1.3",
     "@types/boxen": "^3.0.1",
     "@types/cron": "^1.7.3",
     "@types/dotenv": "^8.2.0",
@@ -74,15 +76,20 @@
     "@types/figlet": "^1.5.4",
     "@types/gulp-filter": "^3.0.34",
     "@types/gulp-rename": "^2.0.1",
-    "@types/node": "^20.12.7",
+    "@types/node": "^22.0.2",
     "@types/prettier": "^2.6.3",
     "@types/vinyl-paths": "^0.0.31",
     "@types/ws": "^8.5.3",
     "@types/yargs-parser": "^21.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.12.0",
+    "@typescript-eslint/parser": "^7.12.0",
     "del": "^6.1.1",
     "dirname-filename-esm": "^1.1.1",
     "discord-api-types": "^0.36.1",
     "esbuild": "^0.19.5",
+    "eslint": "^8.57.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.29.1",
     "esm": "^3.2.25",
     "fancy-log": "^2.0.0",
     "git-commit-info": "^2.0.1",
@@ -90,20 +97,15 @@
     "gulp-esbuild": "^0.11.2",
     "gulp-filter": "^7.0.0",
     "gulp-rename": "^2.0.0",
+    "gulp-replace": "^1.1.4",
     "make-bot.ts": "^6.0.5",
     "nodemon": "^2.0.19",
     "typescript": "^5.4.0-beta",
-    "vinyl-paths": "^4.0.0",
-    "gulp-replace": "^1.1.4",
-    "@typescript-eslint/eslint-plugin": "^7.12.0",
-    "@typescript-eslint/parser": "^7.12.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-import-resolver-alias": "^1.1.2"
+    "vinyl-paths": "^4.0.0"
   },
   "engines": {
-    "node": ">=20.x.x",
-    "npm": ">=9.x.x",
+    "node": ">=22.x.x",
+    "npm": ">=10.x.x",
     "git": ">=2.x.x"
   },
   "imports": {
@@ -116,5 +118,8 @@
     "#logger": "./dist/app/logger.js",
     "#database": "./dist/app/database.js",
     "#src/*": "./dist/*"
+  },
+  "optionalDependencies": {
+    "through2": "^4.0.2"
   }
 }

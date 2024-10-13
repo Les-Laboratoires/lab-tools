@@ -61,11 +61,11 @@ export class Ladder<Line extends LadderLine> {
    * Seng the ladder paginator to a channel
    */
   send(
-    channel: discord.TextChannel,
+    channel: discord.SendableChannels,
     options: Omit<LadderPaginatorOptions, "pageIndex">,
   ) {
     new pagination.DynamicPaginator({
-      channel,
+      target: channel,
       fetchPageCount: () => {
         return this.fetchPageCount(options)
       },

@@ -4,7 +4,7 @@ export default new app.SlashCommand({
   name: "{{ name }}",
   description: "The {{ name }} command",
   run(interaction) {
-    // todo: code here
+    // todo: code of command or sub-commands here
     return interaction.reply({
       content: "{{ name }} command is not yet implemented.",
       ephemeral: true,

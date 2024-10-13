@@ -47,7 +47,7 @@ export async function detectAndBanSpammer(message: app.Message) {
         config.general_channel_id,
       )
 
-      if (general?.isTextBased()) {
+      if (general?.isSendable()) {
         const success = result.filter(
           (result) => result.status === "fulfilled",
         ).length
