@@ -4,7 +4,7 @@ import * as app from "#app"
 
 import restart from "#tables/restart.ts"
 
-type State = "waiting" | "running" | "done"
+type State = "waiting" | "running" | "done" | "error"
 type Command = { cmd: string; state: State; time: number }
 
 export default new app.Command({
@@ -35,19 +35,22 @@ export default new app.Command({
             waiting: "Minus",
             running: "Loading",
             done: "CheckMark",
+            error: "Cross",
           } as const
         )[command.state],
       )} ${command.state === "running" ? "**" : ""}\`>_ ${command.cmd}\`${
         command.state === "running" ? "**" : ""
       } ${command.time ? `(**${command.time}** ms)` : ""}`.trim()
 
-    const makeView = (finish?: boolean) =>
+    const makeView = (finish?: boolean, errored?: boolean) =>
       `${commands
         .map((command) =>
           format({ ...command, state: finish ? "done" : command.state }),
         )
-        .join("\n")}\n${app.emote(message, finish ? "CheckMark" : "Loading")} ${
-        finish ? `**Deployed** 🚀` : "Deploying..."
+        .join(
+          "\n",
+        )}\n${app.emote(message, finish ? "CheckMark" : errored ? "Cross" : "Loading")} ${
+        finish ? `**Deployed** 🚀` : errored ? "Errored" : "Deploying..."
       }`
 
     const run = async (command: Command) => {
@@ -55,7 +58,15 @@ export default new app.Command({
 
       await view.edit(makeView())
 
-      execSync(command.cmd, { cwd: process.cwd() })
+      try {
+        execSync(command.cmd, { cwd: process.cwd() })
+      } catch (error: any) {
+        command.state = "error"
+
+        await view.edit(makeView(false, true))
+
+        throw error
+      }
 
       command.state = "done"
     }
