@@ -28,7 +28,7 @@ export default new app.SlashCommand({
 
     await interaction.deferReply()
 
-    await interaction.channel.bulkDelete(amount, true)
+    await interaction.channel.bulkDelete(amount + 1, true)
 
     return interaction.editReply(
       await app.getSystemMessage(
