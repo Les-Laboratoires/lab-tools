@@ -327,6 +327,28 @@ export function slug(...words: string[]): string {
   return words.join("-")
 }
 
+export function omit<T extends object, K extends keyof T>(
+  item: T,
+  ...keys: K[]
+): Omit<T, K> {
+  const clone = { ...item }
+  for (const key of keys) {
+    delete clone[key]
+  }
+  return clone
+}
+
+export function pick<T extends object, K extends keyof T>(
+  item: T,
+  ...keys: K[]
+): Pick<T, K> {
+  const clone = {} as Pick<T, K>
+  for (const key of keys) {
+    clone[key] = item[key]
+  }
+  return clone
+}
+
 /**
  * Simple cache for manage temporary values
  */
@@ -360,6 +382,9 @@ export interface ResponseCacheData<Value> {
   expires: number
 }
 
+/**
+ * Advanced cache for async queries
+ */
 export class ResponseCache<Params extends any[], Value> {
   private _cache = new Map<string, ResponseCacheData<Value>>()
 
@@ -382,15 +407,15 @@ export class ResponseCache<Params extends any[], Value> {
     return this._cache.get(key)!.value
   }
 
-  set(params: Params, value: Value): Value {
+  async fetch(...params: Params): Promise<Value> {
     const key = JSON.stringify(params)
 
     this._cache.set(key, {
-      value,
+      value: await this._request(...params),
       expires: Date.now() + this._timeout,
     })
 
-    return value
+    return this._cache.get(key)!.value
   }
 }
 

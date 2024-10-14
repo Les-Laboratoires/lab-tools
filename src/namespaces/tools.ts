@@ -50,10 +50,7 @@ export async function getUser(user: { id: string }, force?: true) {
       .onConflict("id")
       .merge()
 
-    return userCache.set(
-      [user.id],
-      (await users.query.where("id", user.id).first())!,
-    )
+    return userCache.fetch(user.id)
   }
 
   return userInDb
@@ -74,21 +71,14 @@ export async function getGuild(
   guild: { id: string },
   options?: { forceExists?: true; forceFetch?: boolean },
 ): Promise<Guild | undefined> {
-  if (options?.forceFetch)
-    return guildCache.set(
-      [guild.id],
-      await guilds.query.where("id", guild.id).first(),
-    )
+  if (options?.forceFetch) return guildCache.fetch(guild.id)
 
   const config = await guildCache.get(guild.id)
 
   if (options?.forceExists && !config) {
     await guilds.query.insert({ id: guild.id })
 
-    return guildCache.set(
-      [guild.id],
-      (await guilds.query.where("id", guild.id).first())!,
-    )
+    return guildCache.fetch(guild.id)
   }
 
   return config

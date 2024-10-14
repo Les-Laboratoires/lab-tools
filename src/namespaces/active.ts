@@ -31,7 +31,7 @@ export async function fetchActiveMembers(
     )
     .groupBy("author_id")
     .havingRaw(`count(*) >= ${messageCount}`)
-    .orderByRaw("messageCount desc")
+    .orderByRaw('"messageCount" desc')
 }
 
 export async function updateActive(

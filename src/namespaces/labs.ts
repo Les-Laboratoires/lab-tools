@@ -14,7 +14,7 @@ export async function updateLabsInAffiliationChannels(
   message: app.GuildMessage,
   packSize: number,
 ) {
-  const labs = await allLabsCache.get()
+  const labs = await allLabsCache.fetch()
 
   const pages = app.divider(labs, packSize)
 
