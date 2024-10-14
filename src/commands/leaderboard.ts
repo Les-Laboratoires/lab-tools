@@ -29,11 +29,21 @@ export default new app.Command({
         fetchLineCount() {
           return userTable.count()
         },
-        fetchLines(options) {
+        async fetchLines(options) {
           return userTable.query
-            .select("coins", "rank() over (order by coins desc) as rank")
+            .select(
+              "coins",
+              app.database.raw('rank() over (order by coins desc) as "rank"'),
+            )
             .limit(options.pageLineCount)
             .offset(options.pageIndex * options.pageLineCount)
+            .then(
+              (rows) =>
+                rows as unknown as {
+                  rank: number
+                  coins: number
+                }[],
+            )
         },
         formatLine(line) {
           return `${app.formatRank(line.rank)} ${line.coins} coins`
