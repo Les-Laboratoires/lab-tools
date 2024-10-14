@@ -33,9 +33,7 @@ export default new app.SlashCommand({
     return interaction.editReply(
       await app.getSystemMessage(
         "success",
-        `Successfully purged ${amount} messages.\nThis message will be deleted <t:${
-          Math.floor(Date.now() / 1000) + 5
-        }:R>`,
+        `Successfully purged ${amount} messages.`,
       ),
     )
   },
