@@ -24,17 +24,19 @@ export default new app.Command({
       app.ratingLadder(guild._id),
       app.pointLadder,
       app.activeLadder(guild._id),
-      new app.Ladder<{ rank: number; coins: number }>({
+      new app.Ladder<{ rank: number; coins: number; user_id: string }>({
         title: "Coins",
         fetchLineCount() {
-          return userTable.count()
+          return userTable.count('"coins" > 0')
         },
         async fetchLines(options) {
           return userTable.query
             .select(
               "coins",
               app.database.raw('rank() over (order by coins desc) as "rank"'),
+              "id as user_id",
             )
+            .where("coins", ">", 0)
             .limit(options.pageLineCount)
             .offset(options.pageIndex * options.pageLineCount)
             .then(
@@ -42,11 +44,12 @@ export default new app.Command({
                 rows as unknown as {
                   rank: number
                   coins: number
+                  user_id: string
                 }[],
             )
         },
         formatLine(line) {
-          return `${app.formatRank(line.rank)} ${line.coins} coins`
+          return `${app.formatRank(line.rank)} ${line.coins} coins - ${app.userMention(line.user_id)}`
         },
       }),
     ]
