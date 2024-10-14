@@ -26,14 +26,16 @@ export default new app.SlashCommand({
       })
     }
 
-    await interaction.deferReply()
+    await interaction.deferReply({ ephemeral: true })
 
-    await interaction.channel.bulkDelete(amount + 1, true)
+    await interaction.channel.bulkDelete(amount, true)
 
     return interaction.editReply(
       await app.getSystemMessage(
         "success",
-        `Successfully purged ${amount} messages`,
+        `Successfully purged ${amount} messages.\nThis message will be deleted <t:${
+          Math.floor(Date.now() / 1000) + 5
+        }:R>`,
       ),
     )
   },
