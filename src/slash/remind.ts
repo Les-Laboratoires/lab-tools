@@ -64,17 +64,14 @@ export default new app.SlashCommand({
     const duration = interaction.options.getNumber("duration", true)
     const durationType = interaction.options.getString("duration-type", true)
 
-    const remindAt = app
-      .dayjs()
-      .add(duration, durationType as ManipulateType)
-      .valueOf()
+    const remindDate = app.dayjs().add(duration, durationType as ManipulateType)
 
-    await app.addRemind(user._id, message, remindAt)
+    await app.addRemind(user._id, message, remindDate.valueOf())
 
     await interaction.editReply(
       await app.getSystemMessage(
         "success",
-        `Successfully set your reminder!\nI will remind you at the specified time.<t:${remindAt / 1000}:R>`,
+        `Successfully set your reminder!\nI will remind you at the specified time.\n<t:${remindDate.unix()}:R>`,
       ),
     )
   },
