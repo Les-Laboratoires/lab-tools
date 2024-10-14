@@ -103,16 +103,20 @@ export default new app.Command({
 
     new app.StaticPaginator({
       target: message.channel,
-      pages: app.divider(logs, 10).map((page, index, pages) =>
-        app.getSystemMessage("success", {
-          header: `Added ${logs.length} elders`,
-          body: page
-            .sort((a, b) => b.years - a.years)
-            .map((log) => `\`${log.years}\` years old: **${log.username}**`)
-            .join("\n"),
-          footer: `Page ${index + 1} / ${pages.length}`,
-        }),
-      ),
+      pages: app
+        .divider(
+          logs.toSorted((a, b) => b.years - a.years),
+          10,
+        )
+        .map((page, index, pages) =>
+          app.getSystemMessage("success", {
+            header: `Added ${logs.length} elders`,
+            body: page
+              .map((log) => `\`${log.years}\` years old: **${log.username}**`)
+              .join("\n"),
+            footer: `Page ${index + 1} / ${pages.length}`,
+          }),
+        ),
     })
 
     used = false

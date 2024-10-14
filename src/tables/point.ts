@@ -1,6 +1,6 @@
 import { Table } from "@ghom/orm"
 
-import { addCreatedAt } from "../namespaces/date.ts"
+import { addCreatedAt } from "#src/namespaces/date.ts"
 
 export interface Point {
   to_id: number
