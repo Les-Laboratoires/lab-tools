@@ -1,5 +1,7 @@
 import * as app from "#app"
 
+import userTable from "#tables/user.ts"
+
 export default new app.Command({
   name: "leaderboard",
   aliases: ["lb", "ladder", "top", "rank"],
@@ -22,6 +24,21 @@ export default new app.Command({
       app.ratingLadder(guild._id),
       app.pointLadder,
       app.activeLadder(guild._id),
+      new app.Ladder<{ rank: number; coins: number }>({
+        title: "Coins",
+        fetchLineCount() {
+          return userTable.count()
+        },
+        fetchLines(options) {
+          return userTable.query
+            .select("coins", "rank() over (order by coins desc) as rank")
+            .limit(options.pageLineCount)
+            .offset(options.pageIndex * options.pageLineCount)
+        },
+        formatLine(line) {
+          return `${app.formatRank(line.rank)} ${line.coins} coins`
+        },
+      }),
     ]
 
     return message.channel.send({
