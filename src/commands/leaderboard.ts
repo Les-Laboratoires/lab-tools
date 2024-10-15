@@ -48,8 +48,12 @@ export default new app.Command({
                 }[],
             )
         },
-        formatLine(line) {
-          return `${app.formatRank(line.rank)} ${line.coins} coins - ${app.userMention(line.user_id)}`
+        formatLine(line, _, lines) {
+          return `${app.formatRank(line.rank)} \`${app.forceTextSize(
+            line.coins,
+            Math.max(...lines.map((l) => String(l.coins).length)),
+            true,
+          )}\` coins - ${app.userMention(line.user_id)}`
         },
       }),
     ]
