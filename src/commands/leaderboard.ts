@@ -67,7 +67,7 @@ export default new app.Command({
               value:
                 (await ladder.fetchPage({
                   pageIndex: 0,
-                  pageLineCount: 15,
+                  pageLineCount: message.args.lines,
                 })) || `${app.emote(message, "Cross")} No ladder available`,
               inline: false,
             })),
