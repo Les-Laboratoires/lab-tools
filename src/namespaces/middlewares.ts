@@ -5,8 +5,9 @@ import * as tools from "../namespaces/tools.ts"
 import { Guild } from "#tables/guild.ts"
 import labs from "#tables/lab.ts"
 
-export function staffOnly(): command.Middleware<"guild"> {
-  return async function staffOnly(message, data) {
+export const staffOnly = new command.Middleware<"guild">(
+  "Staff only",
+  async function staffOnly(message, data) {
     const config = await tools.getGuild(message.guild)
 
     if (!config?.staff_role_id)
@@ -21,11 +22,14 @@ export function staffOnly(): command.Middleware<"guild"> {
         "You must be a member of staff.",
       data,
     }
-  }
-}
+  },
+)
 
-export function hasConfigKey(key: keyof Guild): command.Middleware<"guild"> {
-  return async function hasConfigKey(message, data) {
+export const hasConfigKey = (key: keyof Guild) =>
+  new command.Middleware<"guild">(`Has ${key} key`, async function hasConfigKey(
+    message,
+    data,
+  ) {
     const config = await tools.getGuild(message.guild)
 
     if (!config?.[key])
@@ -38,22 +42,21 @@ export function hasConfigKey(key: keyof Guild): command.Middleware<"guild"> {
       result: true,
       data,
     }
-  }
-}
+  })
 
-export function isNotInUse(
+export const isNotInUse = (
   inUse: () => boolean,
-): command.Middleware<"all" | "guild" | "dm"> {
-  return async function isNotInUse(message, data) {
+): command.Middleware<"all" | "guild" | "dm"> =>
+  new command.Middleware("Is not in use", async function isNotInUse(_, data) {
     return {
       result: !inUse() || "Command is already in use.",
       data,
     }
-  }
-}
+  })
 
-export function labOnly(): command.Middleware<"guild"> {
-  return async function labOnly(message, data) {
+export const labOnly = new command.Middleware<"guild">(
+  "Lab only",
+  async function labOnly(message, data) {
     const config = await tools.getGuild(message.guild)
 
     if (!config)
@@ -71,5 +74,5 @@ export function labOnly(): command.Middleware<"guild"> {
       result: !!lab || "This command can only be used in a lab.",
       data,
     }
-  }
-}
+  },
+)

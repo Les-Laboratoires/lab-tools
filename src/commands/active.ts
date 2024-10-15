@@ -7,7 +7,7 @@ export default new app.Command({
   description: "Update the active list",
   channelType: "guild",
   middlewares: [
-    app.staffOnly(),
+    app.staffOnly,
     app.hasConfigKey("active_role_id"),
     app.isNotInUse(() => used),
   ],

@@ -12,7 +12,7 @@ const listener: app.Listener<"messageCreate"> = {
   async run(message) {
     if (config.ignoreBots && message.author.bot) return
 
-    if (!app.isNormalMessage(message)) return
+    if (!app.isAnyMessage(message)) return
 
     const prefix = config.getPrefix
       ? await config.getPrefix(message)
@@ -153,7 +153,7 @@ const listener: app.Listener<"messageCreate"> = {
       app.error(error, cmd.filepath!, true)
 
       message.channel
-        .send(await app.getSystemMessage("error", error))
+        .send(await app.getSystemMessage("error", error, { stack: true }))
         .catch((error) => {
           app.error(error, cmd!.filepath!, true)
         })

@@ -19,7 +19,7 @@ function todoItem(todo: ToDo) {
 }
 
 async function showTodoList(
-  message: app.NormalMessage,
+  message: app.UnknownMessage,
   user: User,
   perPage = 10,
 ) {

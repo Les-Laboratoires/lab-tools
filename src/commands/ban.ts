@@ -4,7 +4,7 @@ export default new app.Command({
   name: "ban",
   description: "Ban a user from all labs",
   channelType: "guild",
-  middlewares: [app.staffOnly(), app.labOnly()],
+  middlewares: [app.staffOnly, app.labOnly],
   positional: [
     {
       name: "target",

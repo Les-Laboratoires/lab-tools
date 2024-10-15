@@ -8,7 +8,7 @@ export default new app.Command({
   description: "Fetch the new elders of the server",
   channelType: "guild",
   middlewares: [
-    app.staffOnly(),
+    app.staffOnly,
     app.hasConfigKey("elders_role_pattern"),
     app.isNotInUse(() => used),
   ],

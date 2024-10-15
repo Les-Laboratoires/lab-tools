@@ -14,7 +14,7 @@ export default new app.Command({
       name: "set",
       description: "Set auto role list",
       channelType: "guild",
-      middlewares: [app.staffOnly()],
+      middlewares: [app.staffOnly],
       positional: [
         {
           name: "roles",
@@ -54,7 +54,7 @@ export default new app.Command({
       name: "add",
       description: "Add auto role",
       channelType: "guild",
-      middlewares: [app.staffOnly()],
+      middlewares: [app.staffOnly],
       positional: [
         {
           name: "role",
@@ -125,7 +125,7 @@ export default new app.Command({
     new app.Command({
       name: "apply",
       description: "Apply auto-roles to member",
-      middlewares: [app.staffOnly()],
+      middlewares: [app.staffOnly],
       channelType: "guild",
       positional: [
         {

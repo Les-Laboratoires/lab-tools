@@ -11,7 +11,7 @@ export const allLabsCache = new app.ResponseCache(
  * @Todo use forum channels instead...
  */
 export async function updateLabsInAffiliationChannels(
-  message: app.GuildMessage,
+  message: app.UnknownMessage,
   packSize: number,
 ) {
   const labs = await allLabsCache.fetch()

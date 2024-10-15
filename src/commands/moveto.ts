@@ -6,7 +6,7 @@ export default new app.Command({
   channelType: "guild",
   aliases: ["move", "mt", "mv"],
   botPermissions: ["ManageWebhooks", "ManageMessages"],
-  middlewares: [app.middlewares.staffOnly()],
+  middlewares: [app.middlewares.staffOnly],
   cooldown: {
     duration: 10000,
     type: app.CooldownType.ByGuild,
