@@ -35,17 +35,17 @@ const listener: app.Listener<"afterReady"> = {
               .select("to_id")
               .avg("value as rating")
               .groupBy("to_id")
-              .as("note_totals"),
-            "note_totals.to_id",
+              .as("notes"),
+            "notes.to_id",
             "user._id",
           )
           .leftJoin(
             noteTable.query
               .select("from_id")
-              .count("* as givenNotes")
+              .count({ total: "*" })
               .groupBy("from_id")
-              .as("note_totals"),
-            "note_totals.from_id",
+              .as("given_notes"),
+            "given_notes.from_id",
             "user._id",
           )
           .leftJoin("active", "active.user_id", "user._id")
@@ -62,13 +62,14 @@ const listener: app.Listener<"afterReady"> = {
             "user._id",
             "user.coins",
             "point_totals.points",
-            "note_totals.rating",
+            "notes.rating",
+            "given_notes.total as givenNotes",
             "active.user_id as active",
             "message_totals.messages",
           )
           .where("point_totals.points", ">", 0)
-          .or.where("note_totals.rating", ">", 0)
-          .or.where("note_totals.givenNotes", ">", 0)
+          .or.where("notes.rating", ">", 0)
+          .or.where("givenNotes", ">", 0)
           .or.where("message_totals.messages", ">", 0)
           .or.where("active.user_id", "is not", null)
 
