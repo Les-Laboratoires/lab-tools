@@ -1,5 +1,7 @@
 import * as app from "#app"
 
+import guildTable from "#tables/guild.ts"
+
 let used = false
 
 export default new app.Command({
@@ -23,7 +25,6 @@ export default new app.Command({
       name: "period",
       description: "The period to check (in hours)",
       type: "number",
-      default: 24 * 7 * 3, // 3 week
       validate: (value) => value > 0,
       validationErrorMessage: "The period must be greater than 0.",
     }),
@@ -32,7 +33,6 @@ export default new app.Command({
       aliases: ["count"],
       description: "The minimum message count",
       type: "number",
-      default: 50,
       validate: (value) => value > 0,
       validationErrorMessage: "The period must be greater than 0.",
     }),
@@ -49,10 +49,17 @@ export default new app.Command({
       `${app.emote(message, "Loading")} Fetching members...`,
     )
 
+    if (message.args.period || message.args.messageCount) {
+      await guildTable.query.where("id", message.guild.id).update({
+        active_period: `${message.args.period ?? config.active_period}`,
+        active_message_count: `${message.args.messageCount ?? config.active_message_count}`,
+      })
+    }
+
     await app.updateActive(message.guild, {
       force: message.args.force,
-      period: message.args.period,
-      messageCount: message.args.messageCount,
+      period: message.args.period ?? +config.active_period,
+      messageCount: message.args.messageCount ?? +config.active_message_count,
       onLog: (text) => waiting.edit(text),
       guildConfig: config,
     })

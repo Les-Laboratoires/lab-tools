@@ -48,7 +48,7 @@ export default new Table<Guild>({
     },
     2: (table) => {
       table.string("active_period").defaultTo(String(24 * 7 * 3)) // 3 weeks
-      table.string("active_message_count").defaultTo(String(50))
+      table.string("active_message_count").defaultTo(String(10))
     },
     3: (table) => {
       table.string("active_refresh_interval").defaultTo(String(2)) // 2 hours

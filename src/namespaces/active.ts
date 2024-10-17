@@ -21,15 +21,16 @@ export async function fetchActiveMembers(
   }[]
 > {
   return message.query
-    .select("author_id as target")
+    .select("u.id as target")
     .count({ messageCount: "*" })
+    .leftJoin("user as u", "message.author_id", "u._id")
     .where("guild_id", guild_id)
-    .and.where(
+    .where(
       "created_at",
       ">",
       app.database.raw(`now() - interval '1 hour' * ${period}`),
     )
-    .groupBy("author_id")
+    .groupBy("u.id")
     .havingRaw(`count(*) >= ${messageCount}`)
     .orderByRaw('"messageCount" desc')
 }
@@ -182,7 +183,6 @@ export async function updateActive(
 }
 
 /**
- * @fixme
  * @param guild_id
  * @param period
  */
@@ -195,11 +195,9 @@ export async function hasActivity(
       message.query
         .leftJoin("user", "message.author_id", "user._id")
         .where("message.guild_id", guild_id)
-        .andWhere("user.is_bot", false)
-        .andWhere(
-          app.database.raw(
-            `extract(epoch from now()) - extract(epoch from message.created_at) < ${period} * 3600`,
-          ),
+        .where("user.is_bot", false)
+        .whereRaw(
+          `extract(epoch from now()) - extract(epoch from message.created_at) < ${period} * 3600`,
         ),
     )
     .then((count) => count > 0)
