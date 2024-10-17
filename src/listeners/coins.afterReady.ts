@@ -68,6 +68,9 @@ const listener: app.Listener<"afterReady"> = {
           )
           .where("point_totals.points", ">", 0)
           .or.where("note_totals.rating", ">", 0)
+          .or.where("note_totals.givenNotes", ">", 0)
+          .or.where("message_totals.messages", ">", 0)
+          .or.where("active.user_id", "is not", null)
 
         // update the coins of each user
         await userTable.query
