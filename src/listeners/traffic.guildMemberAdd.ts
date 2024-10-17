@@ -48,7 +48,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
             config.member_welcome_direct_message,
             app.embedReplacers(member),
           )
-        } catch (error) {}
+        } catch {}
       }
 
       if (config.general_channel_id && config.member_welcome_message) {
@@ -72,7 +72,7 @@ const listener: app.Listener<"guildMemberAdd"> = {
 
           if (message.channel.isSendable())
             await app.sendLabList(message.channel, 10)
-        } catch (error) {}
+        } catch {}
       }
     }
 

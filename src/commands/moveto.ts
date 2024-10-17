@@ -31,7 +31,7 @@ export default new app.Command({
 
     try {
       await message.delete()
-    } catch (e) {}
+    } catch {}
 
     if (!destination.isTextBased())
       return await message.channel.send(
@@ -139,7 +139,7 @@ export default new app.Command({
           embeds: m.embeds,
           files: m.attachments.map((a) => a.url),
         })
-      } catch (e) {
+      } catch {
         messages.splice(messages.indexOf(m), 1)
       }
     }
@@ -150,13 +150,13 @@ export default new app.Command({
 
     try {
       await message.channel.bulkDelete(messages)
-    } catch (e) {}
+    } catch {}
 
     for (const { client, webhook } of webhooks.values()) {
       client.destroy()
       try {
         await webhook.delete()
-      } catch (e) {}
+      } catch {}
     }
 
     await view.edit(

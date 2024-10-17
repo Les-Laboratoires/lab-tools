@@ -33,7 +33,7 @@ export default new app.Command({
       const member = await message.guild.members.fetch(user.id)
 
       name = member.displayName
-    } catch (error) {}
+    } catch {}
 
     const webhook = await message.channel.createWebhook({
       name,

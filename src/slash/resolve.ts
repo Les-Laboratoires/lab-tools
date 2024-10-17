@@ -44,7 +44,7 @@ export default new app.SlashCommand({
     if (resolved_channel_tag) {
       try {
         await topic.setAppliedTags([resolved_channel_tag])
-      } catch (err) {}
+      } catch {}
     }
 
     return interaction.reply({

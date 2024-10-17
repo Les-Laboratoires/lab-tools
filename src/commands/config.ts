@@ -207,7 +207,7 @@ export default new app.Command({
         let json: object | null = null
         try {
           if (!/^\d+$/.test(String(value))) json = JSON.parse(String(value))
-        } catch (error) {}
+        } catch {}
 
         return message.channel.send({
           embeds: [

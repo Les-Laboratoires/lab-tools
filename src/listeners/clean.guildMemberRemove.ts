@@ -21,7 +21,7 @@ const listener: app.Listener<"guildMemberRemove"> = {
         throw new Error()
 
       await app.sendLog(guild, `${user} left the guild.`, config)
-    } catch (error) {
+    } catch {
       await users.query.delete().where({ id: member.id })
 
       await app.sendLog(

@@ -15,6 +15,8 @@ const { dirname } = await __importOrInstall("dirname-filename-esm")
 
 const __dirname = dirname(import.meta)
 
+const warnings = []
+
 async function __importOrInstall(
   packageName,
   importDefault = false,
@@ -213,7 +215,6 @@ async function _build() {
   PluginError = await __importOrInstall("plugin-error", true, true)
   const esbuild = await __importOrInstall("gulp-esbuild", true, true)
 
-  // eslint-disable-next-line no-undef
   // process.traceDeprecation = true
   return gulp
     .src("src/**/*.ts")
@@ -267,9 +268,9 @@ function _overrideNativeFiles() {
         "temp/src/index.ts",
         "temp/.gitattributes",
         "temp/.gitignore",
-        "temp/.eslintrc.json",
         "temp/Dockerfile",
         "temp/compose.yml",
+        "temp/eslint.config.mjs",
         "temp/.github/workflows/**/*.native.*",
         "temp/template.env",
         "temp/template.md",
@@ -367,6 +368,10 @@ async function _removeDuplicates() {
   const vinyl = await __importOrInstall("vinyl-paths", true, true)
   const del = await __importOrInstall("del@6.1.1", true, true)
 
+  if (fs.existsSync(".eslintrc.json")) {
+    fs.unlinkSync(".eslintrc.json")
+  }
+
   return gulp
     .src([
       "src/**/*.native.ts",
@@ -408,6 +413,14 @@ async function _optimize() {
       { allowEmpty: true },
     )
     .pipe(vinyl(del))
+}
+
+function _showWarnings(cb) {
+  for (const warning of warnings) {
+    log(`Warning  ${util.styleText("red", `'${warning}'`)}`)
+  }
+
+  cb()
 }
 
 async function _generateReadme(cb) {
@@ -522,4 +535,5 @@ export const update = gulp.series(
   _updateDatabaseFile,
   _gitLog,
   _cleanTemp,
+  _showWarnings,
 )
