@@ -148,25 +148,25 @@ export async function refreshHelpingFooter(topic: app.ThreadChannel) {
     return +rankA - +rankB
   })
 
-  const lastBotMessage = Array.from(lastMessages.values()).find(
-    (m) => m.author.id === topic.client.user.id && !m.system,
-  )
+  const lastBotMessages = Array.from(lastMessages.values())
+    .filter((m) => m.author.id === topic.client.user.id && !m.system)
+    .slice(3)
 
   try {
-    if (lastBotMessage) await lastBotMessage.delete()
-
-    const topicState = await helping.query.where("id", topic.id).first()
-
-    if (
-      topicState?.resolved &&
-      topicState.rewarded_helper_ids.split(";").filter((id) => id !== "")
-        .length >= helpers.size
-    ) {
-      await topic.setLocked(true)
-    }
-
-    await topic.send(
-      buildHelpingFooterEmbed(bestHelpers.slice(0, 5), helped, topicState),
-    )
+    await topic.bulkDelete(lastBotMessages)
   } catch {}
+
+  const topicState = await helping.query.where("id", topic.id).first()
+
+  if (
+    topicState?.resolved &&
+    topicState.rewarded_helper_ids.split(";").filter((id) => id !== "")
+      .length >= helpers.size
+  ) {
+    await topic.setLocked(true)
+  }
+
+  await topic.send(
+    buildHelpingFooterEmbed(bestHelpers.slice(0, 5), helped, topicState),
+  )
 }
