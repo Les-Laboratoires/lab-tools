@@ -153,7 +153,9 @@ export async function refreshHelpingFooter(topic: app.ThreadChannel) {
     .slice(3)
 
   try {
-    await topic.bulkDelete(lastBotMessages)
+    for (const message of lastBotMessages) {
+      await message.delete()
+    }
   } catch {}
 
   const topicState = await helping.query.where("id", topic.id).first()
