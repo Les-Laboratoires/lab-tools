@@ -144,7 +144,7 @@ export default config.options
 
 ### Points  
 
-- [interactionCreate](./src/listeners/points.interactionCreate.ts) - Handle points given for help quality  
+- [interactionCreate](./src/listeners/helping.point.interactionCreate.ts) - Handle points given for help quality  
 
 ### Restart  
 

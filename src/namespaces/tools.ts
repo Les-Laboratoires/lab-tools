@@ -69,7 +69,7 @@ export async function getGuild(
 ): Promise<Guild>
 export async function getGuild(
   guild: { id: string },
-  options?: { forceExists?: true; forceFetch?: boolean },
+  options?: { forceExists?: boolean; forceFetch?: boolean },
 ): Promise<Guild | undefined> {
   if (options?.forceFetch) return guildCache.fetch(guild.id)
 
@@ -111,15 +111,15 @@ export async function sendTemplatedEmbed(
   } catch (error: any) {
     if (error.message.includes("Invalid Form Body")) {
       return channel.send(
-        code.stringify({
+        (await code.stringify({
           lang: "js",
           content: error.message,
-        }) +
+        })) +
           " " +
-          code.stringify({
+          (await code.stringify({
             lang: "json",
             content: template,
-          }),
+          })),
       )
     }
     return channel.send(template)

@@ -29,38 +29,5 @@ export default new app.Command({
       ],
     })
   },
-  subs: [
-    app.pointLadder.generateCommand(),
-    new app.Command({
-      name: "ask",
-      channelType: "guild",
-      description: "Send a message for asking points",
-      positional: [
-        app.positional({
-          name: "member",
-          description: "The member you want to ask points",
-          required: true,
-          type: "member",
-          validate: (value, message) => value.id !== message?.member?.id,
-          validationErrorMessage: "You can't ask points to yourself.",
-        }),
-      ],
-      async run(message) {
-        await message.delete()
-
-        await message.channel.send(
-          await app.buildAskPointEmbed(
-            message.author,
-            message.args.member!,
-            message.guild,
-          ),
-        )
-
-        await app.sendLog(
-          message.guild,
-          `${message.author} ask points to ${message.args.member} in ${message.channel}.`,
-        )
-      },
-    }),
-  ],
+  subs: [app.pointLadder.generateCommand()],
 })

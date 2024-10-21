@@ -13,6 +13,7 @@ export interface Guild {
   auto_ban_channel_id: string | null
   meme_channel_id: string | null
   log_channel_id: string | null
+  help_forum_channel_id: string | null
   member_role_id: string | null
   staff_role_id: string | null
   bot_role_id: string | null
@@ -62,6 +63,9 @@ export default new Table<Guild>({
     6: (table) => {
       table.string("resolved_channel_indicator").defaultTo("✅")
       table.string("resolved_channel_tag")
+    },
+    7: (table) => {
+      table.string("help_forum_channel_id")
     },
   },
   setup: (table) => {

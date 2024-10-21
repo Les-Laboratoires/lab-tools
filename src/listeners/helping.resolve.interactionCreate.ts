@@ -1,23 +1,25 @@
 import * as app from "#app"
+import helping from "#tables/helping.ts"
 
-export default new app.SlashCommand({
-  name: "resolve",
-  description: "Mark as resolved a topic",
-  channelType: "thread",
+const listener: app.Listener<"interactionCreate"> = {
+  event: "interactionCreate",
+  description: "Handle the resolve button in a forum topic",
   async run(interaction) {
+    if (!interaction.channel?.isThread()) return
+    if (!interaction.isButton()) return
+    if (!interaction.guild) return
+
+    if (interaction.customId !== "resolve") return
+
+    await interaction.deferReply({ ephemeral: true })
+
     const topic = interaction.channel
     const forum = topic.parent
+    const guild = await app.getGuild(interaction.guild, { forceExists: true })
 
-    if (!interaction.guild)
-      return interaction.reply({
-        content: `${app.emote(topic, "Cross")} Only usable in a guild.`,
-        ephemeral: true,
-      })
-
-    if (!forum || !forum.isThreadOnly())
-      return interaction.reply({
+    if (!forum || forum.id !== guild.help_forum_channel_id)
+      return interaction.editReply({
         content: `${app.emote(topic, "Cross")} Only usable in a forum topic.`,
-        ephemeral: true,
       })
 
     if (
@@ -25,18 +27,16 @@ export default new app.SlashCommand({
       (interaction.member.user.id !== topic.ownerId &&
         !interaction.memberPermissions?.has("ManageThreads"))
     )
-      return interaction.reply({
+      return interaction.editReply({
         content: `${app.emote(topic, "Cross")} You must be the owner of the topic or have the \`ManageThreads\` permission to resolve it.`,
-        ephemeral: true,
       })
 
     const { resolved_channel_indicator, resolved_channel_tag } =
       await app.getGuild(interaction.guild, { forceExists: true })
 
     if (topic.name.startsWith(resolved_channel_indicator))
-      return interaction.reply({
+      return interaction.editReply({
         content: `${app.emote(topic, "Cross")} Topic is already resolved.`,
-        ephemeral: true,
       })
 
     await topic.setName(`${resolved_channel_indicator} ${topic.name}`)
@@ -47,9 +47,23 @@ export default new app.SlashCommand({
       } catch {}
     }
 
-    return interaction.reply({
+    await interaction.editReply({
       content: `${app.emote(topic, "CheckMark")} Thread marked as resolved.`,
-      ephemeral: true,
     })
+
+    await helping.query
+      .insert({
+        id: topic.id,
+        resolved: true,
+      })
+      .onConflict("id")
+      .merge()
+
+    // on clôture le topic pour éviter les nouveaux messages des membres, mais on le laisse ouvert pour les modérateurs
+    await topic.setLocked(true)
+
+    await app.refreshHelpingFooter(topic)
   },
-})
+}
+
+export default listener
