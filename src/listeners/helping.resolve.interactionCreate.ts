@@ -59,9 +59,6 @@ const listener: app.Listener<"interactionCreate"> = {
       .onConflict("id")
       .merge()
 
-    // on clôture le topic pour éviter les nouveaux messages des membres, mais on le laisse ouvert pour les modérateurs
-    await topic.setLocked(true)
-
     await app.refreshHelpingFooter(topic)
   },
 }
