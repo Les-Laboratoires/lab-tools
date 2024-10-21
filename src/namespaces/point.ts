@@ -150,13 +150,13 @@ export async function refreshHelpingFooter(topic: app.ThreadChannel) {
 
   const lastBotMessages = Array.from(lastMessages.values())
     .filter((m) => m.author.id === topic.client.user.id && !m.system)
-    .slice(3)
+    .slice(0, 3)
 
   try {
-    for (const message of lastBotMessages) {
-      await message.delete()
-    }
-  } catch {}
+    await topic.bulkDelete(lastBotMessages)
+  } catch (error) {
+    app.error(error as Error)
+  }
 
   const topicState = await helping.query.where("id", topic.id).first()
 
