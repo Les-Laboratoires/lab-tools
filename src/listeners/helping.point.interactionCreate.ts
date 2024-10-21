@@ -8,6 +8,7 @@ const listener: app.Listener<"interactionCreate"> = {
   description: "Handle points given for help quality",
   async run(interaction) {
     if (!app.cache.ensure<boolean>("turn", true)) return
+
     if (!interaction.guild) return
     if (!interaction.isButton()) return
     if (!interaction.channel?.isThread()) return

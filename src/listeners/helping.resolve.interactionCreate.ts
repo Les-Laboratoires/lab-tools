@@ -5,6 +5,8 @@ const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
   description: "Handle the resolve button in a forum topic",
   async run(interaction) {
+    if (!app.cache.ensure<boolean>("turn", true)) return
+
     if (!interaction.channel?.isThread()) return
     if (!interaction.isButton()) return
     if (!interaction.guild) return

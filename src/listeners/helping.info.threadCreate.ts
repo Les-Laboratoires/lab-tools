@@ -4,6 +4,8 @@ const listener: app.Listener<"threadCreate"> = {
   event: "threadCreate",
   description: "A threadCreate listener for helping.info",
   async run(thread) {
+    if (!app.cache.ensure<boolean>("turn", true)) return
+
     if (!thread.guild) return
     if (!thread.parent) return
 

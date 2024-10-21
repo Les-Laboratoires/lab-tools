@@ -4,6 +4,8 @@ const listener: app.Listener<"messageCreate"> = {
   event: "messageCreate",
   description: "Handle messages in the help forum channels",
   async run(message) {
+    if (!app.cache.ensure<boolean>("turn", true)) return
+
     if (message.author.bot) return
     if (!message.guild) return
     if (!message.channel.isThread()) return

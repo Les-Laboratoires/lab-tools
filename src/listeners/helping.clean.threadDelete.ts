@@ -5,6 +5,8 @@ const listener: app.Listener<"threadDelete"> = {
   event: "threadDelete",
   description: "Clean up the helping table when a thread is deleted",
   async run(channel) {
+    if (!app.cache.ensure<boolean>("turn", true)) return
+
     if (!channel.parent) return
 
     const guild = await app.getGuild(channel.guild)

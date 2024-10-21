@@ -10,6 +10,8 @@ const listener: app.Listener<"interactionCreate"> = {
   event: "interactionCreate",
   description: "Up the topic by using a silent notification",
   async run(interaction) {
+    if (!app.cache.ensure<boolean>("turn", true)) return
+
     if (!interaction.isButton()) return
     if (interaction.customId !== "up") return
     if (!interaction.channel?.isThread()) return
@@ -40,6 +42,11 @@ const listener: app.Listener<"interactionCreate"> = {
     } else {
       await helping.query.where("id", topic.id).update({ last_up: Date.now() })
     }
+
+    await interaction.followUp({
+      content: `${app.emote(interaction, "CheckMark")} Topic upped.`,
+      ephemeral: true,
+    })
 
     await app.refreshHelpingFooter(topic)
   },

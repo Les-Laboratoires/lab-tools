@@ -45,8 +45,21 @@ export const pointLadder = new app.Ladder<PointLadderLine>({
   },
 })
 
+export function getPointRank(user: app.User): Promise<{ rank: string }> {
+  return point.query
+    .select([
+      app.database.raw(
+        'rank() over (order by sum("point"."amount") desc) as "rank"',
+      ),
+    ])
+    .leftJoin("user", "point.to_id", "user._id")
+    .where("user.id", user.id)
+    .groupBy("point.to_id")
+    .first()
+}
+
 export function buildHelpingFooterEmbed(
-  helpers: Set<app.User>,
+  helpers: app.User[],
   helped: { id: string },
   topicState: Helping | undefined,
 ): app.SystemMessage {
@@ -88,8 +101,8 @@ export function buildHelpingFooterEmbed(
           topicState?.resolved
             ? topicState.rewarded_helper_ids
                 .split(";")
-                .filter((id) => id !== "").length >= helpers.size
-              ? helpers.size > 0
+                .filter((id) => id !== "").length >= helpers.length
+              ? helpers.length > 0
                 ? "Merci pour vos retours ! Ouvrez un nouveau topic si besoin."
                 : "Ouvrez un nouveau topic si besoin."
               : "Vous avez été bien aidé ?\nDans ce cas, remerciez le ou les membres qui vous ont aidé 😉"
@@ -121,6 +134,20 @@ export async function refreshHelpingFooter(topic: app.ThreadChannel) {
       .filter((u) => !u.bot && u.id !== helped.id),
   )
 
+  const ranks = await Promise.all(
+    Array.from(helpers).map(async (helper) => ({
+      ...helper,
+      ...(await getPointRank(helper)),
+    })),
+  )
+
+  const bestHelpers = Array.from(helpers).sort((a, b) => {
+    const rankA = ranks.find((r) => r.id === a.id)?.rank ?? Infinity
+    const rankB = ranks.find((r) => r.id === b.id)?.rank ?? Infinity
+
+    return +rankA - +rankB
+  })
+
   const lastBotMessage = Array.from(lastMessages.values()).find(
     (m) => m.author.id === topic.client.user.id && !m.system,
   )
@@ -138,6 +165,8 @@ export async function refreshHelpingFooter(topic: app.ThreadChannel) {
       await topic.setLocked(true)
     }
 
-    await topic.send(buildHelpingFooterEmbed(helpers, helped, topicState))
+    await topic.send(
+      buildHelpingFooterEmbed(bestHelpers.slice(0, 5), helped, topicState),
+    )
   } catch {}
 }
