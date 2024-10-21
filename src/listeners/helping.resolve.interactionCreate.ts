@@ -39,7 +39,7 @@ const listener: app.Listener<"interactionCreate"> = {
         content: `${app.emote(topic, "Cross")} Topic is already resolved.`,
       })
 
-    await topic.setName(`${resolved_channel_indicator} ${topic.name}`)
+    await topic.setName(`${resolved_channel_indicator} ${topic.name} [RÉSOLU]`)
 
     if (resolved_channel_tag) {
       try {
