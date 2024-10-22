@@ -29,6 +29,13 @@ export default new app.Button<GivePointsButtonParams>({
         )} You can't give points to yourself.`,
       })
 
+    const topic = interaction.channel
+
+    if (fromId !== topic.ownerId)
+      return await interaction.editReply({
+        content: `${app.emote(interaction, "Cross")} You can't give points to a user in a topic that you don't own.`,
+      })
+
     const fromUser = await app.getUser({ id: fromId }, true)
     const toUser = await app.getUser({ id: toId }, true)
 
@@ -45,7 +52,9 @@ export default new app.Button<GivePointsButtonParams>({
     )
 
     await interaction.editReply({
-      content: `${app.emote(interaction, "CheckMark")} Successfully rated.`,
+      content: `${app.emote(interaction, "CheckMark")} Successfully thanked ${app.userMention(
+        toId,
+      )}`,
     })
 
     const target = await interaction.client.users.fetch(toId, {

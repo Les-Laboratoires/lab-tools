@@ -64,7 +64,6 @@ export function getPointRank(user: app.User): Promise<{ rank: string }> {
 
 export function buildHelpingFooterEmbed(
   helpers: app.User[],
-  helped: { id: string },
   topicState: Helping | undefined,
 ): app.SystemMessage {
   const components = topicState?.resolved
@@ -76,7 +75,7 @@ export function buildHelpingFooterEmbed(
         })
         .map((helper) => {
           return givePoints
-            .create(helped.id, 5)
+            .create(helper.id, 5)
             .setLabel(`Remercier ${helper.username}`)
         })
     : [upTopic.create(), resolveTopic.create()]
@@ -159,7 +158,5 @@ export async function refreshHelpingFooter(topic: app.ThreadChannel) {
     await topic.setLocked(true)
   }
 
-  await topic.send(
-    buildHelpingFooterEmbed(bestHelpers.slice(0, 5), helped, topicState),
-  )
+  await topic.send(buildHelpingFooterEmbed(bestHelpers.slice(0, 5), topicState))
 }
