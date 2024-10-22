@@ -68,6 +68,16 @@ export async function giveHourlyCoins() {
         .where("active.user_id", "is not", null)
         .andWhere("message_totals.messages", ">", 0),
     )
+    // Ajout de GROUP BY pour éviter les doublons
+    .groupBy(
+      "user._id",
+      "user.coins",
+      "point_totals.points",
+      "notes.rating",
+      "given_notes.total",
+      "active.user_id",
+      "message_totals.messages",
+    )
 
   // update the coins of each user
   await userTable.query
