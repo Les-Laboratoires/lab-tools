@@ -86,7 +86,7 @@ export default new app.Command({
             title: message.args.title,
           })
           .onConflict("guild_id")
-          .merge()
+          .merge(["url", "title"])
 
         return message.channel.send(
           `${app.emote(message, "CheckMark")} Successfully added **${

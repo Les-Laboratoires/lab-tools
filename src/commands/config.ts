@@ -167,7 +167,7 @@ export default new app.Command({
             [message.args.name]: message.rest.trim(),
           })
           .onConflict("id")
-          .merge()
+          .merge([message.args.name as keyof Guild])
 
         return message.channel.send(
           `${app.emote(message, "CheckMark")} Successfully updated \`${

@@ -85,5 +85,5 @@ export async function giveHourlyCoins() {
       })),
     )
     .onConflict("_id")
-    .merge()
+    .merge(["coins"])
 }

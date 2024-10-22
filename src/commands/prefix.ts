@@ -31,7 +31,7 @@ export default new app.Command({
         prefix: prefix,
       })
       .onConflict("id")
-      .merge()
+      .merge(["prefix"])
 
     await message.channel.send(
       `My new prefix for "**${message.guild}**" is \`${prefix}\``,

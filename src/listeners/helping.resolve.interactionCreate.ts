@@ -59,7 +59,7 @@ const listener: app.Listener<"interactionCreate"> = {
         resolved: true,
       })
       .onConflict("id")
-      .merge()
+      .merge(["resolved"])
 
     await app.refreshHelpingFooter(topic)
   },
