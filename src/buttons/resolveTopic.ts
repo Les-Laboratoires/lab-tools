@@ -1,23 +1,20 @@
 import * as app from "#app"
 import helping from "#tables/helping.ts"
 
-const listener: app.Listener<"interactionCreate"> = {
-  event: "interactionCreate",
-  description: "Handle the resolve button in a forum topic",
-  async run(interaction) {
-    if (!app.cache.ensure<boolean>("turn", true)) return
-
+export default new app.Button<[]>({
+  key: "resolveTopic",
+  description: "Mark the topic as resolved",
+  guildOnly: true,
+  builder: (builder) =>
+    builder.setLabel("Résolu").setStyle(app.ButtonStyle.Success).setEmoji("✅"),
+  async run(interaction /*, ...params */) {
     if (!interaction.channel?.isThread()) return
-    if (!interaction.isButton()) return
-    if (!interaction.guild) return
-
-    if (interaction.customId !== "resolve") return
 
     await interaction.deferReply({ ephemeral: true })
 
     const topic = interaction.channel
     const forum = topic.parent
-    const guild = await app.getGuild(interaction.guild, { forceExists: true })
+    const guild = await app.getGuild(interaction.guild!, { forceExists: true })
 
     if (!forum || forum.id !== guild.help_forum_channel_id)
       return interaction.editReply({
@@ -34,7 +31,7 @@ const listener: app.Listener<"interactionCreate"> = {
       })
 
     const { resolved_channel_indicator, resolved_channel_tag } =
-      await app.getGuild(interaction.guild, { forceExists: true })
+      await app.getGuild(interaction.guild!, { forceExists: true })
 
     if (topic.name.startsWith(resolved_channel_indicator))
       return interaction.editReply({
@@ -63,6 +60,4 @@ const listener: app.Listener<"interactionCreate"> = {
 
     await app.refreshHelpingFooter(topic)
   },
-}
-
-export default listener
+})

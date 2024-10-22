@@ -3,6 +3,10 @@ import * as app from "#app"
 import point from "#tables/point.ts"
 import helping, { Helping } from "#tables/helping.ts"
 
+import upTopic from "#buttons/upTopic.ts"
+import givePoints from "#buttons/givePoints.ts"
+import resolveTopic from "#buttons/resolveTopic.ts"
+
 export interface PointLadderLine {
   target: string
   score: number
@@ -71,24 +75,11 @@ export function buildHelpingFooterEmbed(
             : true
         })
         .map((helper) => {
-          return new app.ButtonBuilder()
-            .setCustomId(`point;5;${helped.id};${helper.id}`)
+          return givePoints
+            .create(helped.id, 5)
             .setLabel(`Remercier ${helper.username}`)
-            .setStyle(app.ButtonStyle.Primary)
-            .setEmoji("👍")
         })
-    : [
-        new app.ButtonBuilder()
-          .setCustomId("up")
-          .setLabel("Remonter")
-          .setStyle(app.ButtonStyle.Secondary)
-          .setEmoji("🆙"),
-        new app.ButtonBuilder()
-          .setCustomId("resolve")
-          .setLabel("Résolu")
-          .setStyle(app.ButtonStyle.Success)
-          .setEmoji("✅"),
-      ]
+    : [upTopic.create(), resolveTopic.create()]
 
   return {
     embeds: [

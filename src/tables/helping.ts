@@ -4,7 +4,6 @@ export interface Helping {
   id: string
   rewarded_helper_ids: string
   resolved: boolean
-  last_up: number
 }
 
 export default new Table<Helping>({
@@ -16,4 +15,5 @@ export default new Table<Helping>({
     table.boolean("resolved").defaultTo(false)
     table.bigInteger("last_up").defaultTo(0)
   },
+  migrations: [(builder) => builder.dropColumn("last_up")],
 })

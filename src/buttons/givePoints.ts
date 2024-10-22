@@ -1,37 +1,27 @@
 import * as app from "#app"
-
 import points from "#tables/point.ts"
 import helping from "#tables/helping.ts"
 
-const listener: app.Listener<"interactionCreate"> = {
-  event: "interactionCreate",
-  description: "Handle points given for help quality",
-  async run(interaction) {
-    if (!app.cache.ensure<boolean>("turn", true)) return
+export type GivePointsButtonParams = [toId: string, amount: number]
 
-    if (!interaction.guild) return
-    if (!interaction.isButton()) return
+export default new app.Button<GivePointsButtonParams>({
+  key: "givePoints",
+  description: "Gives some helping points to a user",
+  guildOnly: true,
+  builder: (builder) => builder.setEmoji("👍"),
+  async run(interaction, toId, amount) {
     if (!interaction.channel?.isThread()) return
-    if (!interaction.customId.startsWith("point")) return
 
     await interaction.deferReply({ ephemeral: true })
 
-    const guild = await app.getGuild(interaction.guild, { forceExists: true })
+    const guild = await app.getGuild(interaction.guild!, { forceExists: true })
 
     if (!guild.help_forum_channel_id) return
     if (interaction.channel.parentId !== guild.help_forum_channel_id) return
 
-    const [, amount, from_id, to_id] = interaction.customId.split(";")
+    const fromId = interaction.user.id
 
-    if (from_id !== interaction.user.id)
-      return await interaction.editReply({
-        content: `${app.emote(
-          interaction,
-          "Cross",
-        )} This button is not for you.`,
-      })
-
-    if (from_id === to_id)
+    if (fromId === toId)
       return await interaction.editReply({
         content: `${app.emote(
           interaction,
@@ -39,8 +29,8 @@ const listener: app.Listener<"interactionCreate"> = {
         )} You can't give points to yourself.`,
       })
 
-    const fromUser = await app.getUser({ id: from_id }, true)
-    const toUser = await app.getUser({ id: to_id }, true)
+    const fromUser = await app.getUser({ id: fromId }, true)
+    const toUser = await app.getUser({ id: toId }, true)
 
     await points.query.insert({
       from_id: fromUser._id,
@@ -50,15 +40,15 @@ const listener: app.Listener<"interactionCreate"> = {
     })
 
     await app.sendLog(
-      interaction.guild,
-      `${interaction.user} gave **${amount}** points to <@${to_id}> in ${interaction.channel}.`,
+      interaction.guild!,
+      `${interaction.user} gave **${amount}** points to ${app.userMention(toId)} in ${interaction.channel}.`,
     )
 
     await interaction.editReply({
       content: `${app.emote(interaction, "CheckMark")} Successfully rated.`,
     })
 
-    const target = await interaction.client.users.fetch(to_id, {
+    const target = await interaction.client.users.fetch(toId, {
       cache: false,
       force: true,
     })
@@ -79,12 +69,10 @@ const listener: app.Listener<"interactionCreate"> = {
     await helping.query.where("id", interaction.channel.id).update({
       rewarded_helper_ids:
         state && state.rewarded_helper_ids !== ""
-          ? [...state.rewarded_helper_ids.split(";"), to_id].join(";")
-          : to_id,
+          ? [...state.rewarded_helper_ids.split(";"), toId].join(";")
+          : toId,
     })
 
     await app.refreshHelpingFooter(interaction.channel)
   },
-}
-
-export default listener
+})
