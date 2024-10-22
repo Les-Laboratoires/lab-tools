@@ -30,11 +30,11 @@ export default new app.Command({
 
     try {
       const fundingFile = await fs.promises.readFile(
-        app.fullPath(".github/funding.yml"),
+        app.fullPath(".github", "funding.yml"),
         "utf-8",
       )
 
-      const match = /^buy_me_a_coffee: (.+)\n?$/.exec(fundingFile)
+      const match = /buy_me_a_coffee: (.+)\n?/.exec(fundingFile)
 
       if (match) fundingURL = `https://buymeacoffee.com/${match[1]}`
     } catch {}
@@ -157,7 +157,7 @@ export default new app.Command({
         new app.ButtonBuilder()
           .setLabel("Fund me")
           .setEmoji("💖")
-          .setStyle(app.ButtonStyle.Primary)
+          .setStyle(app.ButtonStyle.Link)
           .setURL(fundingURL),
       )
     }
