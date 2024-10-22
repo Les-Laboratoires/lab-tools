@@ -122,7 +122,7 @@ export default new app.Command({
           message.args.packSize,
         )
 
-        message.triggerCoolDown()
+        message.triggerCooldown()
       },
     }),
     new app.Command({

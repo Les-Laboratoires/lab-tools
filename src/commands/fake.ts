@@ -25,7 +25,7 @@ export default new app.Command({
   async run(message) {
     const user = message.args.target
 
-    message.triggerCoolDown()
+    message.triggerCooldown()
 
     let name = user.username
 

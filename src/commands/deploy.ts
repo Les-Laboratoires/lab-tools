@@ -17,7 +17,7 @@ export default new app.Command({
     type: app.CooldownType.Global,
   },
   async run(message) {
-    message.triggerCoolDown()
+    message.triggerCooldown()
 
     const commands: Command[] = [
       { state: "waiting", time: 0, cmd: "git reset --hard" },

@@ -74,7 +74,7 @@ export default new app.Command({
 
     // Trigger cooldown after the validation check
 
-    message.triggerCoolDown()
+    message.triggerCooldown()
 
     // Group the message authors
 

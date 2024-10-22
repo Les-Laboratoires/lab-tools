@@ -68,7 +68,7 @@
   },
   "devDependencies": {
     "@esbuild/linux-x64": "^0.24.0",
-    "@ghom/bot.ts-cli": "^8.1.4",
+    "@ghom/bot.ts-cli": "^8.2.0",
     "@types/boxen": "^3.0.1",
     "@types/cron": "^1.7.3",
     "@types/dotenv": "^8.2.0",
@@ -120,7 +120,8 @@
     "#client": "./dist/app/client.js",
     "#logger": "./dist/app/logger.js",
     "#database": "./dist/app/database.js",
-    "#src/*": "./dist/*"
+    "#src/*": "./dist/*",
+    "#buttons/*": "./dist/buttons/*"
   },
   "optionalDependencies": {
     "through2": "^4.0.2"
