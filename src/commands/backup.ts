@@ -27,15 +27,17 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        const backups = await fs.promises.readdir(
-          app.database.config.backups!.location!,
-        )
-
-        if (backups.includes(message.args.name)) {
-          return message.reply(
-            `${app.emote(message, "Cross")} Backup with that name already exists.`,
+        try {
+          const backups = await fs.promises.readdir(
+            app.database.config.backups!.location!,
           )
-        }
+
+          if (backups.includes(message.args.name)) {
+            return message.reply(
+              `${app.emote(message, "Cross")} Backup with that name already exists.`,
+            )
+          }
+        } catch {}
 
         await app.database.createBackup(message.args.name)
 
@@ -84,15 +86,21 @@ export default new app.Command({
       channelType: "all",
       botOwnerOnly: true,
       async run(message) {
-        const backups = await fs.promises.readdir(
-          app.database.config.backups!.location!,
-        )
+        try {
+          const backups = await fs.promises.readdir(
+            app.database.config.backups!.location!,
+          )
 
-        return message.reply(
-          backups.length
-            ? backups.join("\n")
-            : `${app.emote(message, "Cross")} No backups found.`,
-        )
+          return message.reply(
+            backups.length
+              ? backups.join("\n")
+              : `${app.emote(message, "Cross")} No backups found.`,
+          )
+        } catch {
+          return message.reply(
+            `${app.emote(message, "Cross")} No backups found.`,
+          )
+        }
       },
     }),
   ],
