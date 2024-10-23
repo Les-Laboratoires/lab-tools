@@ -57,7 +57,7 @@
     "ghom-prettify": "^3.0.0",
     "knex": "^3.0.1",
     "openai": "^4.28.0",
-    "pg": "latest",
+    "pg": "^8.13.0",
     "prettier": "^3.2.5",
     "regex-parser": "^2.2.11",
     "simple-git": "^3.27.0",
@@ -68,6 +68,9 @@
   },
   "devDependencies": {
     "@esbuild/linux-x64": "^0.24.0",
+    "@eslint/compat": "^1.2.0",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.12.0",
     "@ghom/bot.ts-cli": "^8.2.0",
     "@types/boxen": "^3.0.1",
     "@types/cron": "^1.7.3",
@@ -84,7 +87,6 @@
     "@typescript-eslint/eslint-plugin": "^8.9.0",
     "@typescript-eslint/parser": "^8.9.0",
     "del": "^6.1.1",
-    "dirname-filename-esm": "^1.1.1",
     "discord-api-types": "^0.37.102",
     "esbuild": "^0.24.0",
     "eslint": "^9.12.0",
@@ -101,10 +103,7 @@
     "make-bot.ts": "^6.0.5",
     "nodemon": "^2.0.19",
     "typescript": "^5.4.0-beta",
-    "vinyl-paths": "^4.0.0",
-    "@eslint/compat": "^1.2.0",
-    "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.12.0"
+    "vinyl-paths": "^4.0.0"
   },
   "engines": {
     "node": ">=22.x.x",
@@ -124,6 +123,7 @@
     "#buttons/*": "./dist/buttons/*"
   },
   "optionalDependencies": {
+    "@types/pg": "^8.11.10",
     "through2": "^4.0.2"
   }
 }

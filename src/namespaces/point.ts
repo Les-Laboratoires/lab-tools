@@ -126,8 +126,8 @@ export async function refreshHelpingFooter(topic: app.ThreadChannel) {
 
   const ranks = await Promise.all(
     Array.from(helpers).map(async (helper) => ({
-      ...helper,
-      ...(await getPointRank(helper)),
+      id: helper.id,
+      rank: await getPointRank(helper).then((r) => r.rank),
     })),
   )
 
