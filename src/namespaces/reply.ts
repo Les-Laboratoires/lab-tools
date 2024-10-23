@@ -8,7 +8,7 @@ export const replies = new app.ResponseCache(async (guildId: number) => {
 
 export async function addReply(options: Omit<Reply, "_id">) {
   await replyTable.query.insert(options)
-  await replies.fetch(options.guild_id)
+  await replies.fetch(String(options.guild_id), options.guild_id)
 }
 
 export async function removeReply(replyId: number) {
@@ -19,5 +19,5 @@ export async function removeReply(replyId: number) {
 
   await replyTable.query.delete().where("_id", replyId)
 
-  if (reply) await app.replies.fetch(reply.guild_id)
+  if (reply) await app.replies.fetch(String(reply.guild_id), reply.guild_id)
 }

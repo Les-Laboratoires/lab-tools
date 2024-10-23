@@ -2,8 +2,9 @@ import { EmbedBuilder } from "discord.js"
 
 import type * as app from "#app"
 
-import { ResponseCache, code } from "../app/util.ts"
+import { code } from "#src/app/util.ts"
 
+import { ResponseCache } from "#database"
 import client from "#client"
 import env from "#env"
 
@@ -39,7 +40,7 @@ const userCache = new ResponseCache((id: string) => {
 export async function getUser(user: { id: string }): Promise<User | undefined>
 export async function getUser(user: { id: string }, force: true): Promise<User>
 export async function getUser(user: { id: string }, force?: true) {
-  const userInDb = await userCache.get(user.id)
+  const userInDb = await userCache.get(user.id, user.id)
 
   if (force && !userInDb) {
     await users.query
@@ -50,7 +51,7 @@ export async function getUser(user: { id: string }, force?: true) {
       .onConflict("id")
       .merge(["is_bot"])
 
-    return userCache.fetch(user.id)
+    return userCache.fetch(user.id, user.id)
   }
 
   return userInDb
@@ -71,14 +72,14 @@ export async function getGuild(
   guild: { id: string },
   options?: { forceExists?: boolean; forceFetch?: boolean },
 ): Promise<Guild | undefined> {
-  if (options?.forceFetch) return guildCache.fetch(guild.id)
+  if (options?.forceFetch) return guildCache.fetch(guild.id, guild.id)
 
-  const config = await guildCache.get(guild.id)
+  const config = await guildCache.get(guild.id, guild.id)
 
   if (options?.forceExists && !config) {
     await guilds.query.insert({ id: guild.id })
 
-    return guildCache.fetch(guild.id)
+    return guildCache.fetch(guild.id, guild.id)
   }
 
   return config
@@ -193,7 +194,7 @@ export function isJSON(value: string) {
 
 export async function countOf(builder: any, column = "*"): Promise<number> {
   return builder.count({ total: column }).then((rows: any) => {
-    return rows[0]?.total ?? (0 as number)
+    return (rows[0]?.total ?? 0) as number
   })
 }
 

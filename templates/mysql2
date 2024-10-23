@@ -6,7 +6,10 @@ import env from "./env.ts"
 import path from "path"
 
 const client = new orm.ORM({
-  location: path.join(process.cwd(), "dist", "tables"),
+  tableLocation: path.join(process.cwd(), "dist", "tables"),
+  backups: {
+    location: path.join(process.cwd(), "data", "backups"),
+  },
   database: {
     client: "mysql2",
     useNullAsDefault: true,

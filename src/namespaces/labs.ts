@@ -2,6 +2,8 @@ import * as app from "#app"
 
 import lab from "#tables/lab.ts"
 
+const allLabsKey = "all labs"
+
 export const allLabsCache = new app.ResponseCache(
   async () => lab.query.select(),
   60_000,
@@ -14,7 +16,7 @@ export async function updateLabsInAffiliationChannels(
   message: app.UnknownMessage,
   packSize: number,
 ) {
-  const labs = await allLabsCache.fetch()
+  const labs = await allLabsCache.fetch(allLabsKey)
 
   const pages = app.divider(labs, packSize)
 
@@ -50,7 +52,7 @@ export async function sendLabList(
   channel: app.SendableChannels,
   packSize: number,
 ) {
-  const labs = await allLabsCache.get()
+  const labs = await allLabsCache.get(allLabsKey)
 
   const pages = app.divider(labs, packSize)
 
@@ -73,5 +75,5 @@ const ignoredCache = new app.ResponseCache(async (id: string) => {
 }, 60_000)
 
 export async function isIgnored(id: string): Promise<boolean> {
-  return ignoredCache.get(id)
+  return ignoredCache.get(id, id)
 }

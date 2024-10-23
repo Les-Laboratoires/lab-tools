@@ -61,7 +61,7 @@ export default new app.Command({
 
         if (!guild) return
 
-        const replies = await app.replies.get(guild._id)
+        const replies = await app.replies.get(String(guild._id), guild._id)
 
         new app.StaticPaginator({
           target: message.channel,
@@ -108,7 +108,7 @@ export default new app.Command({
 
         if (!guild) return
 
-        const replies = await app.replies.get(guild._id)
+        const replies = await app.replies.get(String(guild._id), guild._id)
 
         const reply = replies.find((r) => r._id === message.args.id)
 

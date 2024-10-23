@@ -10,7 +10,7 @@ const listener: app.Listener<"messageCreate"> = {
 
     if (!guild) return
 
-    const reply = await app.replies.get(guild._id)
+    const reply = await app.replies.get(String(guild._id), guild._id)
 
     if (reply.length === 0) return
 

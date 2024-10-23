@@ -3,6 +3,8 @@ import * as app from "#app"
 import remindTable from "#tables/remind.ts"
 import userTable from "#tables/user.ts"
 
+const allRemindId = "all reminders"
+
 /**
  * Cache for all reminds refreshed every 6 hours
  */
@@ -14,7 +16,7 @@ export const allRemindCache = new app.ResponseCache(
 )
 
 export async function checkReminds() {
-  const reminds = await allRemindCache.get()
+  const reminds = await allRemindCache.get(allRemindId)
 
   for (const remind of reminds) {
     if (remind.remind_at <= Date.now()) {
@@ -27,7 +29,8 @@ export async function checkReminds() {
       }
 
       await remindTable.query.where("_id", remind._id).delete()
-      await allRemindCache.fetch()
+
+      allRemindCache.invalidate()
     }
   }
 }
@@ -43,5 +46,5 @@ export async function addRemind(
     remind_at,
   })
 
-  await allRemindCache.fetch()
+  allRemindCache.invalidate()
 }

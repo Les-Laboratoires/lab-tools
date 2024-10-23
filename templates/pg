@@ -9,7 +9,10 @@ import path from "path"
 setTypeParsers()
 
 const client = new orm.ORM({
-  location: path.join(process.cwd(), "dist", "tables"),
+  tableLocation: path.join(process.cwd(), "dist", "tables"),
+  backups: {
+    location: path.join(process.cwd(), "data", "backups"),
+  },
   database: {
     client: "pg",
     useNullAsDefault: true,
