@@ -24,19 +24,7 @@ const listener: app.Listener<"ready"> = {
       )
 
       if (channel?.isSendable()) {
-        const content = `${restartMessage.content} (${time
-          .duration(
-            new Date(restartMessage.created_at).getTime() - Date.now(),
-            {
-              format: "ms",
-              maxPartCount: 3,
-            },
-          )
-          .replace(
-            /(?:millièmes? de seconde|thousandths? of (?:a )?second)/,
-            "ms",
-          )
-          .replace(/(\d+)/g, "**$1**")})`
+        const content = `${restartMessage.content} (${app.formatDuration(restartMessage.created_at)})`
 
         if (!restartMessage.last_message_id) await channel.send(content)
         else {

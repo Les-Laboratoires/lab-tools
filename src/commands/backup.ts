@@ -1,4 +1,5 @@
 import fs from "fs"
+import path from "path"
 
 import * as app from "#app"
 import restart from "#tables/restart.ts"
@@ -39,10 +40,16 @@ export default new app.Command({
           }
         } catch {}
 
+        const view = await message.reply(
+          `${app.emote(message, "Loading")} Creating backup...`,
+        )
+
+        const startAt = new Date().toISOString()
+
         await app.database.createBackup(message.args.name)
 
-        return message.reply(
-          `${app.emote(message, "CheckMark")} Successfully created backup.`,
+        return view.edit(
+          `${app.emote(message, "CheckMark")} Successfully created backup (${app.formatDuration(startAt)})`,
         )
       },
     }),
@@ -91,11 +98,28 @@ export default new app.Command({
             app.database.config.backups!.location!,
           )
 
-          return message.reply(
-            backups.length
-              ? backups.join("\n")
-              : `${app.emote(message, "Cross")} No backups found.`,
-          )
+          if (backups.length === 0) {
+            return message.reply(
+              `${app.emote(message, "Cross")} No backups found.`,
+            )
+          }
+
+          new app.DynamicPaginator({
+            target: message.channel,
+            filter: (reaction, user) => user.id === message.author.id,
+            fetchPageCount: () => backups.length,
+            fetchPage: async (pageIndex) => {
+              const name = backups[pageIndex]
+
+              const chunks = await fs.promises.readdir(
+                path.join(app.database.config.backups!.location!, name),
+              )
+
+              return {
+                content: `**${name}**\n${chunks.map((chunk) => `- ${chunk}`).join("\n")}`,
+              }
+            },
+          })
         } catch {
           return message.reply(
             `${app.emote(message, "Cross")} No backups found.`,
