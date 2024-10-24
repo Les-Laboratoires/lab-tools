@@ -17,7 +17,26 @@ const listener: app.Listener<"messageCreate"> = {
 
     if (message.channel.messages.cache.size <= 2) return
 
-    await app.refreshHelpingFooter(message.channel)
+    // Appeler la fonction refreshHelpingFooter ↓ 10 secondes après le dernier message (chaque message réinitialise le timer)
+    // await app.refreshHelpingFooter(message.channel)
+
+    const cacheId = `helping.footer.timer.${message.channelId}`
+
+    const timer = app.cache.get<NodeJS.Timeout>(cacheId)
+
+    if (timer) clearTimeout(timer)
+
+    app.cache.set(
+      cacheId,
+      setTimeout(
+        (channel) => {
+          app.refreshHelpingFooter(channel)
+          app.cache.delete(cacheId)
+        },
+        10_000,
+        message.channel,
+      ),
+    )
   },
 }
 
