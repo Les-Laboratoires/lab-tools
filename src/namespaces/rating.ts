@@ -11,19 +11,19 @@ export interface RatingLadderLine {
 
 const mineRatingCount = 2
 
-export function renderNoteValue(value: number) {
+export function renderRatingValue(value: number) {
   return `**${value.toFixed(2).replace(/\.?0+$/, "")}**`
 }
 
-export function renderNoteBar(value?: number) {
+export function renderRatingBar(value?: number) {
   const full = "▰"
   const empty = "▱"
   const round = Math.round(value ?? 0)
   return full.repeat(round) + empty.repeat(5 - round)
 }
 
-export function renderNoteLine(value: number, count: number) {
-  return `${renderNoteBar(value)}  ${renderNoteValue(value)} / 5  (*x${count}*)`
+export function renderRatingLine(value: number, count: number) {
+  return `${renderRatingBar(value)}  ${renderRatingValue(value)} / 5  (*x${count}*)`
 }
 
 export const ratingLadder = (guild_id?: number) =>
@@ -63,7 +63,7 @@ export const ratingLadder = (guild_id?: number) =>
       )
     },
     formatLine(line) {
-      return `${app.formatRank(line.rank)} ${renderNoteLine(
+      return `${app.formatRank(line.rank)} ${renderRatingLine(
         line.score,
         line.rating_count,
       )}  <@${line.target}>`
@@ -128,7 +128,7 @@ export async function ratingEmbed(target: app.GuildMember) {
   const fields: app.EmbedField[] = [
     {
       name: "Global rating",
-      value: renderNoteLine(globalRating.avg, globalRating.count),
+      value: renderRatingLine(globalRating.avg, globalRating.count),
       inline: false,
     },
   ]
@@ -140,7 +140,7 @@ export async function ratingEmbed(target: app.GuildMember) {
   ) {
     fields.push({
       name: target.guild.name,
-      value: renderNoteLine(guildRating.avg, guildRating.count),
+      value: renderRatingLine(guildRating.avg, guildRating.count),
       inline: false,
     })
   }
@@ -151,7 +151,7 @@ export async function ratingEmbed(target: app.GuildMember) {
       value: externalRating
         .map(
           ({ rating, guild }) =>
-            `${renderNoteLine(rating.avg, rating.count)} - **${guild.name}**`,
+            `${renderRatingLine(rating.avg, rating.count)} - **${guild.name}**`,
         )
         .join("\n"),
       inline: false,

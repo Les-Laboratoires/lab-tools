@@ -35,7 +35,7 @@ export async function sendLog(
 
 const userCache = new ResponseCache((id: string) => {
   return users.query.where("id", id).first()
-}, 60_000)
+}, 600_000)
 
 export async function getUser(user: { id: string }): Promise<User | undefined>
 export async function getUser(user: { id: string }, force: true): Promise<User>
@@ -59,7 +59,7 @@ export async function getUser(user: { id: string }, force?: true) {
 
 const guildCache = new ResponseCache((id: string) => {
   return guilds.query.where("id", id).first()
-}, 60_000)
+}, 600_000)
 
 export async function getGuild(guild: {
   id: string
