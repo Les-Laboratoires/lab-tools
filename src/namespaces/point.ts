@@ -49,17 +49,20 @@ export const pointLadder = new app.Ladder<PointLadderLine>({
   },
 })
 
-export function getPointRank(user: app.User): Promise<{ rank: string }> {
-  return point.query
+export async function getPointRank(user: app.User): Promise<{ rank: string }> {
+  const result = await point.query
     .select([
+      "user.id",
       app.database.raw(
         'rank() over (order by sum("point"."amount") desc) as "rank"',
       ),
     ])
     .leftJoin("user", "point.to_id", "user._id")
-    .where("user.id", user.id)
-    .groupBy("point.to_id")
+    .groupBy("user.id")
+    .having("user.id", "=", user.id)
     .first()
+
+  return { rank: result.rank }
 }
 
 export function buildHelpingFooterEmbed(
