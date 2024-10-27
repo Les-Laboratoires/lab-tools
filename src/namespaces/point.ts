@@ -78,7 +78,10 @@ export function buildHelpingFooterEmbed(
         })
         .map((helper) => {
           return givePoints
-            .create(helper.id, 5)
+            .create({
+              targetId: helper.id,
+              amount: 5,
+            })
             .setLabel(`Remercier ${helper.username}`)
         })
     : [upTopic.create(), resolveTopic.create()]

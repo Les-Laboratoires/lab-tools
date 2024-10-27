@@ -1,5 +1,3 @@
-import * as time from "tims"
-
 import * as app from "#app"
 
 import restart, { Restart } from "#tables/restart.ts"

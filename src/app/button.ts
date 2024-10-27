@@ -73,10 +73,10 @@ export interface IButton {
  * The parameters that the button will receive.
  * @example
  * ```ts
- * export type BuyButtonParams = [article: string, quantity: number]
+ * export type BuyButtonParams = { article: string, quantity: number }
  * ```
  */
-export type ButtonParams = (string | number | boolean)[]
+export type ButtonParams = Record<string, string | boolean | number> | null
 
 export interface ButtonOptions<Params extends ButtonParams> {
   key: string
@@ -85,11 +85,11 @@ export interface ButtonOptions<Params extends ButtonParams> {
   adminOnly?: boolean
   botOwnerOnly?: boolean
   cooldown?: util.Cooldown
-  builder?: (button: discord.ButtonBuilder, ...params: Params) => unknown
+  builder?: (button: discord.ButtonBuilder, params: Params) => unknown
   run: (
     this: ButtonOptions<Params>,
     interaction: ButtonSystemInteraction,
-    ...params: Params
+    params: Params,
   ) => unknown
 }
 
@@ -97,42 +97,42 @@ export interface ButtonOptions<Params extends ButtonParams> {
  * Represents a button handler. <br>
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-button guide} for more information.
  */
-export class Button<Params extends ButtonParams> {
+export class Button<Params extends ButtonParams = null> {
   filepath?: string
   native = false
 
   constructor(public options: ButtonOptions<Params>) {}
 
-  public create(...params: Params): discord.ButtonBuilder {
-    return createButton(this, ...params)
+  public create(): discord.ButtonBuilder
+  public create(params: Params): discord.ButtonBuilder
+  public create(params?: Params): discord.ButtonBuilder {
+    return createButton(this, params!)
   }
 }
 
-export function decodeButtonCustomId(
-  customId: string,
-): [string, ...ButtonParams] {
-  return customId.split(";").map(decodeURIComponent) as [
-    string,
-    ...ButtonParams,
-  ]
+export const BUTTON_CODE_SEPARATOR = ";://i//?;"
+
+export function decodeButtonCustomId(customId: string): [string, ButtonParams] {
+  const [key, params] = customId.split(BUTTON_CODE_SEPARATOR)
+  return [key, JSON.parse(params)]
 }
 
 export function encodeButtonCustomId(
   key: string,
-  ...params: ButtonParams
+  params: ButtonParams,
 ): string {
-  return `${key};${params.map(encodeURIComponent).join(";")}`
+  return `${key}${BUTTON_CODE_SEPARATOR}${JSON.stringify(params)}`
 }
 
 export function createButton<Params extends ButtonParams>(
   handler: Button<Params>,
-  ...params: Params
+  params: Params,
 ): discord.ButtonBuilder {
   const button = new discord.ButtonBuilder()
-    .setCustomId(encodeButtonCustomId(handler.options.key, ...params))
+    .setCustomId(encodeButtonCustomId(handler.options.key, params))
     .setStyle(discord.ButtonStyle.Primary)
 
-  handler.options.builder?.(button, ...params)
+  handler.options.builder?.(button, params)
 
   return button
 }

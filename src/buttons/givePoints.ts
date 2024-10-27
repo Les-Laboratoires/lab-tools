@@ -2,14 +2,17 @@ import * as app from "#app"
 import points from "#tables/point.ts"
 import helping from "#tables/helping.ts"
 
-export type GivePointsButtonParams = [toId: string, amount: number]
+export type GivePointsButtonParams = []
 
-export default new app.Button<GivePointsButtonParams>({
+export default new app.Button<{
+  targetId: string
+  amount: number
+}>({
   key: "givePoints",
   description: "Gives some helping points to a user",
   guildOnly: true,
   builder: (builder) => builder.setEmoji("👍"),
-  async run(interaction, toId, amount) {
+  async run(interaction, { targetId, amount }) {
     if (!interaction.channel?.isThread()) return
 
     await interaction.deferReply({ ephemeral: true })
@@ -21,7 +24,7 @@ export default new app.Button<GivePointsButtonParams>({
 
     const fromId = interaction.user.id
 
-    if (fromId === toId)
+    if (fromId === targetId)
       return await interaction.editReply({
         content: `${app.emote(
           interaction,
@@ -37,7 +40,7 @@ export default new app.Button<GivePointsButtonParams>({
       })
 
     const fromUser = await app.getUser({ id: fromId }, true)
-    const toUser = await app.getUser({ id: toId }, true)
+    const toUser = await app.getUser({ id: targetId }, true)
 
     await points.query.insert({
       from_id: fromUser._id,
@@ -48,16 +51,16 @@ export default new app.Button<GivePointsButtonParams>({
 
     await app.sendLog(
       interaction.guild!,
-      `${interaction.user} gave **${amount}** points to ${app.userMention(toId)} in ${interaction.channel}.`,
+      `${interaction.user} gave **${amount}** points to ${app.userMention(targetId)} in ${interaction.channel}.`,
     )
 
     await interaction.editReply({
       content: `${app.emote(interaction, "CheckMark")} Successfully thanked ${app.userMention(
-        toId,
+        targetId,
       )}`,
     })
 
-    const target = await interaction.client.users.fetch(toId, {
+    const target = await interaction.client.users.fetch(targetId, {
       cache: false,
       force: true,
     })
@@ -78,8 +81,8 @@ export default new app.Button<GivePointsButtonParams>({
     await helping.query.where("id", interaction.channel.id).update({
       rewarded_helper_ids:
         state && state.rewarded_helper_ids !== ""
-          ? [...state.rewarded_helper_ids.split(";"), toId].join(";")
-          : toId,
+          ? [...state.rewarded_helper_ids.split(";"), targetId].join(";")
+          : targetId,
     })
 
     await app.refreshHelpingFooter(interaction.channel)

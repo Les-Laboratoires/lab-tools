@@ -490,9 +490,9 @@ export type SystemMessageType = "default" | keyof SystemEmojis
 
 export interface GetSystemMessageOptions {
   /**
-   * js, json, ts, etc.
-   * if given, a formatted code clock will be displayed
-   * if true, the code block will be displayed without lang
+   * js, json, ts, etc. <br>
+   * If given, a formatted code clock will be displayed <br>
+   * If true, the code block will be displayed without lang
    */
   code?: boolean | string
 
@@ -549,8 +549,13 @@ export async function getSystemMessage(
     output.embeds = [
       new discord.EmbedBuilder()
         .setColor(systemColors[type])
-        .setTitle(message.header ?? null)
-        .setDescription(output.content!)
+        .setDescription(
+          message.header
+            ? `### ${
+                type === "default" ? "" : getSystemEmoji(type)
+              } ${message.header}\n${output.content}`.trim()
+            : output.content!,
+        )
         .setFooter(message.footer ? { text: message.footer } : null)
         .setTimestamp(message.date ?? null)
         .toJSON(),

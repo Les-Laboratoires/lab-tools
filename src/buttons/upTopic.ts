@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-export default new app.Button<[]>({
+export default new app.Button({
   key: "upTopic",
   description: "Up the topic in the help forum",
   guildOnly: true,
@@ -13,7 +13,7 @@ export default new app.Button<[]>({
       .setLabel("Remonter")
       .setEmoji("🆙")
       .setStyle(app.ButtonStyle.Secondary),
-  async run(interaction /*, ...params */) {
+  async run(interaction) {
     if (!interaction.channel?.isThread()) return
 
     await interaction.deferUpdate()

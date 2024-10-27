@@ -1,13 +1,13 @@
 import * as app from "#app"
 import helping from "#tables/helping.ts"
 
-export default new app.Button<[]>({
+export default new app.Button({
   key: "resolveTopic",
   description: "Mark the topic as resolved",
   guildOnly: true,
   builder: (builder) =>
     builder.setLabel("Résolu").setStyle(app.ButtonStyle.Success).setEmoji("✅"),
-  async run(interaction /*, ...params */) {
+  async run(interaction) {
     if (!interaction.channel?.isThread()) return
 
     await interaction.deferReply({ ephemeral: true })
