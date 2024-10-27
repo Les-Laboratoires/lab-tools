@@ -2,8 +2,6 @@ import * as app from "#app"
 import points from "#tables/point.ts"
 import helping from "#tables/helping.ts"
 
-export type GivePointsButtonParams = []
-
 export default new app.Button<{
   targetId: string
   amount: number
