@@ -2,8 +2,6 @@ import * as app from "#app"
 
 const intervals: Record<string, NodeJS.Timeout> = {}
 
-let lastActiveCount = 0
-
 const listener: app.Listener<"ready"> = {
   event: "ready",
   description: "Start an interval to update the active list",
@@ -48,6 +46,10 @@ const listener: app.Listener<"ready"> = {
             return
           }
 
+          const cacheId = `lastActiveCount.${guild.id}`
+
+          const lastActiveCount = app.cache.ensure(cacheId, 0)
+
           if (found > lastActiveCount) {
             await app.sendLog(
               realGuild,
@@ -64,7 +66,7 @@ const listener: app.Listener<"ready"> = {
             )
           }
 
-          lastActiveCount = found
+          app.cache.set(cacheId, found)
         },
         interval * 1000 * 60 * 60,
       )

@@ -63,7 +63,10 @@ export async function detectAndBanSpammer(message: app.Message) {
           await general.send(
             `${app.emote(message, "CheckMark")} **${
               message.author.tag
-            }** detected as a spammer and banned from **${success}** labs.\n> **${errored}** labs failed to ban the user.`,
+            }** detected as a spammer and banned from **${success}** labs.\n**${errored}** labs failed to ban the user Reasons:\n${result
+              .filter((result) => result.status === "rejected")
+              .map((result) => `- ${result.reason}`)
+              .join("\n")}`,
           )
         } else {
           await general.send(
