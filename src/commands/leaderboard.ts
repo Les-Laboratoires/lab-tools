@@ -1,7 +1,5 @@
 import * as app from "#app"
 
-import userTable from "#tables/user.ts"
-
 export default new app.Command({
   name: "leaderboard",
   aliases: ["lb", "ladder", "top", "rank"],

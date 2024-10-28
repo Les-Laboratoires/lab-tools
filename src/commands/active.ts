@@ -36,6 +36,15 @@ export default new app.Command({
       validate: (value) => value > 0,
       validationErrorMessage: "The period must be greater than 0.",
     }),
+    app.option({
+      name: "refreshInterval",
+      aliases: ["interval"],
+      description: "The interval to refresh the active list (in hours)",
+      type: "number",
+      validate: (value) => value > 0 && value < 24,
+      validationErrorMessage:
+        "The interval must be greater than 0 and less than 24.",
+    }),
   ],
   async run(message) {
     used = true
@@ -62,6 +71,12 @@ export default new app.Command({
       messageCount: message.args.messageCount ?? +config.active_message_count,
       onLog: (text) => waiting.edit(text),
       guildConfig: config,
+    })
+
+    await app.launchActiveInterval(message.guild, {
+      refreshInterval: +config.active_refresh_interval,
+      period: message.args.period ?? +config.active_period,
+      messageCount: message.args.messageCount ?? +config.active_message_count,
     })
 
     used = false
