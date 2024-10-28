@@ -211,7 +211,7 @@ export interface ActiveLadderLine {
 
 export const activeLadder = (guild_id: number) =>
   new app.Ladder<ActiveLadderLine>({
-    title: "Activity",
+    title: "Guild's activity",
     fetchLines(options) {
       return message.query
         .select(

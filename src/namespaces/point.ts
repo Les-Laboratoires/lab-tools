@@ -14,7 +14,7 @@ export interface PointLadderLine {
 }
 
 export const pointLadder = new app.Ladder<PointLadderLine>({
-  title: "Helpers",
+  title: "Global helper scoreboard",
   async fetchLines(options) {
     return point.query
       .select([
@@ -50,7 +50,7 @@ export const pointLadder = new app.Ladder<PointLadderLine>({
 })
 
 export async function getPointRank(user: app.User): Promise<{ rank: string }> {
-  const result = await point.query
+  const subquery = point.query
     .select([
       "user.id",
       app.database.raw(
@@ -59,8 +59,14 @@ export async function getPointRank(user: app.User): Promise<{ rank: string }> {
     ])
     .leftJoin("user", "point.to_id", "user._id")
     .groupBy("user.id")
-    .having("user.id", "=", user.id)
+
+  const result = await app.database.database
+    .select("rank")
+    .from(subquery.as("ranked_users"))
+    .where("id", user.id)
     .first()
+
+  if (!result) return { rank: "N/A" }
 
   return { rank: result.rank }
 }

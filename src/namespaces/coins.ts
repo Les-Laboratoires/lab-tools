@@ -1,10 +1,45 @@
+import * as app from "#app"
+
 import userTable from "#tables/user.ts"
 import guildTable from "#tables/guild.ts"
 import pointTable from "#tables/point.ts"
 import noteTable from "#tables/rating.ts"
 import messageTable from "#tables/message.ts"
 import activeTable from "#tables/active.ts"
+
 import { ResponseCache } from "#database"
+
+export type CoinLadderLine = {
+  rank: number
+  coins: number
+  user_id: string
+}
+
+export const coinLadder = new app.Ladder({
+  title: "Wealthiest members",
+  fetchLineCount() {
+    return userTable.count('"coins" > 0')
+  },
+  async fetchLines(options) {
+    return userTable.query
+      .select(
+        "coins",
+        app.database.raw('rank() over (order by coins desc) as "rank"'),
+        "id as user_id",
+      )
+      .where("coins", ">", 0)
+      .limit(options.pageLineCount)
+      .offset(options.pageIndex * options.pageLineCount)
+      .then((rows) => rows as unknown as CoinLadderLine[])
+  },
+  formatLine(line, _, lines) {
+    return `${app.formatRank(line.rank)} \`${app.forceTextSize(
+      line.coins,
+      Math.max(...lines.map((l) => String(l.coins).length)),
+      true,
+    )}🪙\` - ${app.userMention(line.user_id)}`
+  },
+})
 
 export interface FullUser {
   _id: number

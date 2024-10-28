@@ -22,40 +22,9 @@ export default new app.Command({
 
     const ladders = [
       app.ratingLadder(guild._id),
-      app.pointLadder,
       app.activeLadder(guild._id),
-      new app.Ladder<{ rank: number; coins: number; user_id: string }>({
-        title: "Coins",
-        fetchLineCount() {
-          return userTable.count('"coins" > 0')
-        },
-        async fetchLines(options) {
-          return userTable.query
-            .select(
-              "coins",
-              app.database.raw('rank() over (order by coins desc) as "rank"'),
-              "id as user_id",
-            )
-            .where("coins", ">", 0)
-            .limit(options.pageLineCount)
-            .offset(options.pageIndex * options.pageLineCount)
-            .then(
-              (rows) =>
-                rows as unknown as {
-                  rank: number
-                  coins: number
-                  user_id: string
-                }[],
-            )
-        },
-        formatLine(line, _, lines) {
-          return `${app.formatRank(line.rank)} \`${app.forceTextSize(
-            line.coins,
-            Math.max(...lines.map((l) => String(l.coins).length)),
-            true,
-          )}\` coins - ${app.userMention(line.user_id)}`
-        },
-      }),
+      app.pointLadder,
+      app.coinLadder,
     ]
 
     return message.channel.send({

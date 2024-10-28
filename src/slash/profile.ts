@@ -23,6 +23,27 @@ export default new app.SlashCommand({
       `author_id = ${user._id} AND guild_id = ${guild._id}`,
     )
 
+    const member = await interaction.guild.members.fetch(interaction.user.id)
+
+    const prestigeRoles = new Set<string>()
+
+    const highest = member.roles.cache
+      .sorted((a, b) => b.position - a.position)
+      .first()
+
+    if (highest) prestigeRoles.add(highest.id)
+
+    if (guild.active_role_id && user.active)
+      prestigeRoles.add(guild.active_role_id)
+
+    if (guild.elders_role_pattern) {
+      const id = member.roles.cache
+        .sorted((a, b) => b.position - a.position)
+        .findKey((role) => role.name.includes(guild.elders_role_pattern!))
+
+      if (id) prestigeRoles.add(id)
+    }
+
     return interaction.reply({
       embeds: [
         new app.EmbedBuilder()
@@ -34,7 +55,8 @@ export default new app.SlashCommand({
               : "") +
               `Total money: **${user.coins.toLocaleString()}** 🪙\n` +
               `Hourly money: **${Math.floor(app.getUserHourlyCoins(user)).toLocaleString()}** 🪙\n` +
-              `Messages sent: **${messagesSent.toLocaleString()}**`,
+              `Messages sent: **${messagesSent.toLocaleString()}**\n` +
+              `Rating sent: **${user.rateOthers}**`,
           )
           .setFields(
             {
@@ -45,9 +67,9 @@ export default new app.SlashCommand({
             {
               name: "Prestige",
               value:
-                user.active && guild.active_role_id
-                  ? app.roleMention(guild.active_role_id)
-                  : "`nope`",
+                prestigeRoles.size === 0
+                  ? "`nope`"
+                  : [...prestigeRoles].map(app.roleMention).join("\n"),
               inline: true,
             },
           ),

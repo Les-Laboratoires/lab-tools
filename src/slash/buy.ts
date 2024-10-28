@@ -45,7 +45,7 @@ export default new app.SlashCommand({
     if (subcommand === "rename") {
       if (user.coins < prices.rename) {
         return interaction.reply({
-          content: `You don't have enough coins to buy this. You need **${prices.rename}** coins. (You have **${user.coins}** coins)`,
+          content: `You don't have enough coins to buy this. You need **${prices.rename}** coins. (You have **${user.coins}** 🪙)`,
           ephemeral: true,
         })
       }
