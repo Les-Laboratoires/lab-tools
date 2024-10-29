@@ -95,7 +95,7 @@ export function buildHelpingFooterEmbed(
   return {
     embeds: [
       new app.EmbedBuilder()
-        .setURL("https://helping")
+        .setURL("https://helping.fr/")
         .setDescription(
           `### ${
             topicState?.resolved
