@@ -94,23 +94,25 @@ export function buildHelpingFooterEmbed(
 
   return {
     embeds: [
-      new app.EmbedBuilder().setDescription(
-        `### ${
-          topicState?.resolved
-            ? `${app.getSystemEmoji("success")} Topic résolu`
-            : `${app.getSystemEmoji("loading")} En attente d'aide`
-        }\n${
-          topicState?.resolved
-            ? topicState.rewarded_helper_ids
-                .split(";")
-                .filter((id) => id !== "").length >= helpers.length
-              ? helpers.length > 0
-                ? "Merci pour vos retours ! Ouvrez un nouveau topic si besoin."
-                : "Ouvrez un nouveau topic si besoin."
-              : "Vous avez été bien aidé ?\nDans ce cas, remerciez le ou les membres qui vous ont aidé 😉"
-            : "Vous avez trouvé une solution ?\nSi oui, merci de passer ce topic en résolu."
-        }`,
-      ),
+      new app.EmbedBuilder()
+        .setURL("https://helping")
+        .setDescription(
+          `### ${
+            topicState?.resolved
+              ? `${app.getSystemEmoji("success")} Topic résolu`
+              : `${app.getSystemEmoji("loading")} En attente d'aide`
+          }\n${
+            topicState?.resolved
+              ? topicState.rewarded_helper_ids
+                  .split(";")
+                  .filter((id) => id !== "").length >= helpers.length
+                ? helpers.length > 0
+                  ? "Merci pour vos retours ! Ouvrez un nouveau topic si besoin."
+                  : "Ouvrez un nouveau topic si besoin."
+                : "Vous avez été bien aidé ?\nDans ce cas, remerciez le ou les membres qui vous ont aidé 😉"
+              : "Vous avez trouvé une solution ?\nSi oui, merci de passer ce topic en résolu."
+          }`,
+        ),
     ],
     components:
       components.length > 0
@@ -151,7 +153,13 @@ export async function refreshHelpingFooter(topic: app.ThreadChannel) {
   })
 
   const lastBotMessages = Array.from(lastMessages.values())
-    .filter((m) => m.author.id === topic.client.user.id && !m.system)
+    .filter(
+      (m) =>
+        m.author.id === topic.client.user.id &&
+        !m.system &&
+        m.embeds.length > 0 &&
+        m.embeds[0].url?.includes("helping"),
+    )
     .slice(0, 3)
 
   try {
