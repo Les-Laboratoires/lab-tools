@@ -56,7 +56,7 @@
     "ghom-eval": "^1.1.3",
     "ghom-prettify": "^3.0.0",
     "knex": "^3.0.1",
-    "openai": "^4.28.0",
+    "openai": "^4.68.4",
     "pg": "^8.13.0",
     "prettier": "^3.2.5",
     "regex-parser": "^2.2.11",
