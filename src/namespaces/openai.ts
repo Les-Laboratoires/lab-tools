@@ -138,6 +138,7 @@ export async function generateDocURLList(tags: string): Promise<string> {
           The list must be in markdown and as long as you want.
           La liste ne doit pas être trop longue, elle doit être lisible dans un message Discord.
           Each returned link must be on a new line and wrapped in <>. Example: <https://example.com>
+          Please make sure than the links exist! No fake links! 
           Tu dois aussi ranger les liens par ordre d'importance et les grouper par tag relatif. Exemple:
           ### Tag 1
           - <https://example.com>
@@ -168,7 +169,7 @@ export async function generateDocURLList(tags: string): Promise<string> {
       },
     ],
     max_tokens: 1500,
-    model: "gpt-3.5-turbo",
+    model: "chatgpt-4o-latest",
   })
 
   const list = response.choices[0].message.content

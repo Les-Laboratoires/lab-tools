@@ -7,6 +7,8 @@ import upTopic from "#buttons/upTopic.ts"
 import givePoints from "#buttons/givePoints.ts"
 import resolveTopic from "#buttons/resolveTopic.ts"
 
+export const HELPING_URL_AS_ID = "https://helping.fr"
+
 export interface PointLadderLine {
   target: string
   score: number
@@ -95,7 +97,7 @@ export function buildHelpingFooterEmbed(
   return {
     embeds: [
       new app.EmbedBuilder()
-        .setURL("https://helping.fr/")
+        .setURL(HELPING_URL_AS_ID)
         .setDescription(
           `### ${
             topicState?.resolved
@@ -158,7 +160,7 @@ export async function refreshHelpingFooter(topic: app.ThreadChannel) {
         m.author.id === topic.client.user.id &&
         !m.system &&
         m.embeds.length > 0 &&
-        m.embeds[0].url?.includes("helping"),
+        m.embeds[0].url?.startsWith(HELPING_URL_AS_ID),
     )
     .slice(0, 3)
 
