@@ -1,7 +1,7 @@
 import * as app from "#app"
 
 export default new app.Button({
-  key: "upTopic",
+  name: "upTopic",
   description: "Up the topic in the help forum",
   guildOnly: true,
   cooldown: {

@@ -70,6 +70,10 @@ export async function getGuild(
 ): Promise<Guild>
 export async function getGuild(
   guild: { id: string },
+  options?: { forceExists?: boolean; forceFetch: true },
+): Promise<Guild | undefined>
+export async function getGuild(
+  guild: { id: string },
   options?: { forceExists?: boolean; forceFetch?: boolean },
 ): Promise<Guild | undefined> {
   if (options?.forceFetch) return guildCache.fetch(guild.id, guild.id)

@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-const listener: app.Listener<"guildMemberRemove"> = {
+export default new app.Listener({
   event: "guildMemberRemove",
   description: "Announces when a member leaves the server",
   async run(member) {
@@ -43,6 +43,4 @@ const listener: app.Listener<"guildMemberRemove"> = {
       }
     }
   },
-}
-
-export default listener
+})

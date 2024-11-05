@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-const listener: app.Listener<"messageCreate"> = {
+export default new app.Listener({
   event: "messageCreate",
   description: "Handle messages in the help forum channels",
   async run(message) {
@@ -38,6 +38,4 @@ const listener: app.Listener<"messageCreate"> = {
       ),
     )
   },
-}
-
-export default listener
+})

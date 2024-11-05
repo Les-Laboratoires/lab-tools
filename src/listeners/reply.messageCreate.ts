@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-const listener: app.Listener<"messageCreate"> = {
+export default new app.Listener({
   event: "messageCreate",
   description: "A messageCreate listener for reply",
   async run(message) {
@@ -29,6 +29,4 @@ const listener: app.Listener<"messageCreate"> = {
       await message.channel.send(r.message)
     }
   },
-}
-
-export default listener
+})

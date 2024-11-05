@@ -4,7 +4,7 @@ import { filename } from "dirname-filename-esm"
 
 const __filename = filename(import.meta)
 
-const listener: app.Listener<"guildMemberAdd"> = {
+export default new app.Listener({
   event: "guildMemberAdd",
   description: "Prepares to welcome a new member",
   async run(member) {
@@ -82,6 +82,4 @@ const listener: app.Listener<"guildMemberAdd"> = {
       config,
     )
   },
-}
-
-export default listener
+})

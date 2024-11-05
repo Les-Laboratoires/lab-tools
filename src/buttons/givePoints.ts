@@ -6,7 +6,7 @@ export default new app.Button<{
   targetId: string
   amount: number
 }>({
-  key: "givePoints",
+  name: "givePoints",
   description: "Gives some helping points to a user",
   guildOnly: true,
   builder: (builder) => builder.setEmoji("👍"),

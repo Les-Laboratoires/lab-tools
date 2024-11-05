@@ -1,6 +1,6 @@
 import * as app from "#app"
 
-const listener: app.Listener<"messageCreate"> = {
+export default new app.Listener({
   event: "messageCreate",
   description: "Watch sent messages to detect and ban spammers",
   async run(message) {
@@ -8,6 +8,4 @@ const listener: app.Listener<"messageCreate"> = {
       .detectAndBanSpammer(message)
       .catch((error) => app.error(error, "automod.messageCreate"))
   },
-}
-
-export default listener
+})

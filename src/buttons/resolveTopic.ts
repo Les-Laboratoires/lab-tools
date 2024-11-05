@@ -2,7 +2,7 @@ import * as app from "#app"
 import helping from "#tables/helping.ts"
 
 export default new app.Button({
-  key: "resolveTopic",
+  name: "resolveTopic",
   description: "Mark the topic as resolved",
   guildOnly: true,
   builder: (builder) =>

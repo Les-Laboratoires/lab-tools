@@ -64,14 +64,15 @@
     "tims": "^2.1.0",
     "types-package-json": "^2.0.39",
     "yargs-parser": "^21.0.1",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "node-cron": "^3.0.3"
   },
   "devDependencies": {
     "@esbuild/linux-x64": "^0.24.0",
     "@eslint/compat": "^1.2.0",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.12.0",
-    "@ghom/bot.ts-cli": "^8.2.0",
+    "@ghom/bot.ts-cli": "^8.3.1",
     "@types/boxen": "^3.0.1",
     "@types/cron": "^1.7.3",
     "@types/dotenv": "^8.2.0",
@@ -103,7 +104,8 @@
     "make-bot.ts": "^6.0.5",
     "nodemon": "^2.0.19",
     "typescript": "^5.4.0-beta",
-    "vinyl-paths": "^4.0.0"
+    "vinyl-paths": "^4.0.0",
+    "@types/node-cron": "^3.0.11"
   },
   "engines": {
     "node": ">=22.x.x",

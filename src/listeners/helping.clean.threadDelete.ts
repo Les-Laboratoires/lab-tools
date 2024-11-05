@@ -1,7 +1,7 @@
 import * as app from "#app"
 import helping from "#tables/helping.ts"
 
-const listener: app.Listener<"threadDelete"> = {
+export default new app.Listener({
   event: "threadDelete",
   description: "Clean up the helping table when a thread is deleted",
   async run(channel) {
@@ -16,6 +16,4 @@ const listener: app.Listener<"threadDelete"> = {
 
     await helping.query.where("id", channel.id).delete()
   },
-}
-
-export default listener
+})

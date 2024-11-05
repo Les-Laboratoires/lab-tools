@@ -6,7 +6,7 @@ import { filename } from "dirname-filename-esm"
 
 const __filename = filename(import.meta)
 
-const listener: app.Listener<"ready"> = {
+export default new app.Listener({
   event: "ready",
   description: "Send restart messages",
   once: true,
@@ -46,6 +46,4 @@ const listener: app.Listener<"ready"> = {
 
     await restart.query.delete()
   },
-}
-
-export default listener
+})

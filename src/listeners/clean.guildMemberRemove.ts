@@ -2,7 +2,7 @@ import * as app from "#app"
 
 import users from "#tables/user.ts"
 
-const listener: app.Listener<"guildMemberRemove"> = {
+export default new app.Listener({
   event: "guildMemberRemove",
   description: "Delete member from db",
   async run(member) {
@@ -31,6 +31,4 @@ const listener: app.Listener<"guildMemberRemove"> = {
       )
     }
   },
-}
-
-export default listener
+})

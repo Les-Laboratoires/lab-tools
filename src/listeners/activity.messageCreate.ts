@@ -2,7 +2,7 @@ import * as app from "#app"
 
 import messages from "#tables/message.ts"
 
-const listener: app.Listener<"messageCreate"> = {
+export default new app.Listener({
   event: "messageCreate",
   description: "Record sent messages",
   async run(message) {
@@ -17,6 +17,4 @@ const listener: app.Listener<"messageCreate"> = {
       guild_id: guild._id,
     })
   },
-}
-
-export default listener
+})
