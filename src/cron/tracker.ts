@@ -5,8 +5,11 @@ import * as app from "#app"
  */
 export default new app.Cron({
   name: "tracker",
-  description: "A tracker cron",
-  schedule: "hourly",
+  description: "Update the guild tracker every 5 minutes",
+  schedule: {
+    type: "minute",
+    minute: 5,
+  },
   async run() {
     for (const guild of app.client.guilds.cache.values()) {
       await app.updateGuildOnlineCountTracker(guild)
