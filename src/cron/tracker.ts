@@ -8,14 +8,12 @@ export default new app.Cron({
   description: "Update the guild tracker every 5 minutes",
   schedule: {
     type: "minute",
-    minute: 5,
+    duration: 5,
   },
   async run() {
-    const guilds = await app.client.guilds.fetch()
+    const guilds = await app.client.guilds.cache
 
-    for (const partialGuild of guilds.values()) {
-      const guild = await partialGuild.fetch()
-
+    for (const guild of guilds.values()) {
       await app.updateGuildOnlineCountTracker(guild)
       await app.updateGuildMessageCountTracker(guild)
     }
