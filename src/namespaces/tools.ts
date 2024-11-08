@@ -4,13 +4,13 @@ import type * as app from "#app"
 
 import { code } from "#src/app/util.ts"
 
-import { ResponseCache } from "#database"
 import client from "#client"
+import { ResponseCache } from "#database"
 import env from "#env"
 
-import users, { User } from "#tables/user.ts"
-import guilds, { Guild } from "#tables/guild.ts"
 import autoRole from "#tables/autoRole.ts"
+import guilds, { Guild } from "#tables/guild.ts"
+import users, { User } from "#tables/user.ts"
 
 import { emote } from "./emotes.ts"
 
@@ -160,7 +160,7 @@ export async function applyAutoRoles(member: app.GuildMember) {
 
   if (member.roles.cache.hasAll(...autoRoles) || autoRoles.length === 0) return
 
-  await member.roles.add(autoRoles).catch()
+  await member.roles.add(autoRoles)
 }
 
 /**

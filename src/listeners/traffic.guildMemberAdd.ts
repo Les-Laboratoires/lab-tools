@@ -37,7 +37,7 @@ export default new app.Listener({
       if (config.member_role_id)
         await member.roles
           .add(config.member_role_id)
-          .catch((error) => app.error(error, __filename))
+          .catch((error) => app.error(error, __filename, true))
 
       if (config.member_welcome_direct_message) {
         try {
