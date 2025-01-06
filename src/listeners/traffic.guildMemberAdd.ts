@@ -16,7 +16,7 @@ export default new app.Listener({
 
     if (usersJoined.includes(member.id)) return
     usersJoined.push(member.id)
-    app.util.removeItem(usersLeft, member.id)
+    app.tools.removeItem(usersLeft, member.id)
 
     const config = await app.getGuild(member.guild, { forceExists: true })
 

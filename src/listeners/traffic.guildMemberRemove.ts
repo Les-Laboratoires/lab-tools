@@ -14,7 +14,7 @@ export default new app.Listener({
 
     if (usersLeft.includes(member.id)) return
     usersLeft.push(member.id)
-    app.util.removeItem(usersJoined, member.id)
+    app.tools.removeItem(usersJoined, member.id)
 
     if (!config) return
 
