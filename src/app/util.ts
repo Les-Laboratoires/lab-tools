@@ -689,3 +689,9 @@ export async function checkCooldown(
     }
   }
 }
+
+export function removeItem<T>(array: T[], itemToRemove: T) {
+  const index = array.indexOf(itemToRemove)
+  if (index !== -1) array.splice(index, 1)
+}
+
