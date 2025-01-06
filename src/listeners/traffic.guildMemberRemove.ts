@@ -9,6 +9,13 @@ export default new app.Listener({
 
     const config = await app.getGuild(member.guild)
 
+    const usersLeft: string[] = app.cache.ensure("usersLeft", [])
+    const usersJoined: string[] = app.cache.ensure("usersJoined", [])
+
+    if (usersLeft.includes(member.id)) return
+    usersLeft.push(member.id)
+    app.util.removeItem(usersJoined, member.id)
+
     if (!config) return
 
     if (member.user.bot) {
@@ -44,3 +51,4 @@ export default new app.Listener({
     }
   },
 })
+

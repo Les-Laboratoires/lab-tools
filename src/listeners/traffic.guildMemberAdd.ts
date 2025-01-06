@@ -11,6 +11,13 @@ export default new app.Listener({
     if (!app.cache.ensure<boolean>("turn", true)) return
     if (await app.isIgnored(member.guild.id)) return
 
+    const usersJoined: string[] = app.cache.ensure("usersJoined", [])
+    const usersLeft: string[] = app.cache.ensure("usersLeft", [])
+
+    if (usersJoined.includes(member.id)) return
+    usersJoined.push(member.id)
+    app.util.removeItem(usersLeft, member.id)
+
     const config = await app.getGuild(member.guild, { forceExists: true })
 
     await app.applyAutoRoles(member)
@@ -83,3 +90,4 @@ export default new app.Listener({
     )
   },
 })
+
