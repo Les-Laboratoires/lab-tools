@@ -1,31 +1,59 @@
 // system file, please don't modify it
 
-import fs from "fs"
-import path from "path"
-import util from "util"
 import dayjs from "dayjs"
-import discord from "discord.js"
 import * as discordEval from "discord-eval.ts"
-import EventEmitter from "events"
+import discord from "discord.js"
+import EventEmitter from "node:events"
+import fs from "node:fs"
+import path from "node:path"
+import url from "node:url"
+import util from "node:util"
 import simpleGit from "simple-git"
 
 import type { PackageJson } from "types-package-json"
 
-import v10 from "discord-api-types/v10"
-import utc from "dayjs/plugin/utc.js"
 import relative from "dayjs/plugin/relativeTime.js"
 import timezone from "dayjs/plugin/timezone.js"
 import toObject from "dayjs/plugin/toObject.js"
+import utc from "dayjs/plugin/utc.js"
+import v10 from "discord-api-types/v10"
 
-import env from "#env"
-import client from "#client"
 import config from "#config"
-import logger from "#logger"
-
-export * from "discord-eval.ts"
-export { styleText, promisify, inspect } from "util"
+import client from "#core/client"
+import env from "#core/env"
+import logger from "#core/logger"
 
 export type PermissionsNames = keyof typeof v10.PermissionFlagsBits
+
+export function getCurrentFilename(importMeta: ImportMeta) {
+  return url.fileURLToPath(importMeta.url)
+}
+
+export function getCurrentDirname(importMeta: ImportMeta) {
+  return path.dirname(getCurrentFilename(importMeta))
+}
+
+/**
+ * Make a path from root of project and return it
+ */
+export function relativeRootPath(..._path: string[]): string {
+  return path.relative(process.cwd(), path.join(..._path))
+}
+
+/**
+ * Make a path from the "src" folder (or dist if compiled) and return it
+ */
+export function srcPath(..._path: string[]): string {
+  return path.join(getCurrentDirname(import.meta), "..", ..._path)
+}
+
+export function rootPath(..._path: string[]): string {
+  return path.join(process.cwd(), ..._path)
+}
+
+export const packageJSON = JSON.parse(
+  fs.readFileSync(rootPath("package.json"), "utf-8"),
+) as PackageJson
 
 export async function checkUpdates() {
   // fetch latest bot.ts codebase
@@ -99,8 +127,8 @@ export async function checkUpdates() {
   }
 
   // check if the eslintrc.json file is present
-  if (fs.existsSync(fullPath(".eslintrc.json"))) {
-    if (!fs.existsSync(fullPath("eslint.config.mjs"))) {
+  if (fs.existsSync(rootPath(".eslintrc.json"))) {
+    if (!fs.existsSync(rootPath("eslint.config.mjs"))) {
       logger.warn(
         `The ${util.styleText("bold", ".eslintrc.json")} file is outdated, please run ${util.styleText(
           "bold",
@@ -112,7 +140,7 @@ export async function checkUpdates() {
         `ESLint migration guide => https://eslint.org/docs/latest/use/configure/migration-guide`,
       )
     } else {
-      fs.unlinkSync(fullPath(".eslintrc.json"))
+      fs.unlinkSync(rootPath(".eslintrc.json"))
 
       logger.log(
         `Removed the outdated ${util.styleText("bold", ".eslintrc.json")} file`,
@@ -143,8 +171,8 @@ dayjs.utc(1)
 
 if (env.BOT_TIMEZONE) dayjs.tz.setDefault(env.BOT_TIMEZONE)
 
-export { dayjs }
 export * from "tims"
+export { dayjs }
 
 export interface EventEmitters {
   messageCreate:
@@ -155,21 +183,6 @@ export interface EventEmitters {
 }
 
 export const messageEmitter = new EventEmitter()
-
-/**
- * Make a path from root of project and return it
- */
-export function rootPath(..._path: string[]): string {
-  return path.relative(process.cwd(), path.join(..._path))
-}
-
-export function fullPath(..._path: string[]): string {
-  return path.join(process.cwd(), ..._path)
-}
-
-export const packageJSON = JSON.parse(
-  fs.readFileSync(fullPath("package.json"), "utf-8"),
-) as PackageJson
 
 export const startedAt = Date.now()
 
@@ -439,10 +452,9 @@ export async function getFileGitURL(
     return `${remote.refs.fetch.replace(
       ".git",
       "",
-    )}/blob/${branchName}/${convertDistPathToSrc(rootPath(filepath)).replace(
-      /\\/g,
-      "/",
-    )}`
+    )}/blob/${branchName}/${convertDistPathToSrc(
+      relativeRootPath(filepath),
+    ).replace(/\\/g, "/")}`
   } catch {}
 }
 
@@ -507,6 +519,13 @@ export interface GetSystemMessageOptions {
    * The result of this callback will be returned as the final embed.
    */
   editEmbed?: (embed: discord.EmbedBuilder) => discord.EmbedBuilder
+}
+
+export function isSystemMessage(message: any): message is SystemMessage {
+  return (
+    typeof message === "object" &&
+    (Array.isArray(message.embeds) || typeof message.content === "string")
+  )
 }
 
 export async function getSystemMessage(
@@ -689,4 +708,3 @@ export async function checkCooldown(
     }
   }
 }
-

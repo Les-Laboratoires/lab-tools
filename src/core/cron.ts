@@ -2,13 +2,13 @@ import * as handler from "@ghom/handler"
 
 import discord from "discord.js"
 import cron from "node-cron"
-import path from "path"
-import url from "url"
+import url from "node:url"
 
-import * as util from "./util.ts"
+import env from "#core/env"
+import logger from "#core/logger"
+import * as util from "#core/util"
 
-import env from "#env"
-import logger from "#logger"
+import { styleText } from "node:util"
 
 export class CRON_Error extends Error {
   constructor(message: string) {
@@ -17,24 +17,19 @@ export class CRON_Error extends Error {
   }
 }
 
-export const cronHandler = new handler.Handler<Cron>(
-  path.join(process.cwd(), "dist", "cron"),
-  {
-    pattern: /\.js$/,
-    loader: async (filepath) => {
-      const file = await import(url.pathToFileURL(filepath).href)
-      if (file.default instanceof Cron) return file.default
-      throw new CRON_Error(
-        `${filepath}: default export must be a Cron instance`,
-      )
-    },
-    onLoad: async (filepath, button) => {
-      button.native = filepath.endsWith(".native.js")
-      button.filepath = filepath
-      cronList.add(button)
-    },
+export const cronHandler = new handler.Handler<Cron>(util.srcPath("cron"), {
+  pattern: /\.[tj]s$/,
+  loader: async (filepath) => {
+    const file = await import(url.pathToFileURL(filepath).href)
+    if (file.default instanceof Cron) return file.default
+    throw new CRON_Error(`${filepath}: default export must be a Cron instance`)
   },
-)
+  onLoad: async (filepath, button) => {
+    button.native = /.native.[jt]s$/.test(filepath)
+    button.filepath = filepath
+    cronList.add(button)
+  },
+})
 
 export const cronList = new (class CronCollection extends discord.Collection<
   string,
@@ -50,9 +45,9 @@ export const cronList = new (class CronCollection extends discord.Collection<
     cronConfigToPattern(cron.options.schedule)
 
     logger.log(
-      `loaded cron ${util.styleText("blueBright", cron.options.name)}${
-        cron.native ? ` ${util.styleText("green", "native")}` : ""
-      } ${util.styleText("grey", cron.options.description)}`,
+      `loaded cron ${styleText("blueBright", cron.options.name)}${
+        cron.native ? ` ${styleText("green", "native")}` : ""
+      } ${styleText("grey", cron.options.description)}`,
     )
   }
 })()
@@ -122,6 +117,7 @@ export enum CronMonth {
 }
 
 export type CronIntervalKey =
+  | "secondly"
   | "minutely"
   | "hourly"
   | "daily"
@@ -130,11 +126,12 @@ export type CronIntervalKey =
   | "yearly"
 
 export interface CronIntervalSimple {
-  type: "minute" | "hour" | "day" | "week" | "month" | "year"
+  type: "second" | "minute" | "hour" | "day" | "week" | "month" | "year"
   duration: number
 }
 
 /**
+ * @property second from 0 to 59, or "*" for each
  * @property minute from 0 to 59, or "*" for each
  * @property hour from 0 to 23, or "*" for each
  * @property dayOfMonth from 1 to 31, or "*" for each
@@ -142,6 +139,7 @@ export interface CronIntervalSimple {
  * @property dayOfWeek from 0 (Sunday) to 6 (Saturday), or "*" for each
  */
 export interface CronIntervalAdvanced {
+  second?: number | "*"
   minute?: number | "*"
   hour?: number | "*"
   dayOfMonth?: number | "*"
@@ -169,25 +167,33 @@ export function cronConfigToPattern(config: CronOptions["schedule"]): string {
   )
     throw new CRON_Error("Invalid minute")
 
-  return `${config.minute ?? "*"} ${config.hour ?? "*"} ${
+  if (
+    typeof config.second === "number" &&
+    (config.second < 0 || config.second > 59)
+  )
+    throw new CRON_Error("Invalid second")
+
+  return `${config.second ?? "*"} ${config.minute ?? "*"} ${config.hour ?? "*"} ${
     config.dayOfMonth ?? "*"
   } ${config.month ?? "*"} ${config.dayOfWeek ?? "*"}`
 }
 
 export function cronKeyToPattern(key: CronIntervalKey): string {
   switch (key) {
+    case "secondly":
+      return "* * * * * *"
     case "minutely":
-      return "* * * * *"
+      return "0 * * * * *"
     case "hourly":
-      return "0 * * * *"
+      return "0 0 * * * *"
     case "daily":
-      return "0 0 * * *"
+      return "0 0 0 * * *"
     case "weekly":
-      return "0 0 * * 0"
+      return "0 0 0 * * 0"
     case "monthly":
-      return "0 0 1 * *"
+      return "0 0 0 1 * *"
     case "yearly":
-      return "0 0 1 1 *"
+      return "0 0 0 1 1 *"
     default:
       throw new CRON_Error("Invalid cron key")
   }
@@ -198,18 +204,20 @@ export function cronSimpleToPattern(simple: CronIntervalSimple): string {
     throw new CRON_Error("Invalid cron's schedule duration")
 
   switch (simple.type) {
+    case "second":
+      return `*/${simple.duration} * * * * *`
     case "minute":
-      return `*/${simple.duration} * * * *`
+      return `0 */${simple.duration} * * * *`
     case "hour":
-      return `0 */${simple.duration} * * *`
+      return `0 0 */${simple.duration} * * *`
     case "day":
-      return `0 0 */${simple.duration} * *`
+      return `0 0 0 */${simple.duration} * *`
     case "week":
-      return `0 0 * * */${simple.duration}`
+      return `0 0 0 * * */${simple.duration}`
     case "month":
-      return `0 0 1 */${simple.duration} *`
+      return `0 0 0 1 */${simple.duration} *`
     case "year":
-      return `0 0 1 1 */${simple.duration}`
+      return `0 0 0 1 1 */${simple.duration}`
     default:
       throw new CRON_Error("Invalid cron simple type")
   }

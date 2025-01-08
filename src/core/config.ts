@@ -3,10 +3,10 @@
 import type * as discord from "discord.js"
 import type * as zod from "zod"
 
-import type * as pagination from "./pagination.ts"
-import type * as command from "./command.ts"
-import type * as logger from "./logger.ts"
-import type * as util from "./util.ts"
+import type * as command from "#core/command"
+import type * as logger from "#core/logger"
+import type * as pagination from "#core/pagination"
+import type * as util from "#core/util"
 
 export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
   /**
@@ -36,12 +36,6 @@ export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
    * @default false
    */
   openSource?: boolean
-
-  /**
-   * Display the bot name in the console when the bot is ready
-   * @default false
-   */
-  printNameOnReady?: boolean
 
   /**
    * Get the prefix for the bot from a message object
@@ -99,6 +93,11 @@ export interface ConfigOptions<ZodSchema extends zod.ZodType<any, any, any>> {
    * }</pre>
    */
   logger?: logger.LoggerOptions
+
+  /**
+   * `@ghom/orm`'s default cache expiration time in milliseconds
+   */
+  ormCaching?: number
 }
 
 export class Config<ZodSchema extends zod.ZodType<any, any, any>> {

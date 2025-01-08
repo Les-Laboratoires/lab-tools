@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import "dotenv/config"
 
+import fs from "node:fs"
+import path from "node:path"
+import util from "node:util"
 import { z } from "zod"
-import fs from "fs"
-import path from "path"
-import util from "util"
 
-import * as logger from "./logger.ts"
 import { config } from "#config"
+import * as logger from "#core/logger"
 
 const localeList: { key: string; name: string }[] = JSON.parse(
   fs.readFileSync(
@@ -108,6 +108,18 @@ const envSchema = z.object({
   DB_USER: z.string().optional(),
   DB_PASSWORD: z.string().optional(),
   DB_DATABASE: z.string().optional(),
+  RUNTIME: z.enum(["node", "deno", "bun"], {
+    message: `You need to add a ${util.styleText(
+      "bold",
+      "RUNTIME",
+    )} in the .env file, for example: RUNTIME="node". You can choose between this list:\n=> node, deno, bun`,
+  }),
+  PACKAGE_MANAGER: z.enum(["npm", "yarn", "pnpm", "bun", "deno"], {
+    message: `You need to add a ${util.styleText(
+      "bold",
+      "PACKAGE_MANAGER",
+    )} in the .env file, for example: PACKAGE_MANAGER="yarn". You can choose between this list:\n=> npm, yarn, pnpm, bun`,
+  }),
 })
 
 type CustomSchema = (typeof config)["options"]["envSchema"]

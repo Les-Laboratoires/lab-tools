@@ -1,21 +1,19 @@
 // system file, please don't modify it
 
-import url from "url"
 import discord from "discord.js"
-import path from "path"
+import url from "node:url"
 
 import * as handler from "@ghom/handler"
 
-import env from "#env"
-import logger from "#logger"
 import config from "#config"
+import * as command from "#core/command"
+import env from "#core/env"
+import logger from "#core/logger"
+import * as util from "#core/util"
 
-import * as util from "./util.ts"
-import * as command from "./command.ts"
+import { styleText } from "node:util"
 
-import { filename } from "dirname-filename-esm"
-
-const __filename = filename(import.meta)
+const __filename = util.getCurrentFilename(import.meta)
 
 export class SlashCommandError extends Error {
   constructor(message: string) {
@@ -25,9 +23,9 @@ export class SlashCommandError extends Error {
 }
 
 export const slashCommandHandler = new handler.Handler<ISlashCommand>(
-  path.join(process.cwd(), "dist", "slash"),
+  util.srcPath("slash"),
   {
-    pattern: /\.js$/,
+    pattern: /\.[tj]s$/,
     loader: async (filepath) => {
       const file = await import(url.pathToFileURL(filepath).href)
       if (file.default instanceof SlashCommand) return file.default
@@ -36,7 +34,7 @@ export const slashCommandHandler = new handler.Handler<ISlashCommand>(
       )
     },
     onLoad: async (filepath, command) => {
-      command.native = filepath.endsWith("native.js")
+      command.native = /.native.[jt]s$/.test(filepath)
       command.filepath = filepath
       return slashCommands.add(command)
     },
@@ -65,6 +63,7 @@ export interface ISlashCommandOptions {
   userPermissions?: util.PermissionsNames[]
   allowRoles?: discord.RoleResolvable[]
   denyRoles?: discord.RoleResolvable[]
+  middlewares?: command.IMiddleware[]
   run: (
     interaction: discord.ChatInputCommandInteraction,
   ) => unknown | Promise<unknown>
@@ -84,6 +83,9 @@ export interface SlashCommandOptions<
   userPermissions?: discord.PermissionsString[]
   allowRoles?: discord.RoleResolvable[]
   denyRoles?: discord.RoleResolvable[]
+  middlewares?: command.Middleware<
+    SlashCommandInteraction<ChannelType, GuildOnly>
+  >[]
   build?: (
     this: discord.SlashCommandBuilder,
     builder: discord.SlashCommandBuilder,
@@ -141,12 +143,9 @@ export function validateSlashCommand(command: ISlashCommand) {
   debugSlashCommandBuilder(command.builder)
 
   logger.log(
-    `loaded command ${util.styleText(
-      "blueBright",
-      "/" + command.options.name,
-    )}${
-      command.native ? util.styleText("green", " native") : ""
-    } ${util.styleText("grey", command.options.description)}`,
+    `loaded command ${styleText("blueBright", "/" + command.options.name)}${
+      command.native ? styleText("green", " native") : ""
+    } ${styleText("grey", command.options.description)}`,
   )
 }
 
@@ -165,8 +164,8 @@ export async function registerSlashCommands(
     }
 
     logger.log(
-      `deployed ${util.styleText("blue", String(data.length))} slash commands${
-        guildId ? ` to new guild ${util.styleText("blue", guildId)}` : ""
+      `deployed ${styleText("blue", String(data.length))} slash commands${
+        guildId ? ` to new guild ${styleText("blue", guildId)}` : ""
       }`,
     )
   } catch (error: any) {
@@ -176,36 +175,35 @@ export async function registerSlashCommands(
 
 export async function prepareSlashCommand(
   interaction: discord.ChatInputCommandInteraction,
-  command: ISlashCommand,
+  cmd: ISlashCommand,
 ): Promise<void | never> {
-  if (command.options.botOwnerOnly && interaction.user.id !== env.BOT_OWNER)
+  if (cmd.options.botOwnerOnly && interaction.user.id !== env.BOT_OWNER)
     throw new SlashCommandError(
       "This command can only be used by the bot owner",
     )
 
   if (
-    command.options.guildOnly ||
-    (command.options.guildOnly !== false &&
-      command.options.channelType !== "dm")
+    cmd.options.guildOnly ||
+    (cmd.options.guildOnly !== false && cmd.options.channelType !== "dm")
   ) {
     if (!interaction.inGuild() || !interaction.guild)
       throw new SlashCommandError("This command can only be used in a guild")
 
     if (
-      command.options.guildOwnerOnly &&
+      cmd.options.guildOwnerOnly &&
       interaction.user.id !== interaction.guild.ownerId
     )
       throw new SlashCommandError(
         "This command can only be used by the guild owner",
       )
 
-    if (command.options.allowRoles || command.options.denyRoles) {
+    if (cmd.options.allowRoles || cmd.options.denyRoles) {
       const member = await interaction.guild.members.fetch(interaction.user.id)
 
-      if (command.options.allowRoles) {
+      if (cmd.options.allowRoles) {
         if (
           !member.roles.cache.some((role) =>
-            command.options.allowRoles?.includes(role.id),
+            cmd.options.allowRoles?.includes(role.id),
           )
         )
           throw new SlashCommandError(
@@ -213,10 +211,10 @@ export async function prepareSlashCommand(
           )
       }
 
-      if (command.options.denyRoles) {
+      if (cmd.options.denyRoles) {
         if (
           member.roles.cache.some((role) =>
-            command.options.denyRoles?.includes(role.id),
+            cmd.options.denyRoles?.includes(role.id),
           )
         )
           throw new SlashCommandError(
@@ -226,12 +224,25 @@ export async function prepareSlashCommand(
     }
   }
 
-  if (command.options.channelType === "thread") {
+  if (cmd.options.channelType === "thread") {
     if (!interaction.channel || !interaction.channel.isThread())
       throw new SlashCommandError("This command can only be used in a thread")
-  } else if (command.options.channelType === "dm") {
+  } else if (cmd.options.channelType === "dm") {
     if (!interaction.channel || !interaction.channel.isDMBased())
       throw new SlashCommandError("This command can only be used in a DM")
+  }
+
+  if (cmd.options.middlewares) {
+    const result = await command.prepareMiddlewares(
+      interaction,
+      cmd.options.middlewares,
+    )
+
+    if (result !== true) {
+      if (result === false)
+        throw new SlashCommandError(`This command is stopped by a middleware`)
+      else throw result
+    }
   }
 }
 
@@ -276,7 +287,7 @@ export async function sendSlashCommandDetails(
                 config.openSource
                   ? {
                       text: util.convertDistPathToSrc(
-                        util.rootPath(command.filepath!),
+                        util.relativeRootPath(command.filepath!),
                       ),
                     }
                   : null,

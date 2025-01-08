@@ -1,25 +1,25 @@
 import * as handler from "@ghom/handler"
 
-import path from "path"
-import url from "url"
 import discord from "discord.js"
+import url from "node:url"
 
-import * as util from "./util.ts"
+import env from "#core/env"
+import * as logger from "#core/logger"
+import * as util from "#core/util"
 
-import env from "#env"
-import * as logger from "#logger"
+import { styleText } from "node:util"
 
 export const buttonHandler = new handler.Handler<IButton>(
-  path.join(process.cwd(), "dist", "buttons"),
+  util.srcPath("buttons"),
   {
-    pattern: /\.js$/,
+    pattern: /\.[jt]s$/,
     loader: async (filepath) => {
       const file = await import(url.pathToFileURL(filepath).href)
       if (file.default instanceof Button) return file.default
       throw new Error(`${filepath}: default export must be a Button instance`)
     },
     onLoad: async (filepath, button) => {
-      button.native = filepath.endsWith(".native.js")
+      button.native = /.native.[jt]s$/.test(filepath)
       button.filepath = filepath
       buttons.add(button)
     },
@@ -47,9 +47,9 @@ export const buttons = new (class ButtonCollection extends discord.Collection<
     )
 
     logger.log(
-      `loaded button ${util.styleText("blueBright", button.options.name)}${
-        button.native ? ` ${util.styleText("green", "native")}` : ""
-      } ${util.styleText("grey", button.options.description)}`,
+      `loaded button ${styleText("blueBright", button.options.name)}${
+        button.native ? ` ${styleText("green", "native")}` : ""
+      } ${styleText("grey", button.options.description)}`,
     )
   }
 })()
