@@ -38,7 +38,7 @@ export default new app.SlashCommand({
       return interaction.reply({
         content:
           "You don't be in the database so you don't have any coins to buy anything. Sorry!",
-        ephemeral: true,
+        flags: discord.MessageFlags.Ephemeral,
       })
     }
 
@@ -46,7 +46,7 @@ export default new app.SlashCommand({
       if (user.coins < prices.rename) {
         return interaction.reply({
           content: `You don't have enough coins to buy this. You need **${prices.rename}** coins. (You have **${user.coins}** 🪙)`,
-          ephemeral: true,
+          flags: discord.MessageFlags.Ephemeral,
         })
       }
 
@@ -67,7 +67,7 @@ export default new app.SlashCommand({
 
       return interaction.reply({
         content: `Renaming ${target}`,
-        ephemeral: true,
+        flags: discord.MessageFlags.Ephemeral,
         allowedMentions: { parse: [] },
       })
     }
