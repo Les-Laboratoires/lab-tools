@@ -6,16 +6,11 @@ services:
     container_name: ${BOT_NAME}
     restart: always
     volumes:
-      - .:/app
+      - ./data:/data
   
-  postgres:
-    image: postgres
-    container_name: postgres
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_DATABASE}
+  sqlite:
+    image: sqlite
+    container_name: sqlite
     volumes:
-      - ./data:/var/lib/postgresql/data
-    
+      - ./data:/data
   

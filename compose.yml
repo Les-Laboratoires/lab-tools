@@ -1,9 +1,0 @@
-services:
-  bot:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: ${BOT_NAME}
-    restart: always
-    volumes:
-      - ./data:/data
