@@ -12,10 +12,6 @@ import * as orm from "@ghom/orm"
 setTypeParsers()
 
 
-const dataDirectory = util.rootPath("data")
-
-
-
 const client = new orm.ORM({
   tableLocation: util.srcPath("tables"),
   backups: {

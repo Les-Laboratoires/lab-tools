@@ -1,5 +1,6 @@
 // system file, please don't modify it
 
+import discord from "discord.js"
 import * as button from "#core/button"
 import { Listener } from "#core/listener"
 import logger from "#core/logger"

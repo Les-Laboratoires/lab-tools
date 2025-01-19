@@ -1,12 +1,13 @@
-import * as app from "#app"
-
-import userTable from "#tables/user.ts"
+import discord from "discord.js"
+import { SlashCommand } from "#core/slash"
+import userTable from "#tables/user"
+import { getUser, sendLog } from "#namespaces/tools"
 
 const prices = {
   rename: 1000,
 }
 
-export default new app.SlashCommand({
+export default new SlashCommand({
   name: "buy",
   description: "Use your coins to buy something",
   guildOnly: true,
@@ -32,7 +33,7 @@ export default new app.SlashCommand({
   async run(interaction) {
     const subcommand = interaction.options.getSubcommand()
 
-    const user = await app.getUser(interaction.user)
+    const user = await getUser(interaction.user)
 
     if (!user) {
       return interaction.reply({
@@ -60,7 +61,7 @@ export default new app.SlashCommand({
 
       await member.setNickname(name)
 
-      await app.sendLog(
+      await sendLog(
         interaction.guild,
         `${interaction.user} renamed ${target} to \`${name}\``,
       )
