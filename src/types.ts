@@ -1,4 +1,4 @@
-import * as app from "#app"
+import * as app from "#all"
 import regexParser from "regex-parser"
 
 /**

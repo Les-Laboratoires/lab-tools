@@ -1,6 +1,8 @@
-import * as app from "#app"
+import { SlashCommand } from "#core/slash"
+import { sendLog } from "#namespaces/tools"
+import { generateThreadHint } from "#namespaces/openai"
 
-export default new app.SlashCommand({
+export default new SlashCommand({
   name: "hint",
   description: "Try to help the author of the thread by generating a hint",
   channelType: "thread",
@@ -9,7 +11,7 @@ export default new app.SlashCommand({
   async run(interaction) {
     // Generate a hint
 
-    const hint = await app.generateThreadHint(interaction.channel)
+    const hint = await generateThreadHint(interaction.channel)
 
     // Send the hint
 
@@ -17,7 +19,7 @@ export default new app.SlashCommand({
 
     // Feedbacks
 
-    await app.sendLog(
+    await sendLog(
       interaction.guild,
       `${interaction.user} generated a hint for ${interaction.channel} of **${hint.length}** characters.`,
     )

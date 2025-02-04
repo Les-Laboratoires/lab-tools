@@ -1,25 +1,31 @@
+import * as discord from "discord.js"
+import * as discordEval from "discord-eval.ts"
+
 import { execSync } from "node:child_process"
 
-import * as app from "#app"
+import logger from "#core/logger"
+import { Command } from "#core/command"
+import { CooldownType } from "#core/util"
+import { emote } from "#namespaces/emotes"
 
-import restart from "#tables/restart.ts"
+import restart from "#tables/restart"
 
 type State = "waiting" | "running" | "done" | "error"
-type Command = { cmd: string; state: State; time: number }
+type Task = { cmd: string; state: State; time: number }
 
-export default new app.Command({
+export default new Command({
   name: "deploy",
   description: "Deploy Lab Tool",
   channelType: "all",
   botOwnerOnly: true,
   cooldown: {
     duration: 10000,
-    type: app.CooldownType.Global,
+    type: CooldownType.Global,
   },
   async run(message) {
     message.triggerCooldown()
 
-    const commands: Command[] = [
+    const tasks: Task[] = [
       { state: "waiting", time: 0, cmd: "git reset --hard" },
       { state: "waiting", time: 0, cmd: "git pull" },
       { state: "waiting", time: 0, cmd: "npm install" },
@@ -27,8 +33,8 @@ export default new app.Command({
       { state: "waiting", time: 0, cmd: "pm2 restart tool" },
     ]
 
-    const format = (command: Command) =>
-      `${app.emote(
+    const format = (task: Task) =>
+      `${emote(
         message,
         (
           {
@@ -37,38 +43,36 @@ export default new app.Command({
             done: "CheckMark",
             error: "Cross",
           } as const
-        )[command.state],
-      )} ${command.state === "running" ? "**" : ""}\`>_ ${command.cmd}\`${
-        command.state === "running" ? "**" : ""
-      } ${command.time ? `(**${command.time}** ms)` : ""}`.trim()
+        )[task.state],
+      )} ${task.state === "running" ? "**" : ""}\`>_ ${task.cmd}\`${
+        task.state === "running" ? "**" : ""
+      } ${task.time ? `(**${task.time}** ms)` : ""}`.trim()
 
     const makeView = (finish?: boolean, errored?: boolean) =>
-      `${commands
-        .map((command) =>
-          format({ ...command, state: finish ? "done" : command.state }),
-        )
+      `${tasks
+        .map((task) => format({ ...task, state: finish ? "done" : task.state }))
         .join(
           "\n",
-        )}\n${app.emote(message, finish ? "CheckMark" : errored ? "Cross" : "Loading")} ${
+        )}\n${emote(message, finish ? "CheckMark" : errored ? "Cross" : "Loading")} ${
         finish ? `**Deployed** 🚀` : errored ? "Errored" : "Deploying..."
       }`
 
-    const run = async (command: Command) => {
-      command.state = "running"
+    const run = async (task: Task) => {
+      task.state = "running"
 
       await view.edit(makeView())
 
       try {
-        execSync(command.cmd, { cwd: process.cwd() })
+        execSync(task.cmd, { cwd: process.cwd() })
       } catch (error: any) {
-        command.state = "error"
+        task.state = "error"
 
         await view.edit(makeView(false, true))
 
         throw error
       }
 
-      command.state = "done"
+      task.state = "done"
     }
 
     const view = await message.channel.send(makeView())
@@ -83,7 +87,7 @@ export default new app.Command({
     })
 
     try {
-      for (const command of commands) {
+      for (const command of tasks) {
         const time = Date.now()
 
         await run(command)
@@ -93,15 +97,15 @@ export default new app.Command({
     } catch (error: any) {
       await restart.query.delete().where({ created_at })
 
-      app.error(error)
+      logger.error(error)
 
       return view.edit({
         embeds: [
-          new app.EmbedBuilder()
+          new discord.EmbedBuilder()
             .setTitle("\\❌ An error has occurred.")
             .setColor("Red")
             .setDescription(
-              await app.code.stringify({
+              await discordEval.code.stringify({
                 content: (error?.stack ?? error?.message ?? String(error))
                   .split("")
                   .reverse()

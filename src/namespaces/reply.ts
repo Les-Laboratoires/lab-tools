@@ -1,8 +1,8 @@
-import * as app from "#app"
+import { ResponseCache } from "@ghom/orm"
 
-import replyTable, { Reply } from "#tables/reply.ts"
+import replyTable, { Reply } from "#tables/reply"
 
-export const replies = new app.ResponseCache(async (guildId: number) => {
+export const replies = new ResponseCache(async (guildId: number) => {
   return replyTable.query.where("guild_id", guildId)
 }, 600_000)
 
@@ -19,5 +19,5 @@ export async function removeReply(replyId: number) {
 
   await replyTable.query.delete().where("_id", replyId)
 
-  if (reply) await app.replies.fetch(String(reply.guild_id), reply.guild_id)
+  if (reply) await replies.fetch(String(reply.guild_id), reply.guild_id)
 }

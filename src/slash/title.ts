@@ -1,6 +1,8 @@
-import * as app from "#app"
+import { SlashCommand } from "#core/slash"
+import { sendLog } from "#namespaces/tools"
+import { generateThreadTitle } from "#namespaces/openai"
 
-export default new app.SlashCommand({
+export default new SlashCommand({
   name: "title",
   description: "Generate a title for the thread from its content",
   guildOnly: true,
@@ -9,7 +11,7 @@ export default new app.SlashCommand({
   async run(interaction) {
     // Generate a title
 
-    const title = await app.generateThreadTitle(interaction.channel)
+    const title = await generateThreadTitle(interaction.channel)
 
     // Change the title
 
@@ -17,7 +19,7 @@ export default new app.SlashCommand({
 
     // Feedbacks
 
-    await app.sendLog(
+    await sendLog(
       interaction.guild,
       `${interaction.user} changed the title of ${interaction.channel} to:\n> **${title}**`,
     )
