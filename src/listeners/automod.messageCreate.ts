@@ -1,6 +1,6 @@
 import { Listener } from "#core/listener"
-import { detectAndBanSpammer } from "#namespaces/automod"
 import * as logger from "#core/logger"
+import { detectAndBanSpammer } from "#namespaces/automod"
 
 export default new Listener({
   event: "messageCreate",

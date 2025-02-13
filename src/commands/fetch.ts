@@ -1,8 +1,12 @@
-import * as app from "#app"
+import { Command } from "#core/index"
 
-import messages, { Message } from "#tables/message.ts"
+import { emote } from "#namespaces/emotes"
+import { fetchMessages } from "#namespaces/fetcher"
+import { getGuild, getUser } from "#namespaces/tools"
 
-export default new app.Command({
+import messages, { Message } from "#tables/message"
+
+export default new Command({
   name: "fetch",
   description: "Fetch all messages from a channel",
   channelType: "guild",
@@ -19,26 +23,26 @@ export default new app.Command({
     const target = message.args.channel
 
     const feedback = await message.channel.send(
-      `${app.emote(message, "Loading")} Fetching messages from ${target}...`,
+      `${emote(message, "Loading")} Fetching messages from ${target}...`,
     )
 
     let found = 0
 
-    const guild = await app.getGuild(message.guild, { forceExists: true })
+    const guild = await getGuild(message.guild, { forceExists: true })
 
     const userCache = new Map()
 
     const editInterval = 5000
     let lastEdit = Date.now()
 
-    await app.fetchMessages(message.args.channel, async (chunk) => {
+    await fetchMessages(message.args.channel, async (chunk) => {
       found += chunk.length
 
       const data: Message[] = []
 
       for (const m of chunk) {
         if (!userCache.has(m.author.id)) {
-          const user = await app.getUser(m.author, true)
+          const user = await getUser(m.author, true)
           userCache.set(m.author.id, user)
         }
 
@@ -56,7 +60,7 @@ export default new app.Command({
       lastEdit = Date.now()
 
       await feedback.edit(
-        `${app.emote(
+        `${emote(
           message,
           "Loading",
         )} Fetching messages from ${target}... (**${found}** messages from **${
@@ -68,7 +72,7 @@ export default new app.Command({
     if (target.isTextBased()) target.messages.cache.clear()
 
     return feedback.edit(
-      `${app.emote(
+      `${emote(
         message,
         "CheckMark",
       )} Successfully fetched **${found}** messages from **${

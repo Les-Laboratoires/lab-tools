@@ -1,17 +1,21 @@
-import * as app from "#app"
+import { Listener } from "#core/listener"
+import { cache } from "#core/util"
+import { helpingFooterCacheId } from "#namespaces/caches"
+import { refreshHelpingFooter } from "#namespaces/point"
+import { getGuild } from "#namespaces/tools"
 
-export default new app.Listener({
+export default new Listener({
   event: "messageCreate",
   description: "Handle messages in the help forum channels",
   async run(message) {
-    if (!app.cache.ensure<boolean>("turn", true)) return
+    if (!cache.ensure<boolean>("turn", true)) return
 
     if (message.author.bot) return
     if (!message.guild) return
     if (!message.channel.isThread()) return
     if (!message.channel.parent) return
 
-    const guild = await app.getGuild(message.guild, { forceExists: true })
+    const guild = await getGuild(message.guild, { forceExists: true })
 
     if (message.channel.parent.id !== guild.help_forum_channel_id) return
 
@@ -20,18 +24,18 @@ export default new app.Listener({
     // Appeler la fonction refreshHelpingFooter ↓ 10 secondes après le dernier message (chaque message réinitialise le timer)
     // await app.refreshHelpingFooter(message.channel)
 
-    const cacheId = app.helpingFooterCacheId(message.channel)
+    const cacheId = helpingFooterCacheId(message.channel)
 
-    const timer = app.cache.get<NodeJS.Timeout>(cacheId)
+    const timer = cache.get<NodeJS.Timeout>(cacheId)
 
     if (timer) clearTimeout(timer)
 
-    app.cache.set(
+    cache.set(
       cacheId,
       setTimeout(
         (channel) => {
-          app.refreshHelpingFooter(channel)
-          app.cache.delete(cacheId)
+          refreshHelpingFooter(channel)
+          cache.delete(cacheId)
         },
         10_000,
         message.channel,
