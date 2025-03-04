@@ -1,13 +1,16 @@
-import * as button from "#src/app/button.ts"
-import type * as pagination from "#src/app/pagination.ts"
+// system file, please don't modify it
 
-export default new button.Button<{
+import discord from "discord.js"
+import { Button } from "#core/button"
+import type * as pagination from "#core/pagination"
+
+export default new Button<{
   key: pagination.PaginatorKey
 }>({
   name: "pagination",
   description: "The pagination button",
   async run(interaction, { key }) {
-    const app = await import("#app")
+    const app = await import("#core/pagination")
 
     const paginator = app.Paginator.getByMessage(interaction.message)
 
@@ -15,7 +18,7 @@ export default new button.Button<{
 
     return interaction.reply({
       content: "This paginator is no longer available",
-      ephemeral: true,
+      flags: discord.MessageFlags.Ephemeral,
     })
   },
 })

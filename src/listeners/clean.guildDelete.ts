@@ -1,8 +1,8 @@
-import * as app from "#app"
+import { Listener } from "#core/listener"
 
-import guilds from "#tables/guild.ts"
+import guilds from "#tables/guild"
 
-export default new app.Listener({
+export default new Listener({
   event: "guildDelete",
   description: "Remove guild from db",
   async run(guild) {

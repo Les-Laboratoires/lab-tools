@@ -1,14 +1,16 @@
-import * as app from "#app"
+import { ResponseCache } from "@ghom/orm"
 
-import remindTable from "#tables/remind.ts"
-import userTable from "#tables/user.ts"
+import client from "#core/client"
+
+import remindTable from "#tables/remind"
+import userTable from "#tables/user"
 
 const allRemindId = "all reminders"
 
 /**
  * Cache for all reminds refreshed every 6 hours
  */
-export const allRemindCache = new app.ResponseCache(
+export const allRemindCache = new ResponseCache(
   () => {
     return remindTable.query.select()
   },
@@ -24,7 +26,7 @@ export async function checkReminds() {
       const user = await userTable.query.where("_id", remind.user_id).first()
 
       if (user) {
-        const dm = await app.client.users.createDM(user.id)
+        const dm = await client.users.createDM(user.id)
         await dm.send(`## Reminder:\n${remind.message}`)
       }
 

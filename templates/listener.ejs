@@ -1,0 +1,14 @@
+import { Listener } from "#core/listener"
+
+/**
+ * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-listener listener guide} for more information.
+ */
+export default new Listener({
+  event: "<%= event %>",
+  description: "<%= description %>",<% if(once) {
+  %>
+  once: true,<% } %>
+  async run(<%= args.join(", ") %>) {
+   // todo: code here
+  }
+})

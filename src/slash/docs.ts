@@ -1,6 +1,7 @@
-import * as app from "#app"
+import { SlashCommand } from "#core/slash"
+import { generateDocURLList } from "#namespaces/openai"
 
-export default new app.SlashCommand({
+export default new SlashCommand({
   name: "docs",
   description: "Send doc links for the provided tags",
   guildOnly: true,
@@ -17,7 +18,7 @@ export default new app.SlashCommand({
     await interaction.deferReply()
 
     const tags = interaction.options.getString("tags") as string
-    const links = await app.generateDocURLList(tags)
+    const links = await generateDocURLList(tags)
 
     await interaction.editReply(links)
   },

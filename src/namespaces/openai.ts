@@ -1,6 +1,6 @@
 import OpenAI from "openai"
 import discord from "discord.js"
-import env from "#env"
+import env from "#core/env"
 
 let openai: OpenAI
 

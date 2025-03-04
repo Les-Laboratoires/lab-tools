@@ -1,25 +1,31 @@
-import * as app from "#app"
+import discord from "discord.js"
+import { Button, CooldownType } from "#all"
+import * as tools from "#namespaces/tools"
+import { emote } from "#namespaces/emotes"
+import { refreshHelpingFooter } from "#namespaces/point"
 
-export default new app.Button({
+export default new Button({
   name: "upTopic",
   description: "Up the topic in the help forum",
   guildOnly: true,
   cooldown: {
-    type: app.CooldownType.ByChannel,
+    type: CooldownType.ByChannel,
     duration: 1000 * 60 * 60, // 1 hour
   },
   builder: (builder) =>
     builder
       .setLabel("Remonter")
       .setEmoji("🆙")
-      .setStyle(app.ButtonStyle.Secondary),
+      .setStyle(discord.ButtonStyle.Secondary),
   async run(interaction) {
     if (!interaction.channel?.isThread()) return
 
     await interaction.deferUpdate()
 
     const topic = interaction.channel
-    const guild = await app.getGuild(interaction.guild!, { forceExists: true })
+    const guild = await tools.getGuild(interaction.guild!, {
+      forceExists: true,
+    })
 
     if (!guild.help_forum_channel_id) return
     if (topic.parentId !== guild.help_forum_channel_id) return
@@ -27,10 +33,10 @@ export default new app.Button({
     interaction.triggerCooldown()
 
     await interaction.followUp({
-      content: `${app.emote(interaction, "CheckMark")} Topic upped.`,
-      ephemeral: true,
+      content: `${emote(interaction, "CheckMark")} Topic upped.`,
+      flags: discord.MessageFlags.Ephemeral,
     })
 
-    await app.refreshHelpingFooter(topic)
+    await refreshHelpingFooter(topic)
   },
 })

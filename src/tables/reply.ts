@@ -1,5 +1,5 @@
 import discord from "discord.js"
-import { Table } from "#database"
+import { Table } from "@ghom/orm"
 
 export interface Reply {
   _id: number

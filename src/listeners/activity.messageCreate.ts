@@ -1,16 +1,19 @@
-import * as app from "#app"
+import { Listener } from "#core/listener"
+import { cache } from "#core/util"
 
-import messages from "#tables/message.ts"
+import * as tools from "#namespaces/tools"
 
-export default new app.Listener({
+import messages from "#tables/message"
+
+export default new Listener({
   event: "messageCreate",
   description: "Record sent messages",
   async run(message) {
-    if (!app.cache.ensure<boolean>("turn", true)) return
+    if (!cache.ensure<boolean>("turn", true)) return
     if (!message.guild) return
 
-    const user = await app.getUser(message.author, true)
-    const guild = await app.getGuild(message.guild, { forceExists: true })
+    const user = await tools.getUser(message.author, true)
+    const guild = await tools.getGuild(message.guild, { forceExists: true })
 
     await messages.query.insert({
       author_id: user._id,

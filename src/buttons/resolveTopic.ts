@@ -1,24 +1,36 @@
-import * as app from "#app"
-import helping from "#tables/helping.ts"
+import discord from "discord.js"
 
-export default new app.Button({
+import { Button } from "#core/button"
+
+import helping from "#tables/helping"
+
+import * as tools from "#namespaces/tools"
+import { emote } from "#namespaces/emotes"
+import { refreshHelpingFooter } from "#namespaces/point"
+
+export default new Button({
   name: "resolveTopic",
   description: "Mark the topic as resolved",
   guildOnly: true,
   builder: (builder) =>
-    builder.setLabel("Résolu").setStyle(app.ButtonStyle.Success).setEmoji("✅"),
+    builder
+      .setLabel("Résolu")
+      .setStyle(discord.ButtonStyle.Success)
+      .setEmoji("✅"),
   async run(interaction) {
     if (!interaction.channel?.isThread()) return
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: discord.MessageFlags.Ephemeral })
 
     const topic = interaction.channel
     const forum = topic.parent
-    const guild = await app.getGuild(interaction.guild!, { forceExists: true })
+    const guild = await tools.getGuild(interaction.guild!, {
+      forceExists: true,
+    })
 
     if (!forum || forum.id !== guild.help_forum_channel_id)
       return interaction.editReply({
-        content: `${app.emote(topic, "Cross")} Only usable in a forum topic.`,
+        content: `${emote(topic, "Cross")} Only usable in a forum topic.`,
       })
 
     if (
@@ -27,15 +39,15 @@ export default new app.Button({
         !interaction.memberPermissions?.has("ManageThreads"))
     )
       return interaction.editReply({
-        content: `${app.emote(topic, "Cross")} You must be the owner of the topic or have the \`ManageThreads\` permission to resolve it.`,
+        content: `${emote(topic, "Cross")} You must be the owner of the topic or have the \`ManageThreads\` permission to resolve it.`,
       })
 
     const { resolved_channel_indicator, resolved_channel_tag } =
-      await app.getGuild(interaction.guild!, { forceExists: true })
+      await tools.getGuild(interaction.guild!, { forceExists: true })
 
     if (topic.name.startsWith(resolved_channel_indicator))
       return interaction.editReply({
-        content: `${app.emote(topic, "Cross")} Topic is already resolved.`,
+        content: `${emote(topic, "Cross")} Topic is already resolved.`,
       })
 
     await topic.setName(`${resolved_channel_indicator} ${topic.name} [RÉSOLU]`)
@@ -47,7 +59,7 @@ export default new app.Button({
     }
 
     await interaction.editReply({
-      content: `${app.emote(topic, "CheckMark")} Thread marked as resolved.`,
+      content: `${emote(topic, "CheckMark")} Thread marked as resolved.`,
     })
 
     await helping.query
@@ -58,6 +70,6 @@ export default new app.Button({
       .onConflict("id")
       .merge(["resolved"])
 
-    await app.refreshHelpingFooter(topic)
+    await refreshHelpingFooter(topic)
   },
 })

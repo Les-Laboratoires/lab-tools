@@ -1,10 +1,13 @@
-import * as app from "#app"
+import { Command } from "#core/command"
+import * as middlewares from "#namespaces/middlewares"
+import { globalBan } from "#namespaces/automod"
+import { emote } from "#namespaces/emotes"
 
-export default new app.Command({
+export default new Command({
   name: "ban",
   description: "Ban a user from all labs",
   channelType: "guild",
-  middlewares: [app.staffOnly, app.labOnly],
+  middlewares: [middlewares.staffOnly, middlewares.labOnly],
   positional: [
     {
       name: "target",
@@ -20,7 +23,7 @@ export default new app.Command({
     },
   ],
   async run(message) {
-    const result = await app.globalBan(
+    const result = await globalBan(
       message.author,
       message.args.target,
       message.args.reason,
@@ -30,12 +33,12 @@ export default new app.Command({
 
     if (fails.length === result.length) {
       return message.reply(
-        `${app.emote(message, "Cross")} Failed to ban the user from all labs.`,
+        `${emote(message, "Cross")} Failed to ban the user from all labs.`,
       )
     }
 
     return message.reply(
-      `${app.emote(message, "CheckMark")} Banned the user from **${
+      `${emote(message, "CheckMark")} Banned the user from **${
         result.length - fails.length
       }** labs.`,
     )

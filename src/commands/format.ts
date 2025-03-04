@@ -1,17 +1,20 @@
-import * as app from "#app"
-
+import { code } from "discord-eval.ts"
 import * as prettify from "ghom-prettify"
 
-export default new app.Command({
+import { Command } from "#core/index"
+
+import { emote } from "#namespaces/emotes"
+
+export default new Command({
   name: "format",
   description: "Format the given code",
   aliases: ["beautify", "prettier"],
   channelType: "all",
   async run(message) {
-    const code = app.code.parse(message.rest)
+    const _code = code.parse(message.rest)
 
-    if (code) {
-      const { lang, content } = code
+    if (_code) {
+      const { lang, content } = _code
 
       const prettified = await prettify.format(content, {
         lang: lang as any,
@@ -20,14 +23,14 @@ export default new app.Command({
       })
 
       await message.channel.send(
-        await app.code.stringify({
+        await code.stringify({
           content: prettified,
           lang,
         }),
       )
     } else {
       await message.channel.send(
-        `${app.emote(message, "Cross")} Bad usage, please use code block tags`,
+        `${emote(message, "Cross")} Bad usage, please use code block tags`,
       )
     }
   },
