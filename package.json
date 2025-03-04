@@ -6,17 +6,17 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "bot": "bunx @ghom/bot.ts-cli",
-    "build": "rimraf dist && bunx rollup -c && bun run scripts/copy-keepers.js",
-    "final": "rimraf node_modules && bun install --production && bun run build",
-    "watch": "bun run --watch src/index.ts",
-    "start": "bun run src/index.ts",
-    "start.test": "bun run src/index.test.ts",
-    "format": "bunx prettier --write src scripts",
-    "lint": "bunx eslint src/**/*.ts --fix",
-    "update": "bun run scripts/update-framework.js",
-    "readme": "bun run build && bun run scripts/generate-readme.js",
-    "test": "bun run lint && tsc --noEmit && bun run start.test"
+    "bot": "npx @ghom/bot.ts-cli",
+    "build": "rimraf dist && npx rollup -c && node scripts/copy-keepers.js",
+    "final": "rimraf node_modules && npm install --production && npm run build",
+    "watch": "echo \"No watch support for this runtime\" && exit 1",
+    "start": "npm run build && node dist/index.js",
+    "start.test": "npm run build && node dist/index.test.js",
+    "format": "npx prettier --write src scripts",
+    "lint": "npx eslint src/**/*.ts --fix",
+    "update": "node scripts/update-framework.js",
+    "readme": "npm run build && node scripts/generate-readme.js",
+    "test": "npm run lint && tsc --noEmit && npm run start.test"
   },
   "prettier": {
     "semi": false,
