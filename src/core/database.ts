@@ -1,6 +1,4 @@
-
 import pg from "pg"
-
 
 import config from "#config"
 import env from "#core/env"
@@ -8,9 +6,7 @@ import * as logger from "#core/logger"
 import * as util from "#core/util"
 import * as orm from "@ghom/orm"
 
-
 setTypeParsers()
-
 
 const client = new orm.ORM({
   tableLocation: util.srcPath("tables"),
@@ -21,13 +17,12 @@ const client = new orm.ORM({
     client: "pg",
     useNullAsDefault: true,
     connection: {
-      
       port: env.DB_PORT ?? 5432,
       host: env.DB_HOST ?? "127.0.0.1",
       user: env.DB_USER ?? "postgres",
       password: env.DB_PASSWORD,
       database: env.DB_DATABASE ?? "postgres",
-      
+
       timezone: env.BOT_TIMEZONE || "UTC",
     },
   },
@@ -36,7 +31,6 @@ const client = new orm.ORM({
 })
 
 export default client
-
 
 function setTypeParsers() {
   const int = (value: string) => parseInt(value)
@@ -48,4 +42,3 @@ function setTypeParsers() {
   pg.types.setTypeParser(pg.types.builtins.FLOAT4, float)
   pg.types.setTypeParser(pg.types.builtins.FLOAT8, float)
 }
-
