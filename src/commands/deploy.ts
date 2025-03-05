@@ -29,6 +29,11 @@ export default new Command({
       { state: "waiting", time: 0, cmd: "git reset --hard" },
       { state: "waiting", time: 0, cmd: "git pull" },
       { state: "waiting", time: 0, cmd: "npm install" },
+      {
+        state: "waiting",
+        time: 0,
+        cmd: "npm install @rollup/rollup-linux-x64-gnu",
+      },
       { state: "waiting", time: 0, cmd: "npm run build" },
       { state: "waiting", time: 0, cmd: "pm2 restart tool" },
     ]
