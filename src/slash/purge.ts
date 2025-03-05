@@ -1,6 +1,8 @@
-import * as app from "#app"
+import discord from "discord.js"
+import { SlashCommand } from "#core/slash"
+import { getSystemMessage } from "#core/util"
 
-export default new app.SlashCommand({
+export default new SlashCommand({
   name: "purge",
   description: "Purge messages in a channel",
   guildOnly: true,
@@ -18,20 +20,20 @@ export default new app.SlashCommand({
 
     if (amount < 1 || amount > 100) {
       return interaction.reply({
-        ephemeral: true,
-        ...(await app.getSystemMessage(
+        flags: discord.MessageFlags.Ephemeral,
+        ...(await getSystemMessage(
           "error",
           "The amount of messages to purge must be between 1 and 100",
         )),
       })
     }
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: discord.MessageFlags.Ephemeral })
 
     await interaction.channel.bulkDelete(amount, true)
 
     return interaction.editReply(
-      await app.getSystemMessage(
+      await getSystemMessage(
         "success",
         `Successfully purged ${amount} messages.`,
       ),

@@ -1,17 +1,16 @@
 // system file, please don't modify it
 
-import * as app from "#app"
+import { Listener } from "#core/listener"
+import { Paginator } from "#core/pagination"
 
-const listener: app.Listener<"messageReactionAdd"> = {
+export default new Listener({
   event: "messageReactionAdd",
   description: "Handle the reactions for pagination",
   async run(reaction, user) {
     if (user.bot) return
 
-    const paginator = app.Paginator.getByMessage(reaction.message)
+    const paginator = Paginator.getByMessage(reaction.message)
 
     if (paginator) return paginator.handleReaction(reaction, user)
   },
-}
-
-export default listener
+})

@@ -1,31 +1,39 @@
-import * as app from "#app"
+// system file, please don't modify it
 
-const listener: app.Listener<"interactionCreate"> = {
+import discord from "discord.js"
+import { Listener } from "#core/listener"
+import * as logger from "#core/logger"
+import * as slash from "#core/slash"
+import * as util from "#core/util"
+
+export default new Listener({
   event: "interactionCreate",
   description: "Handle the interactions for slash commands",
   async run(interaction) {
     if (!interaction.isChatInputCommand()) return
 
-    if (!app.cache.ensure<boolean>("turn", true)) return
+    if (!util.cache.ensure<boolean>("turn", true)) return
 
-    const cmd = app.slashCommands.get(interaction.commandName)
+    const cmd = slash.slashCommands.get(interaction.commandName)
 
     if (!cmd)
       return interaction.reply(
-        await app.getSystemMessage("error", "Command not found"),
+        await util.getSystemMessage("error", "Command not found"),
       )
 
     try {
-      await app.prepareSlashCommand(interaction, cmd)
+      await slash.prepareSlashCommand(interaction, cmd)
     } catch (error) {
       if (error instanceof Error) {
-        if (!(error instanceof app.SlashCommandError))
-          app.error(error, cmd.filepath!, true)
+        if (!(error instanceof slash.SlashCommandError))
+          logger.error(error, cmd.filepath!, true)
 
-        return interaction.reply(await app.getSystemMessage("error", error))
+        return interaction.reply(await util.getSystemMessage("error", error))
+      } else if (util.isSystemMessage(error)) {
+        return interaction.reply(error)
       } else {
         return interaction.reply(
-          await app.getSystemMessage(
+          await util.getSystemMessage(
             "error",
             "An unknown error while preparing the command",
           ),
@@ -36,38 +44,46 @@ const listener: app.Listener<"interactionCreate"> = {
     try {
       await cmd.options.run.bind(interaction)(interaction)
     } catch (error: unknown) {
-      let errorMessage: app.SystemMessage
+      let errorMessage: util.SystemMessage
 
       if (error instanceof Error) {
-        app.error(error, cmd.filepath!, true)
+        logger.error(error, cmd.filepath!, true)
 
-        errorMessage = await app.getSystemMessage("error", error, {
+        errorMessage = await util.getSystemMessage("error", error, {
           stack: true,
         })
       } else {
-        errorMessage = await app.getSystemMessage(
+        errorMessage = await util.getSystemMessage(
           "error",
           "An unknown error while executing the command",
         )
       }
 
       if (interaction.replied || interaction.deferred) {
-        interaction[interaction.replied ? "followUp" : "editReply"]({
-          ...errorMessage,
-          ephemeral: true,
-        })
+        if (interaction.replied) {
+          interaction
+            .followUp({
+              ...errorMessage,
+              flags: discord.MessageFlags.Ephemeral,
+            })
+            .catch((error) => {
+              logger.error(error, cmd!.filepath!, true)
+            })
+        } else {
+          interaction.editReply(errorMessage).catch((error) => {
+            logger.error(error, cmd!.filepath!, true)
+          })
+        }
       } else {
         interaction
           .reply({
             ...errorMessage,
-            ephemeral: true,
+            flags: discord.MessageFlags.Ephemeral,
           })
           .catch((error) => {
-            app.error(error, cmd!.filepath!, true)
+            logger.error(error, cmd!.filepath!, true)
           })
       }
     }
   },
-}
-
-export default listener
+})

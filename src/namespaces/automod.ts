@@ -1,7 +1,8 @@
-import * as app from "#app"
 import discord from "discord.js"
-
-import labTable from "#tables/lab.ts"
+import labTable from "#tables/lab"
+import * as tools from "#namespaces/tools"
+import * as discordEval from "discord-eval.ts"
+import { emote } from "#namespaces/emotes"
 
 // /**
 //  * string is the author id
@@ -21,7 +22,7 @@ import labTable from "#tables/lab.ts"
 //   }
 // }
 
-export async function detectAndBanSpammer(message: app.Message) {
+export async function detectAndBanSpammer(message: discord.Message) {
   if (
     message.system ||
     !message.author ||
@@ -31,7 +32,7 @@ export async function detectAndBanSpammer(message: app.Message) {
   )
     return
 
-  const config = await app.getGuild({ id: message.guildId })
+  const config = await tools.getGuild({ id: message.guildId })
 
   if (!config || !config.auto_ban_channel_id) return
 
@@ -55,13 +56,13 @@ export async function detectAndBanSpammer(message: app.Message) {
 
         if (success > 0 && errored === 0) {
           await general.send(
-            `${app.emote(message, "CheckMark")} **${
+            `${emote(message, "CheckMark")} **${
               message.author.tag
             }** detected as a spammer and banned from **${success}** labs.`,
           )
         } else if (success > 0 && errored > 0) {
           await general.send(
-            `${app.emote(message, "CheckMark")} **${
+            `${emote(message, "CheckMark")} **${
               message.author.tag
             }** detected as a spammer and banned from **${success}** labs.\n**${errored}** labs failed to ban the user Reasons:\n${result
               .filter((result) => result.status === "rejected")
@@ -70,7 +71,7 @@ export async function detectAndBanSpammer(message: app.Message) {
           )
         } else {
           await general.send(
-            `${app.emote(message, "Cross")} **${
+            `${emote(message, "Cross")} **${
               message.author.tag
             }** detected as a spammer but all labs failed to ban the user.`,
           )
@@ -144,7 +145,7 @@ export async function globalBan(
 
   return Promise.allSettled(
     guilds.map(async (guild) => {
-      const config = await app.getGuild(guild)
+      const config = await tools.getGuild(guild)
 
       if (!config || !labs.includes(config._id)) return
 
@@ -155,17 +156,19 @@ export async function globalBan(
           deleteMessageSeconds: 60 * 60 * 5,
         })
 
-        await app.sendLog(
+        await tools.sendLog(
           guild,
           `**${target.tag}** has been banned by **${author.tag}**.\nReason: ${reason.toLowerCase()}`,
         )
       } catch (error: any) {
-        await app.sendLog(
+        await tools.sendLog(
           guild,
-          `**${target.tag}** could not be banned...${await app.code.stringify({
-            content: error.message,
-            lang: "js",
-          })}`,
+          `**${target.tag}** could not be banned...${await discordEval.code.stringify(
+            {
+              content: error.message,
+              lang: "js",
+            },
+          )}`,
         )
 
         throw error

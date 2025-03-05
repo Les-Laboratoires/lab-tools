@@ -1,0 +1,16 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${BOT_NAME}
+    restart: always
+    volumes:
+      - ./data:/data
+  
+  sqlite:
+    image: sqlite
+    container_name: sqlite
+    volumes:
+      - ./data:/data
+  

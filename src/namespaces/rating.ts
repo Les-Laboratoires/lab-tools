@@ -1,6 +1,8 @@
-import * as app from "#app"
-
-import table from "#tables/rating.ts"
+import table from "#tables/rating"
+import database from "#core/database"
+import { formatRank, Ladder } from "#namespaces/ladder"
+import { countOf, getGuild, getUser } from "#namespaces/tools"
+import { EmbedBuilder, EmbedField, GuildMember } from "discord.js"
 
 export interface RatingLadderLine {
   target: string
@@ -27,19 +29,19 @@ export function renderRatingLine(value: number, count: number) {
 }
 
 export const ratingLadder = (guild_id?: number) =>
-  new app.Ladder<RatingLadderLine>({
+  new Ladder<RatingLadderLine>({
     title: guild_id ? "Guild's members rating" : "Global users rating",
     async fetchLines(options) {
       const query = table.query
         .count({ rating_count: "from_id" })
         .select([
           "user.id as target",
-          app.database.raw("rank() over (order by avg(value) desc) as rank"),
-          app.database.raw("avg(value)::float as score"),
+          database.raw("rank() over (order by avg(value) desc) as rank"),
+          database.raw("avg(value)::float as score"),
         ])
         .leftJoin("user", "note.to_id", "user._id")
         .groupBy("user.id")
-        .having(app.database.raw("count(from_id)"), ">=", mineRatingCount)
+        .having(database.raw("count(from_id)"), ">=", mineRatingCount)
         .where("user.is_bot", false)
 
       if (guild_id) query.and.where("guild_id", guild_id)
@@ -56,14 +58,14 @@ export const ratingLadder = (guild_id?: number) =>
 
       if (guild_id) query.and.where("guild_id", guild_id)
 
-      return app.countOf(
+      return countOf(
         query
           .groupBy("user._id")
-          .having(app.database.raw("count(*)"), ">=", mineRatingCount),
+          .having(database.raw("count(*)"), ">=", mineRatingCount),
       )
     },
     formatLine(line) {
-      return `${app.formatRank(line.rank)} ${renderRatingLine(
+      return `${formatRank(line.rank)} ${renderRatingLine(
         line.score,
         line.rating_count,
       )}  <@${line.target}>`
@@ -77,12 +79,12 @@ export async function userRating(
   avg: number
   count: number
 }> {
-  const { _id: userId } = await app.getUser(user, true)
+  const { _id: userId } = await getUser(user, true)
 
   const query = table.query.where("to_id", userId)
 
   if (guild) {
-    const { _id: guildId } = await app.getGuild(guild, { forceExists: true })
+    const { _id: guildId } = await getGuild(guild, { forceExists: true })
 
     query.and.where("guild_id", guildId)
   }
@@ -97,7 +99,7 @@ export async function userRating(
     }))
 }
 
-export async function ratingEmbed(target: app.GuildMember) {
+export async function ratingEmbed(target: GuildMember) {
   const guildRating = await userRating(target, target.guild)
   const globalRating = await userRating(target)
 
@@ -115,7 +117,7 @@ export async function ratingEmbed(target: app.GuildMember) {
     )
   ).filter(({ rating }) => rating.count > 0)
 
-  const embed = new app.EmbedBuilder()
+  const embed = new EmbedBuilder()
     .setAuthor({
       name: `Rating of ${target.user.tag}`,
       iconURL: target.displayAvatarURL(),
@@ -125,7 +127,7 @@ export async function ratingEmbed(target: app.GuildMember) {
         "The rating is a number between 0 and 5.",
     )
 
-  const fields: app.EmbedField[] = [
+  const fields: EmbedField[] = [
     {
       name: "Global rating",
       value: renderRatingLine(globalRating.avg, globalRating.count),

@@ -1,19 +1,20 @@
-import * as app from "#app"
+import { Listener } from "#core/listener"
+import { formatDuration } from "#namespaces/date"
+import restart, { Restart } from "#tables/restart"
 
-import restart, { Restart } from "#tables/restart.ts"
-
+import { logger } from "@ghom/logger"
 import { filename } from "dirname-filename-esm"
 
 const __filename = filename(import.meta)
 
-const listener: app.Listener<"ready"> = {
+export default new Listener({
   event: "ready",
   description: "Send restart messages",
   once: true,
   async run(client) {
     const restartMessages: Restart[] = await restart.query.select()
 
-    app.log("restart messages: " + restartMessages.length)
+    logger.log("restart messages: " + restartMessages.length)
 
     for (const restartMessage of restartMessages) {
       const channel = await client.channels.fetch(
@@ -22,7 +23,7 @@ const listener: app.Listener<"ready"> = {
       )
 
       if (channel?.isSendable()) {
-        const content = `${restartMessage.content} (${app.formatDuration(restartMessage.created_at)})`
+        const content = `${restartMessage.content} (${formatDuration(restartMessage.created_at)})`
 
         if (!restartMessage.last_message_id) await channel.send(content)
         else {
@@ -33,11 +34,11 @@ const listener: app.Listener<"ready"> = {
           try {
             await message.edit(content)
           } catch (error: any) {
-            app.error(error, __filename)
+            logger.error(error, __filename)
           }
         }
       } else {
-        app.error(
+        logger.error(
           `channel ${restartMessage.last_channel_id} is not a text channel`,
           __filename,
         )
@@ -46,6 +47,4 @@ const listener: app.Listener<"ready"> = {
 
     await restart.query.delete()
   },
-}
-
-export default listener
+})

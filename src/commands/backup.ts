@@ -1,19 +1,23 @@
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 
-import * as app from "#app"
-import restart from "#tables/restart.ts"
+import { Command, sendCommandDetails } from "#core/command"
+import { DynamicPaginator } from "#core/pagination"
+import database from "#core/database"
+import restart from "#tables/restart"
+import { emote } from "#namespaces/emotes"
+import { formatDuration } from "#namespaces/date"
 
-export default new app.Command({
+export default new Command({
   name: "backup",
   description: "Manage database backups",
   channelType: "all",
   botOwnerOnly: true,
   async run(message) {
-    return app.sendCommandDetails(message, this)
+    return sendCommandDetails(message, this)
   },
   subs: [
-    new app.Command({
+    new Command({
       name: "create",
       description: "Create a database backup",
       aliases: ["new", "add", "save"],
@@ -30,30 +34,30 @@ export default new app.Command({
       async run(message) {
         try {
           const backups = await fs.promises.readdir(
-            app.database.config.backups!.location!,
+            database.config.backups!.location!,
           )
 
           if (backups.includes(message.args.name)) {
             return message.reply(
-              `${app.emote(message, "Cross")} Backup with that name already exists.`,
+              `${emote(message, "Cross")} Backup with that name already exists.`,
             )
           }
         } catch {}
 
         const view = await message.reply(
-          `${app.emote(message, "Loading")} Creating backup...`,
+          `${emote(message, "Loading")} Creating backup...`,
         )
 
         const startAt = new Date().toISOString()
 
-        await app.database.createBackup(message.args.name)
+        await database.createBackup(message.args.name)
 
         return view.edit(
-          `${app.emote(message, "CheckMark")} Successfully created backup (${app.formatDuration(startAt)})`,
+          `${emote(message, "CheckMark")} Successfully created backup (${formatDuration(startAt)})`,
         )
       },
     }),
-    new app.Command({
+    new Command({
       name: "restore",
       description: "Restore a database backup",
       aliases: ["load"],
@@ -69,15 +73,15 @@ export default new app.Command({
       ],
       async run(message) {
         const view = await message.reply(
-          `${app.emote(message, "Loading")} Restoring backup...`,
+          `${emote(message, "Loading")} Restoring backup...`,
         )
 
-        await app.database.restoreBackup(message.args.name)
+        await database.restoreBackup(message.args.name)
 
         const created_at = new Date().toISOString()
 
         await restart.query.insert({
-          content: `${app.emote(message, "CheckMark")} Successfully restored the "${message.args.name}" backup and restarted the bot.`,
+          content: `${emote(message, "CheckMark")} Successfully restored the "${message.args.name}" backup and restarted the bot.`,
           last_channel_id: message.channel.id,
           last_message_id: view.id,
           created_at,
@@ -86,7 +90,7 @@ export default new app.Command({
         process.exit(0)
       },
     }),
-    new app.Command({
+    new Command({
       name: "list",
       description: "List all database backups",
       aliases: ["ls"],
@@ -95,16 +99,14 @@ export default new app.Command({
       async run(message) {
         try {
           const backups = await fs.promises.readdir(
-            app.database.config.backups!.location!,
+            database.config.backups!.location!,
           )
 
           if (backups.length === 0) {
-            return message.reply(
-              `${app.emote(message, "Cross")} No backups found.`,
-            )
+            return message.reply(`${emote(message, "Cross")} No backups found.`)
           }
 
-          new app.DynamicPaginator({
+          new DynamicPaginator({
             target: message.channel,
             filter: (reaction, user) => user.id === message.author.id,
             fetchPageCount: () => backups.length,
@@ -112,7 +114,7 @@ export default new app.Command({
               const name = backups[pageIndex]
 
               const chunks = await fs.promises.readdir(
-                path.join(app.database.config.backups!.location!, name),
+                path.join(database.config.backups!.location!, name),
               )
 
               return {
@@ -121,9 +123,7 @@ export default new app.Command({
             },
           })
         } catch {
-          return message.reply(
-            `${app.emote(message, "Cross")} No backups found.`,
-          )
+          return message.reply(`${emote(message, "Cross")} No backups found.`)
         }
       },
     }),

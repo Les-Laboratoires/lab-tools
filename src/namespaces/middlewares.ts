@@ -1,24 +1,39 @@
-import * as command from "../app/command.ts"
-import * as logger from "../app/logger.ts"
-import * as tools from "../namespaces/tools.ts"
+import * as command from "#core/command"
+import * as logger from "#core/logger"
+import * as tools from "#namespaces/tools"
 
-import { Guild } from "#tables/guild.ts"
-import labs from "#tables/lab.ts"
+import { Guild } from "#tables/guild"
+import labs from "#tables/lab"
+import discord from "discord.js"
 
-export const staffOnly = new command.Middleware<"guild">(
+export const staffOnly = new command.Middleware(
   "Staff only",
-  async function staffOnly(message, data) {
-    const config = await tools.getGuild(message.guild)
+  async function staffOnly(context, data) {
+    if (!context.guild)
+      return {
+        result: "This command can only be used in a guild.",
+        data,
+      }
+
+    const config = await tools.getGuild(context.guild)
 
     if (!config?.staff_role_id)
-      logger.warn(`Staff role is not configured in ${message.guild.name}`)
+      logger.warn(`Staff role is not configured in ${context.guild.name}`)
+
+    if (!context.member)
+      return {
+        result: "You must be a member of the guild.",
+        data,
+      }
+
+    const member = await context.guild.members.fetch(context.member.user.id)
 
     return {
       result:
         (config?.staff_role_id &&
-          message.member.roles.cache.has(config.staff_role_id)) ||
-        message.guild.ownerId === message.author.id ||
-        message.member.permissions.has("Administrator") ||
+          member.roles.cache.has(config.staff_role_id)) ||
+        context.guild.ownerId === member.id ||
+        member.permissions.has("Administrator") ||
         "You must be a member of staff.",
       data,
     }
@@ -26,15 +41,24 @@ export const staffOnly = new command.Middleware<"guild">(
 )
 
 export const hasConfigKey = (key: keyof Guild) =>
-  new command.Middleware<"guild">(`Has ${key} key`, async function hasConfigKey(
-    message,
+  new command.Middleware(`Has ${key} key`, async function hasConfigKey(
+    context,
     data,
   ) {
-    const config = await tools.getGuild(message.guild)
+    if (!context.guild)
+      return {
+        result: "This command can only be used in a guild.",
+        data,
+      }
+
+    const config = await tools.getGuild(context.guild)
 
     if (!config?.[key])
       return {
-        result: `You need to setup the **${key}** property !\nUse the \`${message.usedPrefix}config set ${key} <value>\` comand`,
+        result:
+          context instanceof discord.ChatInputCommandInteraction
+            ? `You need to setup the **${key}** property !\nUse the \`/config set ${key} <value>\` comand`
+            : `You need to setup the **${key}** property !\nUse the \`${context.usedPrefix}config set ${key} <value>\` comand`,
         data,
       }
 
@@ -44,9 +68,7 @@ export const hasConfigKey = (key: keyof Guild) =>
     }
   })
 
-export const isNotInUse = (
-  inUse: () => boolean,
-): command.Middleware<"all" | "guild" | "dm"> =>
+export const isNotInUse = (inUse: () => boolean) =>
   new command.Middleware("Is not in use", async function isNotInUse(_, data) {
     return {
       result: !inUse() || "Command is already in use.",
@@ -54,9 +76,15 @@ export const isNotInUse = (
     }
   })
 
-export const labOnly = new command.Middleware<"guild">(
+export const labOnly = new command.Middleware(
   "Lab only",
   async function labOnly(message, data) {
+    if (!message.guild)
+      return {
+        result: "This command can only be used in a guild.",
+        data,
+      }
+
     const config = await tools.getGuild(message.guild)
 
     if (!config)

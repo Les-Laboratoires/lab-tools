@@ -1,6 +1,6 @@
 import { Table } from "@ghom/orm"
 
-import { addCreatedAt } from "#src/namespaces/date.ts"
+import { addCreatedAt } from "#namespaces/date"
 
 export interface Message {
   author_id: number

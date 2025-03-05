@@ -1,6 +1,6 @@
 import { Table } from "@ghom/orm"
 
-import { addCreatedAt } from "../namespaces/date.ts"
+import { addCreatedAt } from "#namespaces/date"
 
 export interface Restart {
   content: string

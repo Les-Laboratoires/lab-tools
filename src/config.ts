@@ -1,17 +1,16 @@
-import { Config } from "#src/app/config.ts"
-import { Emotes } from "#src/namespaces/emotes.ts"
+import { Config } from "#core/config"
+import { Emotes } from "#namespaces/emotes"
 import { z } from "zod"
 
 export const config = new Config({
   ignoreBots: true,
   openSource: true,
-  printNameOnReady: true,
   permissions: [],
   envSchema: z.object({
     OPENAI_API_KEY: z.string(),
   }),
   async getPrefix(message) {
-    return import("#app").then((app) => app.prefix(message.guild))
+    return import("#namespaces/tools").then((app) => app.prefix(message.guild))
   },
   client: {
     intents: [

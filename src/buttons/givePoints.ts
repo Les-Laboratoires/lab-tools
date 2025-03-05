@@ -1,21 +1,30 @@
-import * as app from "#app"
-import points from "#tables/point.ts"
-import helping from "#tables/helping.ts"
+import discord from "discord.js"
 
-export default new app.Button<{
+import { Button } from "#core/button"
+
+import points from "#tables/point"
+import helping from "#tables/helping"
+
+import * as tools from "#namespaces/tools"
+import { emote } from "#namespaces/emotes"
+import { refreshHelpingFooter } from "#namespaces/point"
+
+export default new Button<{
   targetId: string
   amount: number
 }>({
-  key: "givePoints",
+  name: "givePoints",
   description: "Gives some helping points to a user",
   guildOnly: true,
   builder: (builder) => builder.setEmoji("👍"),
   async run(interaction, { targetId, amount }) {
     if (!interaction.channel?.isThread()) return
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: discord.MessageFlags.Ephemeral })
 
-    const guild = await app.getGuild(interaction.guild!, { forceExists: true })
+    const guild = await tools.getGuild(interaction.guild!, {
+      forceExists: true,
+    })
 
     if (!guild.help_forum_channel_id) return
     if (interaction.channel.parentId !== guild.help_forum_channel_id) return
@@ -24,7 +33,7 @@ export default new app.Button<{
 
     if (fromId === targetId)
       return await interaction.editReply({
-        content: `${app.emote(
+        content: `${emote(
           interaction,
           "Cross",
         )} You can't give points to yourself.`,
@@ -34,11 +43,11 @@ export default new app.Button<{
 
     if (fromId !== topic.ownerId)
       return await interaction.editReply({
-        content: `${app.emote(interaction, "Cross")} You can't give points to a user in a topic that you don't own.`,
+        content: `${emote(interaction, "Cross")} You can't give points to a user in a topic that you don't own.`,
       })
 
-    const fromUser = await app.getUser({ id: fromId }, true)
-    const toUser = await app.getUser({ id: targetId }, true)
+    const fromUser = await tools.getUser({ id: fromId }, true)
+    const toUser = await tools.getUser({ id: targetId }, true)
 
     await points.query.insert({
       from_id: fromUser._id,
@@ -47,13 +56,13 @@ export default new app.Button<{
       created_at: new Date().toISOString(),
     })
 
-    await app.sendLog(
+    await tools.sendLog(
       interaction.guild!,
-      `${interaction.user} gave **${amount}** points to ${app.userMention(targetId)} in ${interaction.channel}.`,
+      `${interaction.user} gave **${amount}** points to ${discord.userMention(targetId)} in ${interaction.channel}.`,
     )
 
     await interaction.editReply({
-      content: `${app.emote(interaction, "CheckMark")} Successfully thanked ${app.userMention(
+      content: `${emote(interaction, "CheckMark")} Successfully thanked ${discord.userMention(
         targetId,
       )}`,
     })
@@ -64,7 +73,7 @@ export default new app.Button<{
     })
 
     await target.send(
-      `${app.emote(
+      `${emote(
         interaction,
         "CheckMark",
       )} You received **${amount}** points from ${interaction.user} in ${
@@ -83,6 +92,6 @@ export default new app.Button<{
           : targetId,
     })
 
-    await app.refreshHelpingFooter(interaction.channel)
+    await refreshHelpingFooter(interaction.channel)
   },
 })

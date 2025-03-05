@@ -29,7 +29,6 @@ export interface Guild {
   online_tracker_pattern: string
   active_period: `${number}`
   active_message_count: `${number}`
-  active_refresh_interval: `${number}`
   resolved_channel_indicator: string
   resolved_channel_tag: string | null
 }
@@ -66,6 +65,9 @@ export default new Table<Guild>({
     },
     7: (table) => {
       table.string("help_forum_channel_id")
+    },
+    8: (table) => {
+      table.dropColumn("active_refresh_interval")
     },
   },
   setup: (table) => {

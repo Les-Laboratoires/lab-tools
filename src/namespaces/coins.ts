@@ -1,13 +1,20 @@
-import * as app from "#app"
+import discord from "discord.js"
 
-import userTable from "#tables/user.ts"
-import guildTable from "#tables/guild.ts"
-import pointTable from "#tables/point.ts"
-import noteTable from "#tables/rating.ts"
-import messageTable from "#tables/message.ts"
-import activeTable from "#tables/active.ts"
+import * as ladder from "#namespaces/ladder"
 
-import { ResponseCache } from "#database"
+import database from "#core/database"
+
+import userTable from "#tables/user"
+import guildTable from "#tables/guild"
+import pointTable from "#tables/point"
+import noteTable from "#tables/rating"
+import messageTable from "#tables/message"
+import activeTable from "#tables/active"
+
+import { forceTextSize } from "#core/util"
+import { ResponseCache } from "@ghom/orm"
+
+// import { ResponseCache } from "#core/database"
 
 export type CoinLadderLine = {
   rank: number
@@ -15,7 +22,7 @@ export type CoinLadderLine = {
   user_id: string
 }
 
-export const coinLadder = new app.Ladder({
+export const coinLadder = new ladder.Ladder({
   title: "Wealthiest members",
   fetchLineCount() {
     return userTable.count('"coins" > 0')
@@ -24,7 +31,7 @@ export const coinLadder = new app.Ladder({
     return userTable.query
       .select(
         "coins",
-        app.database.raw('rank() over (order by coins desc) as "rank"'),
+        database.raw('rank() over (order by coins desc) as "rank"'),
         "id as user_id",
       )
       .where("coins", ">", 0)
@@ -33,11 +40,11 @@ export const coinLadder = new app.Ladder({
       .then((rows) => rows as unknown as CoinLadderLine[])
   },
   formatLine(line, _, lines) {
-    return `${app.formatRank(line.rank)} \`${app.forceTextSize(
+    return `${ladder.formatRank(line.rank)} \`${forceTextSize(
       line.coins,
       Math.max(...lines.map((l) => String(l.coins).length)),
       true,
-    )}🪙\` - ${app.userMention(line.user_id)}`
+    )}🪙\` - ${discord.userMention(line.user_id)}`
   },
 })
 

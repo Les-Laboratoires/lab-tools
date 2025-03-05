@@ -1,14 +1,18 @@
-import * as app from "#app"
+import { Command, flag, option, positional } from "#core/index"
 
-import rating from "#tables/rating.ts"
+import { emote } from "#namespaces/emotes"
+import { ratingEmbed, ratingLadder } from "#namespaces/rating"
+import { getGuild, getUser } from "#namespaces/tools"
 
-export default new app.Command({
+import rating from "#tables/rating"
+
+export default new Command({
   name: "rating",
   aliases: ["note", "rate"],
   description: "Rate a user or a bot",
   channelType: "guild",
   positional: [
-    app.positional({
+    positional({
       name: "member",
       description: "The rated member",
       type: "member",
@@ -18,7 +22,7 @@ export default new app.Command({
         )
       },
     }),
-    app.positional({
+    positional({
       name: "rating",
       description: "Rating from 0 to 5",
       type: "number",
@@ -31,9 +35,9 @@ export default new app.Command({
       if (message.args.rating !== null) {
         const value = message.args.rating as 0 | 1 | 2 | 3 | 4 | 5
 
-        const fromUser = await app.getUser(message.author, true)
-        const toUser = await app.getUser(message.args.member, true)
-        const guild = await app.getGuild(message.guild, { forceExists: true })
+        const fromUser = await getUser(message.author, true)
+        const toUser = await getUser(message.args.member, true)
+        const guild = await getGuild(message.guild, { forceExists: true })
 
         const pack = {
           guild_id: guild._id,
@@ -48,27 +52,27 @@ export default new app.Command({
         }
 
         return message.channel.send(
-          `${app.emote(message, "CheckMark")} Successfully rated.`,
+          `${emote(message, "CheckMark")} Successfully rated.`,
         )
       }
 
       return message.channel.send({
-        embeds: [await app.ratingEmbed(message.args.member)],
+        embeds: [await ratingEmbed(message.args.member)],
       })
     }
 
     return message.channel.send({
-      embeds: [await app.ratingEmbed(message.member)],
+      embeds: [await ratingEmbed(message.member)],
     })
   },
   subs: [
-    new app.Command({
+    new Command({
       name: "leaderboard",
       description: `Show the leaderboard of Rating`,
       channelType: "guild",
       aliases: ["ladder", "lb", "top", "rank"],
       options: [
-        app.option({
+        option({
           name: "lines",
           description: "Number of lines to show per page",
           type: "number",
@@ -78,7 +82,7 @@ export default new app.Command({
         }),
       ],
       flags: [
-        app.flag({
+        flag({
           name: "global",
           flag: "g",
           description: "Show the global leaderboard of Rating",
@@ -87,9 +91,9 @@ export default new app.Command({
       run: async (message) => {
         const guild = message.args.global
           ? undefined
-          : await app.getGuild(message.guild, { forceExists: true })
+          : await getGuild(message.guild, { forceExists: true })
 
-        app.ratingLadder(guild?._id).send(message.channel, {
+        ratingLadder(guild?._id).send(message.channel, {
           pageLineCount: message.args.lines,
         })
       },

@@ -1,13 +1,11 @@
-import * as app from "#app"
+import { Listener } from "#core/listener"
 
-import guilds from "#tables/guild.ts"
+import guilds from "#tables/guild"
 
-const listener: app.Listener<"guildDelete"> = {
+export default new Listener({
   event: "guildDelete",
   description: "Remove guild from db",
   async run(guild) {
     await guilds.query.delete().where("id", guild.id)
   },
-}
-
-export default listener
+})

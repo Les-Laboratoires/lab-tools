@@ -1,8 +1,12 @@
-import * as app from "#app"
+import * as discord from "discord.js"
+import * as discordEval from "discord-eval.ts"
 
-import guilds, { Guild } from "#tables/guild.ts"
+import { Command } from "#core/command"
+import guilds, { Guild } from "#tables/guild"
+import { getGuild, isJSON } from "#namespaces/tools"
+import { emote } from "#namespaces/emotes"
 
-export default new app.Command({
+export default new Command({
   name: "config",
   description: "Display guild configs",
   guildOwnerOnly: true,
@@ -16,23 +20,23 @@ export default new app.Command({
     },
   ],
   async run(message) {
-    const config = await app.getGuild(message.guild, {
+    const config = await getGuild(message.guild, {
       forceExists: true,
       forceFetch: true,
     })
 
-    const specialProps: app.EmbedBuilder[] = []
+    const specialProps: discord.EmbedBuilder[] = []
 
     await message.channel.send({
       embeds: [
-        new app.EmbedBuilder()
+        new discord.EmbedBuilder()
           .setAuthor({
             name: `${message.guild.name} | Configs`,
             iconURL: message.guild.iconURL() ?? undefined,
           })
           .setDescription(
             message.args.raw
-              ? await app.code.stringify({
+              ? await discordEval.code.stringify({
                   lang: "json",
                   content: JSON.stringify(config, null, 2),
                 })
@@ -54,20 +58,22 @@ export default new app.Command({
                           entity = message.client.emojis.cache.get(value)
                         else if (
                           value.split("\n").length > 1 ||
-                          (app.isJSON(value) &&
+                          (isJSON(value) &&
                             !/^\d+$/.test(value) &&
                             value.length > 50)
                         ) {
-                          const isJSON = app.isJSON(value)
+                          const json = isJSON(value)
 
                           specialProps.push(
-                            new app.EmbedBuilder().setTitle(key).setDescription(
-                              await app.code.stringify({
-                                lang: isJSON ? "json" : undefined,
-                                format: isJSON ? { printWidth: 62 } : undefined,
-                                content: value,
-                              }),
-                            ),
+                            new discord.EmbedBuilder()
+                              .setTitle(key)
+                              .setDescription(
+                                await discordEval.code.stringify({
+                                  lang: json ? "json" : undefined,
+                                  format: json ? { printWidth: 62 } : undefined,
+                                  content: value,
+                                }),
+                              ),
                           )
 
                           return null
@@ -87,7 +93,7 @@ export default new app.Command({
       return message.channel.send({ embeds: specialProps })
   },
   subs: [
-    new app.Command({
+    new Command({
       name: "overwrite",
       aliases: ["ow", "new"],
       channelType: "guild",
@@ -106,11 +112,11 @@ export default new app.Command({
         await guilds.query.insert({ ...config, id: message.guild.id })
 
         return message.channel.send(
-          `${app.emote(message, "CheckMark")} Successfully overwritten config. `,
+          `${emote(message, "CheckMark")} Successfully overwritten config. `,
         )
       },
     }),
-    new app.Command({
+    new Command({
       name: "merge",
       aliases: ["mix"],
       channelType: "guild",
@@ -133,11 +139,11 @@ export default new app.Command({
           .merge()
 
         return message.channel.send(
-          `${app.emote(message, "CheckMark")} Successfully merged values. `,
+          `${emote(message, "CheckMark")} Successfully merged values. `,
         )
       },
     }),
-    new app.Command({
+    new Command({
       name: "set",
       channelType: "guild",
       guildOwnerOnly: true,
@@ -158,7 +164,7 @@ export default new app.Command({
       async run(message) {
         if (message.args.name === "id" || message.args.name === "_id")
           return message.channel.send(
-            `${app.emote(message, "Cross")} You can't edit the guild id!`,
+            `${emote(message, "Cross")} You can't edit the guild id!`,
           )
 
         await guilds.query
@@ -170,13 +176,13 @@ export default new app.Command({
           .merge([message.args.name as keyof Guild])
 
         return message.channel.send(
-          `${app.emote(message, "CheckMark")} Successfully updated \`${
+          `${emote(message, "CheckMark")} Successfully updated \`${
             message.args.name
           }\` value. `,
         )
       },
     }),
-    new app.Command({
+    new Command({
       name: "get",
       channelType: "guild",
       guildOwnerOnly: true,
@@ -190,15 +196,17 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        const config = await app.getGuild(message.guild)
+        const config = await getGuild(message.guild)
 
         if (!config)
           return message.channel.send({
             embeds: [
-              new app.EmbedBuilder()
+              new discord.EmbedBuilder()
                 .setColor("Blurple")
                 .setTitle(`${message.guild.name} - ${message.args.name}`)
-                .setDescription(await app.code.stringify({ content: "null" })),
+                .setDescription(
+                  await discordEval.code.stringify({ content: "null" }),
+                ),
             ],
           })
 
@@ -211,11 +219,11 @@ export default new app.Command({
 
         return message.channel.send({
           embeds: [
-            new app.EmbedBuilder()
+            new discord.EmbedBuilder()
               .setColor("Blurple")
               .setTitle(`${message.guild.name} - ${message.args.name}`)
               .setDescription(
-                await app.code.stringify({
+                await discordEval.code.stringify({
                   content:
                     json !== null
                       ? JSON.stringify(json, null, 2)
@@ -227,7 +235,7 @@ export default new app.Command({
         })
       },
     }),
-    new app.Command({
+    new Command({
       name: "reset",
       channelType: "guild",
       description: "Reset guild config",
@@ -236,7 +244,7 @@ export default new app.Command({
         await guilds.query.delete().where("id", message.guild.id)
 
         return message.channel.send(
-          `${app.emote(message, "CheckMark")} Successfully reset guild config.`,
+          `${emote(message, "CheckMark")} Successfully reset guild config.`,
         )
       },
     }),

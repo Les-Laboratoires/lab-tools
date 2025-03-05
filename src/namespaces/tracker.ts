@@ -1,13 +1,15 @@
-import * as app from "#app"
+import discord from "discord.js"
 
-import env from "#env"
+import env from "#core/env"
 
-import message from "#tables/message.ts"
+import message from "#tables/message"
 
-export async function updateGuildMemberCountTracker(guild: app.Guild) {
+import { getGuild, shortNumber } from "#namespaces/tools"
+
+export async function updateGuildMemberCountTracker(guild: discord.Guild) {
   if (env.BOT_MODE === "development") return
 
-  const config = await app.getGuild(guild)
+  const config = await getGuild(guild)
 
   if (config?.member_tracker_channel_id) {
     const channel = await guild.channels.fetch(config.member_tracker_channel_id)
@@ -18,19 +20,16 @@ export async function updateGuildMemberCountTracker(guild: app.Guild) {
       guild.members.cache.clear()
 
       await channel.setName(
-        config.member_tracker_pattern.replace(
-          "$n",
-          app.shortNumber(members.size),
-        ),
+        config.member_tracker_pattern.replace("$n", shortNumber(members.size)),
       )
     }
   }
 }
 
-export async function updateGuildMessageCountTracker(guild: app.Guild) {
+export async function updateGuildMessageCountTracker(guild: discord.Guild) {
   if (env.BOT_MODE === "development") return
 
-  const config = await app.getGuild(guild)
+  const config = await getGuild(guild)
 
   if (config?.message_tracker_channel_id) {
     const channel = await guild.channels.fetch(
@@ -41,16 +40,16 @@ export async function updateGuildMessageCountTracker(guild: app.Guild) {
       const messages = await message.count(`guild_id = ${config._id}`)
 
       await channel.setName(
-        config.message_tracker_pattern.replace("$n", app.shortNumber(messages)),
+        config.message_tracker_pattern.replace("$n", shortNumber(messages)),
       )
     }
   }
 }
 
-export async function updateGuildOnlineCountTracker(guild: app.Guild) {
+export async function updateGuildOnlineCountTracker(guild: discord.Guild) {
   if (env.BOT_MODE === "development") return
 
-  const config = await app.getGuild(guild)
+  const config = await getGuild(guild)
 
   if (config?.online_tracker_channel_id) {
     const channel = await guild.channels.fetch(config.online_tracker_channel_id)
@@ -69,7 +68,7 @@ export async function updateGuildOnlineCountTracker(guild: app.Guild) {
       await channel.setName(
         config.online_tracker_pattern.replace(
           "$n",
-          app.shortNumber(onlineMembers.size),
+          shortNumber(onlineMembers.size),
         ),
       )
     }

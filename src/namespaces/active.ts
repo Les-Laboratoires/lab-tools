@@ -1,9 +1,13 @@
-import * as app from "#app"
-
-import { Guild } from "#tables/guild.ts"
-import active from "#tables/active.ts"
-import message from "#tables/message.ts"
-import env from "#env"
+import discord from "discord.js"
+import database from "#core/database"
+import { Guild } from "#tables/guild"
+import active from "#tables/active"
+import message from "#tables/message"
+import env from "#core/env"
+import * as tools from "#namespaces/tools"
+import * as ladder from "#namespaces/ladder"
+import { emote } from "#namespaces/emotes"
+import { forceTextSize } from "#all"
 
 /**
  * @param guild_id internal guild id
@@ -28,7 +32,7 @@ export async function fetchActiveMembers(
     .where(
       "created_at",
       ">",
-      app.database.raw(`now() - interval '1 hour' * ${period}`),
+      database.raw(`now() - interval '1 hour' * ${period}`),
     )
     .groupBy("u.id")
     .havingRaw(`count(*) >= ${messageCount}`)
@@ -36,7 +40,7 @@ export async function fetchActiveMembers(
 }
 
 export async function updateActive(
-  guild: app.Guild,
+  guild: discord.Guild,
   options: {
     force: boolean
     period: number
@@ -55,10 +59,10 @@ export async function updateActive(
 
   guild.members.cache.clear()
 
-  const activeMembers: app.GuildMember[] = []
-  const inactiveMembers: app.GuildMember[] = []
+  const activeMembers: discord.GuildMember[] = []
+  const inactiveMembers: discord.GuildMember[] = []
 
-  const actives = await app.fetchActiveMembers(
+  const actives = await fetchActiveMembers(
     options.guildConfig._id,
     options.period,
     options.messageCount,
@@ -78,7 +82,7 @@ export async function updateActive(
       await active.query.insert(
         await Promise.all(
           activeMembers.map(async (member) => {
-            const user = await app.getUser(member, true)
+            const user = await tools.getUser(member, true)
 
             return {
               user_id: user._id,
@@ -90,7 +94,7 @@ export async function updateActive(
 
     if (options.onLog)
       await options.onLog(
-        `${app.emote(guild, "Loading")} Verification of **0**/**${
+        `${emote(guild, "Loading")} Verification of **0**/**${
           members.length
         }** members...`,
       )
@@ -103,7 +107,7 @@ export async function updateActive(
 
       if (options.onLog)
         await options.onLog(
-          `${app.emote(
+          `${emote(
             guild,
             "Loading",
           )} Verification of **${activeMembers.indexOf(member)}**/**${
@@ -120,7 +124,7 @@ export async function updateActive(
 
       if (options.onLog)
         await options.onLog(
-          `${app.emote(guild, "Loading")} Verification of **${
+          `${emote(guild, "Loading")} Verification of **${
             activeMembers.length + inactiveMembers.indexOf(member)
           }**/**${members.length}** members...`,
         )
@@ -135,13 +139,13 @@ export async function updateActive(
 
     if (options.onLog)
       await options.onLog(
-        `${app.emote(guild, "Loading")} Update of **${
+        `${emote(guild, "Loading")} Update of **${
           activeMembers.length
         }** active members...`,
       )
 
     for (const member of activeMembers) {
-      const user = await app.getUser(member, true)
+      const user = await tools.getUser(member, true)
 
       if (!activeMembersCache.find((am) => am.user_id === user._id)) {
         await member.roles.add(options.guildConfig.active_role_id!)
@@ -154,13 +158,13 @@ export async function updateActive(
 
     if (options.onLog)
       await options.onLog(
-        `${app.emote(guild, "Loading")} Update of **${
+        `${emote(guild, "Loading")} Update of **${
           inactiveMembers.length
         }** inactive members...`,
       )
 
     for (const member of inactiveMembers) {
-      const user = await app.getUser(member, true)
+      const user = await tools.getUser(member, true)
 
       if (activeMembersCache.find((am) => am.user_id === user._id)) {
         await member.roles.remove(options.guildConfig.active_role_id!)
@@ -174,7 +178,7 @@ export async function updateActive(
 
   if (options.onLog)
     options.onLog(
-      `${app.emote(guild, "CheckMark")} Found **${
+      `${emote(guild, "CheckMark")} Found **${
         activeMembers.length
       }** active members.`,
     )
@@ -190,7 +194,7 @@ export async function hasActivity(
   guild_id: number,
   period: number,
 ): Promise<boolean> {
-  return app
+  return tools
     .countOf(
       message.query
         .leftJoin("user", "message.author_id", "user._id")
@@ -210,12 +214,12 @@ export interface ActiveLadderLine {
 }
 
 export const activeLadder = (guild_id: number) =>
-  new app.Ladder<ActiveLadderLine>({
+  new ladder.Ladder<ActiveLadderLine>({
     title: "Guild's activity",
     fetchLines(options) {
       return message.query
         .select(
-          app.database.raw(
+          database.raw(
             `rank() over (order by count(*) desc) as "rank", "user"."id" as "target", count(*) as "messageCount"`,
           ),
         )
@@ -223,102 +227,25 @@ export const activeLadder = (guild_id: number) =>
         .where("guild_id", guild_id)
         .andWhere("user.is_bot", false)
         .groupBy("user.id")
-        .having(app.database.raw("count(*) > 0"))
+        .having(database.raw("count(*) > 0"))
         .orderBy("rank", "asc")
         .limit(options.pageLineCount)
         .offset(options.pageIndex * options.pageLineCount)
     },
     async fetchLineCount() {
-      return app.countOf(
+      return tools.countOf(
         message.query
           .leftJoin("user", "message.author_id", "user._id")
           .where("guild_id", guild_id)
           .andWhere("user.is_bot", false)
           .groupBy("user.id")
-          .having(app.database.raw("count(*) > 0")),
+          .having(database.raw("count(*) > 0")),
       )
     },
     formatLine(line, index, lines) {
-      return `${app.formatRank(line.rank)} avec \`${app.forceTextSize(
+      return `${ladder.formatRank(line.rank)} avec \`${forceTextSize(
         String(line.messageCount),
         Math.max(...lines.map((l) => l.messageCount), 0).toString().length,
       )}\` msg - <@${line.target}>`
     },
   })
-
-export async function launchActiveInterval(
-  guild: app.OAuth2Guild | app.Guild,
-  options: {
-    period: number
-    messageCount: number
-    refreshInterval: number
-  },
-) {
-  const config = await app.getGuild(guild, { forceExists: true })
-
-  const intervalId = app.activeIntervalCacheId(guild)
-  const interval = app.cache.get<NodeJS.Timeout>(intervalId)
-
-  if (interval !== undefined) clearInterval(interval)
-
-  app.cache.set(
-    intervalId,
-    setInterval(
-      async () => {
-        const realGuild = await guild.fetch()
-
-        if (!(await app.hasActivity(config._id, options.refreshInterval)))
-          return
-
-        let found: number
-
-        try {
-          found = await app.updateActive(realGuild, {
-            force: false,
-            period: options.period,
-            messageCount: options.messageCount,
-            guildConfig: config,
-          })
-        } catch (error: any) {
-          await app.sendLog(
-            realGuild,
-            `Failed to update the active list...${await app.code.stringify({
-              content: error.message,
-              lang: "js",
-            })}`,
-          )
-
-          return
-        }
-
-        const cacheId = app.lastActiveCountCacheId(realGuild)
-
-        const lastActiveCount = app.cache.ensure(cacheId, 0)
-
-        if (found > lastActiveCount) {
-          await app.sendLog(
-            realGuild,
-            `Finished updating the active list, found **${
-              found - lastActiveCount
-            }** active members.`,
-          )
-        } else if (found < lastActiveCount) {
-          await app.sendLog(
-            realGuild,
-            `Finished updating the active list, **${
-              lastActiveCount - found
-            }** members have been removed.`,
-          )
-        } else {
-          await app.sendLog(
-            realGuild,
-            `Finished updating the active list, no changes were made.`,
-          )
-        }
-
-        app.cache.set(cacheId, found)
-      },
-      options.refreshInterval * 1000 * 60 * 60,
-    ),
-  )
-}

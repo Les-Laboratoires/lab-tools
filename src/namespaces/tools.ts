@@ -1,22 +1,19 @@
-import { EmbedBuilder } from "discord.js"
+import discord from "discord.js"
+import { code } from "discord-eval.ts"
+import { ResponseCache } from "@ghom/orm"
 
-import type * as app from "#app"
+import client from "#core/client"
+import env from "#core/env"
 
-import { code } from "#src/app/util.ts"
+import autoRole from "#tables/autoRole"
+import guilds, { Guild } from "#tables/guild"
+import users, { User } from "#tables/user"
 
-import { ResponseCache } from "#database"
-import client from "#client"
-import env from "#env"
-
-import users, { User } from "#tables/user.ts"
-import guilds, { Guild } from "#tables/guild.ts"
-import autoRole from "#tables/autoRole.ts"
-
-import { emote } from "./emotes.ts"
+import { emote } from "#namespaces/emotes"
 
 export async function sendLog(
-  guild: Pick<app.Guild, "id" | "channels">,
-  toSend: string | app.EmbedBuilder,
+  guild: Pick<discord.Guild, "id" | "channels">,
+  toSend: string | discord.EmbedBuilder,
   config?: Guild,
 ) {
   config ??= await getGuild(guild)
@@ -70,6 +67,10 @@ export async function getGuild(
 ): Promise<Guild>
 export async function getGuild(
   guild: { id: string },
+  options?: { forceExists?: boolean; forceFetch: true },
+): Promise<Guild | undefined>
+export async function getGuild(
+  guild: { id: string },
   options?: { forceExists?: boolean; forceFetch?: boolean },
 ): Promise<Guild | undefined> {
   if (options?.forceFetch) return guildCache.fetch(guild.id, guild.id)
@@ -86,7 +87,7 @@ export async function getGuild(
 }
 
 export async function sendTemplatedEmbed(
-  channel: app.SendableChannels,
+  channel: discord.SendableChannels,
   template: string,
   replacers: { [k: string]: string },
 ) {
@@ -97,10 +98,10 @@ export async function sendTemplatedEmbed(
 
   let embeds
   try {
-    const data: app.EmbedData | app.EmbedData[] = JSON.parse(template)
+    const data: discord.EmbedData | discord.EmbedData[] = JSON.parse(template)
 
     embeds = (Array.isArray(data) ? data : [data]).map((options) => {
-      const embed = new EmbedBuilder(options)
+      const embed = new discord.EmbedBuilder(options)
 
       if (options.thumbnail?.url) embed.setThumbnail(options.thumbnail.url)
       if (options.image?.url) embed.setImage(options.image.url)
@@ -128,7 +129,7 @@ export async function sendTemplatedEmbed(
 }
 
 export function embedReplacers(
-  subject: app.GuildMember | app.PartialGuildMember,
+  subject: discord.GuildMember | discord.PartialGuildMember,
 ) {
   return {
     user: subject.user.toString(),
@@ -141,7 +142,9 @@ export function embedReplacers(
   }
 }
 
-export async function getAutoRoles(member: app.GuildMember): Promise<string[]> {
+export async function getAutoRoles(
+  member: discord.GuildMember,
+): Promise<string[]> {
   const guild = await getGuild(member.guild, { forceExists: true })
 
   return (
@@ -151,12 +154,12 @@ export async function getAutoRoles(member: app.GuildMember): Promise<string[]> {
   ).map((ar) => ar.role_id)
 }
 
-export async function applyAutoRoles(member: app.GuildMember) {
+export async function applyAutoRoles(member: discord.GuildMember) {
   const autoRoles = await getAutoRoles(member)
 
   if (member.roles.cache.hasAll(...autoRoles) || autoRoles.length === 0) return
 
-  await member.roles.add(autoRoles).catch()
+  await member.roles.add(autoRoles)
 }
 
 /**
@@ -167,7 +170,7 @@ export async function applyAutoRoles(member: app.GuildMember) {
  * @param interval
  */
 export async function sendProgress(
-  message: app.Message,
+  message: discord.Message,
   index: number,
   total: number,
   pattern: string,
@@ -198,7 +201,7 @@ export async function countOf(builder: any, column = "*"): Promise<number> {
   })
 }
 
-export async function prefix(guild?: app.Guild | null): Promise<string> {
+export async function prefix(guild?: discord.Guild | null): Promise<string> {
   const prefix = env.BOT_PREFIX
 
   if (guild) {
@@ -225,4 +228,9 @@ export function shortNumber(number: number): string {
     if (number < 100) return `${number.toFixed(1)}M`
     else return `${number.toFixed(0)}M`
   }
+}
+
+export function removeItem<T>(array: T[], itemToRemove: T) {
+  const index = array.indexOf(itemToRemove)
+  if (index !== -1) array.splice(index, 1)
 }

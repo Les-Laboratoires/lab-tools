@@ -1,17 +1,23 @@
-import * as app from "#app"
+import { Command } from "#core/command"
+import { option } from "#core/argument"
 
-import guildTable from "#tables/guild.ts"
+import guildTable from "#tables/guild"
+
+import { emote } from "#namespaces/emotes"
+import * as tools from "#namespaces/tools"
+import * as active from "#namespaces/active"
+import * as middlewares from "#namespaces/middlewares"
 
 let used = false
 
-export default new app.Command({
+export default new Command({
   name: "active",
   description: "Update the active list",
   channelType: "guild",
   middlewares: [
-    app.staffOnly,
-    app.hasConfigKey("active_role_id"),
-    app.isNotInUse(() => used),
+    middlewares.staffOnly,
+    middlewares.hasConfigKey("active_role_id"),
+    middlewares.isNotInUse(() => used),
   ],
   flags: [
     {
@@ -21,14 +27,14 @@ export default new app.Command({
     },
   ],
   options: [
-    app.option({
+    option({
       name: "period",
       description: "The period to check (in hours)",
       type: "number",
       validate: (value) => value > 0,
       validationErrorMessage: "The period must be greater than 0.",
     }),
-    app.option({
+    option({
       name: "messageCount",
       aliases: ["count"],
       description: "The minimum message count",
@@ -36,26 +42,17 @@ export default new app.Command({
       validate: (value) => value > 0,
       validationErrorMessage: "The period must be greater than 0.",
     }),
-    app.option({
-      name: "refreshInterval",
-      aliases: ["interval"],
-      description: "The interval to refresh the active list (in hours)",
-      type: "number",
-      validate: (value) => value > 0 && value < 24,
-      validationErrorMessage:
-        "The interval must be greater than 0 and less than 24.",
-    }),
   ],
   async run(message) {
     used = true
 
-    const config = await app.getGuild(message.guild, {
+    const config = await tools.getGuild(message.guild, {
       forceExists: true,
       forceFetch: true,
     })
 
     const waiting = await message.channel.send(
-      `${app.emote(message, "Loading")} Fetching members...`,
+      `${emote(message, "Loading")} Fetching members...`,
     )
 
     if (message.args.period || message.args.messageCount) {
@@ -65,7 +62,7 @@ export default new app.Command({
       })
     }
 
-    await app.updateActive(message.guild, {
+    await active.updateActive(message.guild, {
       force: message.args.force,
       period: message.args.period ?? +config.active_period,
       messageCount: message.args.messageCount ?? +config.active_message_count,
@@ -73,22 +70,16 @@ export default new app.Command({
       guildConfig: config,
     })
 
-    await app.launchActiveInterval(message.guild, {
-      refreshInterval: +config.active_refresh_interval,
-      period: message.args.period ?? +config.active_period,
-      messageCount: message.args.messageCount ?? +config.active_message_count,
-    })
-
     used = false
   },
   subs: [
-    new app.Command({
+    new Command({
       name: "leaderboard",
       description: `Show the leaderboard of Activity`,
       channelType: "guild",
       aliases: ["ladder", "lb", "top", "rank"],
       options: [
-        app.option({
+        option({
           name: "lines",
           description: "Number of lines to show per page",
           type: "number",
@@ -98,9 +89,9 @@ export default new app.Command({
         }),
       ],
       run: async (message) => {
-        const guild = await app.getGuild(message.guild, { forceExists: true })
+        const guild = await tools.getGuild(message.guild, { forceExists: true })
 
-        app.activeLadder(guild._id).send(message.channel, {
+        active.activeLadder(guild._id).send(message.channel, {
           pageLineCount: message.args.lines,
         })
       },

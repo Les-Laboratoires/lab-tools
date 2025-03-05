@@ -1,13 +1,28 @@
-import * as app from "#app"
+import { cache } from "#core/util"
+import { Listener } from "#core/listener"
+import { isIgnored } from "#namespaces/labs"
+import {
+  embedReplacers,
+  getGuild,
+  removeItem,
+  sendTemplatedEmbed,
+} from "#namespaces/tools"
 
-const listener: app.Listener<"guildMemberRemove"> = {
+export default new Listener({
   event: "guildMemberRemove",
   description: "Announces when a member leaves the server",
   async run(member) {
-    if (!app.cache.ensure<boolean>("turn", true)) return
-    if (await app.isIgnored(member.guild.id)) return
+    if (!cache.ensure<boolean>("turn", true)) return
+    if (await isIgnored(member.guild.id)) return
 
-    const config = await app.getGuild(member.guild)
+    const config = await getGuild(member.guild)
+
+    const usersLeft: string[] = cache.ensure("usersLeft", [])
+    const usersJoined: string[] = cache.ensure("usersJoined", [])
+
+    if (usersLeft.includes(member.id)) return
+    usersLeft.push(member.id)
+    removeItem(usersJoined, member.id)
 
     if (!config) return
 
@@ -18,10 +33,10 @@ const listener: app.Listener<"guildMemberRemove"> = {
         )
 
         if (general && general.isSendable()) {
-          await app.sendTemplatedEmbed(
+          await sendTemplatedEmbed(
             general,
             config.bot_leave_message,
-            app.embedReplacers(member),
+            embedReplacers(member),
           )
         }
       }
@@ -34,15 +49,13 @@ const listener: app.Listener<"guildMemberRemove"> = {
         )
 
         if (general && general.isSendable()) {
-          await app.sendTemplatedEmbed(
+          await sendTemplatedEmbed(
             general,
             config.member_leave_message,
-            app.embedReplacers(member),
+            embedReplacers(member),
           )
         }
       }
     }
   },
-}
-
-export default listener
+})

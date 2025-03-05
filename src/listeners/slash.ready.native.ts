@@ -1,14 +1,15 @@
-import * as app from "#app"
+// system file, please don't modify it
 
-const listener: app.Listener<"ready"> = {
+import env from "#core/env"
+import { Listener } from "#core/listener"
+import * as slash from "#core/slash"
+
+export default new Listener({
   event: "ready",
   description: "Deploy the slash commands",
   once: true,
   async run(client) {
-    if (app.env.BOT_GUILD)
-      return app.registerSlashCommands(client, app.env.BOT_GUILD)
-    return app.registerSlashCommands(client)
+    if (env.BOT_GUILD) return slash.registerSlashCommands(client, env.BOT_GUILD)
+    return slash.registerSlashCommands(client)
   },
-}
-
-export default listener
+})

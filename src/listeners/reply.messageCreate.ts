@@ -1,16 +1,18 @@
-import * as app from "#app"
+import { Listener } from "#core/listener"
+import { replies } from "#namespaces/reply"
+import { getGuild } from "#namespaces/tools"
 
-const listener: app.Listener<"messageCreate"> = {
+export default new Listener({
   event: "messageCreate",
   description: "A messageCreate listener for reply",
   async run(message) {
     if (message.author.bot || !message.guild) return
 
-    const guild = await app.getGuild(message.guild)
+    const guild = await getGuild(message.guild)
 
     if (!guild) return
 
-    const reply = await app.replies.get(String(guild._id), guild._id)
+    const reply = await replies.get(String(guild._id), guild._id)
 
     if (reply.length === 0) return
 
@@ -29,6 +31,4 @@ const listener: app.Listener<"messageCreate"> = {
       await message.channel.send(r.message)
     }
   },
-}
-
-export default listener
+})

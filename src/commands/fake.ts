@@ -1,13 +1,18 @@
-import * as app from "#app"
+import { WebhookClient } from "discord.js"
 
-export default new app.Command({
+import { Command } from "#core/index"
+import { CooldownType } from "#core/util"
+
+import { emote } from "#namespaces/emotes"
+
+export default new Command({
   name: "fake",
   description: "Fake an user message",
   channelType: "guild",
   botPermissions: ["ManageWebhooks"],
   cooldown: {
     duration: 10000,
-    type: app.CooldownType.ByGuild,
+    type: CooldownType.ByGuild,
   },
   positional: [
     {
@@ -41,13 +46,11 @@ export default new app.Command({
     })
 
     if (webhook.token) {
-      const client = new app.WebhookClient(webhook)
+      const client = new WebhookClient(webhook)
       await client.send(message.rest)
       client.destroy()
     } else {
-      await message.channel.send(
-        `${app.emote(message, "Cross")} Permission error`,
-      )
+      await message.channel.send(`${emote(message, "Cross")} Permission error`)
     }
     await message.delete().catch()
     await webhook.delete().catch()
