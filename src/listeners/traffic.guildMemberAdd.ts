@@ -10,6 +10,7 @@ import {
   sendLog,
   sendTemplatedEmbed,
 } from "#namespaces/tools"
+import logger from "#core/logger"
 
 import { filename } from "dirname-filename-esm"
 
@@ -37,7 +38,7 @@ export default new Listener({
       if (config.bot_role_id)
         await member.roles
           .add(config.bot_role_id)
-          .catch((error) => error(error, __filename))
+          .catch((error) => logger.error(error, __filename))
 
       if (config.general_channel_id && config.bot_welcome_message) {
         const general = member.client.channels.cache.get(
@@ -55,7 +56,7 @@ export default new Listener({
       if (config.member_role_id)
         await member.roles
           .add(config.member_role_id)
-          .catch((error) => error(error, __filename, true))
+          .catch((error) => logger.error(error, __filename, true))
 
       if (config.member_welcome_direct_message) {
         try {
