@@ -1,20 +1,24 @@
-import * as app from "../app.js"
-import autoRole from "../tables/autoRole.js"
+import { Command, sendCommandDetails } from "#core/command"
+import autoRole from "#tables/autoRole"
+import * as middlewares from "#namespaces/middlewares"
+import * as tools from "#namespaces/tools"
+import { emote } from "#namespaces/emotes"
+import discord from "discord.js"
 
-export default new app.Command({
+export default new Command({
   name: "autoRole",
   aliases: ["ar", "autorole"],
   description: "Manage the auto roles",
   channelType: "all",
   async run(message) {
-    return app.sendCommandDetails(message, this)
+    return sendCommandDetails(message, this)
   },
   subs: [
-    new app.Command({
+    new Command({
       name: "set",
       description: "Set auto role list",
       channelType: "guild",
-      middlewares: [app.staffOnly()],
+      middlewares: [middlewares.staffOnly],
       positional: [
         {
           name: "roles",
@@ -32,7 +36,7 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        const guild = await app.getGuild(message.guild, true)
+        const guild = await tools.getGuild(message.guild, { forceExists: true })
 
         await autoRole.query.delete().where("guild_id", guild._id)
         await autoRole.query.insert(
@@ -46,15 +50,15 @@ export default new app.Command({
         )
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Auto-roles are successfully pushed.`,
+          `${emote(message, "CheckMark")} Auto-roles are successfully pushed.`,
         )
       },
     }),
-    new app.Command({
+    new Command({
       name: "add",
       description: "Add auto role",
       channelType: "guild",
-      middlewares: [app.staffOnly()],
+      middlewares: [middlewares.staffOnly],
       positional: [
         {
           name: "role",
@@ -72,7 +76,7 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        const guild = await app.getGuild(message.guild, true)
+        const guild = await tools.getGuild(message.guild, { forceExists: true })
 
         await autoRole.query.insert({
           guild_id: guild._id,
@@ -81,23 +85,23 @@ export default new app.Command({
         })
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Auto-role is successfully pushed.`,
+          `${emote(message, "CheckMark")} Auto-role is successfully pushed.`,
         )
       },
     }),
-    new app.Command({
+    new Command({
       name: "list",
       aliases: ["ls"],
       description: "List auto roles",
       channelType: "guild",
       async run(message) {
-        const guild = await app.getGuild(message.guild, true)
+        const guild = await tools.getGuild(message.guild, { forceExists: true })
 
         const autoRoles = await autoRole.query.where("guild_id", guild._id)
 
         return message.channel.send({
           embeds: [
-            new app.EmbedBuilder()
+            new discord.EmbedBuilder()
               .setColor("Blurple")
               .setTitle("Auto-role list")
               .addFields([
@@ -122,10 +126,10 @@ export default new app.Command({
         })
       },
     }),
-    new app.Command({
+    new Command({
       name: "apply",
       description: "Apply auto-roles to member",
-      middlewares: [app.staffOnly()],
+      middlewares: [middlewares.staffOnly],
       channelType: "guild",
       positional: [
         {
@@ -136,28 +140,28 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        const target: app.GuildMember = message.args.target
+        const target: discord.GuildMember = message.args.target
 
-        await app.applyAutoRoles(target)
+        await tools.applyAutoRoles(target)
 
         return message.channel.send(
-          `${app.emote(
+          `${emote(
             message,
-            "CHECK",
+            "CheckMark",
           )} Auto-roles are successfully applied to **${
             target.user.username
           }**.`,
         )
       },
       subs: [
-        new app.Command({
+        new Command({
           name: "all",
           description: "Apply auto-roles to all guild members",
           aliases: ["*"],
           channelType: "guild",
           async run(message) {
             const waiting = await message.channel.send(
-              `${app.emote(message, "WAIT")} Fetching members...`,
+              `${emote(message, "Loading")} Fetching members...`,
             )
 
             const members = Array.from(
@@ -167,15 +171,15 @@ export default new app.Command({
             message.guild.members.cache.clear()
 
             await waiting.edit(
-              `${app.emote(message, "WAIT")} Applying auto-roles to members...`,
+              `${emote(message, "Loading")} Applying auto-roles to members...`,
             )
 
             for (const member of members) {
-              await app.applyAutoRoles(member)
+              await tools.applyAutoRoles(member)
 
               const index = members.indexOf(member)
 
-              await app.sendProgress(
+              await tools.sendProgress(
                 waiting,
                 index,
                 members.length,
@@ -184,9 +188,9 @@ export default new app.Command({
             }
 
             return message.channel.send(
-              `${app.emote(
+              `${emote(
                 message,
-                "CHECK",
+                "CheckMark",
               )} Auto-roles are successfully applied to **${
                 members.length
               }** members.`,

@@ -1,4 +1,13 @@
-import * as app from "../app.js"
+import discord from "discord.js"
+import database from "#core/database"
+import { Guild } from "#tables/guild"
+import active from "#tables/active"
+import message from "#tables/message"
+import env from "#core/env"
+import * as tools from "#namespaces/tools"
+import * as ladder from "#namespaces/ladder"
+import { emote } from "#namespaces/emotes"
+import { forceTextSize } from "#all"
 
 import { Guild } from "../tables/guild.js"
 
@@ -20,25 +29,23 @@ export async function fetchActiveMembers(
     target: string
   }[]
 > {
-  return app.orm.raw(`
-    select
-      count(*) as messageCount,
-      user.id as target
-    from message
-    left join user on message.author_id = user._id
-    where
-      guild_id = ${guild_id}
-    and
-      unixepoch(datetime(created_at, 'localtime')) >
-      unixepoch(datetime('now', '-${period} hours', 'localtime'))
-    group by target
-    having messageCount >= ${messageCount}
-    order by messageCount desc
-  `)
+  return message.query
+    .select("u.id as target")
+    .count({ messageCount: "*" })
+    .leftJoin("user as u", "message.author_id", "u._id")
+    .where("guild_id", guild_id)
+    .where(
+      "created_at",
+      ">",
+      database.raw(`now() - interval '1 hour' * ${period}`),
+    )
+    .groupBy("u.id")
+    .havingRaw(`count(*) >= ${messageCount}`)
+    .orderByRaw('"messageCount" desc')
 }
 
 export async function updateActive(
-  guild: app.Guild,
+  guild: discord.Guild,
   options: {
     force: boolean
     onLog?: (text: string) => unknown | Promise<unknown>
@@ -46,7 +53,7 @@ export async function updateActive(
     guildConfig: Guild
   },
 ): Promise<number> {
-  if (process.env.BOT_MODE === "dev") return 0
+  if (env.BOT_MODE === "development") return 0
 
   const period = Number(options.activeConfig.active_period)
   const messageCount = Number(options.activeConfig.active_message_count)
@@ -59,10 +66,10 @@ export async function updateActive(
 
   guild.members.cache.clear()
 
-  const activeMembers: app.GuildMember[] = []
-  const inactiveMembers: app.GuildMember[] = []
+  const activeMembers: discord.GuildMember[] = []
+  const inactiveMembers: discord.GuildMember[] = []
 
-  const actives = await app.fetchActiveMembers(
+  const actives = await fetchActiveMembers(
     options.guildConfig._id,
     period,
     messageCount,
@@ -85,7 +92,7 @@ export async function updateActive(
       await active.query.insert(
         await Promise.all(
           activeMembers.map(async (member) => {
-            const user = await app.getUser(member, true)
+            const user = await tools.getUser(member, true)
 
             return {
               user_id: user._id,
@@ -98,7 +105,7 @@ export async function updateActive(
 
     if (options.onLog)
       await options.onLog(
-        `${app.emote(guild, "WAIT")} Verification of **0**/**${
+        `${emote(guild, "Loading")} Verification of **0**/**${
           members.length
         }** members...`,
       )
@@ -111,9 +118,9 @@ export async function updateActive(
 
       if (options.onLog)
         await options.onLog(
-          `${app.emote(
+          `${emote(
             guild,
-            "WAIT",
+            "Loading",
           )} Verification of **${activeMembers.indexOf(member)}**/**${
             members.length
           }** members...`,
@@ -128,7 +135,7 @@ export async function updateActive(
 
       if (options.onLog)
         await options.onLog(
-          `${app.emote(guild, "WAIT")} Verification of **${
+          `${emote(guild, "Loading")} Verification of **${
             activeMembers.length + inactiveMembers.indexOf(member)
           }**/**${members.length}** members...`,
         )
@@ -142,13 +149,13 @@ export async function updateActive(
 
     if (options.onLog)
       await options.onLog(
-        `${app.emote(guild, "WAIT")} Update of **${
+        `${emote(guild, "Loading")} Update of **${
           activeMembers.length
         }** active members...`,
       )
 
     for (const member of activeMembers) {
-      const user = await app.getUser(member, true)
+      const user = await tools.getUser(member, true)
 
       if (!activeMembersCache.find((am) => am.user_id === user._id)) {
         await member.roles.add(options.guildConfig.active_role_id!)
@@ -162,13 +169,13 @@ export async function updateActive(
 
     if (options.onLog)
       await options.onLog(
-        `${app.emote(guild, "WAIT")} Update of **${
+        `${emote(guild, "Loading")} Update of **${
           inactiveMembers.length
         }** inactive members...`,
       )
 
     for (const member of inactiveMembers) {
-      const user = await app.getUser(member, true)
+      const user = await tools.getUser(member, true)
 
       if (activeMembersCache.find((am) => am.user_id === user._id)) {
         await member.roles.remove(options.guildConfig.active_role_id!)
@@ -183,7 +190,7 @@ export async function updateActive(
 
   if (options.onLog)
     options.onLog(
-      `${app.emote(guild, "CHECK")} Found **${
+      `${emote(guild, "CheckMark")} Found **${
         activeMembers.length
       }** active members.`,
     )
@@ -192,29 +199,24 @@ export async function updateActive(
 }
 
 /**
- * @fixme
  * @param guild_id
- * @param period
+ * @param period in hours
  */
 export async function hasActivity(
   guild_id: number,
   period: number,
 ): Promise<boolean> {
-  return app.orm
-    .raw(
-      `select
-        count(*) > 0 as hasActivity
-      from message
-      left join user on message.author_id = user._id
-      where
-        guild_id = ${guild_id}
-      and
-        user.is_bot = 0
-      and
-        unixepoch(datetime(created_at, 'localtime')) >
-        unixepoch(datetime('now', '-${period} hours', 'localtime'))`,
+  return tools
+    .countOf(
+      message.query
+        .leftJoin("user", "message.author_id", "user._id")
+        .where("message.guild_id", guild_id)
+        .where("user.is_bot", false)
+        .whereRaw(
+          `extract(epoch from now()) - extract(epoch from message.created_at) < ${period} * 3600`,
+        ),
     )
-    .then((result) => !!result[0]?.hasActivity)
+    .then((count) => count > 0)
 }
 
 export async function getActiveConfigs(guild: {
@@ -231,50 +233,36 @@ export interface ActiveLadderLine {
 }
 
 export const activeLadder = (guild_id: number) =>
-  new app.Ladder<ActiveLadderLine>({
-    title: "Activity",
+  new ladder.Ladder<ActiveLadderLine>({
+    title: "Guild's activity",
     fetchLines(options) {
-      return app.orm.raw(`
-        select
-            rank() over (
-                order by count(*) desc
-            ) as rank,
-            user.id as target,
-            count(*) as messageCount
-        from message
-        left join user on message.author_id = user._id
-        where guild_id = ${guild_id}
-        group by target
-        having user.is_bot = 0
-        order by rank asc
-        limit ${options.pageLineCount}
-        offset ${options.pageIndex * options.pageLineCount}
-      `)
+      return message.query
+        .select(
+          database.raw(
+            `rank() over (order by count(*) desc) as "rank", "user"."id" as "target", count(*) as "messageCount"`,
+          ),
+        )
+        .leftJoin("user", "message.author_id", "user._id")
+        .where("guild_id", guild_id)
+        .andWhere("user.is_bot", false)
+        .groupBy("user.id")
+        .having(database.raw("count(*) > 0"))
+        .orderBy("rank", "asc")
+        .limit(options.pageLineCount)
+        .offset(options.pageIndex * options.pageLineCount)
     },
     async fetchLineCount() {
-      return app.orm
-        .raw(
-          `select 
-            count(*) as messageCount 
-          from (
-            select
-              rank() over (
-                  order by count(*) desc
-              ) as rank,
-              user.id as target,
-              count(*) as messageCount
-            from message
-            left join user on message.author_id = user._id
-            where guild_id = ${guild_id}
-            group by target
-            having user.is_bot = 0
-            order by rank asc
-          )`,
-        )
-        .then((rows: any) => rows[0]?.messageCount ?? 0)
+      return tools.countOf(
+        message.query
+          .leftJoin("user", "message.author_id", "user._id")
+          .where("guild_id", guild_id)
+          .andWhere("user.is_bot", false)
+          .groupBy("user.id")
+          .having(database.raw("count(*) > 0")),
+      )
     },
     formatLine(line, index, lines) {
-      return `${app.formatRank(line.rank)} avec \`${app.forceTextSize(
+      return `${ladder.formatRank(line.rank)} avec \`${forceTextSize(
         String(line.messageCount),
         Math.max(...lines.map((l) => l.messageCount), 0).toString().length,
       )}\` msg - <@${line.target}>`

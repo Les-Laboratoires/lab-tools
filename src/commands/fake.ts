@@ -1,14 +1,19 @@
-import * as app from "../app.js"
+import { WebhookClient } from "discord.js"
 
-export default new app.Command({
+import { Command } from "#core/index"
+import { CooldownType } from "#core/util"
+
+import { emote } from "#namespaces/emotes"
+
+export default new Command({
   name: "fake",
+  description: "Fake an user message",
+  channelType: "guild",
+  botPermissions: ["ManageWebhooks"],
   cooldown: {
     duration: 10000,
-    type: app.CooldownType.ByGuild,
+    type: CooldownType.ByGuild,
   },
-  channelType: "all",
-  botPermissions: ["ManageWebhooks"],
-  description: "Fake an user message",
   positional: [
     {
       name: "target",
@@ -17,12 +22,15 @@ export default new app.Command({
       required: true,
     },
   ],
+  rest: {
+    name: "content",
+    description: "The content of the faked message",
+    required: true,
+  },
   async run(message) {
     const user = message.args.target
 
-    if (!app.isGuildMessage(message)) return
-
-    message.triggerCoolDown()
+    message.triggerCooldown()
 
     let name = user.username
 
@@ -30,7 +38,7 @@ export default new app.Command({
       const member = await message.guild.members.fetch(user.id)
 
       name = member.displayName
-    } catch (error) {}
+    } catch {}
 
     const webhook = await message.channel.createWebhook({
       name,
@@ -38,13 +46,11 @@ export default new app.Command({
     })
 
     if (webhook.token) {
-      const client = new app.WebhookClient(webhook)
+      const client = new WebhookClient(webhook)
       await client.send(message.rest)
       client.destroy()
     } else {
-      await message.channel.send(
-        `${app.emote(message, "DENY")} Permission error`,
-      )
+      await message.channel.send(`${emote(message, "Cross")} Permission error`)
     }
     await message.delete().catch()
     await webhook.delete().catch()

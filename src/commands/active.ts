@@ -1,15 +1,23 @@
-import * as app from "../app.js"
+import { Command } from "#core/command"
+import { option } from "#core/argument"
+
+import guildTable from "#tables/guild"
+
+import { emote } from "#namespaces/emotes"
+import * as tools from "#namespaces/tools"
+import * as active from "#namespaces/active"
+import * as middlewares from "#namespaces/middlewares"
 
 let used = false
 
-export default new app.Command({
+export default new Command({
   name: "active",
   description: "Update the active list",
   channelType: "guild",
   middlewares: [
-    app.staffOnly(),
-    app.hasConfigKey("active_role_id"),
-    app.isNotInUse(() => used),
+    middlewares.staffOnly,
+    middlewares.hasConfigKey("active_role_id"),
+    middlewares.isNotInUse(() => used),
   ],
   flags: [
     {
@@ -18,32 +26,16 @@ export default new app.Command({
       description: "Force the update of all members",
     },
   ],
-  options: [
-    app.option({
-      name: "period",
-      description: "The period to check (in hours)",
-      type: "number",
-      default: 24 * 7 * 3, // 3 week
-      validate: (value) => value > 0,
-      validationErrorMessage: "The period must be greater than 0.",
-    }),
-    app.option({
-      name: "messageCount",
-      aliases: ["count"],
-      description: "The minimum message count",
-      type: "number",
-      default: 50,
-      validate: (value) => value > 0,
-      validationErrorMessage: "The period must be greater than 0.",
-    }),
-  ],
   async run(message) {
     used = true
 
-    const config = await app.getGuild(message.guild, true)
+    const config = await tools.getGuild(message.guild, {
+      forceExists: true,
+      forceFetch: true,
+    })
 
     const waiting = await message.channel.send(
-      `${app.emote(message, "WAIT")} Fetching members...`,
+      `${emote(message, "Loading")} Fetching members...`,
     )
 
     const configs = await app.getActiveConfigs(message.guild)
@@ -60,13 +52,13 @@ export default new app.Command({
     used = false
   },
   subs: [
-    new app.Command({
+    new Command({
       name: "leaderboard",
       description: `Show the leaderboard of Activity`,
       channelType: "guild",
       aliases: ["ladder", "lb", "top", "rank"],
       options: [
-        app.option({
+        option({
           name: "lines",
           description: "Number of lines to show per page",
           type: "number",
@@ -76,9 +68,9 @@ export default new app.Command({
         }),
       ],
       run: async (message) => {
-        const guild = await app.getGuild(message.guild, true)
+        const guild = await tools.getGuild(message.guild, { forceExists: true })
 
-        app.activeLadder(guild._id).send(message.channel, {
+        active.activeLadder(guild._id).send(message.channel, {
           pageLineCount: message.args.lines,
         })
       },

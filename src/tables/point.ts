@@ -1,4 +1,6 @@
-import * as app from "../app.js"
+import { Table } from "@ghom/orm"
+
+import { addCreatedAt } from "#namespaces/date"
 
 export interface Point {
   to_id: number
@@ -7,8 +9,9 @@ export interface Point {
   created_at: string
 }
 
-export default new app.Table<Point>({
+export default new Table<Point>({
   name: "point",
+  description: "Point reward logs",
   setup: (table) => {
     table
       .integer("to_id")
@@ -23,6 +26,6 @@ export default new app.Table<Point>({
       .onDelete("CASCADE")
       .notNullable()
     table.integer("amount").unsigned().notNullable()
-    app.addCreatedAt(table)
+    addCreatedAt(table)
   },
 })

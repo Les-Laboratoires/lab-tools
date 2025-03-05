@@ -1,10 +1,15 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
-import * as app from "../app.js"
-
+import config from "#config"
+import { Command } from "#core/command"
+import env from "#core/env"
+import * as util from "#core/util"
+import * as discordEval from "discord-eval.ts"
+import discord from "discord.js"
+import fs from "node:fs"
 import time from "tims"
 
-export default new app.Command({
+export default new Command({
   name: "info",
   description: "Get information about bot",
   flags: [
@@ -16,26 +21,41 @@ export default new app.Command({
     },
   ],
   async run(message) {
-    const conf = app.packageJSON
+    const databaseClient = util.getDatabaseDriverName()
 
-    const embed = new app.EmbedBuilder()
-      .setColor("Blurple")
+    const gitURL = config.openSource ? await util.getGitURL() : undefined
+
+    let fundingURL: string | null = null
+
+    try {
+      const fundingFile = await fs.promises.readFile(
+        util.rootPath(".github", "funding.yml"),
+        "utf-8",
+      )
+
+      const match = /buy_me_a_coffee: (.+)\n?/.exec(fundingFile)
+
+      if (match) fundingURL = `https://buymeacoffee.com/${match[1]}`
+    } catch {}
+
+    const embed = new discord.EmbedBuilder()
       .setAuthor({
         name: `Information about ${message.client.user.tag}`,
         iconURL: message.client.user?.displayAvatarURL(),
+        url: gitURL,
       })
-      .setDescription(conf.description)
+      .setDescription(util.packageJSON.description ?? "No description")
       .setTimestamp()
-      .addFields([
+      .addFields(
         {
-          name: conf.name,
-          value: app.code.stringify({
+          name: util.packageJSON.name,
+          value: await discordEval.code.stringify({
             lang: "yml",
             content: [
               `author: ${
-                message.client.users.resolve(process.env.BOT_OWNER!)!.username
+                message.client.users.resolve(env.BOT_OWNER)!.username
               }`,
-              `uptime: ${time.duration(app.uptime(), {
+              `uptime: ${time.duration(util.uptime(), {
                 format: "second",
                 maxPartCount: 2,
               })}`,
@@ -43,18 +63,24 @@ export default new app.Command({
                 2,
               )}mb`,
               `ping: ${message.client.ws.ping}ms`,
-              `database: ${app.orm.database.client.constructor.name}`,
+              `database: ${databaseClient}@${
+                util.packageJSON.dependencies?.[databaseClient] ?? "unknown"
+              }`,
+              `node: ${process.version}`,
             ].join("\n"),
           }),
           inline: true,
         },
         {
           name: "Cache",
-          value: app.code.stringify({
+          value: await discordEval.code.stringify({
             lang: "yml",
             content: [
               `guilds: ${message.client.guilds.cache.size}`,
               `users: ${message.client.users.cache.size}`,
+              `members: ${message.client.guilds.cache.reduce((acc, guild) => {
+                return acc + guild.members.cache.size
+              }, 0)}`,
               `channels: ${message.client.channels.cache.size}`,
               `roles: ${message.client.guilds.cache.reduce((acc, guild) => {
                 return acc + guild.roles.cache.size
@@ -72,44 +98,74 @@ export default new app.Command({
           }),
           inline: true,
         },
-      ])
+      )
+
+    if (message.args.dependencies)
+      embed.addFields(
+        {
+          name: util.blankChar,
+          value: util.blankChar,
+          inline: false,
+        },
+        {
+          name: "Dependencies",
+          value:
+            util.packageJSON.dependencies &&
+            Object.keys(util.packageJSON.dependencies).length > 0
+              ? await discordEval.code.stringify({
+                  lang: "yml",
+                  content: Object.entries(util.packageJSON.dependencies)
+                    .map(([name, version]) => {
+                      return `${name.replace(/@/g, "")}: ${version}`
+                    })
+                    .join("\n"),
+                })
+              : "No dependencies",
+          inline: true,
+        },
+        {
+          name: "Dev dependencies",
+          value:
+            util.packageJSON.devDependencies &&
+            Object.keys(util.packageJSON.devDependencies).length > 0
+              ? await discordEval.code.stringify({
+                  lang: "yml",
+                  content: Object.entries(util.packageJSON.devDependencies)
+                    .map(([name, version]) => {
+                      return `${name.replace(/@/g, "")}: ${version}`
+                    })
+                    .join("\n"),
+                })
+              : "No dev dependencies",
+          inline: true,
+        },
+      )
+
+    const row =
+      new discord.ActionRowBuilder<discord.MessageActionRowComponentBuilder>()
+
+    if (gitURL) {
+      row.addComponents(
+        new discord.ButtonBuilder()
+          .setLabel("View source")
+          .setStyle(discord.ButtonStyle.Link)
+          .setURL(gitURL),
+      )
+    }
+
+    if (fundingURL) {
+      row.addComponents(
+        new discord.ButtonBuilder()
+          .setLabel("Fund me")
+          .setEmoji("💖")
+          .setStyle(discord.ButtonStyle.Link)
+          .setURL(fundingURL),
+      )
+    }
 
     return message.channel.send({
-      embeds: [
-        !message.args.dependencies
-          ? embed
-          : embed.addFields([
-              {
-                name: app.blankChar,
-                value: app.blankChar,
-                inline: false,
-              },
-              {
-                name: "Dependencies",
-                value: app.code.stringify({
-                  lang: "yml",
-                  content: Object.entries(conf.dependencies)
-                    .map(([name, version]) => {
-                      return `${name.replace(/@/g, "")}: ${version}`
-                    })
-                    .join("\n"),
-                }),
-                inline: true,
-              },
-              {
-                name: "Dev dependencies",
-                value: app.code.stringify({
-                  lang: "yml",
-                  content: Object.entries(conf.devDependencies)
-                    .map(([name, version]) => {
-                      return `${name.replace(/@/g, "")}: ${version}`
-                    })
-                    .join("\n"),
-                }),
-                inline: true,
-              },
-            ]),
-      ],
+      embeds: [embed],
+      components: gitURL || fundingURL ? [row] : undefined,
     })
   },
 })

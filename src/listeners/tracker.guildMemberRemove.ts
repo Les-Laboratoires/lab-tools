@@ -1,11 +1,10 @@
-import * as app from "../app.js"
+import { Listener } from "#core/listener"
+import { updateGuildMemberCountTracker } from "#namespaces/tracker"
 
-const listener: app.Listener<"guildMemberRemove"> = {
+export default new Listener({
   event: "guildMemberRemove",
   description: "Update the tracker",
   async run(member) {
-    await app.updateGuildMemberCountTracker(member.guild)
+    await updateGuildMemberCountTracker(member.guild)
   },
-}
-
-export default listener
+})

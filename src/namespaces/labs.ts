@@ -1,20 +1,34 @@
-import * as app from "../app.js"
+import * as orm from "@ghom/orm"
+import * as discord from "discord.js"
 
-import lab from "../tables/lab.js"
+import { divider } from "#core/util"
+import * as command from "#core/command"
+
+import lab from "#tables/lab"
+
+import * as tools from "#namespaces/tools"
+import { emote } from "#namespaces/emotes"
+
+const allLabsKey = "all labs"
+
+export const allLabsCache = new orm.ResponseCache(
+  async () => lab.query.select(),
+  60_000,
+)
 
 /**
  * @Todo use forum channels instead...
  */
 export async function updateLabsInAffiliationChannels(
-  message: app.GuildMessage,
+  message: command.UnknownMessage,
   packSize: number,
 ) {
-  const labs = await lab.query.select()
+  const labs = await allLabsCache.fetch(allLabsKey)
 
-  const pages = app.divider(labs, packSize)
+  const pages = divider(labs, packSize)
 
   for (const guild of message.client.guilds.cache.values()) {
-    const config = await app.getGuild(guild)
+    const config = await tools.getGuild(guild)
 
     if (config?.affiliation_channel_id) {
       const channel = guild.channels.cache.get(config.affiliation_channel_id)
@@ -30,27 +44,27 @@ export async function updateLabsInAffiliationChannels(
           )
 
         await message.channel.send(
-          `${app.emote(message, "CHECK")} Updated **${guild}** affiliations`,
+          `${emote(message, "CheckMark")} Updated **${guild}** affiliations`,
         )
       }
     }
   }
 
   await message.channel.send(
-    `${app.emote(message, "CHECK")} Successfully updated all affiliations.`,
+    `${emote(message, "CheckMark")} Successfully updated all affiliations.`,
   )
 }
 
 export async function sendLabList(
-  channel: app.TextBasedChannel,
+  channel: discord.SendableChannels,
   packSize: number,
 ) {
-  const labs = await lab.query.select()
+  const labs = await allLabsCache.get(allLabsKey)
 
-  const pages = app.divider(labs, packSize)
+  const pages = divider(labs, packSize)
 
   if (pages.length === 0)
-    return channel.send(`${app.emote(channel, "DENY")} No labs found.`)
+    return channel.send(`${emote(channel, "Cross")} No labs found.`)
 
   if (channel.isTextBased()) {
     for (const page of pages)
@@ -60,7 +74,13 @@ export async function sendLabList(
   }
 }
 
+const ignoredCache = new orm.ResponseCache(async (id: string) => {
+  return lab.query
+    .where("guild_id", id)
+    .first()
+    .then((lab) => !!lab?.ignored)
+}, 60_000)
+
 export async function isIgnored(id: string): Promise<boolean> {
-  const guild = await app.getGuild({ id }, true)
-  return (await lab.query.where("guild_id", guild._id).first())?.ignored ?? true
+  return ignoredCache.get(id, id)
 }

@@ -1,24 +1,19 @@
-import * as app from "../app.js"
+import discord from "discord.js"
+import { code } from "discord-eval.ts"
+import { ResponseCache } from "@ghom/orm"
 
-import users, { User } from "../tables/user.js"
-import guilds, { Guild } from "../tables/guild.js"
-import autoRole from "../tables/autoRole.js"
+import client from "#core/client"
+import env from "#core/env"
 
-export enum Emotes {
-  APPROVED = "865281743333228604",
-  DISAPPROVED = "865281743560638464",
-  CHECK = "865281743333228604",
-  MINUS = "865281743422226443",
-  DENY = "865281743560638464",
-  PLUS = "865281743648194610",
-  RIGHT = "865281743510044723",
-  LEFT = "865281743371894794",
-  WAIT = "865282736041361468",
-}
+import autoRole from "#tables/autoRole"
+import guilds, { Guild } from "#tables/guild"
+import users, { User } from "#tables/user"
+
+import { emote } from "#namespaces/emotes"
 
 export async function sendLog(
-  guild: app.Guild,
-  toSend: string | app.EmbedBuilder,
+  guild: Pick<discord.Guild, "id" | "channels">,
+  toSend: string | discord.EmbedBuilder,
   config?: Guild,
 ) {
   config ??= await getGuild(guild)
@@ -35,48 +30,64 @@ export async function sendLog(
   }
 }
 
+const userCache = new ResponseCache((id: string) => {
+  return users.query.where("id", id).first()
+}, 600_000)
+
 export async function getUser(user: { id: string }): Promise<User | undefined>
 export async function getUser(user: { id: string }, force: true): Promise<User>
 export async function getUser(user: { id: string }, force?: true) {
-  const userInDb = await users.query.where("id", user.id).first()
+  const userInDb = await userCache.get(user.id, user.id)
 
   if (force && !userInDb) {
     await users.query
       .insert({
         id: user.id,
-        is_bot: app.client.users.cache.get(user.id)?.bot ?? false,
+        is_bot: client.users.cache.get(user.id)?.bot ?? false,
       })
       .onConflict("id")
-      .merge()
-    return (await users.query.where("id", user.id).first())!
+      .merge(["is_bot"])
+
+    return userCache.fetch(user.id, user.id)
   }
 
   return userInDb
 }
+
+const guildCache = new ResponseCache((id: string) => {
+  return guilds.query.where("id", id).first()
+}, 600_000)
 
 export async function getGuild(guild: {
   id: string
 }): Promise<Guild | undefined>
 export async function getGuild(
   guild: { id: string },
-  force: true,
+  options: { forceExists: true; forceFetch?: boolean },
 ): Promise<Guild>
 export async function getGuild(
   guild: { id: string },
-  force?: true,
+  options?: { forceExists?: boolean; forceFetch: true },
+): Promise<Guild | undefined>
+export async function getGuild(
+  guild: { id: string },
+  options?: { forceExists?: boolean; forceFetch?: boolean },
 ): Promise<Guild | undefined> {
-  const config = await guilds.query.where("id", guild.id).first()
+  if (options?.forceFetch) return guildCache.fetch(guild.id, guild.id)
 
-  if (force && !config) {
+  const config = await guildCache.get(guild.id, guild.id)
+
+  if (options?.forceExists && !config) {
     await guilds.query.insert({ id: guild.id })
-    return (await guilds.query.where("id", guild.id).first())!
+
+    return guildCache.fetch(guild.id, guild.id)
   }
 
   return config
 }
 
 export async function sendTemplatedEmbed(
-  channel: app.Channel,
+  channel: discord.SendableChannels,
   template: string,
   replacers: { [k: string]: string },
 ) {
@@ -87,10 +98,10 @@ export async function sendTemplatedEmbed(
 
   let embeds
   try {
-    const data: app.EmbedData | app.EmbedData[] = JSON.parse(template)
+    const data: discord.EmbedData | discord.EmbedData[] = JSON.parse(template)
 
     embeds = (Array.isArray(data) ? data : [data]).map((options) => {
-      const embed = new app.EmbedBuilder(options)
+      const embed = new discord.EmbedBuilder(options)
 
       if (options.thumbnail?.url) embed.setThumbnail(options.thumbnail.url)
       if (options.image?.url) embed.setImage(options.image.url)
@@ -102,22 +113,24 @@ export async function sendTemplatedEmbed(
   } catch (error: any) {
     if (error.message.includes("Invalid Form Body")) {
       return channel.send(
-        app.code.stringify({
+        (await code.stringify({
           lang: "js",
           content: error.message,
-        }) +
+        })) +
           " " +
-          app.code.stringify({
+          (await code.stringify({
             lang: "json",
             content: template,
-          }),
+          })),
       )
     }
     return channel.send(template)
   }
 }
 
-export function embedReplacers(subject: app.GuildMember) {
+export function embedReplacers(
+  subject: discord.GuildMember | discord.PartialGuildMember,
+) {
   return {
     user: subject.user.toString(),
     username: subject.user.username.replace(/"/g, '\\"'),
@@ -129,15 +142,10 @@ export function embedReplacers(subject: app.GuildMember) {
   }
 }
 
-export function emote(
-  { client }: { client: app.Client },
-  name: keyof typeof Emotes,
-) {
-  return client.emojis.resolve(Emotes[name])
-}
-
-export async function getAutoRoles(member: app.GuildMember): Promise<string[]> {
-  const guild = await getGuild(member.guild, true)
+export async function getAutoRoles(
+  member: discord.GuildMember,
+): Promise<string[]> {
+  const guild = await getGuild(member.guild, { forceExists: true })
 
   return (
     await autoRole.query
@@ -146,12 +154,12 @@ export async function getAutoRoles(member: app.GuildMember): Promise<string[]> {
   ).map((ar) => ar.role_id)
 }
 
-export async function applyAutoRoles(member: app.GuildMember) {
+export async function applyAutoRoles(member: discord.GuildMember) {
   const autoRoles = await getAutoRoles(member)
 
   if (member.roles.cache.hasAll(...autoRoles) || autoRoles.length === 0) return
 
-  await member.roles.add(autoRoles).catch()
+  await member.roles.add(autoRoles)
 }
 
 /**
@@ -162,7 +170,7 @@ export async function applyAutoRoles(member: app.GuildMember) {
  * @param interval
  */
 export async function sendProgress(
-  message: app.Message,
+  message: discord.Message,
   index: number,
   total: number,
   pattern: string,
@@ -170,7 +178,7 @@ export async function sendProgress(
 ) {
   if (index % interval === 0) {
     await message.edit(
-      `${emote(message, "WAIT")} ${pattern
+      `${emote(message, "Loading")} ${pattern
         .replace("$%", String(Math.round((index * 100) / total)))
         .replace("$#", String(index))
         .replace("$$", String(total))}`,
@@ -182,19 +190,20 @@ export function isJSON(value: string) {
   try {
     JSON.parse(value)
     return true
-  } catch (error) {
+  } catch {
     return false
   }
 }
 
-export function countOf(builder: any): Promise<number> {
-  return builder.count({ total: "*" }).then((rows: any) => {
-    return rows[0].total as number
+export async function countOf(builder: any, column = "*"): Promise<number> {
+  return builder.count({ total: column }).then((rows: any) => {
+    return (rows[0]?.total ?? 0) as number
   })
 }
 
-export async function prefix(guild?: app.Guild | null): Promise<string> {
-  let prefix = process.env.BOT_PREFIX as string
+export async function prefix(guild?: discord.Guild | null): Promise<string> {
+  const prefix = env.BOT_PREFIX
+
   if (guild) {
     const guildData = await guilds.query
       .where("id", guild.id)
@@ -204,6 +213,7 @@ export async function prefix(guild?: app.Guild | null): Promise<string> {
       return guildData.prefix ?? prefix
     }
   }
+
   return prefix
 }
 
@@ -218,4 +228,9 @@ export function shortNumber(number: number): string {
     if (number < 100) return `${number.toFixed(1)}M`
     else return `${number.toFixed(0)}M`
   }
+}
+
+export function removeItem<T>(array: T[], itemToRemove: T) {
+  const index = array.indexOf(itemToRemove)
+  if (index !== -1) array.splice(index, 1)
 }

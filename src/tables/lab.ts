@@ -1,4 +1,4 @@
-import * as app from "../app.js"
+import { Table } from "@ghom/orm"
 
 export interface Lab {
   guild_id: number
@@ -7,8 +7,9 @@ export interface Lab {
   ignored: boolean
 }
 
-export default new app.Table<Lab>({
+export default new Table<Lab>({
   name: "labs",
+  description: "Laboratory list",
   migrations: {
     1: (table) => {
       table.unique(["guild_id"])

@@ -1,76 +1,111 @@
-import cp from "child_process"
+import * as discord from "discord.js"
+import * as discordEval from "discord-eval.ts"
 
-import * as app from "../app.js"
+import { execSync } from "node:child_process"
 
-import restart from "../tables/restart.js"
+import logger from "#core/logger"
+import { Command } from "#core/command"
+import { CooldownType } from "#core/util"
+import { emote } from "#namespaces/emotes"
 
-export default new app.Command({
+import restart from "#tables/restart"
+
+type State = "waiting" | "running" | "done" | "error"
+type Task = { cmd: string; state: State; time: number }
+
+export default new Command({
   name: "deploy",
   description: "Deploy Lab Tool",
   channelType: "all",
   botOwnerOnly: true,
   cooldown: {
     duration: 10000,
-    type: app.CooldownType.Global,
+    type: CooldownType.Global,
   },
   async run(message) {
-    message.triggerCoolDown()
+    message.triggerCooldown()
 
-    const waiting = await message.channel.send(
-      `${app.emote(message, "WAIT")} Deploying...`,
-    )
+    const tasks: Task[] = [
+      { state: "waiting", time: 0, cmd: "git reset --hard" },
+      { state: "waiting", time: 0, cmd: "git pull" },
+      { state: "waiting", time: 0, cmd: "npm install" },
+      { state: "waiting", time: 0, cmd: "npm run build" },
+      { state: "waiting", time: 0, cmd: "pm2 restart tool" },
+    ]
 
-    const commands: string[] = []
+    const format = (task: Task) =>
+      `${emote(
+        message,
+        (
+          {
+            waiting: "Minus",
+            running: "Loading",
+            done: "CheckMark",
+            error: "Cross",
+          } as const
+        )[task.state],
+      )} ${task.state === "running" ? "**" : ""}\`>_ ${task.cmd}\`${
+        task.state === "running" ? "**" : ""
+      } ${task.time ? `(**${task.time}** ms)` : ""}`.trim()
 
-    async function run(command: string) {
-      return new Promise(async (resolve, reject) => {
-        await waiting.edit(
-          `${app.emote(message, "WAIT")} Deploying...${commands.join(
-            "",
-          )}${`\n${app.emote(message, "WAIT")} \`>_ ${command}\``}`,
-        )
+    const makeView = (finish?: boolean, errored?: boolean) =>
+      `${tasks
+        .map((task) => format({ ...task, state: finish ? "done" : task.state }))
+        .join(
+          "\n",
+        )}\n${emote(message, finish ? "CheckMark" : errored ? "Cross" : "Loading")} ${
+        finish ? `**Deployed** 🚀` : errored ? "Errored" : "Deploying..."
+      }`
 
-        let timer = Date.now()
+    const run = async (task: Task) => {
+      task.state = "running"
 
-        cp.exec(command, { cwd: process.cwd() }, (err, stdout, stderr) => {
-          if (err) return reject()
+      await view.edit(makeView())
 
-          commands.push(
-            `\n${app.emote(message, "CHECK")} \`>_ ${command}\` (${
-              Date.now() - timer
-            }ms)`,
-          )
+      try {
+        execSync(task.cmd, { cwd: process.cwd() })
+      } catch (error: any) {
+        task.state = "error"
 
-          resolve(void 0)
-        })
-      })
+        await view.edit(makeView(false, true))
+
+        throw error
+      }
+
+      task.state = "done"
     }
 
+    const view = await message.channel.send(makeView())
+
+    const created_at = new Date().toISOString()
+
     await restart.query.insert({
-      content: `${app.emote(message, "CHECK")} Successfully deployed.`,
+      content: makeView(true),
       last_channel_id: message.channel.id,
-      last_message_id: waiting.id,
-      created_at: new Date().toISOString(),
+      last_message_id: view.id,
+      created_at,
     })
 
     try {
-      await run("git reset --hard")
-      await run("git pull")
-      await run("npm i")
-      await run("yarn build")
-      await run("pm2 restart tool")
+      for (const command of tasks) {
+        const time = Date.now()
+
+        await run(command)
+
+        command.time = Date.now() - time
+      }
     } catch (error: any) {
-      await restart.query.delete().where({ last_message_id: waiting.id })
+      await restart.query.delete().where({ created_at })
 
-      app.error(error)
+      logger.error(error)
 
-      return waiting.edit({
+      return view.edit({
         embeds: [
-          new app.EmbedBuilder()
+          new discord.EmbedBuilder()
             .setTitle("\\❌ An error has occurred.")
             .setColor("Red")
             .setDescription(
-              app.code.stringify({
+              await discordEval.code.stringify({
                 content: (error?.stack ?? error?.message ?? String(error))
                   .split("")
                   .reverse()

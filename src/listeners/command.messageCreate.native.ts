@@ -1,41 +1,45 @@
 // system file, please don't modify it
 
-import * as app from "../app.js"
+import config from "#config"
+import * as command from "#core/command"
+import env from "#core/env"
+import { Listener } from "#core/listener"
+import logger from "#core/logger"
+import * as util from "#core/util"
+
 import yargsParser from "yargs-parser"
 
-const listener: app.Listener<"messageCreate"> = {
+export default new Listener({
   event: "messageCreate",
-  description: "Handle messages for commands",
+  description: "Handle the messages for commands",
   async run(message) {
-    if (app.config.ignoreBots && message.author.bot) return
+    if (config.ignoreBots && message.author.bot) return
 
-    if (!app.isNormalMessage(message)) return
+    if (!command.isAnyMessage(message)) return
 
-    const prefix = await app.config.getPrefix(message)
+    const prefix = config.getPrefix
+      ? await config.getPrefix(message)
+      : env.BOT_PREFIX
 
     if (new RegExp(`^<@!?${message.client.user.id}>$`).test(message.content))
       return message.channel
-        .send({
-          embeds: [
-            new app.EmbedBuilder()
-              .setColor("Blurple")
-              .setDescription(`My prefix is \`${prefix}\``),
-          ],
-        })
+        .send(
+          await util.getSystemMessage("default", `My prefix is \`${prefix}\``),
+        )
         .catch()
 
     message.usedAsDefault = false
-    message.isFromBotOwner = message.author.id === process.env.BOT_OWNER!
+    message.isFromBotOwner = message.author.id === env.BOT_OWNER
 
-    app.emitMessage(message.channel, message)
-    app.emitMessage(message.author, message)
+    util.emitMessage(message.channel, message)
+    util.emitMessage(message.author, message)
 
-    if (app.isGuildMessage(message)) {
+    if (command.isGuildMessage(message)) {
       message.isFromGuildOwner =
         message.isFromBotOwner || message.guild.ownerId === message.author.id
 
-      app.emitMessage(message.guild, message)
-      app.emitMessage(message.member, message)
+      util.emitMessage(message.guild, message)
+      util.emitMessage(message.member, message)
     }
 
     let dynamicContent = message.content
@@ -53,6 +57,8 @@ const listener: app.Listener<"messageCreate"> = {
       const [match, used] = mentionRegex.exec(dynamicContent) as RegExpExecArray
       message.usedPrefix = `${used} `
       cut(match)
+    } else if (command.isDirectMessage(message)) {
+      message.usedPrefix = ""
     } else return
 
     let key = dynamicContent.split(/\s+/)[0]
@@ -60,17 +66,17 @@ const listener: app.Listener<"messageCreate"> = {
     // turn ON/OFF
     if (
       key !== "turn" &&
-      !app.cache.ensure<boolean>("turn", true) &&
-      message.author.id !== process.env.BOT_OWNER
+      !util.cache.ensure<boolean>("turn", true) &&
+      message.author.id !== env.BOT_OWNER
     )
       return
 
-    let cmd = app.commands.resolve(key)
+    let cmd = command.commands.resolve(key)
 
     if (!cmd) {
-      if (app.defaultCommand) {
+      if (command.defaultCommand) {
         key = ""
-        cmd = app.defaultCommand
+        cmd = command.defaultCommand
         message.usedAsDefault = true
       } else return null
     }
@@ -91,14 +97,20 @@ const listener: app.Listener<"messageCreate"> = {
             depth++
             break
           } else if (sub.options.aliases) {
+            let found = false
+
             for (const alias of sub.options.aliases) {
               if (alias === subKey) {
                 key += ` ${subKey}`
                 cursor = 0
                 cmd = sub
                 depth++
+                found = true
+                break
               }
             }
+
+            if (found) break
           }
           cursor++
         }
@@ -121,10 +133,10 @@ const listener: app.Listener<"messageCreate"> = {
 
     // handle help argument
     if (parsedArgs.help || parsedArgs.h)
-      return app.sendCommandDetails(message, cmd)
+      return command.sendCommandDetails(message, cmd)
 
     // prepare command
-    const prepared = await app.prepareCommand(message, cmd, {
+    const prepared = await command.prepareCommand(message, cmd, {
       restPositional,
       baseContent,
       parsedArgs,
@@ -132,29 +144,22 @@ const listener: app.Listener<"messageCreate"> = {
     })
 
     if (typeof prepared !== "boolean")
-      return message.channel.send({ embeds: [prepared] }).catch()
+      return message.channel
+        .send({ ...prepared, allowedMentions: { parse: [] } })
+        .catch()
 
     if (!prepared) return
 
     try {
       await cmd.options.run.bind(cmd)(message)
     } catch (error: any) {
-      app.error(error, cmd.filepath!, true)
+      logger.error(error, cmd.filepath!, true)
 
       message.channel
-        .send(
-          app.code.stringify({
-            content: `Error: ${
-              error.message?.replace(/\x1b\[\d+m/g, "") ?? "unknown"
-            }`,
-            lang: "js",
-          }),
-        )
+        .send(await util.getSystemMessage("error", error))
         .catch((error) => {
-          app.error(error, cmd!.filepath!, true)
+          logger.error(error, cmd!.filepath!, true)
         })
     }
   },
-}
-
-export default listener
+})

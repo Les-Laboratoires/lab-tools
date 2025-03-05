@@ -1,46 +1,24 @@
 // system file, please don't modify it
 
-import figlet from "figlet"
-import boxen from "boxen"
-import chalk from "chalk"
+import util from "node:util"
 
-import * as app from "../app.js"
+import env from "#core/env"
+import { Listener } from "#core/listener"
+import logger from "#core/logger"
 
-import { filename } from "dirname-filename-esm"
-
-const __filename = filename(import.meta)
-
-const listener: app.Listener<"afterReady"> = {
+export default new Listener({
   event: "afterReady",
   description: "Just log that bot is ready",
   once: true,
   async run() {
-    app.log(
-      `ok i'm ready! ${chalk.blue(
+    logger.success(
+      `ok i'm ready! ${util.styleText(
+        "blue",
         "My default prefix is",
-      )} ${chalk.bgBlueBright.black(process.env.BOT_PREFIX)}`,
+      )} ${util.styleText(
+        "bold",
+        util.styleText("blueBright", env.BOT_PREFIX),
+      )}`,
     )
-
-    figlet(app.packageJSON.name, (err, value) => {
-      if (err) return app.error(err, __filename, true)
-
-      console.log(
-        boxen(chalk.blueBright(value), {
-          float: "center",
-          borderStyle: {
-            topLeft: " ",
-            topRight: " ",
-            bottomLeft: " ",
-            bottomRight: " ",
-            top: " ",
-            left: " ",
-            right: " ",
-            bottom: " ",
-          },
-        }),
-      )
-    })
   },
-}
-
-export default listener
+})

@@ -1,19 +1,19 @@
-import * as app from "../app.js"
+import { Command } from "#core/index"
+import { emote } from "#namespaces/emotes"
+import restart from "#tables/restart"
 
-import restart from "../tables/restart.js"
-
-export default new app.Command({
+export default new Command({
   name: "restart",
   description: "Restart Lab Tool",
   channelType: "all",
   botOwnerOnly: true,
   async run(message) {
     const toEdit = await message.channel.send(
-      `${app.emote(message, "WAIT")} Restarting...`,
+      `${emote(message, "Loading")} Restarting...`,
     )
 
     await restart.query.insert({
-      content: `${app.emote(message, "CHECK")} Successfully restarted!`,
+      content: `${emote(message, "CheckMark")} Successfully restarted!`,
       last_channel_id: message.channel.id,
       last_message_id: toEdit.id,
       created_at: new Date().toISOString(),

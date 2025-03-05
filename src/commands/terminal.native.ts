@@ -1,11 +1,11 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
-import cp from "child_process"
-import discord from "discord.js"
+import cp from "node:child_process"
 
-import * as app from "../app.js"
+import { Command } from "#core/command"
+import * as util from "#core/util"
 
-export default new app.Command({
+export default new Command({
   name: "terminal",
   description: "Run shell command from Discord",
   aliases: ["term", "cmd", "command", "exec", ">", "process", "shell"],
@@ -13,7 +13,7 @@ export default new app.Command({
   botOwnerOnly: true,
   cooldown: {
     duration: 5000,
-    type: app.CooldownType.Global,
+    type: util.CooldownType.Global,
   },
   rest: {
     all: true,
@@ -22,42 +22,57 @@ export default new app.Command({
     required: true,
   },
   async run(message) {
-    message.triggerCoolDown()
+    message.triggerCooldown()
 
-    const toEdit = await message.channel.send({
-      embeds: [
-        new discord.EmbedBuilder()
-          .setColor("Blurple")
-          .setTitle("The process is running..."),
-      ],
-    })
+    const toEdit = await message.channel.send(
+      await util.getSystemMessage(
+        "loading",
+        {
+          header: "The process is running...",
+          body: message.rest,
+        },
+        {
+          code: "bash",
+        },
+      ),
+    )
 
-    cp.exec(message.rest, { cwd: process.cwd() }, (err, stdout, stderr) => {
-      const output = err
-        ? err.stack ?? err.message
-        : stderr.trim() || stdout || null
+    let systemMessage: util.SystemMessage
 
-      const embed = new discord.EmbedBuilder()
-        .setColor(err ? "Red" : "Blurple")
-        .setTitle(
-          err ? "\\❌ An error has occurred." : "\\✔ Successfully executed.",
-        )
+    try {
+      const output = cp.execSync(message.rest, {
+        cwd: process.cwd(),
+        encoding: "utf-8",
+      })
 
-      if (output)
-        embed.setDescription(
-          app.code.stringify({
-            content: output
+      systemMessage = await util.getSystemMessage(
+        "success",
+        {
+          header: "The process is done",
+          body:
+            output
               .split("")
               .reverse()
               .slice(0, 2000)
               .reverse()
-              .join(""),
-          }),
-        )
+              .join("")
+              .trim() || "void",
+        },
+        { code: "js" },
+      )
+    } catch (error: any) {
+      systemMessage = await util.getSystemMessage(
+        "error",
+        {
+          header: "The process is errored",
+          body: error,
+        },
+        { stack: true },
+      )
+    }
 
-      toEdit.edit({ embeds: [embed] }).catch(() => {
-        message.channel.send({ embeds: [embed] }).catch()
-      })
+    toEdit.edit(systemMessage).catch(() => {
+      message.channel.send(systemMessage).catch()
     })
   },
 })

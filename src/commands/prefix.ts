@@ -1,26 +1,26 @@
-import * as app from "../app.js"
+import { Command } from "#core/index"
+import { prefix } from "#namespaces/tools"
+import guilds from "#tables/guild"
 
-import guilds from "../tables/guild.js"
-
-export default new app.Command({
+export default new Command({
   name: "prefix",
   guildOwnerOnly: true,
   channelType: "guild",
   description: "Edit or show the bot prefix",
   positional: [
-    app.positional({
+    {
       name: "prefix",
       description: "The new prefix",
       type: "string",
       validate: (value) => value.length < 10 && /^\S/.test(value),
-    }),
+    },
   ],
   async run(message) {
-    const prefix = message.args.prefix
+    const _prefix = message.args.prefix
 
-    if (!prefix)
+    if (!_prefix)
       return message.channel.send(
-        `My current prefix for "**${message.guild}**" is \`${await app.prefix(
+        `My current prefix for "**${message.guild}**" is \`${await prefix(
           message.guild,
         )}\``,
       )
@@ -28,13 +28,13 @@ export default new app.Command({
     await guilds.query
       .insert({
         id: message.guild.id,
-        prefix: prefix,
+        prefix: _prefix,
       })
       .onConflict("id")
-      .merge()
+      .merge(["prefix"])
 
     await message.channel.send(
-      `My new prefix for "**${message.guild}**" is \`${prefix}\``,
+      `My new prefix for "**${message.guild}**" is \`${_prefix}\``,
     )
   },
 })

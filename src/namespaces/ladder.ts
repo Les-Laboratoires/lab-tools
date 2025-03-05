@@ -1,10 +1,10 @@
 import discord from "discord.js"
-import * as util from "../app/util.js"
-import * as command from "../app/command.js"
-import * as argument from "../app/argument.js"
-import * as pagination from "../app/pagination.js"
+import * as util from "#core/util"
+import * as command from "#core/command"
+import * as argument from "#core/argument"
+import * as pagination from "#core/pagination"
 
-import * as tools from "./tools.js"
+import * as emotes from "#namespaces/emotes"
 
 export function formatRank(rank: number) {
   return `\`[ ${util.forceTextSize(rank, 3, true)} ]\``
@@ -43,7 +43,7 @@ export class Ladder<Line extends LadderLine> {
       .setTitle(`${this.options.title} leaderboard`)
       .setDescription(
         (await this.fetchPage(options)) ||
-          `${tools.emote(ctx, "DENY")} No ladder available`,
+          `${emotes.emote(ctx, "Cross")} No ladder available`,
       )
       .setFooter({
         text: `Page: ${options.pageIndex + 1} / ${await this.fetchPageCount(
@@ -61,11 +61,11 @@ export class Ladder<Line extends LadderLine> {
    * Seng the ladder paginator to a channel
    */
   send(
-    channel: discord.TextChannel,
+    channel: discord.SendableChannels,
     options: Omit<LadderPaginatorOptions, "pageIndex">,
   ) {
     new pagination.DynamicPaginator({
-      channel,
+      target: channel,
       fetchPageCount: () => {
         return this.fetchPageCount(options)
       },
@@ -76,12 +76,18 @@ export class Ladder<Line extends LadderLine> {
         })
 
         if (page.length === 0)
-          return `${tools.emote(channel, "DENY")} No ladder available.`
+          return {
+            content: `${emotes.emote(channel, "Cross")} No ladder available.`,
+          }
 
-        return await this.fetchEmbed(channel, {
-          pageIndex,
-          ...options,
-        })
+        return {
+          embeds: [
+            await this.fetchEmbed(channel, {
+              pageIndex,
+              ...options,
+            }),
+          ],
+        }
       },
     })
   }
@@ -89,7 +95,7 @@ export class Ladder<Line extends LadderLine> {
   generateCommand() {
     return new command.Command({
       name: "leaderboard",
-      description: `Show the leaderboard of ${this.options.title}`,
+      description: `Show the leaderboard of ${this.options.title.toLowerCase()}`,
       channelType: "guild",
       aliases: ["ladder", "lb", "top", "rank"],
       options: [

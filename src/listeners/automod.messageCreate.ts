@@ -1,11 +1,13 @@
-import * as app from "../app.js"
+import { Listener } from "#core/listener"
+import * as logger from "#core/logger"
+import { detectAndBanSpammer } from "#namespaces/automod"
 
-const listener: app.Listener<"messageCreate"> = {
+export default new Listener({
   event: "messageCreate",
-  description: "A messageCreate listener",
+  description: "Watch sent messages to detect and ban spammers",
   async run(message) {
-    app.detectAndBanSpammer(message)
+    detectAndBanSpammer(message).catch((error) =>
+      logger.error(error, "automod.messageCreate"),
+    )
   },
-}
-
-export default listener
+})

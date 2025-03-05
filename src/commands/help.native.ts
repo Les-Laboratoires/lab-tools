@@ -1,11 +1,13 @@
 // native file, if you want edit it, remove the "native" suffix from the filename
 
-import * as app from "../app.js"
+import * as command from "#core/command"
+import { StaticPaginator } from "#core/pagination"
+import * as util from "#core/util"
 
-export default new app.Command({
+export default new command.Command({
   name: "help",
   description: "Help menu",
-  longDescription: "Display all commands of bot or detail a target command.",
+  longDescription: "Show command details or list all commands",
   channelType: "all",
   aliases: ["h", "usage", "detail", "details"],
   positional: [
@@ -20,43 +22,38 @@ export default new app.Command({
       const cmd = message.args.command
 
       if (cmd) {
-        return app.sendCommandDetails(message, cmd)
+        return command.sendCommandDetails(message, cmd)
       } else {
-        await message.channel.send({
-          embeds: [
-            new app.EmbedBuilder().setColor("Red").setAuthor({
-              name: `Unknown command "${message.args.command}"`,
-              iconURL: message.client.user?.displayAvatarURL(),
-            }),
-          ],
-        })
+        await message.channel.send(
+          await util.getSystemMessage(
+            "error",
+            `Unknown command "${message.args.command}"`,
+          ),
+        )
       }
     } else {
-      new app.StaticPaginator({
-        pages: await app.divider(
+      new StaticPaginator({
+        pages: await util.divider(
           (
             await Promise.all(
-              app.commands.map(async (cmd) => {
-                const prepared = await app.prepareCommand(message, cmd)
+              command.commands.map(async (cmd) => {
+                const prepared = await command.prepareCommand(message, cmd)
                 if (prepared !== true) return ""
-                return app.commandToListItem(message, cmd)
+                return command.commandToListItem(message, cmd)
               }),
             )
           ).filter((line) => line.length > 0),
           10,
           (page) => {
-            return new app.EmbedBuilder()
-              .setColor("Blurple")
-              .setAuthor({
-                name: "Command list",
-                iconURL: message.client.user?.displayAvatarURL(),
-              })
-              .setDescription(page.join("\n"))
-              .setFooter({ text: `${message.usedPrefix}help <command>` })
+            return util.getSystemMessage("default", {
+              header: "Command list",
+              body: page.join("\n"),
+              footer: `${message.usedPrefix}help <command>`,
+            })
           },
         ),
         filter: (reaction, user) => user.id === message.author.id,
-        channel: message.channel,
+        target: message.channel,
       })
     }
   },

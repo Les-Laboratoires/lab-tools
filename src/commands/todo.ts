@@ -1,14 +1,20 @@
-import * as app from "../app.js"
+import { Command, UnknownMessage, option, positional } from "#core/index"
+import { DynamicPaginator, Page, StaticPaginator } from "#core/pagination"
+import { divider, forceTextSize, getSystemMessage } from "#core/util"
 
-import todoTable, { ToDo } from "../tables/todo.js"
-import { User } from "../tables/user.js"
+import { emote } from "#namespaces/emotes"
+import { countOf, getUser } from "#namespaces/tools"
+
+import todoTable, { ToDo } from "#tables/todo"
+import { User } from "#tables/user"
 
 import { filename } from "dirname-filename-esm"
+import { EmbedBuilder, SendableChannels } from "discord.js"
 
 const __filename = filename(import.meta)
 
 function todoId(todo: ToDo) {
-  return `\`[ ${app.forceTextSize(todo._id, 3, true)} ]\``
+  return `\`[ ${forceTextSize(todo._id, 3, true)} ]\``
 }
 
 function todoItem(todo: ToDo) {
@@ -18,17 +24,13 @@ function todoItem(todo: ToDo) {
     .slice(0, 40)}`
 }
 
-async function showTodoList(
-  message: app.NormalMessage,
-  user: User,
-  perPage = 10,
-) {
-  new app.DynamicPaginator({
-    channel: message.channel,
+async function showTodoList(message: UnknownMessage, user: User, perPage = 10) {
+  new DynamicPaginator({
+    target: message.channel,
     filter: (reaction, user) => user.id === message.author.id,
-    placeHolder: new app.EmbedBuilder().setTitle("No todo task found."),
-    async fetchPage(index): Promise<app.Page> {
-      const itemCount = await app.countOf(
+    placeHolder: await getSystemMessage("default", "No todo task found."),
+    async fetchPage(index): Promise<Page> {
+      const itemCount = await countOf(
         todoTable.query.where("user_id", user._id),
       )
       const pageCount = Math.ceil(itemCount / perPage)
@@ -37,30 +39,35 @@ async function showTodoList(
         .offset(index * perPage)
         .limit(perPage)
 
+      if (pageTasks.length === 0)
+        return getSystemMessage("default", "No todo task found.")
+
       if (perPage === 1) {
         const [todo] = pageTasks
 
-        return new app.EmbedBuilder()
-          .setTitle(`Todo task of ${message.author.tag}`)
-          .setDescription(`${todoId(todo)} ${todo.content}`)
-          .setFooter({ text: `Item ${index + 1} / ${itemCount}` })
+        return await getSystemMessage("default", {
+          header: `Todo task of ${message.author.tag}`,
+          body: `${todoId(todo)} ${todo.content}`,
+          footer: `Item ${index + 1} / ${itemCount}`,
+          date: todo.created_at,
+        })
       }
 
-      return new app.EmbedBuilder()
-        .setTitle(`Todo list of ${message.author.tag} (${itemCount} items)`)
-        .setDescription(pageTasks.map(todoItem).join("\n"))
-        .setFooter({ text: `Page ${index + 1} / ${pageCount}` })
+      return await getSystemMessage("default", {
+        header: `Todo list of ${message.author.tag} (${itemCount} items)`,
+        body: pageTasks.map(todoItem).join("\n"),
+        footer: `Page ${index + 1} / ${pageCount}`,
+      })
     },
     async fetchPageCount(): Promise<number> {
       return Math.ceil(
-        (await app.countOf(todoTable.query.where("user_id", user._id))) /
-          perPage,
+        (await countOf(todoTable.query.where("user_id", user._id))) / perPage,
       )
     },
   })
 }
 
-const perPageOption = app.option({
+const perPageOption = option({
   name: "perPage",
   description: "Count of task per page",
   type: "number",
@@ -68,28 +75,28 @@ const perPageOption = app.option({
   aliases: ["per", "by", "count", "nbr", "div", "*"],
 })
 
-export default new app.Command({
+export default new Command({
   name: "todo",
   aliases: ["td"],
   channelType: "all",
   description: "Manage todo tasks",
   options: [perPageOption],
   async run(message) {
-    const user = await app.getUser(message.author, true)
+    const user = await getUser(message.author, true)
 
     return message.rest.length === 0
       ? showTodoList(message, user, message.args.perPage)
       : message.channel.send(
-          `${app.emote(
+          `${emote(
             message,
-            "DENY",
+            "Cross",
           )} Bad command usage. Show command detail with \`${
             message.usedPrefix
           }todo -h\``,
         )
   },
   subs: [
-    new app.Command({
+    new Command({
       name: "add",
       description: "Add new todo task",
       aliases: ["new", "+=", "++", "+"],
@@ -105,22 +112,20 @@ export default new app.Command({
           ? message.args.content.slice(1).trim()
           : message.args.content
 
-        const user = await app.getUser(message.author, true)
+        const user = await getUser(message.author, true)
 
-        const count = await app.countOf(
-          todoTable.query.where("user_id", user._id),
-        )
+        const count = await countOf(todoTable.query.where("user_id", user._id))
 
         if (count > 999)
           return message.channel.send(
-            `${app.emote(
+            `${emote(
               message,
-              "DENY",
+              "Cross",
             )} You have too many todo tasks, please remove some first.`,
           )
 
         try {
-          const todoData: Omit<ToDo, "_id"> = {
+          const todoData: Omit<ToDo, "_id" | "created_at"> = {
             user_id: user._id,
             content,
           }
@@ -132,25 +137,25 @@ export default new app.Command({
           if (!todo) throw new Error("Internal error in src/commands/todo.ts")
 
           return message.channel.send(
-            `${app.emote(message, "CHECK")} Saved with ${todoId(
+            `${emote(message, "CheckMark")} Saved with ${todoId(
               todo,
             )} as identifier.`,
           )
         } catch (error: any) {
-          app.error(error, __filename)
+          error(error, __filename)
           return message.channel.send(
-            `${app.emote(message, "DENY")} An error has occurred.`,
+            `${emote(message, "Cross")} An error has occurred.`,
           )
         }
       },
     }),
-    new app.Command({
+    new Command({
       name: "list",
       description: "Show todo list",
       aliases: ["ls"],
       channelType: "all",
       positional: [
-        app.positional({
+        positional({
           name: "target",
           type: "user",
           description: "The target member",
@@ -159,27 +164,27 @@ export default new app.Command({
       ],
       options: [perPageOption],
       async run(message) {
-        const target = await app.getUser(message.args.target, true)
+        const target = await getUser(message.args.target, true)
 
         return showTodoList(message, target, message.args.perPage)
       },
     }),
-    new app.Command({
+    new Command({
       name: "clear",
       description: "Clean todo list",
       aliases: ["clean"],
       channelType: "all",
       async run(message) {
-        const user = await app.getUser(message.author, true)
+        const user = await getUser(message.author, true)
 
         await todoTable.query.delete().where("user_id", user._id)
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully deleted todo list`,
+          `${emote(message, "CheckMark")} Successfully deleted todo list`,
         )
       },
     }),
-    new app.Command({
+    new Command({
       name: "get",
       aliases: ["show"],
       description: "Get a todo task",
@@ -193,7 +198,7 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        const user = await app.getUser(message.author, true)
+        const user = await getUser(message.author, true)
 
         const todo = await todoTable.query
           .select()
@@ -203,19 +208,20 @@ export default new app.Command({
 
         if (!todo)
           return message.channel.send(
-            `${app.emote(message, "DENY")} Unknown todo task id.`,
+            `${emote(message, "Cross")} Unknown todo task id.`,
           )
 
         return message.channel.send({
           embeds: [
-            new app.EmbedBuilder()
+            new EmbedBuilder()
               .setTitle(`Todo task of ${message.author.tag}`)
-              .setDescription(`${todoId(todo)} ${todo.content}`),
+              .setDescription(`${todoId(todo)} ${todo.content}`)
+              .setTimestamp(todo.created_at),
           ],
         })
       },
     }),
-    new app.Command({
+    new Command({
       name: "remove",
       description: "Remove a todo task",
       aliases: ["delete", "del", "rm", "-=", "--", "-"],
@@ -236,24 +242,24 @@ export default new app.Command({
 
         if (!todo)
           return message.channel.send(
-            `${app.emote(message, "DENY")} Unknown todo task id.`,
+            `${emote(message, "Cross")} Unknown todo task id.`,
           )
 
-        const user = await app.getUser(message.author, true)
+        const user = await getUser(message.author, true)
 
         if (todo.user_id !== user._id)
           return message.channel.send(
-            `${app.emote(message, "DENY")} This is not your own task.`,
+            `${emote(message, "Cross")} This is not your own task.`,
           )
 
         await todoTable.query.delete().where("_id", message.args.id)
 
         return message.channel.send(
-          `${app.emote(message, "CHECK")} Successfully deleted todo task`,
+          `${emote(message, "CheckMark")} Successfully deleted todo task`,
         )
       },
     }),
-    new app.Command({
+    new Command({
       name: "filter",
       description: "Find some todo task",
       aliases: ["find", "search", "q", "query", "all"],
@@ -267,7 +273,7 @@ export default new app.Command({
         },
       ],
       async run(message) {
-        const user = await app.getUser(message.author, true)
+        const user = await getUser(message.author, true)
 
         const todoList = (await todoTable.query.where("user_id", user._id))
           .filter((todo) => {
@@ -277,17 +283,16 @@ export default new app.Command({
           })
           .map(todoItem)
 
-        new app.StaticPaginator({
-          channel: message.channel,
-          placeHolder: new app.EmbedBuilder().setTitle("No todo task found."),
+        new StaticPaginator({
+          target: message.channel as SendableChannels,
+          placeHolder: await getSystemMessage("default", "No todo task found."),
           filter: (reaction, user) => user.id === message.author.id,
-          pages: app.divider(todoList, 10).map((page, i, pages) =>
-            new app.EmbedBuilder()
-              .setTitle(
-                `Result of "${message.args.search}" search (${todoList.length} items)`,
-              )
-              .setDescription(page.join("\n"))
-              .setFooter({ text: `Page ${i + 1} / ${pages.length}` }),
+          pages: divider(todoList, 10).map((page, i, pages) =>
+            getSystemMessage("default", {
+              header: `Result of "${message.args.search}" search (${todoList.length} items)`,
+              body: page.join("\n"),
+              footer: `Page ${i + 1} / ${pages.length}`,
+            }),
           ),
         })
       },

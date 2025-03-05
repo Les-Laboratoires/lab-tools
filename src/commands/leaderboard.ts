@@ -1,12 +1,21 @@
-import * as app from "../app.js"
+import { EmbedBuilder } from "discord.js"
 
-export default new app.Command({
+import { Command, option } from "#core/index"
+
+import { activeLadder } from "#namespaces/active"
+import { coinLadder } from "#namespaces/coins"
+import { emote } from "#namespaces/emotes"
+import { pointLadder } from "#namespaces/point"
+import { ratingLadder } from "#namespaces/rating"
+import { getGuild } from "#namespaces/tools"
+
+export default new Command({
   name: "leaderboard",
   aliases: ["lb", "ladder", "top", "rank"],
-  description: "The leaderboard command",
+  description: "Show all leaderboards",
   channelType: "guild",
   options: [
-    app.option({
+    option({
       name: "lines",
       description: "Number of lines to show per page",
       type: "number",
@@ -16,25 +25,26 @@ export default new app.Command({
     }),
   ],
   async run(message) {
-    const guild = await app.getGuild(message.guild, true)
+    const guild = await getGuild(message.guild, { forceExists: true })
 
     const ladders = [
-      app.noteLadder,
-      app.pointLadder,
-      app.activeLadder(guild._id),
+      ratingLadder(guild._id),
+      activeLadder(guild._id),
+      pointLadder,
+      coinLadder,
     ]
 
     return message.channel.send({
       embeds: [
-        new app.EmbedBuilder().setTitle("Leaderboards").setFields(
+        new EmbedBuilder().setTitle("Leaderboards").setFields(
           await Promise.all(
             ladders.map(async (ladder) => ({
               name: ladder.options.title,
               value:
                 (await ladder.fetchPage({
                   pageIndex: 0,
-                  pageLineCount: 15,
-                })) || `${app.emote(message, "DENY")} No ladder available`,
+                  pageLineCount: message.args.lines,
+                })) || `${emote(message, "Cross")} No ladder available`,
               inline: false,
             })),
           ),

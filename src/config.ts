@@ -1,15 +1,22 @@
-import * as app from "./app.js"
+import { Config } from "#core/config"
+import { Emotes } from "#namespaces/emotes"
+import { z } from "zod"
 
-export const config: app.Config = {
+export const config = new Config({
   ignoreBots: true,
-  getPrefix: (message) => {
-    return app.prefix(message.guild)
+  openSource: true,
+  permissions: [],
+  envSchema: z.object({
+    OPENAI_API_KEY: z.string(),
+  }),
+  async getPrefix(message) {
+    return import("#namespaces/tools").then((app) => app.prefix(message.guild))
   },
   client: {
     intents: [
       "Guilds",
       "GuildMembers",
-      "GuildBans",
+      "GuildModeration",
       "GuildEmojisAndStickers",
       "GuildIntegrations",
       "GuildWebhooks",
@@ -17,12 +24,25 @@ export const config: app.Config = {
       "GuildVoiceStates",
       "GuildPresences",
       "GuildMessages",
-      "MessageContent",
       "GuildMessageTyping",
       "GuildMessageReactions",
       "DirectMessages",
       "DirectMessageTyping",
       "DirectMessageReactions",
+      "MessageContent",
     ],
   },
-}
+  paginatorEmojis: {
+    start: Emotes.Left,
+    previous: Emotes.Minus,
+    next: Emotes.Plus,
+    end: Emotes.Right,
+  },
+  systemEmojis: {
+    success: Emotes.CheckMark,
+    error: Emotes.Cross,
+    loading: Emotes.Loading,
+  },
+})
+
+export default config.options
