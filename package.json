@@ -1,6 +1,6 @@
 {
   "name": "lab-tools",
-  "version": "v8.0.0-Capi",
+  "version": "v9.0.0-Nirbose",
   "author": "ghom",
   "description": "Bot de gestion des Laboratoires, écrit en TypeScript avec le framework bot.ts.",
   "main": "dist/index.js",

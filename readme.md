@@ -4,7 +4,7 @@
 
 > Made with [bot.ts](https://ghom.gitbook.io/bot-ts/) by **ghom**  
 > CLI version: `9.0.7`  
-> Bot.ts version: `v8.0.0-Capi`  
+> Bot.ts version: `v9.0.0-Nirbose`  
 > Licence: `ISC`
 
 ## Description
