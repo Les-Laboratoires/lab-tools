@@ -5,7 +5,6 @@ import client from "#core/client"
 import * as tools from "#namespaces/tools"
 
 const webhookClient = new discord.WebhookClient({
-  token: env.BOT_TOKEN,
   url: env.MONITORING_WEBHOOK_URL,
 })
 
@@ -17,7 +16,7 @@ const errorCooldowns = new Map<string, number>()
 const sendErrorWebhook = tools.debounce(async () => {
   webhookClient
     .send({
-      username: "Monitoring",
+      username: "Lab Monitoring",
       avatarURL: client.user?.avatarURL() ?? undefined,
       content: await discordEval.code.stringify({
         lang: "js",
