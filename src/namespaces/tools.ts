@@ -30,6 +30,17 @@ export async function sendLog(
   }
 }
 
+export function debounce<
+  Fn extends (this: any, ...args: any[]) => void | Promise<void>,
+>(fn: Fn, ms: number) {
+  let timeout: NodeJS.Timeout | null
+
+  return function (this: ThisParameterType<Fn>, ...args: Parameters<Fn>) {
+    if (timeout) clearTimeout(timeout)
+    timeout = setTimeout(() => fn.apply(this, args), ms)
+  }
+}
+
 const userCache = new ResponseCache((id: string) => {
   return users.query.where("id", id).first()
 }, 600_000)
