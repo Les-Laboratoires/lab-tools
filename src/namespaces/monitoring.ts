@@ -68,3 +68,7 @@ export function initMonitoring() {
     recordError(`Unhandled Rejection at: ${promise}\nReason: ${reason}`)
   })
 }
+
+export function getMonitoringStacks() {
+  return { errorStacks, errorCooldowns }
+}

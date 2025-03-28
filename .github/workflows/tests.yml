@@ -9,11 +9,10 @@ on:
 
 jobs:
   node:
+    if: github.repository != 'bot-ts/framework'
     name: Test on Node.js v22
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        package-manager: [npm]
+
     steps:
       - uses: actions/checkout@v4
 
@@ -24,11 +23,11 @@ jobs:
 
       - name: Install package manager
         run: |
-          if [ "${{ matrix.package-manager }}" != "npm" ]; then
-            if [ "${{ matrix.package-manager }}" == "yarn" ]; then
+          if [ "npm" != "npm" ]; then
+            if [ "npm" == "yarn" ]; then
               npm install -g yarn@latest
             else
-              npm install -g ${{ matrix.package-manager }}@latest
+              npm install -g npm@latest
             fi
           else
             echo "npm is already installed"
@@ -36,15 +35,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          if [ "${{ matrix.package-manager }}" == "npm" ]; then
+          if [ "npm" == "npm" ]; then
             npm ci
             npm install @rollup/rollup-linux-x64-gnu
-          elif [ "${{ matrix.package-manager }}" == "yarn" ]; then
+          elif [ "npm" == "yarn" ]; then
             yarn install --frozen-lockfile
             yarn add @rollup/rollup-linux-x64-gnu
-          elif [ "${{ matrix.package-manager }}" == "pnpm" ]; then
+          elif [ "npm" == "pnpm" ]; then
             pnpm install --frozen-lockfile
-            pnpm add @rollup/rollup-linux-x64-gnu
+            pnpm add @rollup/rollup-linux-x64-gnu --install-strategy=hoisted
           fi
 
       - name: Check typings
@@ -52,14 +51,6 @@ jobs:
 
       - name: Build JS
         run: npx rimraf dist && npx rollup -c && node scripts/copy-keepers.js
-
-      - name: Rebuild sqlite3
-        run: |
-          if [ "${{ matrix.package-manager }}" == "yarn" ]; then
-            npm rebuild sqlite3
-          else
-            ${{ matrix.package-manager }} rebuild sqlite3
-          fi
 
       - name: Start the bot
         run: node dist/index.test.js
