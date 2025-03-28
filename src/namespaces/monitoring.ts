@@ -4,9 +4,12 @@ import env from "#core/env"
 import client from "#core/client"
 import * as tools from "#namespaces/tools"
 
-const webhookClient = new discord.WebhookClient({
-  url: env.MONITORING_WEBHOOK_URL,
-})
+const webhookClient =
+  env.BOT_MODE !== "test"
+    ? new discord.WebhookClient({
+        url: env.MONITORING_WEBHOOK_URL,
+      })
+    : null
 
 const ERROR_COOLDOWN = 10000
 
@@ -15,7 +18,7 @@ const errorCooldowns = new Map<string, number>()
 
 const sendErrorWebhook = tools.debounce(async () => {
   webhookClient
-    .send({
+    ?.send({
       username: "Lab Monitoring",
       avatarURL: client.user?.avatarURL() ?? undefined,
       content: await discordEval.code.stringify({
