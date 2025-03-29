@@ -5,7 +5,7 @@ import { execSync } from "node:child_process"
 
 import logger from "#core/logger"
 import { Command } from "#core/command"
-import { CooldownType } from "#core/util"
+import { CooldownType, rootPath } from "#core/util"
 import { emote } from "#namespaces/emotes"
 
 import restart from "#tables/restart"
@@ -68,7 +68,7 @@ export default new Command({
       await view.edit(makeView())
 
       try {
-        execSync(task.cmd, { cwd: process.cwd() })
+        execSync(task.cmd, { cwd: rootPath() })
       } catch (error: any) {
         task.state = "error"
 
