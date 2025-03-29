@@ -71,7 +71,7 @@ export async function getPointRank(
     .leftJoin("user", "point.to_id", "user._id")
     .groupBy("user.id")
 
-  const result = await database.database
+  const result = await database.client
     .select("rank")
     .from(subquery.as("ranked_users"))
     .where("id", user.id)
