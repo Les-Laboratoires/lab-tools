@@ -1,8 +1,8 @@
-import discord from "discord.js"
-import labTable from "#tables/lab"
-import * as tools from "#namespaces/tools"
 import * as discordEval from "discord-eval.ts"
+import type discord from "discord.js"
 import { emote } from "#namespaces/emotes"
+import * as tools from "#namespaces/tools"
+import labTable from "#tables/lab"
 
 // /**
 //  * string is the author id
@@ -23,62 +23,62 @@ import { emote } from "#namespaces/emotes"
 // }
 
 export async function detectAndBanSpammer(message: discord.Message) {
-  if (
-    message.system ||
-    !message.author ||
-    message.author.bot ||
-    message.author.system ||
-    !message.guildId
-  )
-    return
+	if (
+		message.system ||
+		!message.author ||
+		message.author.bot ||
+		message.author.system ||
+		!message.guildId
+	)
+		return
 
-  const config = await tools.getGuild({ id: message.guildId })
+	const config = await tools.getGuild({ id: message.guildId })
 
-  if (!config || !config.auto_ban_channel_id) return
+	if (!config || !config.auto_ban_channel_id) return
 
-  if (message.channel.id === config.auto_ban_channel_id) {
-    const result = await globalBan(
-      message.client.user,
-      message.author,
-      `Spamming in ${message.guild!.name}`,
-    )
+	if (message.channel.id === config.auto_ban_channel_id) {
+		const result = await globalBan(
+			message.client.user,
+			message.author,
+			`Spamming in ${message.guild!.name}`,
+		)
 
-    if (config.general_channel_id) {
-      const general = message.client.channels.cache.get(
-        config.general_channel_id,
-      )
+		if (config.general_channel_id) {
+			const general = message.client.channels.cache.get(
+				config.general_channel_id,
+			)
 
-      if (general?.isSendable()) {
-        const success = result.filter(
-          (result) => result.status === "fulfilled",
-        ).length
-        const errored = result.length - success
+			if (general?.isSendable()) {
+				const success = result.filter(
+					(result) => result.status === "fulfilled",
+				).length
+				const errored = result.length - success
 
-        if (success > 0 && errored === 0) {
-          await general.send(
-            `${emote(message, "CheckMark")} **${
-              message.author.tag
-            }** detected as a spammer and banned from **${success}** labs.`,
-          )
-        } else if (success > 0 && errored > 0) {
-          await general.send(
-            `${emote(message, "CheckMark")} **${
-              message.author.tag
-            }** detected as a spammer and banned from **${success}** labs.\n**${errored}** labs failed to ban the user Reasons:\n${result
-              .filter((result) => result.status === "rejected")
-              .map((result) => `- ${result.reason}`)
-              .join("\n")}`,
-          )
-        } else {
-          await general.send(
-            `${emote(message, "Cross")} **${
-              message.author.tag
-            }** detected as a spammer but all labs failed to ban the user.`,
-          )
-        }
-      }
-    }
-  }
+				if (success > 0 && errored === 0) {
+					await general.send(
+						`${emote(message, "CheckMark")} **${
+							message.author.tag
+						}** detected as a spammer and banned from **${success}** labs.`,
+					)
+				} else if (success > 0 && errored > 0) {
+					await general.send(
+						`${emote(message, "CheckMark")} **${
+							message.author.tag
+						}** detected as a spammer and banned from **${success}** labs.\n**${errored}** labs failed to ban the user Reasons:\n${result
+							.filter((result) => result.status === "rejected")
+							.map((result) => `- ${result.reason}`)
+							.join("\n")}`,
+					)
+				} else {
+					await general.send(
+						`${emote(message, "Cross")} **${
+							message.author.tag
+						}** detected as a spammer but all labs failed to ban the user.`,
+					)
+				}
+			}
+		}
+	}
 }
 
 // export function detectAndBanSpammer(message: app.Message): void {
@@ -130,49 +130,49 @@ export async function detectAndBanSpammer(message: discord.Message) {
 // }
 
 export async function globalBan(
-  author: discord.PartialUser | discord.User,
-  target: discord.PartialUser | discord.User,
-  reason: string,
+	author: discord.PartialUser | discord.User,
+	target: discord.PartialUser | discord.User,
+	reason: string,
 ) {
-  const guilds = target.client.guilds.cache.filter((guild) =>
-    guild.members.me?.permissions.has("BanMembers", true),
-  )
+	const guilds = target.client.guilds.cache.filter((guild) =>
+		guild.members.me?.permissions.has("BanMembers", true),
+	)
 
-  const labs = await labTable.query
-    .select("guild_id")
-    .where("ignored", false)
-    .then((results) => results.map((result) => result.guild_id))
+	const labs = await labTable.query
+		.select("guild_id")
+		.where("ignored", false)
+		.then((results) => results.map((result) => result.guild_id))
 
-  return Promise.allSettled(
-    guilds.map(async (guild) => {
-      const config = await tools.getGuild(guild)
+	return Promise.allSettled(
+		guilds.map(async (guild) => {
+			const config = await tools.getGuild(guild)
 
-      if (!config || !labs.includes(config._id)) return
+			if (!config || !labs.includes(config._id)) return
 
-      try {
-        await guild.bans.create(target.id, {
-          reason,
-          // delete all messages from the user in the last 5 hours
-          deleteMessageSeconds: 60 * 60 * 5,
-        })
+			try {
+				await guild.bans.create(target.id, {
+					reason,
+					// delete all messages from the user in the last 5 hours
+					deleteMessageSeconds: 60 * 60 * 5,
+				})
 
-        await tools.sendLog(
-          guild,
-          `**${target.tag}** has been banned by **${author.tag}**.\nReason: ${reason.toLowerCase()}`,
-        )
-      } catch (error: any) {
-        await tools.sendLog(
-          guild,
-          `**${target.tag}** could not be banned...${await discordEval.code.stringify(
-            {
-              content: error.message,
-              lang: "js",
-            },
-          )}`,
-        )
+				await tools.sendLog(
+					guild,
+					`**${target.tag}** has been banned by **${author.tag}**.\nReason: ${reason.toLowerCase()}`,
+				)
+			} catch (error: any) {
+				await tools.sendLog(
+					guild,
+					`**${target.tag}** could not be banned...${await discordEval.code.stringify(
+						{
+							content: error.message,
+							lang: "js",
+						},
+					)}`,
+				)
 
-        throw error
-      }
-    }),
-  )
+				throw error
+			}
+		}),
+	)
 }
