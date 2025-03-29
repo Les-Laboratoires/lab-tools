@@ -34,7 +34,6 @@ export default new Command({
         time: 0,
         cmd: "npm install @rollup/rollup-linux-x64-gnu",
       },
-      { state: "waiting", time: 0, cmd: "npm run build" },
       { state: "waiting", time: 0, cmd: "npm exec pm2 -y -- restart tool" },
     ]
 
