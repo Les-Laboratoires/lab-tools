@@ -12,6 +12,12 @@ export interface Restart {
 export default new Table<Restart>({
   name: "restart",
   description: "Restart message for the deploy command",
+  migrations: {
+    1: (table) => {
+      table.dropColumn("content")
+      table.text("content").notNullable()
+    },
+  },
   setup: (table) => {
     table.string("content").notNullable()
     table.string("last_channel_id").notNullable()
