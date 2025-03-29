@@ -35,7 +35,7 @@ export default new Command({
         cmd: "npm install @rollup/rollup-linux-x64-gnu",
       },
       { state: "waiting", time: 0, cmd: "npm run build" },
-      { state: "waiting", time: 0, cmd: "pm2 restart tool" },
+      { state: "waiting", time: 0, cmd: "cd ../../pm2 npx pm2 restart tool" },
     ]
 
     const format = (task: Task) =>
