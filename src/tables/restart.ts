@@ -15,6 +15,8 @@ export default new Table<Restart>({
   migrations: {
     1: (table) => {
       table.dropColumn("content")
+    },
+    2: (table) => {
       table.text("content").notNullable()
     },
   },
