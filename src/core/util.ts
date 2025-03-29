@@ -428,7 +428,7 @@ export function convertDistPathToSrc(path: string) {
 }
 
 export async function getGitURL(): Promise<string | undefined> {
-  const git = simpleGit(process.cwd())
+  const git = simpleGit(rootPath())
 
   try {
     const remotes = await git.getRemotes(true)
@@ -445,7 +445,7 @@ export async function getGitURL(): Promise<string | undefined> {
 export async function getFileGitURL(
   filepath: string,
 ): Promise<string | undefined> {
-  const git = simpleGit(process.cwd())
+  const git = simpleGit(rootPath())
 
   try {
     const remotes = await git.getRemotes(true)

@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import dotenv from "dotenv"
 
 import fs from "node:fs"
-import path from "node:path"
 import util from "node:util"
 import { z } from "zod"
 
@@ -15,10 +13,7 @@ dotenv.config({
 })
 
 const localeList: { key: string; name: string }[] = JSON.parse(
-  fs.readFileSync(
-    path.join(process.cwd(), "node_modules", "dayjs", "locale.json"),
-    "utf-8",
-  ),
+  fs.readFileSync(rootPath("node_modules", "dayjs", "locale.json"), "utf-8"),
 )
 
 const localeKeys = localeList.map((locale) => locale.key) as [
