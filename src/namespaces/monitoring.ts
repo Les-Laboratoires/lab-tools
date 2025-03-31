@@ -19,7 +19,7 @@ const errorCooldowns = new Map<string, number>()
 const sendErrorWebhook = tools.debounce(async () => {
 	webhookClient
 		?.send({
-			username: "Lab Monitoring",
+			username: "Lab Tools - Monitoring",
 			avatarURL: client.user?.avatarURL() ?? undefined,
 			content: await discordEval.code.stringify({
 				lang: "js",
@@ -33,12 +33,12 @@ const sendErrorWebhook = tools.debounce(async () => {
 }, 1000)
 
 const recordError = (error: string) => {
-	const hash = error.substring(0, 100)
+	const hash = error.substring(0, 300)
 	const now = Date.now()
 
 	if (
 		errorCooldowns.has(hash) &&
-		now - errorCooldowns.get(hash)! < ERROR_COOLDOWN
+		errorCooldowns.get(hash)! < now + ERROR_COOLDOWN
 	)
 		return
 

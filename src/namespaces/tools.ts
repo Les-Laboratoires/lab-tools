@@ -107,11 +107,10 @@ export async function sendTemplatedEmbed(
 	for (const k in replacers)
 		template = template.replace(new RegExp(`{${k}}`, "g"), replacers[k])
 
-	let embeds
 	try {
 		const data: discord.EmbedData | discord.EmbedData[] = JSON.parse(template)
 
-		embeds = (Array.isArray(data) ? data : [data]).map((options) => {
+		const embeds = (Array.isArray(data) ? data : [data]).map((options) => {
 			const embed = new discord.EmbedBuilder(options)
 
 			if (options.thumbnail?.url) embed.setThumbnail(options.thumbnail.url)
@@ -124,15 +123,13 @@ export async function sendTemplatedEmbed(
 	} catch (error: any) {
 		if (error.message.includes("Invalid Form Body")) {
 			return channel.send(
-				(await code.stringify({
+				`${await code.stringify({
 					lang: "js",
 					content: error.message,
-				})) +
-					" " +
-					(await code.stringify({
-						lang: "json",
-						content: template,
-					})),
+				})} ${await code.stringify({
+					lang: "json",
+					content: template,
+				})}`,
 			)
 		}
 		return channel.send(template)
@@ -230,15 +227,18 @@ export async function prefix(guild?: discord.Guild | null): Promise<string> {
 
 export function shortNumber(number: number): string {
 	if (number < 1000) return number.toString()
+
 	if (number < 1000000) {
 		number = number / 1000
+
 		if (number < 100) return `${number.toFixed(1)}k`
-		else return `${number.toFixed(0)}k`
-	} else {
-		number = number / 1000000
-		if (number < 100) return `${number.toFixed(1)}M`
-		else return `${number.toFixed(0)}M`
+		return `${number.toFixed(0)}k`
 	}
+
+	number = number / 1000000
+
+	if (number < 100) return `${number.toFixed(1)}M`
+	return `${number.toFixed(0)}M`
 }
 
 export function removeItem<T>(array: T[], itemToRemove: T) {

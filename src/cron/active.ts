@@ -77,7 +77,7 @@ export default new Cron({
 			} else {
 				await tools.sendLog(
 					realGuild,
-					`Finished updating the active list, no changes were made.`,
+					"Finished updating the active list, no changes were made.",
 				)
 			}
 

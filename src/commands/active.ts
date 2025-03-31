@@ -75,7 +75,7 @@ export default new Command({
 	subs: [
 		new Command({
 			name: "leaderboard",
-			description: `Show the leaderboard of Activity`,
+			description: "Show the leaderboard of Activity",
 			channelType: "guild",
 			aliases: ["ladder", "lb", "top", "rank"],
 			options: [

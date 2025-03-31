@@ -58,7 +58,7 @@ export default new Command({
 				.join(
 					"\n",
 				)}\n${emote(message, finish ? "CheckMark" : errored ? "Cross" : "Loading")} ${
-				finish ? `**Deployed** 🚀` : errored ? "Errored" : "Deploying..."
+				finish ? "**Deployed** 🚀" : errored ? "Errored" : "Deploying..."
 			}`
 
 		const run = async (task: Task) => {

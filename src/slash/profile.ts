@@ -57,10 +57,11 @@ export default new SlashCommand({
 					.setTitle(`Profile of ${interaction.user.tag}`)
 					.setThumbnail(interaction.user.displayAvatarURL())
 					.setDescription(
-						(pointRank
-							? `Helper rank: **#${pointRank.rank}** (**${user.points.toLocaleString()}** pts)\n`
-							: "") +
-							`Total money: **${user.coins.toLocaleString()}** 🪙\n` +
+						`${
+							pointRank
+								? `Helper rank: **#${pointRank.rank}** (**${user.points.toLocaleString()}** pts)\n`
+								: ""
+						}Total money: **${user.coins.toLocaleString()}** 🪙\n` +
 							`Hourly money: **${Math.floor(getUserHourlyCoins(user)).toLocaleString()}** 🪙\n` +
 							`Messages sent: **${messagesSent.toLocaleString()}**\n` +
 							`Rating sent: **${user.rateOthers}**`,

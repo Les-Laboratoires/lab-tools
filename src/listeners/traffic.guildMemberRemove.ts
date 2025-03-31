@@ -32,7 +32,7 @@ export default new Listener({
 					config.general_channel_id,
 				)
 
-				if (general && general.isSendable()) {
+				if (general?.isSendable()) {
 					await sendTemplatedEmbed(
 						general,
 						config.bot_leave_message,
@@ -48,7 +48,7 @@ export default new Listener({
 					config.general_channel_id,
 				)
 
-				if (general && general.isSendable()) {
+				if (general?.isSendable()) {
 					await sendTemplatedEmbed(
 						general,
 						config.member_leave_message,

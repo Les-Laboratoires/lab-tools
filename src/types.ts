@@ -23,7 +23,7 @@ export const types = [
 
 			const number = Number(value.replace(/_/g, ""))
 
-			if (isNaN(number))
+			if (Number.isNaN(number))
 				throw new app.TypeResolverError("Invalid number", {
 					expected: [123, 0.5, 1_000],
 					provided: value,
