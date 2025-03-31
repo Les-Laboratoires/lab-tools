@@ -12,11 +12,10 @@
     "watch": "echo \"No watch support for this runtime\" && exit 1",
     "start": "npm run build && node dist/index.js",
     "start.test": "npm run build && node dist/index.test.js",
-    "format": "npx prettier --write src scripts",
-    "lint": "npx eslint src/**/*.ts --fix",
+    "format": "npx biome check --write src scripts",
     "update": "node scripts/update-framework.js",
     "readme": "npm run build && node scripts/generate-readme.js",
-    "test": "npm run lint && tsc --noEmit && npm run start.test"
+    "test": "npm run format && tsc --noEmit && npm run start.test"
   },
   "prettier": {
     "semi": false,
@@ -113,7 +112,8 @@
     "nodemon": "^2.0.19",
     "rollup": "^4.24.4",
     "typescript": "^5.6.3",
-    "vinyl-paths": "^4.0.0"
+    "vinyl-paths": "^4.0.0",
+    "@biomejs/biome": "1.9.4"
   },
   "engines": {
     "node": ">=22.x.x",
