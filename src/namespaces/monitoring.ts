@@ -38,7 +38,7 @@ const recordError = (error: string) => {
 
 	if (
 		errorCooldowns.has(hash) &&
-		errorCooldowns.get(hash)! < now + ERROR_COOLDOWN
+		now < errorCooldowns.get(hash)! + ERROR_COOLDOWN
 	)
 		return
 
