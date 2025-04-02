@@ -24,27 +24,17 @@ const sendErrorWebhook = async (error: string) => {
 }
 
 export function initMonitoring() {
-	const originalStderrWrite = process.stderr.write
+	process.on("uncaughtException", (error) =>
+		sendErrorWebhook(error.stack || error.message).catch(console.error),
+	)
 
-	process.stderr.write = ((
-		...params: Parameters<typeof originalStderrWrite>
-	): boolean => {
-		if (typeof params[0] === "string") {
-			sendErrorWebhook(params[0]).catch(console.error)
-		} else {
-			sendErrorWebhook(Buffer.from(params[0]).toString()).catch(console.error)
-		}
-
-		return originalStderrWrite(...params)
-	}) as typeof originalStderrWrite
-
-	process.on("uncaughtException", (error) => {
-		sendErrorWebhook(error.stack || error.message).catch(console.error)
-	})
-
-	process.on("unhandledRejection", (reason, promise) => {
+	process.on("unhandledRejection", (reason, promise) =>
 		sendErrorWebhook(
 			`Unhandled Rejection at: ${promise}\nReason: ${reason}`,
-		).catch(console.error)
-	})
+		).catch(console.error),
+	)
+
+	process.on("warning", (warning) =>
+		sendErrorWebhook(warning.stack || warning.message).catch(console.error),
+	)
 }
