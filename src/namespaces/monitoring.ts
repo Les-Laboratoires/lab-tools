@@ -2,7 +2,6 @@ import * as discordEval from "discord-eval.ts"
 import * as discord from "discord.js"
 import client from "#core/client"
 import env from "#core/env"
-import * as tools from "#namespaces/tools"
 
 const webhookClient =
 	env.BOT_MODE !== "test"
@@ -11,41 +10,17 @@ const webhookClient =
 			})
 		: null
 
-const ERROR_COOLDOWN = 10000
-
-const errorStacks = new Set<string>()
-const errorCooldowns = new Map<string, number>()
-
-const sendErrorWebhook = tools.debounce(async () => {
+const sendErrorWebhook = async (error: string) => {
 	webhookClient
 		?.send({
 			username: "Lab Tools - Monitoring",
 			avatarURL: client.user?.avatarURL() ?? undefined,
 			content: await discordEval.code.stringify({
 				lang: "js",
-				content: [...errorStacks].join("\n"),
+				content: error,
 			}),
 		})
 		.catch(console.error)
-		.finally(() => {
-			errorStacks.clear()
-		})
-}, 1000)
-
-const recordError = (error: string) => {
-	const hash = error.substring(0, 300)
-	const now = Date.now()
-
-	if (
-		errorCooldowns.has(hash) &&
-		now < errorCooldowns.get(hash)! + ERROR_COOLDOWN
-	)
-		return
-
-	errorCooldowns.set(hash, now)
-	errorStacks.add(error)
-
-	sendErrorWebhook()
 }
 
 export function initMonitoring() {
@@ -55,23 +30,21 @@ export function initMonitoring() {
 		...params: Parameters<typeof originalStderrWrite>
 	): boolean => {
 		if (typeof params[0] === "string") {
-			recordError(params[0])
+			sendErrorWebhook(params[0]).catch(console.error)
 		} else {
-			recordError(Buffer.from(params[0]).toString())
+			sendErrorWebhook(Buffer.from(params[0]).toString()).catch(console.error)
 		}
 
 		return originalStderrWrite(...params)
 	}) as typeof originalStderrWrite
 
 	process.on("uncaughtException", (error) => {
-		recordError(error.stack || error.message)
+		sendErrorWebhook(error.stack || error.message).catch(console.error)
 	})
 
 	process.on("unhandledRejection", (reason, promise) => {
-		recordError(`Unhandled Rejection at: ${promise}\nReason: ${reason}`)
+		sendErrorWebhook(
+			`Unhandled Rejection at: ${promise}\nReason: ${reason}`,
+		).catch(console.error)
 	})
-}
-
-export function getMonitoringStacks() {
-	return { errorStacks, errorCooldowns }
 }

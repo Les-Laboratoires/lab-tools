@@ -1,6 +1,6 @@
+import cp from "node:child_process"
 import { Command } from "#core/command"
-import { getSystemMessage } from "#core/util"
-import { getMonitoringStacks } from "#namespaces/monitoring"
+import { getSystemMessage, rootPath } from "#core/util"
 
 /**
  * See the {@link https://ghom.gitbook.io/bot.ts/usage/create-a-command command guide} for more information.
@@ -8,18 +8,26 @@ import { getMonitoringStacks } from "#namespaces/monitoring"
 export default new Command({
 	name: "monitoring",
 	aliases: ["monitor", "monit"],
-	description: "Manage the monitoring system",
+	description: "Get the last 12 lines of logs",
 	channelType: "guild",
 	botOwnerOnly: true,
 	async run(message) {
-		const { errorStacks, errorCooldowns } = getMonitoringStacks()
+		// pm2 log tool --lines 12 --nostream --raw
 
-		return message.channel.send(
-			await getSystemMessage("default", {
-				header: "Monitoring System Status",
-				body: `Error stacks: ${errorStacks.size}\nError cooldowns: ${errorCooldowns.size}`,
-				date: new Date(),
-			}),
+		const output = cp.execSync("npx pm2 log tool --lines 12 --nostream --raw", {
+			cwd: rootPath(),
+			encoding: "utf-8",
+		})
+
+		await message.channel.send(
+			await getSystemMessage(
+				"success",
+				{
+					header: "The process is done",
+					body: output,
+				},
+				{ code: "js" },
+			),
 		)
 	},
 	subs: [
