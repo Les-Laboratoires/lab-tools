@@ -8,7 +8,7 @@ export const config = new Config({
 	permissions: [],
 	envSchema: z.object({
 		OPENAI_API_KEY: z.string(),
-		MONITORING_WEBHOOK_URL: z.string(),
+		MONITORING_CHANNEL: z.string(),
 	}),
 	async getPrefix(message) {
 		return import("#namespaces/tools").then((app) => app.prefix(message.guild))

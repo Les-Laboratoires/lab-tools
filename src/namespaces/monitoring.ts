@@ -1,40 +1,32 @@
 import * as discordEval from "discord-eval.ts"
-import * as discord from "discord.js"
 import client from "#core/client"
 import env from "#core/env"
 
-const webhookClient =
-	env.BOT_MODE !== "test"
-		? new discord.WebhookClient({
-				url: env.MONITORING_WEBHOOK_URL,
-			})
-		: null
+export async function sendError(error: string) {
+	const logs = client.channels.cache.get(env.MONITORING_CHANNEL)
 
-const sendErrorWebhook = async (error: string) => {
-	webhookClient
-		?.send({
-			username: "Lab Tools - Monitoring",
-			avatarURL: client.user?.avatarURL() ?? undefined,
+	if (logs?.isSendable())
+		return logs.send({
 			content: await discordEval.code.stringify({
 				lang: "js",
 				content: error,
 			}),
+			allowedMentions: { parse: [] },
 		})
-		.catch(console.error)
 }
 
 export function initMonitoring() {
 	process.on("uncaughtException", (error) =>
-		sendErrorWebhook(error.stack || error.message).catch(console.error),
+		sendError(error.stack || error.message).catch(console.error),
 	)
 
 	process.on("unhandledRejection", (reason, promise) =>
-		sendErrorWebhook(
-			`Unhandled Rejection at: ${promise}\nReason: ${reason}`,
-		).catch(console.error),
+		sendError(`Unhandled Rejection at: ${promise}\nReason: ${reason}`).catch(
+			console.error,
+		),
 	)
 
 	process.on("warning", (warning) =>
-		sendErrorWebhook(warning.stack || warning.message).catch(console.error),
+		sendError(warning.stack || warning.message).catch(console.error),
 	)
 }
