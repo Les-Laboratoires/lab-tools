@@ -128,16 +128,12 @@ export async function giveHourlyCoins() {
 		)
 
 	// update the coins of each user
-	await userTable.query
-		.insert(
-			users.map((user) => ({
-				_id: user._id,
-				id: user.id,
-				coins: Math.ceil(user.coins + getUserHourlyCoins(user)),
-			})),
-		)
-		.onConflict("_id")
-		.merge(["coins"])
+	await userTable.query.upsert(
+		users.map((user) => ({
+			id: user.id,
+			coins: Math.ceil(user.coins + getUserHourlyCoins(user)),
+		})),
+	)
 }
 
 export function getUserHourlyCoins(user: FullUser): number {
