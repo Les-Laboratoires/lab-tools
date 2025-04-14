@@ -132,6 +132,7 @@ export async function giveHourlyCoins() {
 		.insert(
 			users.map((user) => ({
 				_id: user._id,
+				id: user.id,
 				coins: Math.ceil(user.coins + getUserHourlyCoins(user)),
 			})),
 		)
