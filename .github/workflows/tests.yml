@@ -8,50 +8,23 @@ on:
   workflow_dispatch:
 
 jobs:
-  node:
+  bun:
     if: github.repository != 'bot-ts/framework'
-    name: Test on Node.js v22
+    name: Test on Bun v1.2.4
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: 22
-
-      - name: Install package manager
-        run: |
-          if [ "npm" != "npm" ]; then
-            if [ "npm" == "yarn" ]; then
-              npm install -g yarn@latest
-            else
-              npm install -g npm@latest
-            fi
-          else
-            echo "npm is already installed"
-          fi
+          bun-version: 1.2.4
 
       - name: Install dependencies
-        run: |
-          if [ "npm" == "npm" ]; then
-            npm ci
-            npm install @rollup/rollup-linux-x64-gnu
-          elif [ "npm" == "yarn" ]; then
-            yarn install --frozen-lockfile
-            yarn add @rollup/rollup-linux-x64-gnu
-          elif [ "npm" == "pnpm" ]; then
-            pnpm install --frozen-lockfile
-            pnpm add @rollup/rollup-linux-x64-gnu --install-strategy=hoisted
-          fi
-
-      - name: Check typings
-        run: npx tsc --noEmit
-
-      - name: Build JS
-        run: npx rimraf dist && npx rollup -c && node scripts/copy-keepers.js
+        run: bun install
 
       - name: Start the bot
-        run: node dist/index.test.js
+        env:
+          BOT_MODE: test
+        run: bun run src/index.test.ts
 
