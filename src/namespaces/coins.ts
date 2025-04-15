@@ -60,54 +60,37 @@ export interface FullUser {
 }
 
 export async function giveHourlyCoins() {
-	// get all users with points and ratings from a join query.
-	const users: FullUser[] = await userTable.query
-		.leftJoin(
-			pointTable.query
-				.select("to_id")
-				.sum("amount as points")
-				.groupBy("to_id")
-				.as("point_totals"),
-			"point_totals.to_id",
-			"user._id",
-		)
-		.leftJoin(
-			noteTable.query
-				.select("to_id")
-				.avg("value as rating")
-				.groupBy("to_id")
-				.as("notes"),
-			"notes.to_id",
-			"user._id",
-		)
-		.leftJoin(
-			noteTable.query
-				.select("from_id")
-				.count({ total: "*" })
-				.groupBy("from_id")
-				.as("given_notes"),
-			"given_notes.from_id",
-			"user._id",
-		)
+	const pointTotalsSubquery = pointTable.query
+		.select("to_id")
+		.sum("amount as points")
+		.groupBy("to_id")
+		.as("point_totals")
+
+	const notesSubquery = noteTable.query
+		.select("to_id")
+		.avg("value as rating")
+		.groupBy("to_id")
+		.as("notes")
+
+	const givenNotesSubquery = noteTable.query
+		.select("from_id")
+		.count("* as total")
+		.groupBy("from_id")
+		.as("given_notes")
+
+	const messageTotalsSubquery = messageTable.query
+		.select("author_id")
+		.count("* as messages")
+		.groupBy("author_id")
+		.as("message_totals")
+
+	const eligibleUsers = await userTable.query
+		.leftJoin(pointTotalsSubquery, "point_totals.to_id", "user._id")
+		.leftJoin(notesSubquery, "notes.to_id", "user._id")
+		.leftJoin(givenNotesSubquery, "given_notes.from_id", "user._id")
 		.leftJoin("active", "active.user_id", "user._id")
-		.leftJoin(
-			messageTable.query
-				.select("author_id")
-				.count("* as messages")
-				.groupBy("author_id")
-				.as("message_totals"),
-			"message_totals.author_id",
-			"user._id",
-		)
-		.select(
-			"user._id",
-			"user.coins",
-			"point_totals.points",
-			"notes.rating",
-			"given_notes.total as rateOthers",
-			"active.user_id as active",
-			"message_totals.messages",
-		)
+		.leftJoin(messageTotalsSubquery, "message_totals.author_id", "user._id")
+		.select("user._id")
 		.where("point_totals.points", ">", 0)
 		.or.where("notes.rating", ">", 0)
 		.or.where("given_notes.total", ">", 0)
@@ -116,24 +99,22 @@ export async function giveHourlyCoins() {
 				.where("active.user_id", "is not", null)
 				.andWhere("message_totals.messages", ">", 0),
 		)
-		// Ajout de GROUP BY pour éviter les doublons
-		.groupBy(
-			"user._id",
-			"user.coins",
-			"point_totals.points",
-			"notes.rating",
-			"given_notes.total",
-			"active.user_id",
-			"message_totals.messages",
-		)
+		.pluck("_id")
 
-	// update the coins of each user
-	await userTable.query.upsert(
-		users.map((user) => ({
-			id: user.id,
-			coins: Math.ceil(user.coins + getUserHourlyCoins(user)),
-		})),
-	)
+	await userTable.query.whereIn("_id", eligibleUsers).update({
+		coins: userTable.orm!.raw(`
+			CEIL(coins + (
+				COALESCE((SELECT SUM(amount) FROM point WHERE to_id = "user"._id), 0) * 
+				GREATEST(1, COALESCE((SELECT AVG(value) FROM note WHERE to_id = "user"._id), 0)) +
+				COALESCE((SELECT COUNT(*) FROM note WHERE from_id = "user"._id), 0) * 5 +
+				CASE 
+					WHEN EXISTS(SELECT 1 FROM active WHERE user_id = "user"._id) 
+					THEN GREATEST(10, FLOOR(COALESCE((SELECT COUNT(*) FROM message WHERE author_id = "user"._id), 0) * 0.001))
+					ELSE 0
+				END
+			))
+		`),
+	})
 }
 
 export function getUserHourlyCoins(user: FullUser): number {
