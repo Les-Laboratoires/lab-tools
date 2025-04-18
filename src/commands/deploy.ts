@@ -1,7 +1,7 @@
 import * as discordEval from "discord-eval.ts"
 import * as discord from "discord.js"
 
-import { execSync } from "node:child_process"
+import { $ } from "bun"
 
 import { Command } from "#core/command"
 import logger from "#core/logger"
@@ -12,6 +12,8 @@ import restart from "#tables/restart"
 
 type State = "waiting" | "running" | "done" | "error"
 type Task = { cmd: string; state: State; time: number }
+
+$.cwd(rootPath())
 
 export default new Command({
 	name: "deploy",
@@ -62,7 +64,7 @@ export default new Command({
 			await view.edit(makeView())
 
 			try {
-				execSync(task.cmd, { cwd: rootPath() })
+				await $`${task.cmd}`
 			} catch (error: any) {
 				task.state = "error"
 

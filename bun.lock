@@ -50,6 +50,7 @@
         "@rollup/plugin-node-resolve": "^15.3.0",
         "@rollup/plugin-typescript": "^12.1.1",
         "@types/boxen": "^3.0.5",
+        "@types/bun": "^1.2.10",
         "@types/cron": "^1.7.3",
         "@types/dotenv": "^8.2.3",
         "@types/fancy-log": "^2.0.2",
@@ -370,6 +371,8 @@
 
     "@types/boxen": ["@types/boxen@3.0.5", "", { "dependencies": { "boxen": "*" } }, "sha512-5O+dAJuahjV1PiRRYBRAJkpyCk9UjoWzdmhftmEwafoYx0DhPBT9qIwrKCCIpt/DdcG1g7/UD5lrf4qmHkp8TQ=="],
 
+    "@types/bun": ["@types/bun@1.2.10", "", { "dependencies": { "bun-types": "1.2.10" } }, "sha512-eilv6WFM3M0c9ztJt7/g80BDusK98z/FrFwseZgT4bXCq2vPhXD4z8R3oddmAn+R/Nmz9vBn4kweJKmGTZj+lg=="],
+
     "@types/cron": ["@types/cron@1.7.3", "", { "dependencies": { "@types/node": "*", "moment": ">=2.14.0" } }, "sha512-iPmUXyIJG1Js+ldPYhOQcYU3kCAQ2FWrSkm1FJPoii2eYSn6wEW6onPukNTT0bfiflexNSRPl6KWmAIqS+36YA=="],
 
     "@types/dotenv": ["@types/dotenv@8.2.3", "", { "dependencies": { "dotenv": "*" } }, "sha512-g2FXjlDX/cYuc5CiQvyU/6kkbP1JtmGzh0obW50zD7OKeILVL0NSpPWLXVfqoAGQjom2/SLLx9zHq0KXvD6mbw=="],
@@ -543,6 +546,8 @@
     "buffer": ["buffer@6.0.3", "", { "dependencies": { "base64-js": "^1.3.1", "ieee754": "^1.2.1" } }, "sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA=="],
 
     "bun": ["bun@1.2.10", "", { "optionalDependencies": { "@oven/bun-darwin-aarch64": "1.2.10", "@oven/bun-darwin-x64": "1.2.10", "@oven/bun-darwin-x64-baseline": "1.2.10", "@oven/bun-linux-aarch64": "1.2.10", "@oven/bun-linux-aarch64-musl": "1.2.10", "@oven/bun-linux-x64": "1.2.10", "@oven/bun-linux-x64-baseline": "1.2.10", "@oven/bun-linux-x64-musl": "1.2.10", "@oven/bun-linux-x64-musl-baseline": "1.2.10", "@oven/bun-windows-x64": "1.2.10", "@oven/bun-windows-x64-baseline": "1.2.10" }, "os": [ "linux", "win32", "darwin", ], "cpu": [ "x64", "arm64", ], "bin": { "bun": "bin/bun.exe", "bunx": "bin/bun.exe" } }, "sha512-7KZgjyJQh/nJaU8av0/2Ld9jDPdrVmQb/gAQKuhr796pKLSONJw+mbshme78viR9jbL4q+sgLNW6HOLwYhL0rg=="],
+
+    "bun-types": ["bun-types@1.2.10", "", { "dependencies": { "@types/node": "*" } }, "sha512-b5ITZMnVdf3m1gMvJHG+gIfeJHiQPJak0f7925Hxu6ZN5VKA8AGy4GZ4lM+Xkn6jtWxg5S3ldWvfmXdvnkp3GQ=="],
 
     "cacache": ["cacache@15.3.0", "", { "dependencies": { "@npmcli/fs": "^1.0.0", "@npmcli/move-file": "^1.0.1", "chownr": "^2.0.0", "fs-minipass": "^2.0.0", "glob": "^7.1.4", "infer-owner": "^1.0.4", "lru-cache": "^6.0.0", "minipass": "^3.1.1", "minipass-collect": "^1.0.2", "minipass-flush": "^1.0.5", "minipass-pipeline": "^1.2.2", "mkdirp": "^1.0.3", "p-map": "^4.0.0", "promise-inflight": "^1.0.1", "rimraf": "^3.0.2", "ssri": "^8.0.1", "tar": "^6.0.2", "unique-filename": "^1.1.1" } }, "sha512-VVdYzXEn+cnbXpFgWs5hTT7OScegHVmLhJIR8Ufqk3iFD6A6j5iSX1KuBTfNEv4tdJWE2PzA6IVFtcLC7fN9wQ=="],
 
