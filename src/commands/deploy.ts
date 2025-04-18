@@ -28,11 +28,11 @@ export default new Command({
 		const tasks: Task[] = [
 			{ state: "waiting", time: 0, cmd: "git reset --hard" },
 			{ state: "waiting", time: 0, cmd: "git pull" },
-			{ state: "waiting", time: 0, cmd: "npm install" },
+			{ state: "waiting", time: 0, cmd: "bun install" },
 			{
 				state: "waiting",
 				time: 0,
-				cmd: "npm install @rollup/rollup-linux-x64-gnu",
+				cmd: "bun add @rollup/rollup-linux-x64-gnu",
 			},
 			{ state: "waiting", time: 0, cmd: "npm exec pm2 -y -- restart tool" },
 		]
