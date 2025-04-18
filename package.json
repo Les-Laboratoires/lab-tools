@@ -12,7 +12,7 @@
 		"watch": "bun run --watch src/index.ts",
 		"start": "bun run src/index.ts",
 		"start.test": "bun run src/index.test.ts",
-		"format": "bunx biome check --write src scripts",
+		"format": "bunx biome check --write src scripts package.json",
 		"update": "bun run scripts/update-framework.js",
 		"readme": "bun run build && bun run scripts/generate-readme.js",
 		"test": "bun run format && tsc --noEmit && bun run start.test"
@@ -113,7 +113,8 @@
 		"nodemon": "^2.0.22",
 		"rollup": "^4.24.4",
 		"typescript": "^5.6.3",
-		"vinyl-paths": "^4.0.0"
+		"vinyl-paths": "^4.0.0",
+		"@types/deno": "^2.2.0"
 	},
 	"engines": {
 		"node": ">=22.x.x",

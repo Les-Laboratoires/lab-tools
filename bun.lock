@@ -52,6 +52,7 @@
         "@types/boxen": "^3.0.5",
         "@types/bun": "^1.2.10",
         "@types/cron": "^1.7.3",
+        "@types/deno": "^2.2.0",
         "@types/dotenv": "^8.2.3",
         "@types/fancy-log": "^2.0.2",
         "@types/figlet": "^1.7.0",
@@ -374,6 +375,8 @@
     "@types/bun": ["@types/bun@1.2.10", "", { "dependencies": { "bun-types": "1.2.10" } }, "sha512-eilv6WFM3M0c9ztJt7/g80BDusK98z/FrFwseZgT4bXCq2vPhXD4z8R3oddmAn+R/Nmz9vBn4kweJKmGTZj+lg=="],
 
     "@types/cron": ["@types/cron@1.7.3", "", { "dependencies": { "@types/node": "*", "moment": ">=2.14.0" } }, "sha512-iPmUXyIJG1Js+ldPYhOQcYU3kCAQ2FWrSkm1FJPoii2eYSn6wEW6onPukNTT0bfiflexNSRPl6KWmAIqS+36YA=="],
+
+    "@types/deno": ["@types/deno@2.2.0", "", {}, "sha512-4x6M/ZSyoQy6fJeMArP0dvvNT4IOolfySyukuqqKhsLmSXDV4wGanqXIZ+xFihw3TlReS6JTa4hRG9nAZInpmw=="],
 
     "@types/dotenv": ["@types/dotenv@8.2.3", "", { "dependencies": { "dotenv": "*" } }, "sha512-g2FXjlDX/cYuc5CiQvyU/6kkbP1JtmGzh0obW50zD7OKeILVL0NSpPWLXVfqoAGQjom2/SLLx9zHq0KXvD6mbw=="],
 
