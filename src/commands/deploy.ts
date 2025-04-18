@@ -29,7 +29,7 @@ export default new Command({
 			{ state: "waiting", time: 0, cmd: "git reset --hard" },
 			{ state: "waiting", time: 0, cmd: "git pull" },
 			{ state: "waiting", time: 0, cmd: "bun install" },
-			{ state: "waiting", time: 0, cmd: "bun exec pm2 -y -- restart tool" },
+			{ state: "waiting", time: 0, cmd: "bunx pm2 restart tool" },
 		]
 
 		const format = (task: Task) =>
