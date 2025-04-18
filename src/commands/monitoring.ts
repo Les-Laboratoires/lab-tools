@@ -32,14 +32,26 @@ export default new Command({
 	},
 	subs: [
 		new Command({
-			name: "trigger",
-			description: "Trigger an unhandled error for testing",
+			name: "error",
+			aliases: ["err"],
+			description: "Trigger an error for testing",
 			channelType: "guild",
 			botOwnerOnly: true,
-			async run() {
-				setTimeout(() => {
-					throw new Error("Test error")
-				}, 1000)
+			flags: [
+				{
+					name: "unhandled",
+					flag: "u",
+					description: "Trigger an unhandled error",
+				},
+			],
+			async run(message) {
+				if (message.args.unhandled) {
+					setTimeout(() => {
+						throw new Error("Hi there! This is a test error.")
+					}, 100)
+				} else {
+					throw new Error("Hi there! This is a test error.")
+				}
 			},
 		}),
 	],
