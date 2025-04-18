@@ -1,9 +1,6 @@
-import path from "node:path"
-import url from "node:url"
+const path = require("node:path")
 
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
-
-export default {
+module.exports = {
 	apps: [
 		{
 			name: "tool",
