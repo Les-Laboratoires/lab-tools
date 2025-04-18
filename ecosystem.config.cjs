@@ -4,7 +4,8 @@ module.exports = {
 	apps: [
 		{
 			name: "tool",
-			script: "start",
+			script: "bun",
+			apps: ["run", "start"],
 			interpreter: "bun",
 			cwd: __dirname,
 			env: {
