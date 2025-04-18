@@ -4,7 +4,7 @@ module.exports = {
 	apps: [
 		{
 			name: "tool",
-			script: path.join(__dirname, "src/index.ts"),
+			script: path.join(__dirname, "package.json"),
 			interpreter: "bun",
 			env: {
 				PATH: `~/.bun/bin:${process.env.PATH}`,
