@@ -2,13 +2,9 @@ module.exports = {
 	apps: [
 		{
 			name: "tool",
-			script: "bun",
-			apps: ["run", "start"],
-			interpreter: "bun",
+			script: "npm",
+			args: ["run", "start"],
 			cwd: __dirname,
-			env: {
-				PATH: `~/.bun/bin:${process.env.PATH}`,
-			},
 		},
 	],
 }
