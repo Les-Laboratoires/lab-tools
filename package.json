@@ -45,7 +45,7 @@
 		"dayjs": "^1.11.13",
 		"dirname-filename-esm": "^1.1.2",
 		"discord-eval.ts": "1.1.3",
-		"discord.js": "^14.19.1",
+		"discord.js": "14.18.0",
 		"dotenv": "^16.5.0",
 		"ejs": "^3.1.10",
 		"emoji-regex": "^10.4.0",
