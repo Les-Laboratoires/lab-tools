@@ -50,6 +50,11 @@ export default new Command({
 				{
 					state: "waiting",
 					time: 0,
+					cmd: "rm -rf temp",
+				},
+				{
+					state: "waiting",
+					time: 0,
 					cmd: "git clone . temp",
 				},
 				{
@@ -68,6 +73,12 @@ export default new Command({
 					state: "waiting",
 					time: 0,
 					cmd: "cp .env temp/.env",
+				},
+				{
+					state: "waiting",
+					time: 0,
+					cmd: "sed -i 's/\\r$//' crash_test.sh",
+					path: "temp/crash_test",
 				},
 				{
 					state: "waiting",
@@ -100,7 +111,9 @@ export default new Command({
 						error: "Cross",
 					} as const
 				)[task.state],
-			)} ${task.state === "running" ? "**" : ""}\`$${task.path ?? ""} ${task.cmd}\`${
+			)} ${task.state === "running" ? "**" : ""}\`$${
+				task.path ? `(${task.path})` : ""
+			} ${task.cmd}\`${
 				task.state === "running" ? "**" : ""
 			} ${task.time ? `(**${task.time}** ms)` : ""}`.trim()
 
