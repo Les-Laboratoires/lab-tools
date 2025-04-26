@@ -11,7 +11,7 @@ LOG_FILE="./crash_test.log"
 echo "" > "$LOG_FILE"  # clear
 
 # run
-BOT_PREFIX="!!" npm run start > "$LOG_FILE" 2>&1 &
+BOT_PREFIX="!!" DB_DATABASE="behe8626_lab-tools-test" npm run start > "$LOG_FILE" 2>&1 &
 PID=$!
 
 DURATION=10
