@@ -95,6 +95,11 @@ export default new Command({
 				{
 					state: "waiting",
 					time: 0,
+					cmd: "cp temp/crash_test/crash_test.log crash_test/crash_test.log",
+				},
+				{
+					state: "waiting",
+					time: 0,
 					cmd: "rm -rf temp",
 				},
 			)
