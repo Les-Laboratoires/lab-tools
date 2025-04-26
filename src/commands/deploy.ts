@@ -12,7 +12,7 @@ import { emote } from "#namespaces/emotes"
 import restart from "#tables/restart"
 
 type State = "waiting" | "running" | "done" | "error"
-type Task = { cmd: string; state: State; time: number }
+type Task = { cmd: string; state: State; time: number; path?: string }
 
 // $.cwd(rootPath())
 
@@ -25,8 +25,18 @@ export default new Command({
 		duration: 10000,
 		type: CooldownType.Global,
 	},
+	flags: [
+		{
+			name: "validate",
+			flag: "v",
+			description: "Mark the last deploy as validated",
+			aliases: ["push", "ok", "yes", "valid"],
+		},
+	],
 	async run(message) {
 		message.triggerCooldown()
+
+		const validate = message.args.validate
 
 		const tasks: Task[] = [
 			{ state: "waiting", time: 0, cmd: "git reset --hard" },
@@ -34,6 +44,50 @@ export default new Command({
 			{ state: "waiting", time: 0, cmd: "bun install" },
 			{ state: "waiting", time: 0, cmd: "npm exec pm2 -y -- restart tool" },
 		]
+
+		if (!validate) {
+			tasks.unshift(
+				{
+					state: "waiting",
+					time: 0,
+					cmd: "git clone . temp",
+				},
+				{
+					state: "waiting",
+					time: 0,
+					cmd: "git pull origin master",
+					path: "temp",
+				},
+				{
+					state: "waiting",
+					time: 0,
+					cmd: "bun install",
+					path: "temp",
+				},
+				{
+					state: "waiting",
+					time: 0,
+					cmd: "cp .env temp/.env",
+				},
+				{
+					state: "waiting",
+					time: 0,
+					cmd: "chmod +x crash_test.sh",
+					path: "temp/crash_test",
+				},
+				{
+					state: "waiting",
+					time: 0,
+					cmd: "./crash_test.sh",
+					path: "temp/crash_test",
+				},
+				{
+					state: "waiting",
+					time: 0,
+					cmd: "rm -rf temp",
+				},
+			)
+		}
 
 		const format = (task: Task) =>
 			`${emote(
@@ -46,7 +100,7 @@ export default new Command({
 						error: "Cross",
 					} as const
 				)[task.state],
-			)} ${task.state === "running" ? "**" : ""}\`>_ ${task.cmd}\`${
+			)} ${task.state === "running" ? "**" : ""}\`$${task.path ?? ""} ${task.cmd}\`${
 				task.state === "running" ? "**" : ""
 			} ${task.time ? `(**${task.time}** ms)` : ""}`.trim()
 
@@ -66,7 +120,9 @@ export default new Command({
 
 			try {
 				// await $`${task.cmd}`.quiet()
-				execSync(task.cmd, { cwd: rootPath() })
+				execSync(task.cmd, {
+					cwd: task.path ? rootPath(task.path) : rootPath(),
+				})
 			} catch (error: any) {
 				task.state = "error"
 
