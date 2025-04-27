@@ -4,7 +4,7 @@ import users from "#tables/user"
 
 export default new Listener({
 	event: "guildMemberRemove",
-	description: "Delete member from db",
+	description: "Remove member from db",
 	async run(member) {
 		const { guild } = member
 
@@ -17,12 +17,12 @@ export default new Listener({
 			.some((g) => g.members.cache.has(member.id))
 
 		if (isMemberInOtherGuilds) {
-			await sendLog(guild, `${user} left the guild.`, config)
+			await sendLog(guild, `\`${user.tag}\` left the guild.`, config)
 		} else {
 			await users.query.delete().where({ id: member.id })
 			await sendLog(
 				guild,
-				`${member.user ?? member} left all the labs.`,
+				`\`${member.user?.tag ?? member.displayName}\` left all the labs.`,
 				config,
 			)
 		}
