@@ -95,7 +95,7 @@ export const labOnly = new command.Middleware(
 
 		const lab = await labs.query
 			.where("guild_id", config._id)
-			.andWhere("ignored", false)
+			.andWhereNot("ignored", true)
 			.first()
 
 		return {

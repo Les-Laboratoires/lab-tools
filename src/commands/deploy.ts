@@ -6,9 +6,8 @@ import { execSync } from "node:child_process"
 
 import { Command } from "#core/command"
 import logger from "#core/logger"
-import { CooldownType, rootPath } from "#core/util"
+import { CooldownType, getSystemMessage, rootPath } from "#core/util"
 import { emote } from "#namespaces/emotes"
-
 import restart from "#tables/restart"
 
 type State = "waiting" | "running" | "done" | "error"
@@ -176,23 +175,7 @@ export default new Command({
 
 			logger.error(error)
 
-			return view.edit({
-				embeds: [
-					new discord.EmbedBuilder()
-						.setTitle("\\❌ An error has occurred.")
-						.setColor("Red")
-						.setDescription(
-							await discordEval.code.stringify({
-								content: (error?.stack ?? error?.message ?? String(error))
-									.split("")
-									.reverse()
-									.slice(0, 2000)
-									.reverse()
-									.join(""),
-							}),
-						),
-				],
-			})
+			return view.edit(await getSystemMessage("error", error, { stack: true }))
 		}
 	},
 })

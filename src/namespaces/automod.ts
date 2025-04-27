@@ -4,24 +4,6 @@ import { emote } from "#namespaces/emotes"
 import * as tools from "#namespaces/tools"
 import labTable from "#tables/lab"
 
-// /**
-//  * string is the author id
-//  */
-// const spamMessages: Record<
-//   string,
-//   Array<[channelId: string, timestamp: number]>
-// > = {}
-//
-// const detectionPeriod = 1000
-//
-// const cleanSpamMessages = () => {
-//   for (const key in spamMessages) {
-//     spamMessages[key] = spamMessages[key].filter(
-//       ([, timestamp]) => timestamp < Date.now() - detectionPeriod,
-//     )
-//   }
-// }
-
 export async function detectAndBanSpammer(message: discord.Message) {
 	if (
 		message.system ||
@@ -81,54 +63,6 @@ export async function detectAndBanSpammer(message: discord.Message) {
 	}
 }
 
-// export function detectAndBanSpammer(message: app.Message): void {
-//   if (
-//     message.system ||
-//     !message.author ||
-//     message.author.bot ||
-//     message.author.system
-//   )
-//     return
-//
-//   const key = message.author.id
-//
-//   if (!spamMessages[key]) spamMessages[key] = []
-//
-//   spamMessages[key].push([message.channel.id, message.createdTimestamp])
-//
-//   cleanSpamMessages()
-//
-//   if (
-//     spamMessages[key].length > 10 ||
-//     new Set(spamMessages[key].map(([channelId]) => channelId)).size > 5
-//   ) {
-//     message.channel.send(
-//       `${app.emote(message, "DISAPPROVED")} **${
-//         message.author.tag
-//       }** will be banned for spamming.`,
-//     )
-//
-//     message.client.guilds.cache
-//       .filter((guild) => guild.members.me?.permissions.has("BanMembers", true))
-//       .forEach((guild) => {
-//         guild.members
-//           .ban(message.author.id, {
-//             reason: "Spamming",
-//             deleteMessageSeconds: 10,
-//           })
-//           .then(() => {
-//             return app.sendLog(
-//               guild,
-//               `**${message.author.tag}** has been banned for spamming.`,
-//             )
-//           })
-//           .catch()
-//       })
-//   }
-//
-//   if (spamMessages[key].length === 0) delete spamMessages[key]
-// }
-
 export async function globalBan(
 	author: discord.PartialUser | discord.User,
 	target: discord.PartialUser | discord.User,
@@ -140,7 +74,7 @@ export async function globalBan(
 
 	const labs = await labTable.query
 		.select("guild_id")
-		.where("ignored", false)
+		.whereNot("ignored", true)
 		.then((results) => results.map((result) => result.guild_id))
 
 	return Promise.allSettled(
@@ -148,6 +82,11 @@ export async function globalBan(
 			const config = await tools.getGuild(guild)
 
 			if (!config || !labs.includes(config._id)) return
+
+			const member =
+				guild.members.cache.get(target.id) ||
+				(await guild.members.fetch(target.id).catch(() => null))
+			if (!member) return
 
 			try {
 				await guild.bans.create(target.id, {

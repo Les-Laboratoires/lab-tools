@@ -108,7 +108,7 @@ export default new Command({
 
 					new DynamicPaginator({
 						target: message.channel,
-						filter: (reaction, user) => user.id === message.author.id,
+						filter: (_, user) => user.id === message.author.id,
 						fetchPageCount: () => backups.length,
 						fetchPage: async (pageIndex) => {
 							const name = backups[pageIndex]
