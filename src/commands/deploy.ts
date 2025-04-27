@@ -172,7 +172,13 @@ export default new Command({
 
 			logger.error(error)
 
-			return view.edit(await getSystemMessage("error", error, { stack: true }))
+			return view.edit(
+				await getSystemMessage(
+					"error",
+					{ header: "Failed to deploy", body: error },
+					{ stack: true },
+				),
+			)
 		}
 	},
 })
