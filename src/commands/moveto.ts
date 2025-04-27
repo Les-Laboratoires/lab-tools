@@ -5,7 +5,7 @@ import {
 	WebhookClient,
 } from "discord.js"
 
-import { Command } from "#core/index"
+import { Command } from "#core/command"
 import { CooldownType } from "#core/util"
 
 import { emote } from "#namespaces/emotes"

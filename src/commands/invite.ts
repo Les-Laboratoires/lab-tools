@@ -2,7 +2,8 @@ import { URL } from "node:url"
 import { code } from "discord-eval.ts"
 import { EmbedBuilder, type User } from "discord.js"
 
-import { Command, isGuildMessage, positional } from "#core/index"
+import { positional } from "#core/argument"
+import { Command, isGuildMessage } from "#core/command"
 
 export default new Command({
 	name: "invite",

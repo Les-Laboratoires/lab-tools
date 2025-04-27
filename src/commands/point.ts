@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js"
 
+import { Command } from "#core/command"
 import database from "#core/database"
-import { Command } from "#core/index"
 
 import { pointLadder } from "#namespaces/point"
 import { getUser, prefix } from "#namespaces/tools"

@@ -1,8 +1,8 @@
 import { channelMention } from "discord.js"
 
-import { Command } from "#core/index"
+import { Command } from "#core/command"
 import { StaticPaginator } from "#core/pagination"
-import { divider, forceTextSize, getSystemMessage } from "#core/util"
+import { divider, getSystemMessage } from "#core/util"
 
 import { staffOnly } from "#namespaces/middlewares"
 import { addReply, removeReply, replies } from "#namespaces/reply"
@@ -80,7 +80,7 @@ export default new Command({
 							body: page
 								.map(
 									(reply) =>
-										`\`${forceTextSize(reply._id, String(Math.max(...page.map((r) => r._id))).length)}\` ${
+										`\`${String(reply._id).padEnd(String(Math.max(...page.map((r) => r._id))).length)}\` ${
 											reply.channel === "all" || !reply.channel
 												? "all"
 												: channelMention(reply.channel)

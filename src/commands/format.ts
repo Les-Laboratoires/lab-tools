@@ -1,7 +1,7 @@
 import { code } from "discord-eval.ts"
 import * as prettify from "ghom-prettify"
 
-import { Command } from "#core/index"
+import { Command } from "#core/command"
 
 import { emote } from "#namespaces/emotes"
 

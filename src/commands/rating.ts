@@ -1,4 +1,5 @@
-import { Command, flag, option, positional } from "#core/index"
+import { flag, option, positional } from "#core/argument"
+import { Command } from "#core/command"
 
 import { emote } from "#namespaces/emotes"
 import { ratingEmbed, ratingLadder } from "#namespaces/rating"

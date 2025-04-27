@@ -1,4 +1,4 @@
-import { Command } from "#core/index"
+import { Command } from "#core/command"
 
 import { emote } from "#namespaces/emotes"
 import { fetchMessages } from "#namespaces/fetcher"

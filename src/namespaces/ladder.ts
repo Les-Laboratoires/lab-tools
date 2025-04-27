@@ -2,12 +2,11 @@ import discord from "discord.js"
 import * as argument from "#core/argument"
 import * as command from "#core/command"
 import * as pagination from "#core/pagination"
-import * as util from "#core/util"
 
 import * as emotes from "#namespaces/emotes"
 
 export function formatRank(rank: number) {
-	return `\`[ ${util.forceTextSize(rank, 3, true)} ]\``
+	return `\`[ ${String(rank).padStart(3)} ]\``
 }
 
 export interface LadderLine {

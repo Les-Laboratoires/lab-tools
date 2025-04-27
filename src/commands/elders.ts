@@ -1,4 +1,4 @@
-import { Command } from "#core/index"
+import { Command } from "#core/command"
 import { StaticPaginator } from "#core/pagination"
 import { dayjs, divider, getSystemMessage } from "#core/util"
 

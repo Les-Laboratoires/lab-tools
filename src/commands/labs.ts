@@ -1,4 +1,5 @@
-import { Command, positional, sendCommandDetails } from "#core/index"
+import { positional } from "#core/argument"
+import { Command, sendCommandDetails } from "#core/command"
 import { CooldownType } from "#core/util"
 
 import { emote } from "#namespaces/emotes"

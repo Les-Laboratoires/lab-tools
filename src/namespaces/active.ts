@@ -1,5 +1,4 @@
 import type discord from "discord.js"
-import { forceTextSize } from "#all"
 import database from "#core/database"
 import env from "#core/env"
 import { emote } from "#namespaces/emotes"
@@ -243,8 +242,9 @@ export const activeLadder = (guild_id: number) =>
 			)
 		},
 		formatLine(line, index, lines) {
-			return `${ladder.formatRank(line.rank)} avec \`${forceTextSize(
-				String(line.messageCount),
+			return `${ladder.formatRank(line.rank)} avec \`${String(
+				line.messageCount,
+			).padEnd(
 				Math.max(...lines.map((l) => l.messageCount), 0).toString().length,
 			)}\` msg - <@${line.target}>`
 		},

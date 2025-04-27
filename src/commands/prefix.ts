@@ -1,4 +1,4 @@
-import { Command } from "#core/index"
+import { Command } from "#core/command"
 import { prefix } from "#namespaces/tools"
 import guilds from "#tables/guild"
 

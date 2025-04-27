@@ -1,6 +1,7 @@
-import { Command, type UnknownMessage, option, positional } from "#core/index"
+import { option, positional } from "#core/argument"
+import { Command, type UnknownMessage } from "#core/command"
 import { DynamicPaginator, type Page, StaticPaginator } from "#core/pagination"
-import { divider, forceTextSize, getSystemMessage } from "#core/util"
+import { divider, getSystemMessage } from "#core/util"
 
 import { emote } from "#namespaces/emotes"
 import { countOf, getUser } from "#namespaces/tools"
@@ -14,7 +15,7 @@ import { EmbedBuilder, type SendableChannels } from "discord.js"
 const __filename = filename(import.meta)
 
 function todoId(todo: ToDo) {
-	return `\`[ ${forceTextSize(todo._id, 3, true)} ]\``
+	return `\`[ ${String(todo._id).padStart(3)} ]\``
 }
 
 function todoItem(todo: ToDo) {

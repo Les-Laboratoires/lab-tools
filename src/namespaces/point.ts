@@ -2,7 +2,7 @@ import discord from "discord.js"
 
 import database from "#core/database"
 import logger from "#core/logger"
-import { type SystemMessage, forceTextSize, getSystemEmoji } from "#core/util"
+import { type SystemMessage, getSystemEmoji } from "#core/util"
 
 import { Ladder, formatRank } from "#namespaces/ladder"
 import { countOf } from "#namespaces/tools"
@@ -50,9 +50,8 @@ export const pointLadder = new Ladder<PointLadderLine>({
 			"to_id",
 		)
 	},
-	formatLine(line, index, lines) {
-		return `${formatRank(line.rank)} avec \`${forceTextSize(
-			String(line.score),
+	formatLine(line, _, lines) {
+		return `${formatRank(line.rank)} avec \`${String(line.score).padEnd(
 			Math.max(...lines.map((l) => l.score)).toString().length,
 		)}\` pts - <@${line.target}>`
 	},

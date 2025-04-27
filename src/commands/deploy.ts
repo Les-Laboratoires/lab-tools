@@ -1,6 +1,3 @@
-import * as discordEval from "discord-eval.ts"
-import * as discord from "discord.js"
-
 // import { $ } from "bun"
 import { execSync } from "node:child_process"
 

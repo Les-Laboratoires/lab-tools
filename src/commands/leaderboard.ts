@@ -1,6 +1,7 @@
 import { EmbedBuilder } from "discord.js"
 
-import { Command, option } from "#core/index"
+import { option } from "#core/argument"
+import { Command } from "#core/command"
 
 import { activeLadder } from "#namespaces/active"
 import { coinLadder } from "#namespaces/coins"

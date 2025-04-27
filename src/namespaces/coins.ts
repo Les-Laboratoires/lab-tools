@@ -12,7 +12,6 @@ import noteTable from "#tables/rating"
 import userTable from "#tables/user"
 
 import { ResponseCache } from "@ghom/orm"
-import { forceTextSize } from "#core/util"
 
 // import { ResponseCache } from "#core/database"
 
@@ -40,10 +39,8 @@ export const coinLadder = new ladder.Ladder({
 			.then((rows) => rows as unknown as CoinLadderLine[])
 	},
 	formatLine(line, _, lines) {
-		return `${ladder.formatRank(line.rank)} \`${forceTextSize(
-			line.coins,
+		return `${ladder.formatRank(line.rank)} \`${String(line.coins).padStart(
 			Math.max(...lines.map((l) => String(l.coins).length)),
-			true,
 		)}🪙\` - ${discord.userMention(line.user_id)}`
 	},
 })
