@@ -5,6 +5,6 @@ export default new Listener({
 	event: "guildMemberRemove",
 	description: "Update the tracker",
 	async run(member) {
-		await updateGuildMemberCountTracker(member.guild)
+		await updateGuildMemberCountTracker(await member.guild.fetch())
 	},
 })

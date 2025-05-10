@@ -15,12 +15,11 @@ export async function updateGuildMemberCountTracker(guild: discord.Guild) {
 		const channel = await guild.channels.fetch(config.member_tracker_channel_id)
 
 		if (channel) {
-			const members = await guild.members.fetch()
-
-			guild.members.cache.clear()
-
 			await channel.setName(
-				config.member_tracker_pattern.replace("$n", shortNumber(members.size)),
+				config.member_tracker_pattern.replace(
+					"$n",
+					shortNumber(guild.memberCount),
+				),
 			)
 		}
 	}
@@ -55,22 +54,27 @@ export async function updateGuildOnlineCountTracker(guild: discord.Guild) {
 		const channel = await guild.channels.fetch(config.online_tracker_channel_id)
 
 		if (channel) {
-			const members = await guild.members.fetch({
-				withPresences: true,
-			})
+			try {
+				const members = await guild.members.fetch({
+					withPresences: true,
+					time: 60_000 * 15,
+				})
 
-			guild.members.cache.clear()
+				guild.members.cache.clear()
 
-			const onlineMembers = members.filter(
-				(member) => !!member.presence && member.presence.status !== "offline",
-			)
+				const onlineMembers = members.filter(
+					(member) => !!member.presence && member.presence.status !== "offline",
+				)
 
-			await channel.setName(
-				config.online_tracker_pattern.replace(
-					"$n",
-					shortNumber(onlineMembers.size),
-				),
-			)
+				await channel.setName(
+					config.online_tracker_pattern.replace(
+						"$n",
+						shortNumber(onlineMembers.size),
+					),
+				)
+			} catch (error) {
+				console.error("Error fetching members with presence:", error)
+			}
 		}
 	}
 }
