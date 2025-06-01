@@ -12,7 +12,7 @@ export default new Listener({
 	description: "Send restart messages",
 	once: true,
 	async run(client) {
-		const restartMessages: Restart[] = await restart.query.select()
+		const restartMessages = await restart.query.select()
 
 		logger.log(`restart messages: ${restartMessages.length}`)
 
