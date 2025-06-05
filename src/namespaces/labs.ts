@@ -8,6 +8,7 @@ import lab from "#tables/lab"
 
 import { emote } from "#namespaces/emotes"
 import * as tools from "#namespaces/tools"
+import { getGuild } from "#namespaces/tools"
 
 const allLabsKey = "all labs"
 
@@ -75,8 +76,10 @@ export async function sendLabList(
 }
 
 const ignoredCache = new orm.ResponseCache(async (id: string) => {
+	const guild = await getGuild({ id })
+	if (!guild) return true
 	return lab.query
-		.where("guild_id", id)
+		.where("guild_id", guild._id)
 		.first()
 		.then((lab) => !!lab?.ignored)
 }, 60_000)
