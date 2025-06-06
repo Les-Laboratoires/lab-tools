@@ -77,7 +77,7 @@ export default new Command({
 			},
 			async run(message) {
 				const guild = message.args.id
-					? await getGuild({ id: message.args.id })
+					? await getGuild(message.args)
 					: await getGuild(message.guild, { forceExists: true })
 
 				if (!guild)
