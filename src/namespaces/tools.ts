@@ -56,8 +56,7 @@ export async function getUser(user: { id: string }, force?: true) {
 				id: user.id,
 				is_bot: client.users.cache.get(user.id)?.bot ?? false,
 			})
-			.onConflict("id")
-			.merge()
+			.catch()
 
 		return userCache.fetch(user.id, user.id)
 	}
