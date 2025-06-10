@@ -41,8 +41,8 @@ export function debounce<
 	}
 }
 
-const userCache = new ResponseCache((id: string) => {
-	return users.query.where("id", id).first()
+const userCache = new ResponseCache(async (id: string) => {
+	return await users.query.where("id", id).first()
 }, 600_000)
 
 export async function getUser(user: { id: string }): Promise<User | undefined>
@@ -68,10 +68,10 @@ export async function getUser(
 					is_bot: client.users.cache.get(user.id)?.bot ?? false,
 				})
 				.onConflict("id")
-				.merge(["is_bot"])
+				.merge()
 				.returning("*")
 
-			userCache.invalidate()
+			userCache.invalidate(user.id)
 
 			userInDb = newUsers[0]
 		}
