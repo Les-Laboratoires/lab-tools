@@ -68,7 +68,7 @@ export async function getUser(
 					is_bot: client.users.cache.get(user.id)?.bot ?? false,
 				})
 				.onConflict("id")
-				.merge(["is_bot", "_id"])
+				.merge(["is_bot"])
 				.returning("*")
 
 			userCache.invalidate()
