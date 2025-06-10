@@ -46,19 +46,38 @@ const userCache = new ResponseCache((id: string) => {
 }, 600_000)
 
 export async function getUser(user: { id: string }): Promise<User | undefined>
-export async function getUser(user: { id: string }, force: true): Promise<User>
-export async function getUser(user: { id: string }, force?: true) {
-	const userInDb = await userCache.get(user.id, user.id)
+export async function getUser(
+	user: { id: string },
+	options: { forceExists: true; forceFetch?: true },
+): Promise<User>
+export async function getUser(
+	user: { id: string },
+	options?: { forceExists?: true; forceFetch?: true },
+) {
+	let userInDb = options?.forceFetch
+		? await userCache.fetch(user.id, user.id)
+		: await userCache.get(user.id, user.id)
 
-	if (force && !userInDb) {
-		await users.query
-			.insert({
-				id: user.id,
-				is_bot: client.users.cache.get(user.id)?.bot ?? false,
-			})
-			.catch()
+	if (options?.forceExists && !userInDb) {
+		if (!options.forceFetch) userInDb = await userCache.fetch(user.id, user.id)
 
-		return userCache.fetch(user.id, user.id)
+		if (!userInDb) {
+			const newUser = await users.query
+				.insert({
+					id: user.id,
+					is_bot: client.users.cache.get(user.id)?.bot ?? false,
+				})
+				.onConflict("id")
+				.merge(["is_bot", "_id"])
+				.returning("*")
+				.first()
+
+			userCache.invalidate()
+
+			return newUser
+		}
+
+		return userInDb
 	}
 
 	return userInDb
@@ -157,14 +176,14 @@ export async function getAutoRoles(
 	return (
 		await autoRole.query
 			.where("guild_id", guild._id)
-			.and.where("bot", Number(member.user.bot))
+			.and.where("bot", member.user.bot)
 	).map((ar) => ar.role_id)
 }
 
 export async function applyAutoRoles(member: discord.GuildMember) {
 	const autoRoles = await getAutoRoles(member)
 
-	if (member.roles.cache.hasAll(...autoRoles) || autoRoles.length === 0) return
+	if (autoRoles.length === 0 || member.roles.cache.hasAll(...autoRoles)) return
 
 	await member.roles.add(autoRoles)
 }

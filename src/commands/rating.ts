@@ -36,8 +36,8 @@ export default new Command({
 			if (message.args.rating !== null) {
 				const value = message.args.rating as 0 | 1 | 2 | 3 | 4 | 5
 
-				const fromUser = await getUser(message.author, true)
-				const toUser = await getUser(message.args.member, true)
+				const fromUser = await getUser(message.author, { forceExists: true })
+				const toUser = await getUser(message.args.member, { forceExists: true })
 				const guild = await getGuild(message.guild, { forceExists: true })
 
 				const pack = {

@@ -81,7 +81,10 @@ export async function updateActive(
 			await active.query.insert(
 				await Promise.all(
 					activeMembers.map(async (member) => {
-						const user = await tools.getUser(member, true)
+						const user = await tools.getUser(member, {
+							forceExists: true,
+							forceFetch: true,
+						})
 
 						return {
 							user_id: user._id,
@@ -144,7 +147,7 @@ export async function updateActive(
 			)
 
 		for (const member of activeMembers) {
-			const user = await tools.getUser(member, true)
+			const user = await tools.getUser(member, { forceExists: true })
 
 			if (!activeMembersCache.find((am) => am.user_id === user._id)) {
 				await member.roles.add(options.guildConfig.active_role_id!)
@@ -163,7 +166,7 @@ export async function updateActive(
 			)
 
 		for (const member of inactiveMembers) {
-			const user = await tools.getUser(member, true)
+			const user = await tools.getUser(member, { forceExists: true })
 
 			if (activeMembersCache.find((am) => am.user_id === user._id)) {
 				await member.roles.remove(options.guildConfig.active_role_id!)

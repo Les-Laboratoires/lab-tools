@@ -12,7 +12,7 @@ export default new Listener({
 		if (!cache.ensure<boolean>("turn", true)) return
 		if (!message.guild) return
 
-		const user = await tools.getUser(message.author, true)
+		const user = await tools.getUser(message.author, { forceExists: true })
 		const guild = await tools.getGuild(message.guild, { forceExists: true })
 
 		await messages.query.insert({

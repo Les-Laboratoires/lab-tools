@@ -83,7 +83,7 @@ export default new Command({
 	description: "Manage todo tasks",
 	options: [perPageOption],
 	async run(message) {
-		const user = await getUser(message.author, true)
+		const user = await getUser(message.author, { forceExists: true })
 
 		return message.rest.length === 0
 			? showTodoList(message, user, message.args.perPage)
@@ -113,7 +113,7 @@ export default new Command({
 					? message.args.content.slice(1).trim()
 					: message.args.content
 
-				const user = await getUser(message.author, true)
+				const user = await getUser(message.author, { forceExists: true })
 
 				const count = await countOf(todoTable.query.where("user_id", user._id))
 
@@ -165,7 +165,7 @@ export default new Command({
 			],
 			options: [perPageOption],
 			async run(message) {
-				const target = await getUser(message.args.target, true)
+				const target = await getUser(message.args.target, { forceExists: true })
 
 				return showTodoList(message, target, message.args.perPage)
 			},
@@ -176,7 +176,7 @@ export default new Command({
 			aliases: ["clean"],
 			channelType: "all",
 			async run(message) {
-				const user = await getUser(message.author, true)
+				const user = await getUser(message.author, { forceExists: true })
 
 				await todoTable.query.delete().where("user_id", user._id)
 
@@ -199,7 +199,7 @@ export default new Command({
 				},
 			],
 			async run(message) {
-				const user = await getUser(message.author, true)
+				const user = await getUser(message.author, { forceExists: true })
 
 				const todo = await todoTable.query
 					.select()
@@ -246,7 +246,7 @@ export default new Command({
 						`${emote(message, "Cross")} Unknown todo task id.`,
 					)
 
-				const user = await getUser(message.author, true)
+				const user = await getUser(message.author, { forceExists: true })
 
 				if (todo.user_id !== user._id)
 					return message.channel.send(
@@ -274,7 +274,7 @@ export default new Command({
 				},
 			],
 			async run(message) {
-				const user = await getUser(message.author, true)
+				const user = await getUser(message.author, { forceExists: true })
 
 				const todoList = (await todoTable.query.where("user_id", user._id))
 					.filter((todo) => {

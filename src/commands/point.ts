@@ -14,7 +14,7 @@ export default new Command({
 	channelType: "guild",
 	aliases: ["points", "pts", "score"],
 	async run(message) {
-		const user = await getUser(message.member, true)
+		const user = await getUser(message.member, { forceExists: true })
 
 		const data = (await points.query
 			.select(database.raw("sum(amount) as total"))

@@ -46,8 +46,8 @@ export default new Button<{
 				content: `${emote(interaction, "Cross")} You can't give points to a user in a topic that you don't own.`,
 			})
 
-		const fromUser = await tools.getUser({ id: fromId }, true)
-		const toUser = await tools.getUser({ id: targetId }, true)
+		const fromUser = await tools.getUser({ id: fromId }, { forceExists: true })
+		const toUser = await tools.getUser({ id: targetId }, { forceExists: true })
 
 		await points.query.insert({
 			from_id: fromUser._id,

@@ -42,7 +42,7 @@ export default new Command({
 
 			for (const m of chunk) {
 				if (!userCache.has(m.author.id)) {
-					const user = await getUser(m.author, true)
+					const user = await getUser(m.author, { forceExists: true })
 					userCache.set(m.author.id, user)
 				}
 

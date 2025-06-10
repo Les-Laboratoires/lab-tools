@@ -79,7 +79,7 @@ export async function userRating(
 	avg: number
 	count: number
 }> {
-	const { _id: userId } = await getUser(user, true)
+	const { _id: userId } = await getUser(user, { forceExists: true })
 
 	const query = table.query.where("to_id", userId)
 

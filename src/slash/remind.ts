@@ -61,7 +61,7 @@ export default new SlashCommand({
 	async run(interaction) {
 		await interaction.deferReply()
 
-		const user = await getUser(interaction.user, true)
+		const user = await getUser(interaction.user, { forceExists: true })
 
 		const message = interaction.options.getString("message", true)
 		const duration = interaction.options.getNumber("duration", true)
