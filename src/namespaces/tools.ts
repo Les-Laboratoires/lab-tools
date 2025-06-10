@@ -62,7 +62,7 @@ export async function getUser(
 		if (!options.forceFetch) userInDb = await userCache.fetch(user.id, user.id)
 
 		if (!userInDb) {
-			const newUser = await users.query
+			const newUsers = await users.query
 				.insert({
 					id: user.id,
 					is_bot: client.users.cache.get(user.id)?.bot ?? false,
@@ -70,14 +70,11 @@ export async function getUser(
 				.onConflict("id")
 				.merge(["is_bot", "_id"])
 				.returning("*")
-				.first()
 
 			userCache.invalidate()
 
-			return newUser
+			userInDb = newUsers[0]
 		}
-
-		return userInDb
 	}
 
 	return userInDb
