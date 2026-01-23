@@ -3,7 +3,6 @@ import discord from "discord.js"
 import { SlashCommand } from "#core/slash"
 import { getSystemMessage } from "#core/util"
 
-import { emote } from "#namespaces/emotes"
 import { getGuild, sendProgress } from "#namespaces/tools"
 
 export default new SlashCommand({
@@ -25,7 +24,6 @@ export default new SlashCommand({
 
 		const config = await getGuild(interaction.guild, { forceExists: true })
 
-		// Verify required configuration
 		if (!config.presentation_channel_id) {
 			return interaction.reply({
 				flags: discord.MessageFlags.Ephemeral,
@@ -56,7 +54,6 @@ export default new SlashCommand({
 			})
 		}
 
-		// Verify all categories exist
 		const categories: discord.CategoryChannel[] = []
 		for (const categoryId of categoryIds) {
 			const category = interaction.guild.channels.cache.get(categoryId)
@@ -121,31 +118,9 @@ export default new SlashCommand({
 		}
 
 		let processedChannels = 0
-		const totalChannels =
-			1 + categories.reduce((acc, cat) => acc + cat.children.cache.size, 0)
 
-		// 1. Setup presentation channel permissions
-		// @everyone can view and send messages
-		// await_validation role cannot send messages (after their first presentation)
-		await presentationChannel.permissionOverwrites.set([
-			{
-				id: everyoneRole.id,
-				allow: [
-					discord.PermissionFlagsBits.ViewChannel,
-					discord.PermissionFlagsBits.SendMessages,
-					discord.PermissionFlagsBits.ReadMessageHistory,
-				],
-			},
-			{
-				id: awaitValidationRole.id,
-				deny: [discord.PermissionFlagsBits.SendMessages],
-			},
-		])
-		processedChannels++
-
-		// 2. For each category, setup permissions on all channels
+		// Categories must be configured BEFORE the presentation channel to avoid sync override
 		for (const category of categories) {
-			// Set category permissions
 			await category.permissionOverwrites.set([
 				{
 					id: everyoneRole.id,
@@ -157,8 +132,9 @@ export default new SlashCommand({
 				},
 			])
 
-			// Set permissions on all channels in the category
 			for (const [, channel] of category.children.cache) {
+				if (channel.id === presentationChannel.id) continue
+
 				await channel.permissionOverwrites.set([
 					{
 						id: everyoneRole.id,
@@ -172,6 +148,30 @@ export default new SlashCommand({
 				processedChannels++
 			}
 		}
+
+		await presentationChannel.permissionOverwrites.set([
+			{
+				id: everyoneRole.id,
+				allow: [
+					discord.PermissionFlagsBits.ViewChannel,
+					discord.PermissionFlagsBits.SendMessages,
+					discord.PermissionFlagsBits.ReadMessageHistory,
+				],
+			},
+			{
+				id: awaitValidationRole.id,
+				deny: [discord.PermissionFlagsBits.SendMessages],
+			},
+			{
+				id: memberRole.id,
+				allow: [
+					discord.PermissionFlagsBits.ViewChannel,
+					discord.PermissionFlagsBits.ReadMessageHistory,
+				],
+				deny: [discord.PermissionFlagsBits.SendMessages],
+			},
+		])
+		processedChannels++
 
 		return interaction.editReply(
 			await getSystemMessage(
