@@ -5,6 +5,8 @@ export interface User {
 	id: string
 	coins: number
 	is_bot: boolean
+	presentation_id: string | null
+	presentation_guild_id: string | null
 }
 
 export default new Table<User>({
@@ -14,6 +16,10 @@ export default new Table<User>({
 	migrations: {
 		1: (table) => table.boolean("is_bot").defaultTo(false),
 		2: (table) => table.integer("coins").unsigned().defaultTo(0),
+		3: (table) => {
+			table.string("presentation_id")
+			table.string("presentation_guild_id")
+		},
 	},
 	setup: (table) => {
 		table.increments("_id", { primaryKey: true })

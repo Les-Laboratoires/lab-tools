@@ -2,6 +2,7 @@ import { Listener } from "#core/listener"
 import logger from "#core/logger"
 import { cache } from "#core/util"
 import { isIgnored, sendLabList } from "#namespaces/labs"
+import { isPresentationSystemActive } from "#namespaces/presentation"
 import {
 	applyAutoRoles,
 	embedReplacers,
@@ -53,34 +54,40 @@ export default new Listener({
 					)
 			}
 		} else {
-			if (config.member_role_id)
-				await member.roles
-					.add(config.member_role_id)
-					.catch((error) => logger.error(error, __filename, true))
+			// If presentation system is active, don't assign member role or send welcome messages here
+			// The presentation system will handle this after approval
+			const presentationActive = isPresentationSystemActive(config)
 
-			if (config.member_welcome_direct_message) {
-				try {
-					const dm = await member.createDM(true)
+			if (!presentationActive) {
+				if (config.member_role_id)
+					await member.roles
+						.add(config.member_role_id)
+						.catch((error) => logger.error(error, __filename, true))
 
-					await sendTemplatedEmbed(
-						dm,
-						config.member_welcome_direct_message,
-						embedReplacers(member),
+				if (config.member_welcome_direct_message) {
+					try {
+						const dm = await member.createDM(true)
+
+						await sendTemplatedEmbed(
+							dm,
+							config.member_welcome_direct_message,
+							embedReplacers(member),
+						)
+					} catch {}
+				}
+
+				if (config.general_channel_id && config.member_welcome_message) {
+					const general = member.client.channels.cache.get(
+						config.general_channel_id,
 					)
-				} catch {}
-			}
 
-			if (config.general_channel_id && config.member_welcome_message) {
-				const general = member.client.channels.cache.get(
-					config.general_channel_id,
-				)
-
-				if (general?.isSendable())
-					await sendTemplatedEmbed(
-						general,
-						config.member_welcome_message,
-						embedReplacers(member),
-					)
+					if (general?.isSendable())
+						await sendTemplatedEmbed(
+							general,
+							config.member_welcome_message,
+							embedReplacers(member),
+						)
+				}
 			}
 
 			if (!(await getUser(member))) {

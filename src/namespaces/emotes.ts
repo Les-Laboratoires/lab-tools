@@ -8,6 +8,8 @@ export enum Emotes {
 	Plus = "865281743648194610",
 	Left = "865281743371894794",
 	Right = "865281743510044723",
+	Approved = "865281743333228604",
+	Disapproved = "865281743560638464",
 }
 
 export function emote(

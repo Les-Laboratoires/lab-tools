@@ -31,6 +31,8 @@ export interface Guild {
 	active_message_count: `${number}`
 	resolved_channel_indicator: string
 	resolved_channel_tag: string | null
+	presentation_channel_id: string | null
+	await_validation_role_id: string | null
 }
 
 export default new Table<Guild>({
@@ -68,6 +70,10 @@ export default new Table<Guild>({
 		},
 		8: (table) => {
 			table.dropColumn("active_refresh_interval")
+		},
+		9: (table) => {
+			table.string("presentation_channel_id")
+			table.string("await_validation_role_id")
 		},
 	},
 	setup: (table) => {
