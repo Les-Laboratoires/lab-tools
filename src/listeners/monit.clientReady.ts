@@ -1,7 +1,7 @@
 import { Listener } from "#core/listener"
 
 export default new Listener({
-	event: "ready",
+	event: "clientReady",
 	description: "Launches the live monitoring",
 	once: true,
 	async run() {

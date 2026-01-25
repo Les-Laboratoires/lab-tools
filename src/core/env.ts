@@ -143,7 +143,7 @@ if (process.env.BOT_MODE !== "test") {
 			const key = err.path.join(".")
 			const message =
 				err.message === "Required"
-					? `Missing required environment variable: ${util.styleText("bold", key)}`
+					? `Missing required environment variable: ${key}`
 					: err.message
 			logger.error(message, ".env")
 		})

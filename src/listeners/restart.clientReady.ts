@@ -8,7 +8,7 @@ import { filename } from "dirname-filename-esm"
 const __filename = filename(import.meta)
 
 export default new Listener({
-	event: "ready",
+	event: "clientReady",
 	description: "Send restart messages",
 	once: true,
 	async run(client) {
