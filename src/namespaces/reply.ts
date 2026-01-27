@@ -1,8 +1,8 @@
-import { ResponseCache } from "@ghom/orm"
+import { CachedQuery } from "@ghom/query"
 
 import replyTable, { type Reply } from "#tables/reply"
 
-export const replies = new ResponseCache(async (guildId: number) => {
+export const replies = new CachedQuery(async (guildId: number) => {
 	return replyTable.query.where("guild_id", guildId)
 }, 600_000)
 

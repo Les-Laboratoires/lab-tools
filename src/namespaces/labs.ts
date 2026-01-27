@@ -1,4 +1,4 @@
-import * as orm from "@ghom/orm"
+import { CachedQuery } from "@ghom/query"
 import type * as discord from "discord.js"
 
 import type * as command from "#core/command"
@@ -12,7 +12,7 @@ import { getGuild } from "#namespaces/tools"
 
 const allLabsKey = "all labs"
 
-export const allLabsCache = new orm.ResponseCache(
+export const allLabsCache = new CachedQuery(
 	async () => lab.query.select(),
 	60_000,
 )
@@ -75,7 +75,7 @@ export async function sendLabList(
 	}
 }
 
-const ignoredCache = new orm.ResponseCache(async (id: string) => {
+const ignoredCache = new CachedQuery(async (id: string) => {
 	const guild = await getGuild({ id })
 	if (!guild) return true
 	return lab.query

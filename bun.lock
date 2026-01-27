@@ -7,7 +7,8 @@
       "dependencies": {
         "@ghom/handler": "^3.1.0",
         "@ghom/logger": "^2.0.2",
-        "@ghom/orm": "^1.9.1",
+        "@ghom/orm": "^1.9.2",
+        "@ghom/query": "^1.0.0",
         "@ghom/web-scrapper": "^1.0.2",
         "@prettier/plugin-php": "^0.22.4",
         "@prettier/plugin-ruby": "^4.0.4",
@@ -217,7 +218,9 @@
 
     "@ghom/logger": ["@ghom/logger@2.0.2", "", { "dependencies": { "chalk": "=4.1.2", "dayjs": "^1.11.7" } }, "sha512-Aq00KlZdQns2R24eJgsX3jqsJJYcdWoI0vEC0W70F7rnacRVUXjvX19MJtk6TdPUk/QEzerUGgh5yoVXPC5yYA=="],
 
-    "@ghom/orm": ["@ghom/orm@1.9.1", "", { "dependencies": { "@ghom/handler": "^3.1.0", "csv-parser": "^3.0.0", "json-2-csv": "^5.5.6", "knex": "^3.0.1" }, "optionalDependencies": { "mysql2": "^3.6.2", "pg": "^8.11.3", "sqlite3": "^5.1.6" } }, "sha512-QCx4WutFe0V6k1Pgp4PyYt21IMBE1KXEiwIgaA7qPFWI6hPxftea/3Bhes83p5CF85sG4OO1hRfXJxYjGdzHkA=="],
+    "@ghom/orm": ["@ghom/orm@1.9.2", "", { "dependencies": { "@ghom/handler": "^3.1.0", "@ghom/query": "1.0.0", "csv-parser": "^3.0.0", "json-2-csv": "^5.5.6", "knex": "^3.0.1" }, "optionalDependencies": { "mysql2": "^3.6.2", "pg": "^8.11.3", "sqlite3": "^5.1.6" } }, "sha512-KP2AWtmft+5h+4cgovy5lw5MUfEt2nrH/VOCDm4yNFQknN2EBLTEUB4KMBNC6uzBdy1b6QjmvbXtlogV9EY/kQ=="],
+
+    "@ghom/query": ["@ghom/query@1.0.0", "", {}, "sha512-bREXfCIoAz+/krACRzG9O074dn0VngJDZW3KWyYrwiQrxZ27j4A0NwmjY86AxbYVJdSLEcKx0NytITB+BmOTdA=="],
 
     "@ghom/web-scrapper": ["@ghom/web-scrapper@1.0.2", "", { "dependencies": { "axios": "^1.6.2", "jsdom": "^23.0.1" } }, "sha512-9+RfqjOABzUYyJKU9WCxafkYnJqIDqgoDFYYUXkbuHe7+B4z7u+gzPgdia39d0/Hai/kzqZnVvXDZKphYzZCSA=="],
 

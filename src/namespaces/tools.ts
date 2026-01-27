@@ -1,4 +1,4 @@
-import { ResponseCache } from "@ghom/orm"
+import { CachedQuery } from "@ghom/query"
 import { code } from "discord-eval.ts"
 import discord from "discord.js"
 
@@ -41,7 +41,7 @@ export function debounce<
 	}
 }
 
-const userCache = new ResponseCache(async (id: string) => {
+const userCache = new CachedQuery(async (id: string) => {
 	return await users.query.where("id", id).first()
 }, 600_000)
 
@@ -80,7 +80,7 @@ export async function getUser(
 	return userInDb
 }
 
-const guildCache = new ResponseCache((id: string) => {
+const guildCache = new CachedQuery((id: string) => {
 	return guilds.query.where("id", id).first()
 }, 600_000)
 

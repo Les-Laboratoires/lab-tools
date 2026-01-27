@@ -4,6 +4,7 @@ import env from "#core/env"
 
 import message from "#tables/message"
 
+import { fetchAllMembers } from "#namespaces/members"
 import { getGuild, shortNumber } from "#namespaces/tools"
 
 export async function updateGuildMemberCountTracker(guild: discord.Guild) {
@@ -55,12 +56,10 @@ export async function updateGuildOnlineCountTracker(guild: discord.Guild) {
 
 		if (channel) {
 			try {
-				const members = await guild.members.fetch({
+				const members = await fetchAllMembers(guild, {
 					withPresences: true,
 					time: 60_000 * 15,
 				})
-
-				guild.members.cache.clear()
 
 				const onlineMembers = members.filter(
 					(member) => !!member.presence && member.presence.status !== "offline",

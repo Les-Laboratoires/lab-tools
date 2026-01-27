@@ -11,7 +11,7 @@ import pointTable from "#tables/point"
 import noteTable from "#tables/rating"
 import userTable from "#tables/user"
 
-import { ResponseCache } from "@ghom/orm"
+import { CachedQuery } from "@ghom/query"
 
 // import { ResponseCache } from "#core/database"
 
@@ -122,7 +122,7 @@ export function getUserHourlyCoins(user: FullUser): number {
 	)
 }
 
-const fullUserCache = new ResponseCache(
+const fullUserCache = new CachedQuery(
 	async (userId: number, guildId: number) => {
 		// 1. Récupérer les informations de base de l'utilisateur
 		const user = await userTable.query

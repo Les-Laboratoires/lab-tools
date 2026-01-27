@@ -1,5 +1,6 @@
 import regexParser from "regex-parser"
 import * as app from "#all"
+import { fetchAllMembers } from "#namespaces/members"
 
 /**
  * Type resolvers for textual commands. <br>
@@ -228,7 +229,7 @@ export const types = [
 				}
 			}
 
-			const members = await message.guild.members.fetch()
+			const members = await fetchAllMembers(message.guild)
 
 			const member = members.find((member) => {
 				return member.displayName

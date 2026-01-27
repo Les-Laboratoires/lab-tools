@@ -1,6 +1,7 @@
 import discord from "discord.js"
 import { Command, sendCommandDetails } from "#core/command"
 import { emote } from "#namespaces/emotes"
+import { fetchAllMembers } from "#namespaces/members"
 import * as middlewares from "#namespaces/middlewares"
 import * as tools from "#namespaces/tools"
 import autoRole from "#tables/autoRole"
@@ -165,10 +166,8 @@ export default new Command({
 						)
 
 						const members = Array.from(
-							(await message.guild.members.fetch()).values(),
+							(await fetchAllMembers(message.guild)).values(),
 						)
-
-						message.guild.members.cache.clear()
 
 						await waiting.edit(
 							`${emote(message, "Loading")} Applying auto-roles to members...`,

@@ -3,6 +3,7 @@ import database from "#core/database"
 import env from "#core/env"
 import { emote } from "#namespaces/emotes"
 import * as ladder from "#namespaces/ladder"
+import { fetchAllMembers } from "#namespaces/members"
 import * as tools from "#namespaces/tools"
 import active from "#tables/active"
 import type { Guild } from "#tables/guild"
@@ -50,13 +51,9 @@ export async function updateActive(
 ): Promise<number> {
 	if (env.BOT_MODE === "development") return 0
 
-	guild.members.cache.clear()
-
-	const members = (await guild.members.fetch())
+	const members = (await fetchAllMembers(guild))
 		.filter((member) => !member.user.bot)
 		.map((member) => member)
-
-	guild.members.cache.clear()
 
 	const activeMembers: discord.GuildMember[] = []
 	const inactiveMembers: discord.GuildMember[] = []

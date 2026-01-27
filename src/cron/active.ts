@@ -7,9 +7,6 @@ import { lastActiveCountCacheId } from "#namespaces/caches"
 import * as tools from "#namespaces/tools"
 
 const REFRESH_INTERVAL = 12
-const DELAY_BETWEEN_GUILDS = 35_000
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export default new Cron({
 	name: "active",
@@ -20,11 +17,8 @@ export default new Cron({
 	},
 	async run() {
 		const guilds = await client.guilds.fetch()
-		let isFirst = true
 
 		for (const [, guild] of guilds) {
-			if (!isFirst) await sleep(DELAY_BETWEEN_GUILDS)
-			isFirst = false
 			const config = await tools.getGuild(guild)
 
 			if (!config?.active_role_id) continue

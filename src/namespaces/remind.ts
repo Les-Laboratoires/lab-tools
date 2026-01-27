@@ -1,4 +1,4 @@
-import { ResponseCache } from "@ghom/orm"
+import { CachedQuery } from "@ghom/query"
 
 import client from "#core/client"
 
@@ -10,7 +10,7 @@ const allRemindId = "all reminders"
 /**
  * Cache for all reminds refreshed every 6 hours
  */
-export const allRemindCache = new ResponseCache(
+export const allRemindCache = new CachedQuery(
 	() => {
 		return remindTable.query.select()
 	},

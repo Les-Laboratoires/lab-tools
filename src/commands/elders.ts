@@ -3,6 +3,7 @@ import { StaticPaginator } from "#core/pagination"
 import { dayjs, divider, getSystemMessage } from "#core/util"
 
 import { emote } from "#namespaces/emotes"
+import { fetchAllMembers } from "#namespaces/members"
 import { hasConfigKey, isNotInUse, staffOnly } from "#namespaces/middlewares"
 import { getGuild, sendProgress } from "#namespaces/tools"
 
@@ -48,13 +49,9 @@ export default new Command({
 
 		await waiting.edit(`${emote(message, "Loading")} Fetching members...`)
 
-		message.guild.members.cache.clear()
-
-		const members = (await message.guild.members.fetch())
+		const members = (await fetchAllMembers(message.guild))
 			.filter((member) => !member.user.bot)
 			.map((member) => member)
-
-		message.guild.members.cache.clear()
 
 		const logs: { username: string; years: number }[] = []
 
@@ -95,8 +92,6 @@ export default new Command({
 				)
 			}
 		}
-
-		message.guild.members.cache.clear()
 
 		if (logs.length === 0) {
 			used = false

@@ -33,7 +33,8 @@
 	"dependencies": {
 		"@ghom/handler": "^3.1.0",
 		"@ghom/logger": "^2.0.2",
-		"@ghom/orm": "^1.9.1",
+		"@ghom/orm": "^1.9.2",
+		"@ghom/query": "^1.0.0",
 		"@ghom/web-scrapper": "^1.0.2",
 		"@prettier/plugin-php": "^0.22.4",
 		"@prettier/plugin-ruby": "^4.0.4",
