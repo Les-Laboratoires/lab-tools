@@ -7,7 +7,7 @@ export function addCreatedAt(table: Knex.CreateTableBuilder) {
 		.datetime("created_at", {
 			useTz: true,
 		})
-		.defaultTo(orm.client.fn.now())
+		.defaultTo(orm.client!.fn.now())
 }
 
 export function formatDuration(from: string) {

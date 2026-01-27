@@ -8,6 +8,8 @@ import { formatDuration } from "#namespaces/date"
 import { emote } from "#namespaces/emotes"
 import restart from "#tables/restart"
 
+const backupsConfig = database.config ? database.config.backups : undefined
+
 export default new Command({
 	name: "backup",
 	description: "Manage database backups",
@@ -32,10 +34,14 @@ export default new Command({
 				},
 			],
 			async run(message) {
-				try {
-					const backups = await fs.promises.readdir(
-						database.config.backups!.location!,
+				if (!backupsConfig || !backupsConfig.location) {
+					return message.reply(
+						`${emote(message, "Cross")} Backups location is not configured.`,
 					)
+				}
+
+				try {
+					const backups = await fs.promises.readdir(backupsConfig.location)
 
 					if (backups.includes(message.args.name)) {
 						return message.reply(
@@ -97,10 +103,14 @@ export default new Command({
 			channelType: "all",
 			botOwnerOnly: true,
 			async run(message) {
-				try {
-					const backups = await fs.promises.readdir(
-						database.config.backups!.location!,
+				if (!backupsConfig || !backupsConfig.location) {
+					return message.reply(
+						`${emote(message, "Cross")} Backups location is not configured.`,
 					)
+				}
+
+				try {
+					const backups = await fs.promises.readdir(backupsConfig.location)
 
 					if (backups.length === 0) {
 						return message.reply(`${emote(message, "Cross")} No backups found.`)
@@ -114,7 +124,7 @@ export default new Command({
 							const name = backups[pageIndex]
 
 							const chunks = await fs.promises.readdir(
-								path.join(database.config.backups!.location!, name),
+								path.join(backupsConfig.location!, name),
 							)
 
 							return {
