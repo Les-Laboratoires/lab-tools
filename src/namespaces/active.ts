@@ -51,6 +51,17 @@ export async function updateActive(
 ): Promise<number> {
 	if (env.BOT_MODE === "development") return 0
 
+	// Vérifier que le rôle actif existe toujours dans le serveur
+	const activeRole = await guild.roles
+		.fetch(options.guildConfig.active_role_id!)
+		.catch(() => null)
+
+	if (!activeRole) {
+		throw new Error(
+			`The configured active role (ID: ${options.guildConfig.active_role_id}) no longer exists in the guild "${guild.name}".\nPlease reconfigure the active role using the appropriate command.`,
+		)
+	}
+
 	const members = (await fetchAllMembers(guild))
 		.filter((member) => !member.user.bot)
 		.map((member) => member)
