@@ -9,6 +9,7 @@ export const config = new Config({
 	envSchema: z.object({
 		OPENAI_API_KEY: z.string(),
 		MONITORING_CHANNEL: z.string(),
+		YOUTUBE_API_KEY: z.string(),
 	}),
 	async getPrefix(message) {
 		return import("#namespaces/tools").then((app) => app.prefix(message.guild))
