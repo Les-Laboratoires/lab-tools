@@ -1,5 +1,6 @@
 import { SlashCommand } from "#core/slash"
 import { generateDocURLList } from "#namespaces/openai"
+import { safeDeferReply } from "#namespaces/tools"
 
 export default new SlashCommand({
 	name: "docs",
@@ -15,7 +16,7 @@ export default new SlashCommand({
 				.setRequired(true),
 		),
 	async run(interaction) {
-		await interaction.deferReply()
+		await safeDeferReply(interaction)
 
 		const tags = interaction.options.getString("tags") as string
 		const links = await generateDocURLList(tags)

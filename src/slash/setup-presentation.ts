@@ -3,7 +3,7 @@ import discord from "discord.js"
 import { SlashCommand } from "#core/slash"
 import { getSystemMessage } from "#core/util"
 
-import { getGuild, sendProgress } from "#namespaces/tools"
+import { getGuild, safeDeferReply, sendProgress } from "#namespaces/tools"
 
 export default new SlashCommand({
 	name: "setup-presentation",
@@ -69,7 +69,7 @@ export default new SlashCommand({
 			categories.push(category)
 		}
 
-		await interaction.deferReply({ flags: discord.MessageFlags.Ephemeral })
+		await safeDeferReply(interaction, { flags: discord.MessageFlags.Ephemeral })
 
 		const presentationChannel = interaction.guild.channels.cache.get(
 			config.presentation_channel_id,

@@ -2,6 +2,7 @@ import { StaticPaginator } from "#core/pagination"
 import * as slash from "#core/slash"
 import { SlashCommand } from "#core/slash"
 import * as util from "#core/util"
+import { safeDeferReply } from "#namespaces/tools"
 
 export default new SlashCommand({
 	name: "help",
@@ -28,7 +29,7 @@ export default new SlashCommand({
 
 		if (command) return slash.sendSlashCommandDetails(interaction, command)
 
-		await interaction.deferReply()
+		await safeDeferReply(interaction)
 
 		new StaticPaginator({
 			pages: await util.divider(

@@ -7,7 +7,7 @@ import {
 	disapproveMember,
 	isPresentationSystemActive,
 } from "#namespaces/presentation"
-import { getGuild, sendLog } from "#namespaces/tools"
+import { getGuild, safeDeferReply, sendLog } from "#namespaces/tools"
 
 export default new SlashCommand({
 	name: "disapprove",
@@ -68,7 +68,7 @@ export default new SlashCommand({
 			})
 		}
 
-		await interaction.deferReply({ flags: discord.MessageFlags.Ephemeral })
+		await safeDeferReply(interaction, { flags: discord.MessageFlags.Ephemeral })
 
 		// Try to find the presentation message in the presentation channel
 		let presentation: discord.Message | undefined

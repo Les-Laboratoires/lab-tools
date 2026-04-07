@@ -7,7 +7,7 @@ import {
 	approveMember,
 	isPresentationSystemActive,
 } from "#namespaces/presentation"
-import { getGuild } from "#namespaces/tools"
+import { getGuild, safeDeferReply } from "#namespaces/tools"
 
 export default new SlashCommand({
 	name: "approve",
@@ -59,7 +59,7 @@ export default new SlashCommand({
 			})
 		}
 
-		await interaction.deferReply({ flags: discord.MessageFlags.Ephemeral })
+		await safeDeferReply(interaction, { flags: discord.MessageFlags.Ephemeral })
 
 		await approveMember(member, undefined, config)
 

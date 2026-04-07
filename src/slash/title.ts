@@ -1,6 +1,6 @@
 import { SlashCommand } from "#core/slash"
 import { generateThreadTitle } from "#namespaces/openai"
-import { sendLog } from "#namespaces/tools"
+import { safeDeferReply, sendLog } from "#namespaces/tools"
 
 export default new SlashCommand({
 	name: "title",
@@ -26,6 +26,6 @@ export default new SlashCommand({
 
 		// Close the interaction
 
-		await interaction.deferReply()
+		await safeDeferReply(interaction)
 	},
 })

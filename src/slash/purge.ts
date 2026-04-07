@@ -1,6 +1,7 @@
 import discord from "discord.js"
 import { SlashCommand } from "#core/slash"
 import { getSystemMessage } from "#core/util"
+import { safeDeferReply } from "#namespaces/tools"
 
 export default new SlashCommand({
 	name: "purge",
@@ -28,7 +29,7 @@ export default new SlashCommand({
 			})
 		}
 
-		await interaction.deferReply({ flags: discord.MessageFlags.Ephemeral })
+		await safeDeferReply(interaction, { flags: discord.MessageFlags.Ephemeral })
 
 		await interaction.channel.bulkDelete(amount, true)
 

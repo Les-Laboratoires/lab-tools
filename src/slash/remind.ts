@@ -3,7 +3,7 @@ import type { ManipulateType } from "dayjs"
 import { SlashCommand } from "#core/slash"
 import { dayjs, getSystemMessage } from "#core/util"
 import { addRemind } from "#namespaces/remind"
-import { getUser } from "#namespaces/tools"
+import { getUser, safeDeferReply } from "#namespaces/tools"
 
 export default new SlashCommand({
 	name: "remind",
@@ -59,7 +59,7 @@ export default new SlashCommand({
 					.setRequired(true),
 			),
 	async run(interaction) {
-		await interaction.deferReply()
+		await safeDeferReply(interaction)
 
 		const user = await getUser(interaction.user, { forceExists: true })
 

@@ -260,3 +260,15 @@ export function removeItem<T>(array: T[], itemToRemove: T) {
 	const index = array.indexOf(itemToRemove)
 	if (index !== -1) array.splice(index, 1)
 }
+
+export async function safeDeferReply(
+	interaction: discord.CommandInteraction,
+	options?: Parameters<discord.CommandInteraction["deferReply"]>[0],
+) {
+	try {
+		await interaction.deferReply(options)
+	} catch (error) {
+		if (error instanceof discord.DiscordAPIError && error.code === 40060) return
+		throw error
+	}
+}
